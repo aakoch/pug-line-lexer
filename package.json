@@ -1,0 +1,13 @@
+{
+  "name": "parser-generation",
+  "version": "0.1.0",
+  "description": "Jison generated code",
+  "main": "index.js",
+  "author": "Adam Koch",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "jison": "^0.4.18",
+    "jison-gho": "^0.6.1-216"
+  }
+}
