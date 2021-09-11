@@ -12,6 +12,7 @@
   "dependencies": {
     "@gerhobbelt/ast-util": "^0.6.1-4",
     "@gerhobbelt/recast": "^0.15.1-32",
+    "hasha": "^5.2.2",
     "jison": "^0.4.18",
     "jison-gho": "github:GerHobbelt/jison"
   },
