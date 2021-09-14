@@ -1,4 +1,6 @@
-/* simple parser */
+/* 
+ * This parses out lines. That's it. This was merged with line.jison to create line_combo.jison.
+ */
 
 /* lexical grammar */
 %lex

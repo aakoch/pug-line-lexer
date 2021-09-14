@@ -1,4 +1,7 @@
-/* simple parser */
+/* 
+ * This parses 2 things: lines and indentations. This was merged from line.jison and just_lines.jison.
+ * Lines are split into and then indentations and everything else. 
+ */
 
 /* lexical grammar */
 %lex

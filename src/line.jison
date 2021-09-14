@@ -1,4 +1,6 @@
-/* simple parser */
+/* 
+ * This parses ONLY lines. Any newline is rejected. It looks for indentations and everything else. This was merged with just_lines.jison to create line_combo.jison.
+ */
 
 /* lexical grammar */
 %lex
