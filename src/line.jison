@@ -11,7 +11,7 @@ space			[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 %%
 
 [\n]          return 'NEWLINE';
-({space}{space}|\t)   return 'INDENT';
+^({space}{space}|\t)   return 'INDENT';
 {dot}      return 'ANYTHING';
 <<EOF>>      return 'ENDOFFILE';
 
@@ -221,5 +221,36 @@ assert.throws(() => {
 {
   name: 'JisonParserError'
 });
+
+test('  word  ', [
+  {
+    loc: {
+      end: {
+        column: 3,
+        line: 1
+      },
+      start: {
+        column: 1,
+        line: 1
+      }
+    },
+    type: 'INDENT',
+    value: 2
+  },
+  {
+    loc: {
+      end: {
+        column: 9,
+        line: 1
+      },
+      start: {
+        column: 3,
+        line: 1
+      }
+    },
+    type: 'NOT_INDENT',
+    value: 'word  '
+  }
+]);
 
 }
