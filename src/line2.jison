@@ -12,34 +12,89 @@ space			[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 
 [|]             return 'PIPE';
 [\n]          ;
-^({space}{space}|\t)   return 'INDENT';
 (keyword|menu)   return 'KEYWORD';
-{dot}      return 'ANYTHING';
 <<EOF>>      return 'ENDOFFILE';
+<INITIAL>\s*<<EOF>>		%{
+					// remaining DEDENTs implied by EOF, regardless of tabs/spaces
+					var tokens = [];
+				
+        // log('$$', $$)
+        debug('1 stack before', stack)
+					while (1 < stack[0]) {
+						this.popState();
+						tokens.unshift("DEDENT");
+						stack.shift();
+					}
+        debug('1 stack after', stack)
+        debug('1 tokens', tokens)
+				    
+          tokens.unshift('INDENT')
+
+					if (tokens.length) return tokens;
+				%}
+[\n\r]+{space}*/![^\n\r]		/* eat blank lines */
+// ^({space}{space}|\t)  %{
+<INITIAL>^({space}{space}|\t)+		%{
+        debug('\n>>>>>>\n2 yyleng', yyleng)
+        // log('yy.lexer.conditionStack', yy.lexer.conditionStack); 
+        debug('2 yytext', yytext)
+        debug('2 yytext.search(/\\s/)', yytext.search(/\s/))
+					var indentation = yyleng; //yyleng - yytext.search(/\s/) ;
+        debug('2 indentation', indentation)
+
+
+        debug('2 stack before', stack)
+
+					if (indentation > stack[0]) {
+            debug('2 unshift')
+						stack.unshift(indentation);
+						return 'INDENT';
+					}
+				
+					var tokens = [];
+				
+					while (indentation < stack[0]) {
+						this.popState();
+						tokens.unshift("DEDENT");
+						stack.shift();
+					
+					}
+        debug('2 stack after', stack)
+        debug('2 tokens', tokens)
+					// if (tokens.length) return tokens;
+
+					if (tokens.length) return tokens;
+          //  return 'INDENT'
+
+				%}
+{dot}      return 'ANYTHING';
 
 /lex
+
+// %options token-stack
 
 %% 
 
 /* language grammar */
 
 start
-  : ENDOFFILE
-  { $$ = [] }
-  | lines ENDOFFILE
+  // : ENDOFFILE
+  // { $$ = [] }
+  : lines ENDOFFILE
   { $$ = $lines }
   ;
 
 lines
-
-
   // TODO: figure out the differences between these 2
   // : line line
   // { $$ = [$line1, $line2] }
   : lines line
   { $lines.push($line); $$ = $lines }
+  // | line lines
+  // { $lines.push($line); $$ = $lines }
 
-
+	// | INDENT lines DEDENT
+	// { $$ = $stmt_list; }
 
   | line
   { $$ = [$line] }
@@ -48,23 +103,36 @@ lines
 line
   : INDENT
   { $$ = {type:'INDENT', val: $INDENT.length, loc: toLoc(yyloc)} }
+	
+
   | PIPE
   { 
-  // console.log('token', yy.token);
-  // console.log('describeSymbol', yy.parser.describeSymbol());
+  // log('token', yy.token);
+  // log('describeSymbol', yy.parser.describeSymbol());
   $$ = {type:'PIPE', loc: toLoc(yyloc)} }
   | KEYWORD
   { 
-  // console.log('token', yy.token);
-  // console.log('describeSymbol', yy.parser.describeSymbol());
+  // log('token', yy.token);
+  // log('describeSymbol', yy.parser.describeSymbol());
   $$ = {type:'KEYWORD', val: $KEYWORD, loc: toLoc(yyloc)} }
   | ANYTHING
   {
-    console.log('ANYTHING', $ANYTHING); 
-    // console.log('getSymbolName', yy.parser.getSymbolName());
-    // console.log('quoteName', yy.parser.quoteName());
+    // log('yystack', yystack); 
+    // log('yystack[0]', yystack[0]); 
+    // log('yy.parser.terminals_',yy.parser.terminals_); 
+    // log('yy.parser.terminals_[yystack[0]]', yy.parser.terminals_[yystack[0]]); 
+    // log('yyrulelength', yyrulelength);
+    // log('$1', $1);
+    // log('@1', @1);
+    // log('#1', #1);
+ 
+    // log('quoteName', yy.parser.quoteName());
     $$ = {type:'NOT_INDENT', val: $ANYTHING, loc: toLoc(yyloc)}
   }
+  | DEDENT
+  { $$ = {type:'DEDENT', loc: toLoc(yyloc)} }
+  // | ENDOFFILE
+  // { $$ = ' '; }
   ;
 
 %% 
@@ -95,229 +163,268 @@ function toLoc(yyloc) {
      }
 }
 
+/** 
+ * Runtime variables. Don't comment them out. Again.
+ */
+var stack = [0];
+const jsonIndentLevel = process.env.DEBUG ? 2 : 0;
 
-var assert = require("assert");
-const util = require('util');
-
-parser.main = function () {
-
-  function test(input, expected) {
-    console.log('\n\nTesting...' + input)
-    var actual = parser.parse(input)
-    console.log(' ==> ', JSON.stringify(actual))
-    assert.deepEqual(actual, expected)
-  }
-
-  test('extends ../../../../templates/blogpost', [
-  {
-    loc: {
-      end: {
-        column: 39,
-        line: 1
-      },
-      start: {
-        column: 1,
-        line: 1
-      }
-    },
-    type: 'NOT_INDENT',
-    val: 'extends ../../../../templates/blogpost'
-  }
-]);
-
-  test('append variables', [
-  {
-    loc: {
-      end: {
-        column: 17,
-        line: 1
-      },
-      start: {
-        column: 1,
-        line: 1
-      }
-    },
-    type: 'NOT_INDENT',
-    val: 'append variables'
-  }
-]);
-
-
-  test('  - var title = "Moving off Wordpress and on to Netlify"', [
-  {
-    loc: {
-      end: {
-        column: 3,
-        line: 1
-      },
-      start: {
-        column: 1,
-        line: 1
-      }
-    },
-    type: 'INDENT',
-    val: 2
-  },
-  {
-    loc: {
-      end: {
-        column: 57,
-        line: 1
-      },
-      start: {
-        column: 3,
-        line: 1
-      }
-    },
-    type: 'NOT_INDENT',
-    val: '- var title = "Moving off Wordpress and on to Netlify"'
-  }
-]);
-
-
-  test("  script(src='https://code.jquery.com/jquery-3.6.0.min.js' integrity='sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=' crossorigin='anonymous')", [
-  {
-    loc: {
-      end: {
-        column: 3,
-        line: 1
-      },
-      start: {
-        column: 1,
-        line: 1
-      }
-    },
-    type: 'INDENT',
-    val: 2
-  },
-  {
-    loc: {
-      end: {
-        column: 148,
-        line: 1
-      },
-      start: {
-        column: 3,
-        line: 1
-      }
-    },
-    type: 'NOT_INDENT',
-    val: "script(src='https://code.jquery.com/jquery-3.6.0.min.js' integrity='sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=' crossorigin='anonymous')"
-  }
-]);
-
-test("\t", [
-  {
-    loc: {
-      end: {
-        column: 2,
-        line: 1
-      },
-      start: {
-        column: 1,
-        line: 1
-      }
-    },
-    type: 'INDENT',
-    val: 1
-  }
-]);
-
-test('	', [
-  {
-    loc: {
-      end: {
-        column: 2,
-        line: 1
-      },
-      start: {
-        column: 1,
-        line: 1
-      }
-    },
-    type: 'INDENT',
-    val: 1
-  }
-]);
-
-
-test('|', [
-  {
-    loc: {
-      end: {
-        column: 2,
-        line: 1
-      },
-      start: {
-        column: 1,
-        line: 1
-      }
-    },
-    type: 'PIPE'
-  }
-]);
-
-test(` tag some text`, [
-  {
-    loc: {
-      end: {
-        column: 15,
-        line: 1
-      },
-      start: {
-        column: 1,
-        line: 1
-      }
-    },
-    type: 'NOT_INDENT',
-    val: ' tag some text'
-  }
-]);
-
-test(` tag some text
-`, [
-  {
-    loc: {
-      end: {
-        column: 15,
-        line: 1
-      },
-      start: {
-        column: 1,
-        line: 1
-      }
-    },
-    type: 'NOT_INDENT',
-    val: ' tag some text'
-  }
-]);
-
-test(`tag some text
-  continuation of text`, [{"type":"NOT_INDENT","val":"tag some text","loc":{"end":{"column":14,"line":1},"start":{"column":1,"line":1}}},{"type":"INDENT","val":2,"loc":{"end":{"column":3,"line":2},"start":{"column":1,"line":2}}},{"type":"NOT_INDENT","val":"continuation of text","loc":{"end":{"column":23,"line":2},"start":{"column":3,"line":2}}}]);
-
-test(`tag some text
-| continuation of text`, [
-    {
-      type: 'NOT_INDENT',
-      val: 'tag some text',
-      loc: { end: { column: 14, line: 1 }, start: { column: 1, line: 1 } }
-    },
-    {
-      type: 'PIPE',
-      loc: { end: { column: 2, line: 2 }, start: { column: 1, line: 2 } }
-    },
-    {
-      type: 'NOT_INDENT',
-      val: ' continuation of text',
-      loc: { end: { column: 23, line: 2 }, start: { column: 2, line: 2 } }
-    }
-  ]);
-
-test(`tag some text
-  | continuation of text`,[{"type":"NOT_INDENT","val":"tag some text","loc":{"end":{"column":14,"line":1},"start":{"column":1,"line":1}}},{"type":"INDENT","val":2,"loc":{"end":{"column":3,"line":2},"start":{"column":1,"line":2}}},{"type":"PIPE","loc":{"end":{"column":4,"line":2},"start":{"column":3,"line":2}}},{"type":"NOT_INDENT","val":" continuation of text","loc":{"end":{"column":25,"line":2},"start":{"column":4,"line":2}}}]);
-
-test(`keyword some text
-  | continuation of text`, [{"type":"KEYWORD","val":"keyword","loc":{"end":{"column":8,"line":1},"start":{"column":1,"line":1}}},{"type":"NOT_INDENT","val":" some text","loc":{"end":{"column":18,"line":1},"start":{"column":8,"line":1}}},{"type":"INDENT","val":2,"loc":{"end":{"column":3,"line":2},"start":{"column":1,"line":2}}},{"type":"PIPE","loc":{"end":{"column":4,"line":2},"start":{"column":3,"line":2}}},{"type":"NOT_INDENT","val":" continuation of text","loc":{"end":{"column":25,"line":2},"start":{"column":4,"line":2}}}]);
-
-
+  // console.log(process.env)
+function log(...objs) {
+  // if (process.env.DEBUG) {
+    console.log(...objs)
+  // }
 }
+function debug(...objs) {
+  if (process.env.DEBUG) {
+    console.debug(...objs)
+  }
+}
+
+
+/* * Test vars below * */
+
+// // var assert = require("assert");
+// // const util = require('util');
+
+// import assert from 'assert'
+// import util from 'util'
+
+// parser.main = function () {
+
+//   function test(input, expected) {
+//     stack = [0];
+//     log('\n\nTesting...^' + input)
+//     var actual = parser.parse(input)
+//     log(' ==> ', JSON.stringify(actual, null, jsonIndentLevel))
+//     assert.deepEqual(actual, expected)
+//   }
+
+//   test('extends ../../../../templates/blogpost', [
+//   {
+//     loc: {
+//       end: {
+//         column: 39,
+//         line: 1
+//       },
+//       start: {
+//         column: 1,
+//         line: 1
+//       }
+//     },
+//     type: 'NOT_INDENT',
+//     val: 'extends ../../../../templates/blogpost'
+//   }
+// ]);
+
+//   test('append variables', [
+//   {
+//     loc: {
+//       end: {
+//         column: 17,
+//         line: 1
+//       },
+//       start: {
+//         column: 1,
+//         line: 1
+//       }
+//     },
+//     type: 'NOT_INDENT',
+//     val: 'append variables'
+//   }
+// ]);
+
+
+//   test('  - var title = "Moving off Wordpress and on to Netlify"', [
+//   {
+//     loc: {
+//       end: {
+//         column: 3,
+//         line: 1
+//       },
+//       start: {
+//         column: 1,
+//         line: 1
+//       }
+//     },
+//     type: 'INDENT',
+//     val: 2
+//   },
+//   {
+//     loc: {
+//       end: {
+//         column: 57,
+//         line: 1
+//       },
+//       start: {
+//         column: 3,
+//         line: 1
+//       }
+//     },
+//     type: 'NOT_INDENT',
+//     val: '- var title = "Moving off Wordpress and on to Netlify"'
+//   }
+// ]);
+
+
+//   test("  script(src='https://code.jquery.com/jquery-3.6.0.min.js' integrity='sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=' crossorigin='anonymous')", [
+//   {
+//     loc: {
+//       end: {
+//         column: 3,
+//         line: 1
+//       },
+//       start: {
+//         column: 1,
+//         line: 1
+//       }
+//     },
+//     type: 'INDENT',
+//     val: 2
+//   },
+//   {
+//     loc: {
+//       end: {
+//         column: 148,
+//         line: 1
+//       },
+//       start: {
+//         column: 3,
+//         line: 1
+//       }
+//     },
+//     type: 'NOT_INDENT',
+//     val: "script(src='https://code.jquery.com/jquery-3.6.0.min.js' integrity='sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=' crossorigin='anonymous')"
+//   }
+// ]);
+
+// test("\t", [
+//   {
+//     loc: {
+//       end: {
+//         column: 2,
+//         line: 1
+//       },
+//       start: {
+//         column: 1,
+//         line: 1
+//       }
+//     },
+//     type: 'INDENT',
+//     val: 1
+//   }
+// ]);
+
+// test('	', [
+//   {
+//     loc: {
+//       end: {
+//         column: 2,
+//         line: 1
+//       },
+//       start: {
+//         column: 1,
+//         line: 1
+//       }
+//     },
+//     type: 'INDENT',
+//     val: 1
+//   }
+// ]);
+
+
+// test('|', [
+//   {
+//     loc: {
+//       end: {
+//         column: 2,
+//         line: 1
+//       },
+//       start: {
+//         column: 1,
+//         line: 1
+//       }
+//     },
+//     type: 'PIPE'
+//   }
+// ]);
+
+// test(` tag some text`, [
+//   {
+//     loc: {
+//       end: {
+//         column: 15,
+//         line: 1
+//       },
+//       start: {
+//         column: 1,
+//         line: 1
+//       }
+//     },
+//     type: 'NOT_INDENT',
+//     val: ' tag some text'
+//   }
+// ]);
+
+// test(` tag some text
+// `, [
+//   {
+//     loc: {
+//       end: {
+//         column: 15,
+//         line: 1
+//       },
+//       start: {
+//         column: 1,
+//         line: 1
+//       }
+//     },
+//     type: 'NOT_INDENT',
+//     val: ' tag some text'
+//   }
+// ]);
+
+// test(`tag some text
+//   continuation of text`, [{"type":"NOT_INDENT","val":"tag some text","loc":{"end":{"column":14,"line":1},"start":{"column":1,"line":1}}},{"type":"INDENT","val":2,"loc":{"end":{"column":3,"line":2},"start":{"column":1,"line":2}}},{"type":"NOT_INDENT","val":"continuation of text","loc":{"end":{"column":23,"line":2},"start":{"column":3,"line":2}}}]);
+
+// test(`tag some text
+// | continuation of text`, [
+//     {
+//       type: 'NOT_INDENT',
+//       val: 'tag some text',
+//       loc: { end: { column: 14, line: 1 }, start: { column: 1, line: 1 } }
+//     },
+//     {
+//       type: 'PIPE',
+//       loc: { end: { column: 2, line: 2 }, start: { column: 1, line: 2 } }
+//     },
+//     {
+//       type: 'NOT_INDENT',
+//       val: ' continuation of text',
+//       loc: { end: { column: 23, line: 2 }, start: { column: 2, line: 2 } }
+//     }
+//   ]);
+
+// test(`tag some text
+//   | continuation of text`,[{"type":"NOT_INDENT","val":"tag some text","loc":{"end":{"column":14,"line":1},"start":{"column":1,"line":1}}},{"type":"INDENT","val":2,"loc":{"end":{"column":3,"line":2},"start":{"column":1,"line":2}}},{"type":"PIPE","loc":{"end":{"column":4,"line":2},"start":{"column":3,"line":2}}},{"type":"NOT_INDENT","val":" continuation of text","loc":{"end":{"column":25,"line":2},"start":{"column":4,"line":2}}}]);
+
+// test(`keyword some text
+//   | continuation of text`, [{"type":"KEYWORD","val":"keyword","loc":{"end":{"column":8,"line":1},"start":{"column":1,"line":1}}},{"type":"NOT_INDENT","val":" some text","loc":{"end":{"column":18,"line":1},"start":{"column":8,"line":1}}},{"type":"INDENT","val":2,"loc":{"end":{"column":3,"line":2},"start":{"column":1,"line":2}}},{"type":"PIPE","loc":{"end":{"column":4,"line":2},"start":{"column":3,"line":2}}},{"type":"NOT_INDENT","val":" continuation of text","loc":{"end":{"column":25,"line":2},"start":{"column":4,"line":2}}}]);
+
+// test(`
+// html
+//   head
+//   body
+//     div
+// `, [{"type":"NOT_INDENT","val":"html","loc":{"start":{"line":2,"column":1},"end":{"line":2,"column":5}}},{"type":"INDENT","val":2,"loc":{"start":{"line":3,"column":1},"end":{"line":3,"column":3}}},{"type":"NOT_INDENT","val":"head","loc":{"start":{"line":3,"column":3},"end":{"line":3,"column":7}}},{"type":"NOT_INDENT","val":"body","loc":{"start":{"line":4,"column":3},"end":{"line":4,"column":7}}},{"type":"INDENT","val":4,"loc":{"start":{"line":5,"column":1},"end":{"line":5,"column":5}}},{"type":"NOT_INDENT","val":"div","loc":{"start":{"line":5,"column":5},"end":{"line":5,"column":8}}}])
+
+
+
+// test(`
+// body
+//   div
+//     div2
+//   div3
+// `, [{"type":"NOT_INDENT","val":"body","loc":{"start":{"line":2,"column":1},"end":{"line":2,"column":5}}},{"type":"INDENT","val":2,"loc":{"start":{"line":3,"column":1},"end":{"line":3,"column":3}}},{"type":"NOT_INDENT","val":"div","loc":{"start":{"line":3,"column":3},"end":{"line":3,"column":6}}},{"type":"INDENT","val":4,"loc":{"start":{"line":4,"column":1},"end":{"line":4,"column":5}}},{"type":"NOT_INDENT","val":"div2","loc":{"start":{"line":4,"column":5},"end":{"line":4,"column":9}}},{"type":"DEDENT","loc":{"start":{"line":5,"column":1},"end":{"line":5,"column":3}}},{"type":"NOT_INDENT","val":"div3","loc":{"start":{"line":5,"column":3},"end":{"line":5,"column":7}}}])
+
+// }
