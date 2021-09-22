@@ -1,0 +1,98 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snapshot should match 1`] = `
+Array [
+  Object {
+    "loc": Object {
+      "end": Object {
+        "column": 5,
+        "line": 1,
+      },
+      "filename": "<basedir>/packages/pug-lexer/test/cases/basic.pug",
+      "start": Object {
+        "column": 1,
+        "line": 1,
+      },
+    },
+    "type": "tag",
+    "val": "html",
+  },
+  Object {
+    "loc": Object {
+      "end": Object {
+        "column": 3,
+        "line": 2,
+      },
+      "filename": "<basedir>/packages/pug-lexer/test/cases/basic.pug",
+      "start": Object {
+        "column": 1,
+        "line": 2,
+      },
+    },
+    "type": "indent",
+    "val": 2,
+  },
+  Object {
+    "loc": Object {
+      "end": Object {
+        "column": 7,
+        "line": 2,
+      },
+      "filename": "<basedir>/packages/pug-lexer/test/cases/basic.pug",
+      "start": Object {
+        "column": 3,
+        "line": 2,
+      },
+    },
+    "type": "tag",
+    "val": "body",
+  },
+  Object {
+    "loc": Object {
+      "end": Object {
+        "column": 5,
+        "line": 3,
+      },
+      "filename": "<basedir>/packages/pug-lexer/test/cases/basic.pug",
+      "start": Object {
+        "column": 1,
+        "line": 3,
+      },
+    },
+    "type": "indent",
+    "val": 4,
+  },
+  Array [
+    Object {
+      "loc": Object {
+        "end": Object {
+          "column": 13,
+          "line": 3,
+        },
+        "filename": "<basedir>/packages/pug-lexer/test/cases/basic.pug",
+        "start": Object {
+          "column": 7,
+          "line": 3,
+        },
+      },
+      "type": "tag",
+      "val": "h1",
+    },
+    Object {
+      "loc": Object {
+        "end": Object {
+          "column": 13,
+          "line": 3,
+        },
+        "filename": "<basedir>/packages/pug-lexer/test/cases/basic.pug",
+        "start": Object {
+          "column": 7,
+          "line": 3,
+        },
+      },
+      "type": "text",
+      "val": " Title",
+    },
+  ],
+]
+`;

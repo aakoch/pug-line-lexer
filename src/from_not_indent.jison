@@ -10,9 +10,9 @@ space			[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 
 %%
 
-[|]             return 'PIPE';
+'|'             return 'PIPE';
 [\n]          ;
-(keyword|menu)   return 'KEYWORD';
+(html|head|body|menu)   return 'KEYWORD';
 <<EOF>>      return 'ENDOFFILE';
 <INITIAL>\s*<<EOF>>		%{
 					// remaining DEDENTs implied by EOF, regardless of tabs/spaces
@@ -20,52 +20,56 @@ space			[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 				
         // log('$$', $$)
         debug('1 stack before', stack)
-					while (1 < stack[0]) {
-						this.popState();
-						tokens.unshift("DEDENT");
-						stack.shift();
-					}
+        while (0 < stack[0]) {
+          this.popState();
+          tokens.unshift("DEDENT");
+          stack.shift();
+        }
         debug('1 stack after', stack)
         debug('1 tokens', tokens)
 				    
-          tokens.unshift('INDENT')
+        // tokens.unshift('INDENT')
 
-					if (tokens.length) return tokens;
+        // return "DEDENT"
+        if (tokens.length) return tokens;
 				%}
 [\n\r]+{space}*/![^\n\r]		/* eat blank lines */
 // ^({space}{space}|\t)  %{
-<INITIAL>^({space}{space}|\t)+		%{
-        debug('\n>>>>>>\n2 yyleng', yyleng)
-        // log('yy.lexer.conditionStack', yy.lexer.conditionStack); 
-        debug('2 yytext', yytext)
-        debug('2 yytext.search(/\\s/)', yytext.search(/\s/))
-					var indentation = yyleng; //yyleng - yytext.search(/\s/) ;
-        debug('2 indentation', indentation)
+<INITIAL>^({space}{space}|\t)		%{
+            debug('\n>>>>>>\n2 yyleng', yyleng)
+            // console.log('yystate', yy.parser.terminals_[yy.parser.yystate]);
+            // log('yy.lexer.conditionStack', yy.lexer.conditionStack); 
+            // debug('2 yytext', yytext)
+            // debug('2 yytext.search(/\\s/)', yytext.search(/\s/))
+            var indentation = yyleng; //yyleng - yytext.search(/\s/) ;
+            debug('2 indentation', indentation)
 
 
-        debug('2 stack before', stack)
+            // debug('2 stack before', stack)
 
-					if (indentation > stack[0]) {
-            debug('2 unshift')
-						stack.unshift(indentation);
-						return 'INDENT';
-					}
-				
-					var tokens = [];
-				
-					while (indentation < stack[0]) {
-						this.popState();
-						tokens.unshift("DEDENT");
-						stack.shift();
-					
-					}
-        debug('2 stack after', stack)
-        debug('2 tokens', tokens)
-					// if (tokens.length) return tokens;
+            if (indentation > stack[0]) {
+              debug('2 adding INDENT')
+              stack.unshift(indentation);
+              return 'INDENT';
+            }
 
-					if (tokens.length) return tokens;
-          //  return 'INDENT'
+            debug('2 not adding INDENT.. DEDENT?')
 
+            var tokens = [];
+
+            while (indentation < stack[0]) {
+              console.log('popState', this.popState());
+              tokens.unshift("DEDENT");
+              debug('2 adding DEDENT')
+              stack.shift();
+            }
+
+            debug('2 stack after', stack)
+            debug('2 tokens', tokens)
+            if (tokens.length == 1) 
+              return tokens;
+            // else 
+            //   $$ = ['dedents', 'DEDENT']
 				%}
 {dot}      return 'ANYTHING';
 
@@ -89,52 +93,41 @@ lines
   // : line line
   // { $$ = [$line1, $line2] }
   : lines line
-  { $lines.push($line); $$ = $lines }
+  { console.info('lines line', $lines, $line); $lines[$lines.length - 1].children.push($line); $$ = $lines }
   // | line lines
   // { $lines.push($line); $$ = $lines }
 
 	// | INDENT lines DEDENT
 	// { $$ = $stmt_list; }
 
+  // | lines INDENT line DEDENT
+  // { console.log('INDENT lines DEDENT'); 
+  // // $lines.push('INDENT'); $lines.push('DEDENT');
+  // $$ = [ {type:'INDENT'} , $lines, {type:'DEDENT'}] }
+
   | line
-  { $$ = [$line] }
+  { console.log('line', $line); $$ = [$line] }
   ;
 
 line
-  : INDENT
-  { $$ = {type:'INDENT', val: $INDENT.length, loc: toLoc(yyloc)} }
-	
 
-  | PIPE
-  { 
-  // log('token', yy.token);
-  // log('describeSymbol', yy.parser.describeSymbol());
-  $$ = {type:'PIPE', loc: toLoc(yyloc)} }
+  : PIPE
+  { $$ = {type:'PIPE', loc: toLoc(yyloc)} }
+  | indents ANYTHING
+  | indents KEYWORD
   | KEYWORD
-  { 
-  // log('token', yy.token);
-  // log('describeSymbol', yy.parser.describeSymbol());
-  $$ = {type:'KEYWORD', val: $KEYWORD, loc: toLoc(yyloc)} }
+  { $$ = {type:'KEYWORD', val: $KEYWORD, loc: toLoc(yyloc), children: []} }
   | ANYTHING
-  {
-    // log('yystack', yystack); 
-    // log('yystack[0]', yystack[0]); 
-    // log('yy.parser.terminals_',yy.parser.terminals_); 
-    // log('yy.parser.terminals_[yystack[0]]', yy.parser.terminals_[yystack[0]]); 
-    // log('yyrulelength', yyrulelength);
-    // log('$1', $1);
-    // log('@1', @1);
-    // log('#1', #1);
- 
-    // log('quoteName', yy.parser.quoteName());
-    $$ = {type:'NOT_INDENT', val: $ANYTHING, loc: toLoc(yyloc)}
-    // $$ = 
-  }
+  { $$ = {type:'NOT_INDENT', val: $ANYTHING, loc: toLoc(yyloc)} }
   | DEDENT
-  { $$ = {type:'DEDENT', loc: toLoc(yyloc)} }
-  // | ENDOFFILE
-  // { $$ = ' '; }
+  { $$ = {type:'DEDENT'} }
   ;
+
+indents
+  : indents INDENT
+  | INDENT
+  ;
+
 
 %% 
 
@@ -168,7 +161,7 @@ function toLoc(yyloc) {
  * Runtime variables. Don't comment them out. Again.
  */
 var stack = [0];
-const jsonIndentLevel = process.env.DEBUG ? 2 : 0;
+const jsonIndentLevel = process.env.DEBUG ? 0 : 0;
 
   // console.log(process.env)
 function log(...objs) {
@@ -185,39 +178,78 @@ function debug(...objs) {
 
 /* * Test vars below * */
 
-// // var assert = require("assert");
-// // const util = require('util');
+var assert = require("assert");
+const util = require('util');
 
 // import assert from 'assert'
 // import util from 'util'
 
-// parser.main = function () {
-
-//   function test(input, expected) {
-//     stack = [0];
-//     log('\n\nTesting...^' + input)
-//     var actual = parser.parse(input)
-//     log(' ==> ', JSON.stringify(actual, null, jsonIndentLevel))
-//     assert.deepEqual(actual, expected)
+// parser.main = function (args) {
+//   if (!args[1]) {
+//       console.log('Usage:', path.basename(args[0]) + ' FILE');
+//       process.exit(1);
 //   }
+//     var source = fs.readFileSync(path.normalize(args[1]), 'utf8');
+//     var dst = exports.parser.parse(source);
+//     console.log('parser output:\n\n', {
+//         type: typeof dst,
+//         value: dst
+//     });
+//     try {
+//         console.log("\n\nor as JSON:\n", JSON.stringify(dst, null, 2));
+//     } catch (e) { /* ignore crashes; output MAY not be serializable! We are a generic bit of code, after all... */ }
+//     var rv = 0;
+//     if (typeof dst === 'number' || typeof dst === 'boolean') {
+//         rv = dst;
+//     }
+//     return dst;
+// }
 
-//   test('extends ../../../../templates/blogpost', [
-//   {
-//     loc: {
-//       end: {
-//         column: 39,
-//         line: 1
-//       },
-//       start: {
-//         column: 1,
-//         line: 1
-//       }
-//     },
-//     type: 'NOT_INDENT',
-//     val: 'extends ../../../../templates/blogpost'
-//   }
-// ]);
+parser.main = function (args) {
+  function test(input, expected) {
+    stack = [0];
+    log('\n\nTesting...^' + input)
+    var actual = parser.parse(input)
+    log(' ==> ', JSON.stringify(actual, null, jsonIndentLevel))
+    assert.deepEqual(actual, expected)
+  }
 
+  test(`
+html
+  head
+  body
+    .class
+      input
+    div
+      |
+        `, [
+    {
+      type: 'INDENT',
+      val: 2,
+      loc: { start: { line: 2, column: 1 }, end: { line: 2, column: 3 } }
+    },
+    {
+      type: 'KEYWORD',
+      val: 'html',
+      loc: { start: { line: 2, column: 3 }, end: { line: 2, column: 7 } }
+    },
+    {
+      type: 'INDENT',
+      val: 4,
+      loc: { start: { line: 3, column: 1 }, end: { line: 3, column: 5 } }
+    },
+    {
+      type: 'NOT_INDENT',
+      val: 'head',
+      loc: { start: { line: 3, column: 5 }, end: { line: 3, column: 9 } }
+    },
+    {
+      type: 'KEYWORD',
+      val: 'body',
+      loc: { start: { line: 4, column: 5 }, end: { line: 4, column: 9 } }
+    }
+  ]);
+}
 //   test('append variables', [
 //   {
 //     loc: {

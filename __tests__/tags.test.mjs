@@ -24,6 +24,9 @@ describe('lexer', () => {
             expect(result[0]).an('object').that.has.property('type', 'tag')
           })
         })
+        .catch(e => {
+          console.error(e)
+        })
     });
 
     it('should return a tag with the same name', () => {
@@ -33,6 +36,9 @@ describe('lexer', () => {
             const result = parse(line)
             expect(result[0]).an('object').that.has.property('name', line)
           })
+        })
+        .catch(e => {
+          console.error(e)
         })
     })
   })

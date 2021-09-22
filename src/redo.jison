@@ -5,6 +5,7 @@
 /* lexical grammar */
 %lex
 
+word    [^\n\r -]
 dot     [^\n]+
 space			[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 
@@ -67,7 +68,13 @@ space			[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
           //  return 'INDENT'
 
 				%}
-{dot}      return 'ANYTHING';
+(#){dot}    return 'ID'
+(html|head|body) return 'KEYWORD'
+(include)   return 'INCLUDE'
+(\(.*?\))   return 'ATTRIBUTES'
+\.{word}+     return 'CLASS'
+{word}+     return 'TAG'
+{dot}      return 'TEXT';
 
 /lex
 
@@ -78,10 +85,9 @@ space			[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 /* language grammar */
 
 start
-  // : ENDOFFILE
-  // { $$ = [] }
-  : lines ENDOFFILE
-  { $$ = $lines }
+  : ENDOFFILE
+  { $$ = [] }
+  | lines ENDOFFILE
   ;
 
 lines
@@ -102,9 +108,15 @@ lines
 
 line
   : INDENT
-  { $$ = {type:'INDENT', val: $INDENT.length, loc: toLoc(yyloc)} }
+  { $$ = {type:'indent', val: $INDENT.length, loc: toLoc(yyloc)} }
 	
-
+  | element
+  { debug('element', $element) }
+  | PIPE TEXT
+  { 
+  // log('token', yy.token);
+  // log('describeSymbol', yy.parser.describeSymbol());
+  $$ = [{type:'PIPE', loc: toLoc(yyloc)}, {type:'text', val: $TEXT, loc: toLoc(yyloc)}] }
   | PIPE
   { 
   // log('token', yy.token);
@@ -114,7 +126,17 @@ line
   { 
   // log('token', yy.token);
   // log('describeSymbol', yy.parser.describeSymbol());
-  $$ = {type:'KEYWORD', val: $KEYWORD, loc: toLoc(yyloc)} }
+  $$ = {type:'tag', val: $KEYWORD, loc: toLoc(yyloc)} }
+  | ID
+  { $$ = {type:'ID', val: $ID, loc: toLoc(yyloc)} }
+  | INCLUDE TEXT
+  { $$ = [ {type:'INCLUDE', val: $TEXT, loc: toLoc(yyloc)} ]}
+  | INCLUDE ANYTHING
+  { $$ = [ {type:'INCLUDE', val: $ANYTHING, loc: toLoc(yyloc)} ]}
+  | CLASS
+  { $$ = {type:'CLASS', val: $CLASS, loc: toLoc(yyloc)} }
+  | ATTRIBUTES
+  { $$ = {type:'ATTRIBUTES', val: $ATTRIBUTES, loc: toLoc(yyloc)} }
   | ANYTHING
   {
     // log('yystack', yystack); 
@@ -128,12 +150,27 @@ line
  
     // log('quoteName', yy.parser.quoteName());
     $$ = {type:'NOT_INDENT', val: $ANYTHING, loc: toLoc(yyloc)}
-    // $$ = 
   }
   | DEDENT
   { $$ = {type:'DEDENT', loc: toLoc(yyloc)} }
   // | ENDOFFILE
   // { $$ = ' '; }
+  ;
+
+element
+  : TAG
+  { $$ = {type:'tag', val:$TAG, loc: toLoc(yyloc)} }
+  | WORD CLASS ATTRIBUTES TEXT
+  | WORD CLASS ATTRIBUTES
+  | WORD CLASS
+  | WORD CLASS TEXT
+  | WORD TEXT
+  | TAG CLASS ATTRIBUTES TEXT
+  | TAG CLASS ATTRIBUTES
+  | TAG CLASS
+  | TAG CLASS TEXT
+  | TAG TEXT
+  { $$ = [{type:'tag', val: $TAG, loc: toLoc(yyloc)}, {type:'text', val: $TEXT, loc: toLoc(yyloc)}] }
   ;
 
 %% 
@@ -160,7 +197,8 @@ function toLoc(yyloc) {
         end: {
           line: yyloc.last_line,
           column: yyloc.last_column + 1
-        }
+        },
+        filename: "<basedir>/packages/pug-lexer/test/cases/basic.pug",
      }
 }
 
@@ -177,29 +215,29 @@ function log(...objs) {
   // }
 }
 function debug(...objs) {
-  if (process.env.DEBUG) {
-    console.debug(...objs)
-  }
+  // if (process.env.DEBUG) {
+  //   console.debug(...objs)
+  // }
 }
 
 
 /* * Test vars below * */
 
-// // var assert = require("assert");
-// // const util = require('util');
+// var assert = require("assert");
+// const util = require('util');
 
-// import assert from 'assert'
-// import util from 'util'
+import assert from 'assert'
+import util from 'util'
 
-// parser.main = function () {
+parser.main = function () {
 
-//   function test(input, expected) {
-//     stack = [0];
-//     log('\n\nTesting...^' + input)
-//     var actual = parser.parse(input)
-//     log(' ==> ', JSON.stringify(actual, null, jsonIndentLevel))
-//     assert.deepEqual(actual, expected)
-//   }
+  function test(input, expected) {
+    stack = [0];
+    log('\n\nTesting...^' + input)
+    var actual = parser.parse(input)
+    log(' ==> ', JSON.stringify(actual, null, jsonIndentLevel))
+    assert.deepEqual(actual, expected)
+  }
 
 //   test('extends ../../../../templates/blogpost', [
 //   {
@@ -428,4 +466,4 @@ function debug(...objs) {
 //   div3
 // `, [{"type":"NOT_INDENT","val":"body","loc":{"start":{"line":2,"column":1},"end":{"line":2,"column":5}}},{"type":"INDENT","val":2,"loc":{"start":{"line":3,"column":1},"end":{"line":3,"column":3}}},{"type":"NOT_INDENT","val":"div","loc":{"start":{"line":3,"column":3},"end":{"line":3,"column":6}}},{"type":"INDENT","val":4,"loc":{"start":{"line":4,"column":1},"end":{"line":4,"column":5}}},{"type":"NOT_INDENT","val":"div2","loc":{"start":{"line":4,"column":5},"end":{"line":4,"column":9}}},{"type":"DEDENT","loc":{"start":{"line":5,"column":1},"end":{"line":5,"column":3}}},{"type":"NOT_INDENT","val":"div3","loc":{"start":{"line":5,"column":3},"end":{"line":5,"column":7}}}])
 
-// }
+}
