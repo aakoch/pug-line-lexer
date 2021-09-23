@@ -16,7 +16,7 @@ newline [\r\n]+
 <<EOF>>				%{
   // remaining DEDENTs implied by EOF, regardless of tabs/spaces
   var tokens = [];
-  console.log('<INITIAL>\s*<<EOF>>: setting isText to false');
+  log('<INITIAL>\s*<<EOF>>: setting isText to false');
   isText = false;
   while (0 < stack[0]) {
     this.popState();
@@ -34,18 +34,18 @@ newline [\r\n]+
 //   else
 //     return 'KEYWORD'
 //   %}
-// \b(html|head|body|meta|title|link|script|h1|doctype|script)\b %{
+(html|head|body|meta|title|link|script|h1|doctype|script) %{
 //   if (isText)
 //     return;
 //   else
-//     return 'TAG'
-//   %}
+    return 'TAG'
+  %}
 // '{'   return 'LCURL'; // left curly bracket
 // '}'   return 'RCURL'; // right curly bracket
 // ']'   return 'LSQR'; // left square bracket
 // '['   return 'RSQR'; // right square bracket /* ] */
 // '('     %{
-//   console.log('LPAREN with isText=' + isText)
+//   log('LPAREN with isText=' + isText)
 //   if (isText)
 //     return;
 //   else
@@ -84,7 +84,7 @@ newline [\r\n]+
 <INITIAL>\s*<<EOF>>		%{
   // remaining DEDENTs implied by EOF, regardless of tabs/spaces
   var tokens = [];
-  console.log('<INITIAL>\s*<<EOF>>: setting isText to false');
+  log('<INITIAL>\s*<<EOF>>: setting isText to false');
   isText = false;
   while (0 < stack[0]) {
     this.popState();
@@ -96,37 +96,37 @@ newline [\r\n]+
 %}
 ^{spc}*$		/* eat blank lines */
 ^({spc}{spc}|\t)+		%{
-  console.log("enter", yylloc);
+  log("enter", yylloc);
   var indentation = yyleng - yytext.search(/\s/) - 1;
-    console.log(indentation, stack)
+    log(indentation, stack)
 
   if (util.isArray(stack[0]) ?  indentation > stack[0][1] : indentation > stack[0]) {
     stack.unshift(util.isArray(stack[0]) ? ['text', indentation] : indentation);
-  console.log("returning INDENT on line " + yylloc.last_line, yylloc);
+  log("returning INDENT on line " + yylloc.last_line, yylloc);
     return 'INDENT';
   }
 
   var tokens = [];
 
-    console.log("look if stack[0] is array", stack)
+    log("look if stack[0] is array", stack)
   while (util.isArray(stack[0]) ?  indentation < stack[0][1] : indentation < stack[0]) {
-    console.log("adding dedent on line", yylloc, stack)
+    log("adding dedent on line", yylloc, stack)
     this.popState();
     tokens.unshift("DEDENT");
     stack.shift();
   }
   if (tokens.length) {
     if (tokens.length != 1) {
-      console.log('<INITIAL>[\n\r]({spc}{spc}|\t)+	: setting isText to false');
+      log('<INITIAL>[\n\r]({spc}{spc}|\t)+	: setting isText to false');
       isText = false;
     }
     return tokens;
   }
   else 
-  console.log('no indentation change on line ' + yylloc.last_line, stack[0])
+  log('no indentation change on line ' + yylloc.last_line, stack[0])
 %}
 [^\n]+  %{
-  console.log(yytext)
+  log(yytext)
   if (isText)
     return 'TEXT'
   else
@@ -146,12 +146,12 @@ newline [\r\n]+
 
 start
 	: lines ENDOFFILE
-	{ console.log("AST: %j", $lines); }
+	{ log("AST: %j", $lines); }
 	;
 
 lines
   : lines line
-  { console.log('lines: lines line'); $lines.push($line); $$ = $lines; console.log($lines) }
+  { log('lines: lines line'); $lines.push($line); $$ = $lines; log($lines) }
   | line
   { $$ = [$line] }
   // | line ENDOFFILE
@@ -161,150 +161,152 @@ lines
 
 line
 	// : line stmt
-	// { console.log('line: line stmt'); $line.push($stmt); $$ = $line; }
+	// { log('line: line stmt'); $line.push($stmt); $$ = $line; }
 	: stmt 
-  { console.log('line: stmt=', $stmt); $$ = $stmt; }
+  { log('line: stmt=', $stmt); $$ = $stmt; }
 	| stmt NEWLINE
-  { console.log('line: stmt NEWLINE stmt=', $stmt); $$ = $stmt; }
+  { log('line: stmt NEWLINE stmt=', $stmt); $$ = $stmt; }
 	;
 
 // stmt_list
 // 	: stmt
-// 	{ console.log('(stmt_list) stmt'); $$ = [$stmt] }
+// 	{ log('(stmt_list) stmt'); $$ = [$stmt] }
 // 	// | stmt_list stmt
-// 	// { console.log('stmt_list stmt', '$stmt_list=' + $stmt_list, '$stmt=' + $stmt); $stmt_list.push($stmt); $$ = $stmt_list; }
+// 	// { log('stmt_list stmt', '$stmt_list=' + $stmt_list, '$stmt=' + $stmt); $stmt_list.push($stmt); $$ = $stmt_list; }
 // 	;
 
 block
 	: INDENT lines DEDENT
-	{ console.log('INDENT lines DEDENT', $$); $$ = $lines; }
+	{ log('INDENT lines DEDENT', $$); $$ = $lines; }
   // | DEDENT
-	// { console.log('DEDENT'); $$ = {type:'DEDENT'} }
+	// { log('DEDENT'); $$ = {type:'DEDENT'} }
 	;
 
 stmt
   : TAG
-  { console.log('TAG', $$); $$ = { type: 'TAG', val: $TAG, loc: toLoc(yyloc) } }
+  { log('TAG', $$); $$ = { type: 'TAG', val: $TAG, loc: toLoc(yyloc) } }
+  | TAG THEREST
+  { log('TAG THEREST', $$); $$ = { type: 'TAG', val: $TAG, rest: $THEREST, loc: toLoc(yyloc) } }
 //   | TAG THEREST
-//   { console.log('TAG THEREST', $$); $$ = { type: 'TAG', val: $TAG, body: $THEREST, loc: toLoc(yyloc) } }
+//   { log('TAG THEREST', $$); $$ = { type: 'TAG', val: $TAG, body: $THEREST, loc: toLoc(yyloc) } }
 //   | KEYWORD 
-//   { console.log('stmt: KEYWORD=', $$); $$ = { type: 'KEYWORD', val: $KEYWORD, loc: toLoc(yyloc) } }
+//   { log('stmt: KEYWORD=', $$); $$ = { type: 'KEYWORD', val: $KEYWORD, loc: toLoc(yyloc) } }
 //   // | THEREST
 //   // { $$ = { type: 'THEREST', val: $THEREST, loc: toLoc(yyloc) } }
 //   | tag body
-//   { console.log('tag body', $$); }
+//   { log('tag body', $$); }
 //   | punct
-//   { console.log('punct', $$); }
+//   { log('punct', $$); }
   | block
-  { console.log('block', $$); }
+  // { log('block', $$); $$ = { type: 'block', val: $block } }
 //   | element body
-//   { console.log('element body', $$); }
+//   { log('element body', $$); }
 //   | element
-//   { console.log('element', $$); }
+//   { log('element', $$); }
 //   | ID
-//   { console.log('ID', $$); $$ = { type: 'UNKNOWN ID', val: $ID, loc: toLoc(yyloc) } }
+//   { log('ID', $$); $$ = { type: 'UNKNOWN ID', val: $ID, loc: toLoc(yyloc) } }
 //   | TEXT 
-//   { console.log('TEXT', $$); $$ = { type: 'text', val: $TEXT, loc: toLoc(yyloc) } }
+//   { log('TEXT', $$); $$ = { type: 'text', val: $TEXT, loc: toLoc(yyloc) } }
   | THEREST
-  { console.log('stmt: THEREST', $$); }
+  { log('stmt: THEREST', $$); $$ = { type: 'THEREST', val: $THEREST }  }
   ;
 
 // element
 //   : TAG
-//   { console.log('TAG', $$); $$ = { type: 'TAG', val: $TAG, loc: toLoc(yyloc) } }
+//   { log('TAG', $$); $$ = { type: 'TAG', val: $TAG, loc: toLoc(yyloc) } }
 //   | tag_identifier
-//   {console.log('tag_identifier', $$);  $$ = { type: 'TAG', tag_identifier: $tag_identifier, loc: toLoc(yyloc) } }
+//   {log('tag_identifier', $$);  $$ = { type: 'TAG', tag_identifier: $tag_identifier, loc: toLoc(yyloc) } }
 //   | TAG DOT
-//   { console.log('TAG ' + $TAG  + ' DOT: setting isText to true');
+//   { log('TAG ' + $TAG  + ' DOT: setting isText to true');
 //     isText = true; 
 //     $$ = { type: 'TAG-DOT', val: $TAG, precedes: 'text', loc: toLoc(yyloc) } }
 //   | TAG tag_identifier
-//   { console.log('TAG tag_identifier', $$); $$ = { type: 'TAG', val: $TAG, tag_identifier: $tag_identifier, loc: toLoc(yyloc) } }
+//   { log('TAG tag_identifier', $$); $$ = { type: 'TAG', val: $TAG, tag_identifier: $tag_identifier, loc: toLoc(yyloc) } }
 //   | TAG attributes
-//   { console.log('TAG attributes', $TAG, $attributes); $$ = { type: 'TAG', val: $TAG, attributes: $attributes, loc: toLoc(yyloc) } }
+//   { log('TAG attributes', $TAG, $attributes); $$ = { type: 'TAG', val: $TAG, attributes: $attributes, loc: toLoc(yyloc) } }
 //   | tag_identifier attributes
-//   { console.log('tag_identifier attributes', $$); $$ = { tag_identifier: $tag_identifier, attributes: $attributes, loc: toLoc(yyloc) } }
+//   { log('tag_identifier attributes', $$); $$ = { tag_identifier: $tag_identifier, attributes: $attributes, loc: toLoc(yyloc) } }
 //   | TAG DOT attributes
-//   { console.log('TAG ' + $TAG  + ' DOT attributes: setting isText to true'); isText = true; $$ = { type: 'TAG-DOT', val: $TAG, precedes: 'text', attributes: $attributes, loc: toLoc(yyloc) } }
+//   { log('TAG ' + $TAG  + ' DOT attributes: setting isText to true'); isText = true; $$ = { type: 'TAG-DOT', val: $TAG, precedes: 'text', attributes: $attributes, loc: toLoc(yyloc) } }
 //   | TAG tag_identifier attributes
-//   { console.log('TAG tag_identifier attributes', $$); $$ = { type: 'TAG', val: $TAG, tag_identifier: $tag_identifier, attributes: $attributes, loc: toLoc(yyloc) } }
+//   { log('TAG tag_identifier attributes', $$); $$ = { type: 'TAG', val: $TAG, tag_identifier: $tag_identifier, attributes: $attributes, loc: toLoc(yyloc) } }
 //   | TAG attributes DOT
-//   { console.log('TAG attributes DOT', $TAG, $attributes);
+//   { log('TAG attributes DOT', $TAG, $attributes);
 //     isText = true; 
 //      $$ = { type: 'TAG', val: $TAG, attributes: $attributes, loc: toLoc(yyloc) } }
 // 	;
 
 // tag_identifier
 //   : DOT ID
-//   { console.log('DOT ID'); $$ = { type: 'tag_identifier', class: $ID, loc: toLoc(yyloc) } }
+//   { log('DOT ID'); $$ = { type: 'tag_identifier', class: $ID, loc: toLoc(yyloc) } }
 //   | DOT ID HASH ID
-//   { console.log('DOT ID HASH ID'); $$ = { type: 'tag_identifier', class: $ID1, id: $ID2, loc: toLoc(yyloc) } }
+//   { log('DOT ID HASH ID'); $$ = { type: 'tag_identifier', class: $ID1, id: $ID2, loc: toLoc(yyloc) } }
 //   | DOT ID HASH TAG
-//   { console.log('DOT ID HASH TAG'); $$ = { type: 'tag_identifier', class: $ID, id: $TAG, loc: toLoc(yyloc) } }
+//   { log('DOT ID HASH TAG'); $$ = { type: 'tag_identifier', class: $ID, id: $TAG, loc: toLoc(yyloc) } }
 //   ;
 
 // attributes
 //   : LPAREN anything RPAREN
-//   { console.log('LPAREN anything RPAREN');
+//   { log('LPAREN anything RPAREN');
 //   $$ = [$anything] }
 //   ;
 
-anything
-  : anything THEREST
-  { console.log('anything THEREST', $$); $anything.push($THEREST); $$ = $anything }
-//   | anything KEYWORD
-//   { console.log('anything KEYWORD', $$); let v2 = [$anything].push($KEYWORD); $$ = v2  }
-//   | anything block
-//   { console.log('anything block', $$); let v3 = [$anything].push($block); $$ = v3  }
-//   | KEYWORD
-//   { console.log('KEYWORD', $$); }
-  | block
-  { console.log('block', $$); }
-  | THEREST
-  { console.log('THEREST', $$); }
-//   // | ID
-//   // { console.log('ID', $$); }
-//   // | EQ
-//   // { console.log('EQ', $$); }
-//   // | DOT
-//   // { console.log('DOT', $$); }
-  ;
+// anything
+//   : anything THEREST
+//   { log('anything THEREST', $$); $anything.push($THEREST); $$ = $anything }
+// //   | anything KEYWORD
+// //   { log('anything KEYWORD', $$); let v2 = [$anything].push($KEYWORD); $$ = v2  }
+// //   | anything block
+// //   { log('anything block', $$); let v3 = [$anything].push($block); $$ = v3  }
+// //   | KEYWORD
+// //   { log('KEYWORD', $$); }
+//   | block
+//   { log('block', $$); $$ = { type: 'BLOCK', val: $block } }
+//   | THEREST
+//   { log('THEREST', $$); $$ = { type: 'THEREST', val: $THEREST }  }
+// //   // | ID
+// //   // { log('ID', $$); }
+// //   // | EQ
+// //   // { log('EQ', $$); }
+// //   // | DOT
+// //   // { log('DOT', $$); }
+//   ;
 
 // // really
 // //   : THEREST
-// //   { console.log('THEREST', $$); }
+// //   { log('THEREST', $$); }
 //   // | ID
-//   // { console.log('ID', $$); }
+//   // { log('ID', $$); }
 //   // | EQ
-//   // { console.log('EQ', $$); }
+//   // { log('EQ', $$); }
 //   // | STRING
-//   // { console.log('STRING', $$); }
+//   // { log('STRING', $$); }
 //   // | DOT
-//   // { console.log('DOT', $$); }
+//   // { log('DOT', $$); }
 //   // ;
 
 // attr_list
 //   : attr_list attribute
-//   { console.log('attr_list attribute', $$); [$attr_list].push($attribute); $$ = $attr_list }
+//   { log('attr_list attribute', $$); [$attr_list].push($attribute); $$ = $attr_list }
 //   | attr_list attr_spacer attribute
-//   { console.log('attr_list attr_spacer attribute', $$); [$attr_list].push($attribute); $$ = $attr_list }
+//   { log('attr_list attr_spacer attribute', $$); [$attr_list].push($attribute); $$ = $attr_list }
 //   | attribute
-//   { console.log('attribute', $$); }
+//   { log('attribute', $$); }
 //   ;
 
 // attr_spacer
 //   : COMMA
-//   { console.log('COMMA', $$); }
+//   { log('COMMA', $$); }
 //   | ' '
-// 	{ console.log('SPACE'); $$ = {type:'SPACE'} }
+// 	{ log('SPACE'); $$ = {type:'SPACE'} }
 //   ;
 
 // attribute
 //   : ID EQ STRING
-//   { console.log('attribute ID EQ STRING', $ID, $STRING);
+//   { log('attribute ID EQ STRING', $ID, $STRING);
 //    $$ = { type: 'attribute', key: $ID, val: $STRING, loc: toLoc(yyloc) } }
 //   | ID attr_spacer
-//   { console.log('ID attr_spacer', $$); $$ = { type: 'attribute', key: $ID, loc: toLoc(yyloc) } }
+//   { log('ID attr_spacer', $$); $$ = { type: 'attribute', key: $ID, loc: toLoc(yyloc) } }
 //   ;
 
 // // keyword
@@ -323,18 +325,18 @@ anything
 
 // body
 //   : THEREST
-//   { console.log('THEREST', $$); $$ = { type: 'BODY', val: $THEREST, loc: toLoc(yyloc) } }
+//   { log('THEREST', $$); $$ = { type: 'BODY', val: $THEREST, loc: toLoc(yyloc) } }
 //   ;
 
 // punct
 //   : LCURL
-//   { console.log('LCURL', $$); $$ = { type: 'LEFT_CURLY_BRACKET', loc: toLoc(yyloc) } }
+//   { log('LCURL', $$); $$ = { type: 'LEFT_CURLY_BRACKET', loc: toLoc(yyloc) } }
 //   | RCURL
-//   { console.log('RCURL', $$); $$ = { type: 'RIGHT_CURLY_BRACKET', loc: toLoc(yyloc) } }
+//   { log('RCURL', $$); $$ = { type: 'RIGHT_CURLY_BRACKET', loc: toLoc(yyloc) } }
 //   | LSQR
-//   { console.log('LSQR', $$); $$ = { type: 'LEFT_SQUARE_BRACKET', loc: toLoc(yyloc) } }
+//   { log('LSQR', $$); $$ = { type: 'LEFT_SQUARE_BRACKET', loc: toLoc(yyloc) } }
 //   | RSQR
-//   { console.log('RSQR', $$); $$ = { type: 'RIGHT_SQUARE_BRACKET', loc: toLoc(yyloc) } }
+//   { log('RSQR', $$); $$ = { type: 'RIGHT_SQUARE_BRACKET', loc: toLoc(yyloc) } }
 //   ;
 
 %% 
@@ -356,6 +358,10 @@ function toLoc(yyloc) {
      }
   else 
     return ''
+}
+
+function log() {
+  // console.log(...arguments);
 }
 
 var isText = false;
