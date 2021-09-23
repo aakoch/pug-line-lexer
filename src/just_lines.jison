@@ -49,49 +49,86 @@ line
 //      node ./test.js
 //
 // to see the output.
-
+var stack = [0];
 
 function toLoc(yyloc) {
+  if (location)
   return {
-        end: {
-          column: yyloc.last_column + 1,
-          line: yyloc.last_line
-        },
         start: {
-          column: yyloc.first_column + 1,
-          line: yyloc.first_line
-        }
-      
+          line: yyloc.first_line,
+          column: yyloc.first_column
+        },
+        end: {
+          line: yyloc.last_line,
+          column: yyloc.last_column
+        },
+        filename: filename,
      }
+  else 
+    return ''
 }
 
+var isText = false;
+var filename;
+var stripDown = false;
+var location = true;
 
-var assert = require("assert");
+var util = require('util')
 
-parser.main = function () {
+function ti(tagId) {
+  if (tagId == undefined) 
+    return '';
 
-  function test(input, expected) {
-    var actual = parser.parse(input)
-    console.log(input + ' ==> ', JSON.stringify(actual))
-    // assert.deepEqual(actual, expected)
+  let arr = []
+  if (tagId.class != undefined) {
+    arr.push('.')
+    arr.push(tagId.class)
   }
+  if (tagId.id != undefined) {
+    arr.push('#')
+    arr.push(tagId.id)
+  }
+  return arr.join('')
+}
 
-  test(`extends ../../../../templates/blogpost
+function strip(arr) {
+  return arr
+    .filter(el => {
+      return util.isArray(el) || el.val
+    })
+    .map(el => {
+      if (util.isArray(el)) {
+        return strip(el);
+      }
+      return ([el.val, el.param, el.body, ti(el.tag_identifier), (el.attributes || []).map(el => el.key + '=' + el.val)])
+        .filter(attr => attr != undefined)
+        .map(attr => attr.toString().trim())
+        .join(' ')
+    })
+}
 
-append variables
-  - var title = "Moving off Wordpress and on to Netlify"
-  - var posted = '2021-09-08'
-
-block morehead
-  script(src='https://code.jquery.com/jquery-3.6.0.min.js' integrity='sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=' crossorigin='anonymous')
-  script(src="/node_modules/jquerykeyframes/dist/jquery.keyframes.min.js")
-  
-  style.
-    #bandwagonLink img {
-      vertical-align: top;
+parser.main = function (args) {
+    if (!args[1]) {
+        console.log('Usage:', path.basename(args[0]) + ' FILE');
+        process.exit(1);
     }
-  .someclass
-`, [])
+    filename = args[1]
+    var source = fs.readFileSync(path.normalize(args[1]), 'utf8');
+    var dst = exports.parser.parse(source);
 
+    if (stripDown) 
+      dst = strip(dst)
 
+    console.log('parser output:\n\n', {
+        type: typeof dst,
+        value: dst
+    });
+    try {
+        console.log("\n\nor as JSON:\n", JSON.stringify(dst, null, 2));
+    } catch (e) { /* ignore crashes; output MAY not be serializable! We are a generic bit of code, after all... */ }
+    var rv = 0;
+    if (typeof dst === 'number' || typeof dst === 'boolean') {
+        rv = dst;
+    }
+    return dst;
 };
