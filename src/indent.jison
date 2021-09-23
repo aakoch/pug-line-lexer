@@ -1,17 +1,81 @@
-/* TODO: Fix parsing of head.pug - line 48 is commented and indentation is wrong and the start of the if statement on 46 doesn't work */
+/* TODO: Fix parsing of head.pug - line 48 is commented and indentation is wrong and the start of the if statement on 46 doesn't work 
+
+TODO: TEXT lines aren't indented. Actually, not sure if I can even do ^^^.
+*/
 
 %lex
 
 id			[_?a-zA-Z]+[_a-zA-Z0-9-]*\b
 spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
-// all     [^\n\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]+
-// toEndOfLine .*$
-// dot     [^\n]+$
 newline [\r\n]+
+line_ending_with_dot			.+(\.|\/\/)
 
-%s EXPR
+%x TEXT
+%x ATTRIBUTES
 
 %%
+
+<ATTRIBUTES>.+ return 'THEREST';
+<ATTRIBUTES>{newline} %{
+    this.popState()
+  %};
+<ATTRIBUTES><<EOF>>				%{
+  // remaining DEDENTs implied by EOF, regardless of tabs/spaces
+  var tokens = [];
+  log('<INITIAL>\s*<<EOF>>: setting isText to false');
+  isText = false;
+  while (0 < stack[0]) {
+    this.popState();
+    tokens.unshift("DEDENT");
+    stack.shift();
+  }
+    
+    tokens.unshift('ENDOFFILE')
+    return tokens;
+  // return "ENDOFFILE";
+%}	
+<ATTRIBUTES>')'    %{
+    this.popState()
+    return 'THEREST';
+  %}
+
+<TEXT>({spc}{spc}|\t)  ;
+<TEXT>{newline} ;
+// <TEXT>{rest}  if (yylloc.first_column < indent) this.popState('TEXT'); return 'TEXT';
+<TEXT>.+ %{
+  console.log('indent=' + indent + ', first_column=' + yylloc.first_column + ', yytext=' + yytext); 
+  if(yylloc.first_column <= indent) {
+    if (yytext.endsWith('.')) {
+      return 'LINE_ENDING_WITH_DOT'
+    }
+    else {
+      // log('yytext=' + yytext)
+      this.popState('TEXT'); 
+      return 'THEREST'
+    }
+    // lexer.reject()
+    // lexer.setInput(yytext)
+    // lexer.clear()
+  }
+  else {
+    return 'TEXT'
+  }
+%}
+<TEXT><<EOF>>				%{
+  // remaining DEDENTs implied by EOF, regardless of tabs/spaces
+  var tokens = [];
+  log('<INITIAL>\s*<<EOF>>: setting isText to false');
+  isText = false;
+  while (0 < stack[0]) {
+    this.popState();
+    tokens.unshift("DEDENT");
+    stack.shift();
+  }
+    
+    tokens.unshift('ENDOFFILE')
+    return tokens;
+  // return "ENDOFFILE";
+%}	
 
 <<EOF>>				%{
   // remaining DEDENTs implied by EOF, regardless of tabs/spaces
@@ -44,19 +108,14 @@ newline [\r\n]+
 // '}'   return 'RCURL'; // right curly bracket
 // ']'   return 'LSQR'; // left square bracket
 // '['   return 'RSQR'; // right square bracket /* ] */
-// '('     %{
-//   log('LPAREN with isText=' + isText)
-//   if (isText)
-//     return;
-//   else
-//      return 'LPAREN';
-//   %}
-// ')'    %{
-//   if (isText)
-//     return;
-//   else
-//      return 'RPAREN';
-//   %}
+'('     %{
+    this.pushState('ATTRIBUTES')
+    return 'LPAREN';
+  %}
+')'    %{
+    this.popState()
+    return 'ATTRIBUTES';
+  %}
 // \"[^\"]*\"|\'[^\']*\'		yytext = yytext.substr(1,yyleng-2); 
 //   if (isText)
 //     return;
@@ -70,10 +129,12 @@ newline [\r\n]+
 //   %}
 '='   return 'EQ';
 // '#'   return 'HASH';
-','  
-  if (isText)
-    return;
-  else return 'COMMA';
+// ','  
+//   if (isText)
+//     return;
+//   else return 'COMMA';
+^#{id}   return 'ELEMENT_ID';
+\|.*   return 'PIPE_TEXT';
 // {id} %{
 //   if (isText)
 //     return;
@@ -125,10 +186,20 @@ newline [\r\n]+
   else 
   log('no indentation change on line ' + yylloc.last_line, stack[0])
 %}
+
+{line_ending_with_dot}  %{ console.log('line_ending_with_dot. yytext=' + yytext) %}
+					// var indentation = yytext.search(/\w/);
+          console.log('yylloc=', yylloc)
+          console.log('first_column=' + yylloc.first_column + ', yyleng=' + yyleng + ', yytext.search(/\\s/)=' + yytext.search(/\s/)); 
+          indent=yylloc.first_column; 
+          this.pushState('TEXT'); 
+          return 'LINE_ENDING_WITH_DOT';
+
+
 [^\n]+  %{
   log(yytext)
   if (isText)
-    return 'TEXT'
+    return 'BLOCK_TEXT'
   else
     return 'THEREST'
   %}
@@ -183,10 +254,9 @@ block
 	;
 
 stmt
-  : TAG
-  { log('TAG', $$); $$ = { type: 'TAG', val: $TAG, loc: toLoc(yyloc) } }
-  | TAG THEREST
-  { log('TAG THEREST', $$); $$ = { type: 'TAG', val: $TAG, rest: $THEREST, loc: toLoc(yyloc) } }
+  : tag
+  | tag the_rest
+  { log('TAG THEREST', $$); $$ = { type: 'TAG', val: $tag, rest: $the_rest.val, loc: toLoc(yyloc) } }
 //   | TAG THEREST
 //   { log('TAG THEREST', $$); $$ = { type: 'TAG', val: $TAG, body: $THEREST, loc: toLoc(yyloc) } }
 //   | KEYWORD 
@@ -207,9 +277,32 @@ stmt
 //   { log('ID', $$); $$ = { type: 'UNKNOWN ID', val: $ID, loc: toLoc(yyloc) } }
 //   | TEXT 
 //   { log('TEXT', $$); $$ = { type: 'text', val: $TEXT, loc: toLoc(yyloc) } }
-  | THEREST
-  { log('stmt: THEREST', $$); $$ = { type: 'THEREST', val: $THEREST }  }
+  | the_rest
+  | LINE_ENDING_WITH_DOT
+  { log('stmt: LINE_ENDING_WITH_DOT=', $LINE_ENDING_WITH_DOT); $$ = [{ type:'LINE_ENDING_WITH_DOT', val: $LINE_ENDING_WITH_DOT}] }
   ;
+
+tag
+  : TAG
+  { log('TAG', $$); $$ = { type: 'TAG', val: $TAG, loc: toLoc(yyloc) } }
+  | ELEMENT_ID
+  { log('ELEMENT_ID', $$); $$ = { type: 'ELEMENT_ID', id: $ELEMENT_ID, loc: toLoc(yyloc) } }
+  ;
+
+the_rest
+  : THEREST
+  { log('the_rest: THEREST', $$); $$ = { type: 'THEREST', val: $THEREST }  }
+  | LPAREN
+  | PIPE_TEXT
+  { log('the_rest: PIPE_TEXT', $$); $$ = { type: 'PIPE_TEXT', val: $PIPE_TEXT }  }
+  | TEXT
+  { log('the_rest: TEXT', $$); $$ = { type: 'TEXT', val: $TEXT }  }
+  ;
+
+// TEXT
+//   : TEXT THEREST
+//   { $TEXT.push($THEREST); $$ = $TEXT; }
+//   ;
 
 // element
 //   : TAG
