@@ -7,15 +7,62 @@ TODO: TEXT lines aren't indented. Actually, not sure if I can even do ^^^.
 
 id			[_?a-zA-Z]+[_a-zA-Z0-9-]*\b
 spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
-newline [\r\n]+
+newline [\r\n]
+classname_decl \.{id}
+id_decl #{id}
 line_ending_with_dot			.+(\.|\/\/)
+tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000()]
 
-%x TEXT
 %x ATTRIBUTES
+%x TAG
+%x TEXT
 
 %%
 
-<ATTRIBUTES>.+ return 'THEREST';
+<TAG>[^\n]+ 
+   console.log('<TAG> not newline: ' + yytext)
+   return 'THEREST'
+<TAG>{newline}
+   console.log('<TAG> newline - ending <TAG>')
+   this.popState();
+   return 'NEWLINE'
+
+// <TAG>{newline}
+//   console.log('<' + this.topState() + '> {newline}: ' + yytext)
+//   console.log('stateStackSize()=' + this.stateStackSize())
+//   console.log('yy.lexer.conditionStack', yy.lexer.conditionStack)
+//   // this.popState(); 
+//   // this.pushState('TAG_BODY')
+//   return 'NEWLINE';
+
+// <TAG>{tag_declaration_terminator}
+//   console.log('<' + this.topState() + '> {tag_declaration_terminator}: ' + yytext)
+//   console.log('stateStackSize()=' + this.stateStackSize())
+//   this.popState(); 
+//   // this.pushState('TAG_BODY')
+//   return 'TAG_DECLARATION_TERMINATOR';
+// // <TAG>[^\n{spc}]+  
+// //   console.log(this.topState() + ' [^\\n]+: ' + yytext); 
+// //   this.pushState('TAG_BODY')
+// //   return 'THEREST';
+// // <TAG>[\n{spc}] 
+// //   console.log(this.topState() + ' \\n'); 
+// //   this.popState(); 
+
+// <TAG>[^\n{spc}]+  
+//   console.log('<' + this.topState() + '> [^\\n]+: ' + yytext); 
+//   console.log('stateStackSize()=' + this.stateStackSize())
+//   this.popState(); 
+//   return 'THEREST';
+// // <TAG_BODY>{spc}
+// //   console.log('<TAG_BODY> \\n'); 
+// //   this.popState(); 
+// //   return 'SPACE';
+// <TAG>'\n'
+//   console.log('Ending TAG_BODY becaues of NEWLINE. stateStackSize()=' + this.stateStackSize()); 
+//   this.popState(); 
+
+<ATTRIBUTES>[^\n]+ return 'THEREST';
 <ATTRIBUTES>{newline} %{
     this.popState()
   %};
@@ -39,10 +86,12 @@ line_ending_with_dot			.+(\.|\/\/)
     return 'THEREST';
   %}
 
+
 <TEXT>({spc}{spc}|\t)  ;
 <TEXT>{newline} ;
 // <TEXT>{rest}  if (yylloc.first_column < indent) this.popState('TEXT'); return 'TEXT';
 <TEXT>.+ %{
+  console.log('stateStackSize()=' + this.stateStackSize())
   console.log('indent=' + indent + ', first_column=' + yylloc.first_column + ', yytext=' + yytext); 
   if(yylloc.first_column <= indent) {
     if (yytext.endsWith('.')) {
@@ -102,19 +151,22 @@ line_ending_with_dot			.+(\.|\/\/)
 //   if (isText)
 //     return;
 //   else
-    return 'TAG'
+    console.log('stateStackSize()=' + this.stateStackSize())
+    this.pushState('TAG')
+    return 'TAG_START'
   %}
 // '{'   return 'LCURL'; // left curly bracket
 // '}'   return 'RCURL'; // right curly bracket
 // ']'   return 'LSQR'; // left square bracket
 // '['   return 'RSQR'; // right square bracket /* ] */
 '('     %{
+  console.log('Pushing state ATTRIBUTES')
     this.pushState('ATTRIBUTES')
     return 'LPAREN';
   %}
 ')'    %{
     this.popState()
-    return 'ATTRIBUTES';
+    return 'RPAREN';
   %}
 // \"[^\"]*\"|\'[^\']*\'		yytext = yytext.substr(1,yyleng-2); 
 //   if (isText)
@@ -133,7 +185,9 @@ line_ending_with_dot			.+(\.|\/\/)
 //   if (isText)
 //     return;
 //   else return 'COMMA';
-^#{id}   return 'ELEMENT_ID';
+^#{id}   
+    this.pushState('TAG')
+    return 'ELEMENT_ID';
 \|.*   return 'PIPE_TEXT';
 // {id} %{
 //   if (isText)
@@ -143,6 +197,7 @@ line_ending_with_dot			.+(\.|\/\/)
 //   %}
 // {dot}      return 'TO_END_OF_LINE';
 <INITIAL>\s*<<EOF>>		%{
+  console.log('stateStackSize()=' + this.stateStackSize())
   // remaining DEDENTs implied by EOF, regardless of tabs/spaces
   var tokens = [];
   log('<INITIAL>\s*<<EOF>>: setting isText to false');
@@ -187,7 +242,7 @@ line_ending_with_dot			.+(\.|\/\/)
   log('no indentation change on line ' + yylloc.last_line, stack[0])
 %}
 
-{line_ending_with_dot}  %{ console.log('line_ending_with_dot. yytext=' + yytext) %}
+<TAG>{line_ending_with_dot}  %{ console.log('line_ending_with_dot. yytext=' + yytext) %}
 					// var indentation = yytext.search(/\w/);
           console.log('yylloc=', yylloc)
           console.log('first_column=' + yylloc.first_column + ', yyleng=' + yyleng + ', yytext.search(/\\s/)=' + yytext.search(/\s/)); 
@@ -255,8 +310,14 @@ block
 
 stmt
   : tag
+  { 
+    log('stmt: tag', $tag);
+  }
   | tag the_rest
-  { log('TAG THEREST', $$); $$ = { type: 'TAG', val: $tag, rest: $the_rest.val, loc: toLoc(yyloc) } }
+  { 
+    log('stmt: tag the_rest', $tag, $the_rest);
+    $tag.rest = ($tag.rest || '') + $the_rest.val
+  }
 //   | TAG THEREST
 //   { log('TAG THEREST', $$); $$ = { type: 'TAG', val: $TAG, body: $THEREST, loc: toLoc(yyloc) } }
 //   | KEYWORD 
@@ -278,15 +339,40 @@ stmt
 //   | TEXT 
 //   { log('TEXT', $$); $$ = { type: 'text', val: $TEXT, loc: toLoc(yyloc) } }
   | the_rest
-  | LINE_ENDING_WITH_DOT
-  { log('stmt: LINE_ENDING_WITH_DOT=', $LINE_ENDING_WITH_DOT); $$ = [{ type:'LINE_ENDING_WITH_DOT', val: $LINE_ENDING_WITH_DOT}] }
+  | tag LINE_ENDING_WITH_DOT texts
+  { 
+    log('stmt: LINE_ENDING_WITH_DOT=', $LINE_ENDING_WITH_DOT); 
+    $$ = [{ type:'LINE_ENDING_WITH_DOT', val: $LINE_ENDING_WITH_DOT}, $texts ]
+  }
+  ;
+
+texts
+  : texts TEXT
+  { log('texts: texts TEXT', $$); $texts.push({ type: 'TEXT', val: $TEXT }); $$ = $texts  }
+  | TEXT
+  { log('texts: TEXT', $$); $$ = [{ type: 'TEXT', val: $TEXT }] }
   ;
 
 tag
-  : TAG
-  { log('TAG', $$); $$ = { type: 'TAG', val: $TAG, loc: toLoc(yyloc) } }
-  | ELEMENT_ID
-  { log('ELEMENT_ID', $$); $$ = { type: 'ELEMENT_ID', id: $ELEMENT_ID, loc: toLoc(yyloc) } }
+  : TAG_START THEREST NEWLINE
+  { 
+    log('TAG_START THEREST NEWLINE', $TAG_START); 
+    $$ = { type: 'TAG', val: $TAG_START, rest: $THEREST, loc: toLoc(yyloc) } 
+  }
+  | TAG_START NEWLINE
+  { 
+    log('TAG_START NEWLINE', $TAG_START); 
+    $$ = { type: 'TAG', val: $TAG_START,  loc: toLoc(yyloc) } 
+  }
+  // | TAG_START PIPE_TEXT
+  // { 
+  //   log('TAG_START NEWLINE', $TAG_START); 
+  //   $$ = { type: 'TAG', val: $TAG_START,  loc: toLoc(yyloc) } 
+  // }
+  | ELEMENT_ID THEREST
+  { log('ELEMENT_ID', $$); $$ = { type: 'TAG', id: $ELEMENT_ID, rest: $THEREST, loc: toLoc(yyloc) } }
+  | ELEMENT_ID NEWLINE
+  { log('ELEMENT_ID', $$); $$ = { type: 'TAG', id: $ELEMENT_ID, loc: toLoc(yyloc) } }
   ;
 
 the_rest
@@ -295,8 +381,6 @@ the_rest
   | LPAREN
   | PIPE_TEXT
   { log('the_rest: PIPE_TEXT', $$); $$ = { type: 'PIPE_TEXT', val: $PIPE_TEXT }  }
-  | TEXT
-  { log('the_rest: TEXT', $$); $$ = { type: 'TEXT', val: $TEXT }  }
   ;
 
 // TEXT
@@ -454,13 +538,13 @@ function toLoc(yyloc) {
 }
 
 function log() {
-  // console.log(...arguments);
+  console.log(...arguments);
 }
 
 var isText = false;
 var filename;
 var stripDown = false;
-var location = true;
+var location = false;
 
 var util = require('util')
 

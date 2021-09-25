@@ -875,6 +875,7 @@ parseError: function parseError(str, hash, ExceptionClass) {
         if (!ExceptionClass) {
             ExceptionClass = this.JisonParserError;
         }
+        hash.lexer.originalStack = hash.lexer.conditionStack.join(', ')
         throw new ExceptionClass(str, hash);
     }
 },
@@ -2014,7 +2015,8 @@ EOF: 1,
         }
       }
 
-      throw new ExceptionClass(str, hash);
+      hash.lexer.originalStack = hash.lexer.conditionStack.join(', ')
+        throw new ExceptionClass(str, hash);
     },
 
     /**
