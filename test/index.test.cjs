@@ -23,7 +23,7 @@ describe('test', function () {
     // delete actual.children[1].children[1].children[0].children
     // console.log(actual.children[1].children[1].children[0])
     dyp(actual,
-      {
+      [{
         "type": "tag",
         "val": "html",
         "children": [
@@ -79,6 +79,6 @@ describe('test', function () {
             ]
           }
         ]
-      })
+      }])
   })
 })

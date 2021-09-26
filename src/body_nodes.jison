@@ -112,8 +112,8 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 %%
 
 start
-	: node ENDOFFILE
-	{ debug('parse.start.node', "AST: %j", $node); }
+	: nodes ENDOFFILE
+	{ debug('parse.start.nodes', "AST: %j", $nodes); }
 	;
 
 node
