@@ -9,6 +9,7 @@ id			[_?a-zA-Z]+[_a-zA-Z0-9-]*\b
 spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 newline [\r\n]
 not_newline [^\r\n]
+end_of_line_dot ((\.[\n\r])|(\.\s+[\n\r]))
 classname_decl \.{id}+\b
 id_decl #{id}+\b
 line_ending_with_dot			.+(\.|\/\/)
@@ -18,6 +19,7 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 %s TAG
 %x TEXT
 %x BODY_STATE
+%x EXPECT_INDENT
 
 %%
 
@@ -36,7 +38,7 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   }
 
   let tokens = []
-  
+
   while (indentation < stack[0]) {
     log("adding dedent on line", yylloc, stack)
     tokens.unshift("DEDENT");
@@ -72,6 +74,11 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   return "BODY"
 <TAG>{not_newline}*<<EOF>> 
   return cleanEof.apply(this)
+<TAG>{end_of_line_dot} 
+%{
+  this.popState();
+  this.pushState('EXPECT_INDENT')
+%}
 
 <BODY_STATE>{not_newline}+ 
   debug('lex')('BODY_STATE')('not_newline')()
@@ -88,6 +95,32 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
     this.popState()
   // }
 %}
+
+/*  */
+
+<EXPECT_INDENT>^({spc}{spc}|\t)+  %{
+  var indentation2 = yytext.length
+
+  debug('lex')('EXPECT_INDENT')('space at beginning of line')();
+  debug('lex')('EXPECT_INDENT')('indentation=' + indentation2)();
+
+  if (indentation2 > stack[0]) {
+    stack.unshift(indentation2)
+    this.popState()
+    this.pushState('TEXT')
+    return 'INDENT'
+  }
+%}
+
+<TEXT>{not_newline}+ return 'TEXT'
+<TEXT>{newline}+ ;
+<TEXT>\s*<<EOF>>		%{
+  // remaining DEDENTs implied by EOF, regardless of tabs/spaces
+  resetState.apply(this)
+  return cleanEof.apply(this)
+%}	
+
+
 // <TAG>[^\n]+ 
 //    return 'THEREST'
 // <TAG>{newline}
@@ -370,10 +403,17 @@ line
 
 block
 	: INDENT lines DEDENT
-	{ log('INDENT lines DEDENT', $$); $$ = $lines; }
+	{ log('INDENT lines DEDENT', $lines); $$ = $lines; }
 //   // | DEDENT
 // 	// { log('DEDENT'); $$ = {type:'DEDENT'} }
 	;
+
+body
+  : block
+  | SPACE TEXT NEWLINE
+  | DOT NEWLINE INDENT TEXT DETENT
+  | NEWLINE INDENT PIPE TEXT DETENT
+  ;
 
 // stmt
 //   : tag
@@ -424,32 +464,32 @@ tag
   : TAG_NAME BODY
   { 
     log('tag: TAG_NAME BODY', $BODY); 
-    $$ = { type: 'TAG', val: $TAG_NAME, rest: $BODY, loc: toLoc(yyloc) } 
+    $$ = { type: 'TAG', val: $TAG_NAME, body: $BODY, loc: toLoc(yyloc) } 
   }
   | TAG_NAME ID_DECL BODY
   { 
     log('tag: TAG_NAME ID_DECL BODY', $BODY); 
-    $$ = { type: 'TAG', val: $TAG_NAME, id: $ID_DECL, rest: $BODY, loc: toLoc(yyloc) } 
+    $$ = { type: 'TAG', val: $TAG_NAME, id: $ID_DECL, body: $BODY, loc: toLoc(yyloc) } 
   }
   | TAG_NAME CLASSNAME_DECL BODY
   { 
     log('tag: TAG_NAME CLASSNAME_DECL BODY', $BODY); 
-    $$ = { type: 'TAG', val: $TAG_NAME, class: $CLASSNAME_DECL, rest: $BODY, loc: toLoc(yyloc) } 
+    $$ = { type: 'TAG', val: $TAG_NAME, class: $CLASSNAME_DECL, body: $BODY, loc: toLoc(yyloc) } 
   }
   | TAG_NAME ATTRIBUTES BODY
   { 
     log('tag: TAG_NAME BODY', $BODY); 
-    $$ = { type: 'TAG', val: $TAG_NAME, rest: $BODY, loc: toLoc(yyloc) } 
+    $$ = { type: 'TAG', val: $TAG_NAME, body: $BODY, loc: toLoc(yyloc) } 
   }
   | TAG_NAME ID_DECL ATTRIBUTES BODY
   { 
     log('tag: TAG_NAME ID_DECL BODY', $BODY); 
-    $$ = { type: 'TAG', val: $TAG_NAME, id: $ID_DECL, rest: $BODY, loc: toLoc(yyloc) } 
+    $$ = { type: 'TAG', val: $TAG_NAME, id: $ID_DECL, body: $BODY, loc: toLoc(yyloc) } 
   }
   | TAG_NAME CLASSNAME_DECL ATTRIBUTES BODY
   { 
     log('tag: TAG_NAME CLASSNAME_DECL BODY', $BODY); 
-    $$ = { type: 'TAG', val: $TAG_NAME, class: $CLASSNAME_DECL, rest: $BODY, loc: toLoc(yyloc) } 
+    $$ = { type: 'TAG', val: $TAG_NAME, class: $CLASSNAME_DECL, body: $BODY, loc: toLoc(yyloc) } 
   }
 //   | TAG_START NEWLINE
 //   { 
@@ -673,9 +713,7 @@ function strip(arr) {
 }
 
 function cleanEof() {
-  while (this.topState() != 'INITIAL') {
-    this.popState()
-  }
+  resetState.apply(this);
 
   var tokens = [];
   while (0 < stack[0]) {
