@@ -10,7 +10,9 @@ id			[_?a-zA-Z]+[_a-zA-Z0-9-]*\b
 spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 not_spc_nor_newline			[^\n\r\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 not_spc_nor_newline_nor_pipe 		[^|\n\r\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
+not_spc_nor_newline_nor_pipe_nor_parens 		[^()|\n\r\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 newline [\r\n]
+attributes \([^\r\n]+\)
 not_newline [^\r\n]
 end_of_line_dot ((\.[\n\r])|(\.\s+[\n\r]))
 classname_decl \.{id}+\b
@@ -30,6 +32,8 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 %%
 
 
+{attributes}  return 'ATTRIBUTES'
+
 <BODY_STATE>{not_newline}+ %{
   debug('lex.BODY_STATE', 'not_newline=' + yytext);
   return 'TEXT'
@@ -45,7 +49,7 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   this.pushState('BODY_STATE')
 %}
 
-<INITIAL>{not_spc_nor_newline_nor_pipe}+ %{
+<INITIAL>{not_spc_nor_newline_nor_pipe_nor_parens}+ %{
   debug('lex.INITAL', 'not_spc_nor_newline=' + yytext);
   // this.pushState('TAG'); 
   dotIs = yytext.endsWith('.');
@@ -156,6 +160,11 @@ node
     debug('parse.name.TAG_NAME', $TAG_NAME)
     $$ =  { type: 'tag', val: $TAG_NAME }
   }
+  | TAG_NAME ATTRIBUTES
+  {
+    debug('parse.name.TAG_NAME', $TAG_NAME)
+    $$ =  { type: 'tag', val: $TAG_NAME, attrs: $ATTRIBUTES }
+  }
   | TAG_NAME children
   {
     if (util.isArray($children)) {
@@ -163,6 +172,15 @@ node
     }
     else {
       $$ = { type: 'tag', val: $TAG_NAME, hint: 12, children: [$children] } 
+    }
+  } 
+  | TAG_NAME ATTRIBUTES children
+  {
+    if (util.isArray($children)) {
+      $$ = { type: 'tag', val: $TAG_NAME, hint: 14, children: $children, attrs: $ATTRIBUTES } 
+    }
+    else {
+      $$ = { type: 'tag', val: $TAG_NAME, hint: 12, children: [$children], attrs: $ATTRIBUTES } 
     }
   } 
   | TEXT
@@ -198,7 +216,7 @@ nodes
   }
   | node
   { 
-    debug('parse.nodes.node', 'node=' + $node)
+    debug('parse.nodes.node', 'node=', $node)
     $$ = [$node] 
   }
   ;
@@ -313,9 +331,9 @@ function isEnabled(stack) {
 
 const logLevels = {
   '': true,
-  'lex': false,
-  'parse': false,
-  'parser': false
+  'lex': true,
+  'parse': true,
+  'parser': true
 }
 
 function isEnabled(pkg) {
@@ -328,9 +346,14 @@ function isEnabled(pkg) {
   return findNearestLogLevel(pkg);
 }
 
-function debug(pkg, ...args) {
-  if (isEnabled(pkg)) {
-    console.log(pkg, ...args)
+function debug() {
+  if (isEnabled(arguments[0])) {
+    console.log(arguments[0])
+    console.group()
+    Array.from(arguments).slice(1).forEach(arg => {
+      console.log(util.inspect(arg, false, 10))
+    })
+    console.groupEnd()
   }
 }
 
