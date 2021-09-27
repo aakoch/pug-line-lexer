@@ -43,15 +43,16 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   const indentation5 = this.matches[1].length;
   debug('lex.TEXT_STATE', 'stack[0]=' + stack[0]);
 
+  yytext = yytext.trim()
   if(indentation5 < stack[0]) {
     this.popState();
     stack.shift()
-    debug('lex.TEXT_STATE', 'popping state and returning "[\'NEWLINE\', \'NAME\']"')
+    debug('lex.TEXT_STATE', 'popping state and returning "NAME"')
     return 'NAME'
   }
   else {
-    return 'TEXT'
     debug('lex.TEXT_STATE', 'keeping state and returning "TEXT"')
+    return 'TEXT'
   }
 %}
 <TEXT_STATE>{newline} %{
@@ -82,6 +83,7 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 %}
 
 <TEXT_STATE>\s*<<EOF>>		%{
+  debug('lex.space to EOF')
   // remaining DEDENTs implied by EOF, regardless of tabs/spaces
   return cleanEof.apply(this)
 %}	
@@ -102,10 +104,11 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 <BODY_STATE>{newline}+ %{
   debug('lex.BODY_STATE', 'newline');
   this.popState()
-  return 'NEWLINE'
+  // return 'NEWLINE'
 %}
 
 <BODY_STATE>'.' %{
+  debug('lex.BODY_STATE.DOT');
   return 'DOT'
 %}
 
@@ -137,13 +140,15 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   else 
     return 'NAME'
 %}
+
 {newline} %{
+  debug('lex.__all__.newline')
   this.popState()
 %}
 
 ^({spc}{spc}|\t)+
 %{
-  debug('lex.__all__', 'indent of length ' + yytext.length);
+  debug('lex.__all__.spc_spc', 'indent of length ' + yytext.length);
   const indentation3 = yytext.length
 
   if(indentation3 > stack[0]) {
@@ -169,11 +174,13 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 
 
 <INITIAL>\s*<<EOF>>		%{
+  debug('lex.')
   // remaining DEDENTs implied by EOF, regardless of tabs/spaces
   return cleanEof.apply(this)
 %}	
 
 {spc} %{
+  debug('lex.__all__.spc')
   return 'SPACE'
 %}
 
@@ -203,6 +210,18 @@ nodes
       $$ = $nodes;
     }
   }
+  // | nodes node NEWLINE
+  // {
+  //   debug('parse.nodes.nodes_node_NEWLINE', 'nodes=' + util.inspect($nodes), 'node=' + util.inspect($node))
+  //   if (util.isArray($nodes)) {
+  //     $nodes.push($node);
+  //     $$ = $nodes;
+  //   }
+  //   else { 
+  //     $nodes.children = [$node]
+  //     $$ = $nodes;
+  //   }
+  // }
   | node
   { 
     debug('parse.nodes.node', 'node=', $node)
@@ -211,13 +230,15 @@ nodes
   ;
 
 node
-  : NAME
+  : 
+  | NAME
   {
     debug('parse.node.NAME', $NAME)
     $$ = { type: 'text', name: $NAME.trim(), hint: 1 }
   }
   | NAME children
   {
+    debug('parse.node.NAME_children', $NAME, $children)
     let type = 'node'
     if ($NAME.startsWith('|')) {
       type = 'text'
@@ -232,6 +253,21 @@ node
     debug('parse.node.TAG_NAME', $TAG_NAME)
     $$ =  { type: 'tag', val: $TAG_NAME }
   }
+  | TAG_NAME TEXT
+  {
+    debug('parse.node.TAG_NAME_SPACE_TEXT', $TAG_NAME, $TEXT)
+    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 21 }] }
+  } 
+  | TAG_NAME SPACE TEXT
+  {
+    debug('parse.node.TAG_NAME_SPACE_TEXT', $TAG_NAME, $TEXT)
+    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 31 }] }
+  } 
+  | TAG_NAME node
+  {
+    debug('parse.node.TAG_NAME', $TAG_NAME)
+    $$ =  { type: 'tag', val: $TAG_NAME, hint: 17, children: [$node] }
+  }
   | TAG_NAME children
   {
     debug('parse.node.TAG_NAME_children', $TAG_NAME, $children)
@@ -244,16 +280,17 @@ node
       $$ = { type: 'tag', val: $TAG_NAME, hint: 8, children: [$children] } 
     }
   } 
-  | TEXT  
+  | node TEXT
   {
-    debug('parse.node.TEXT 1 ', $TEXT)
-    $$ = { type: 'text', name: $TEXT.trim(), hint: 21 }
-  } 
-  | TEXT NEWLINE
-  {
-    debug('parse.node.TEXT 2 ', $TEXT)
-    $$ = { type: 'text', name: $TEXT.trim(), hint: 22 }
-  } 
+    debug('parse.node.TEXT', $node, $TEXT)
+    $node.children = $node.children.concat({ type: 'text', name: $TEXT.trim(), hint: 41 });
+    $$ = $node
+  }
+  // | TEXT NEWLINE
+  // {
+  //   debug('parse.node.TEXT 2 ', $TEXT)
+  //   $$ = { type: 'text', name: $TEXT.trim(), hint: 22 }
+  // } 
 	;
 
 children
@@ -261,15 +298,13 @@ children
   { $$ = $nodes }
   | SPACE node
   { $$ = $node }
-  | TEXT
-  { $$ = { type: 'text', val: $TEXT } }
   ;
 
 
 %% 
 
 const fs = require('fs')
-const tagLines = fs.readFileSync('all_tags.txt', 'utf-8').split('\n')
+const tagLines = fs.readFileSync('/Users/aakoch/projects/new-foo/workspaces/parser-generation/all_tags.txt', 'utf-8').split('\n')
 const tags = tagLines.join('|')
 // console.log(tags)
 var stack = [0];
@@ -365,7 +400,7 @@ function isEnabled(stack) {
 
 const logLevels = {
   '': true,
-  'lex': false,
+  'lex': true,
   'parse': true,
   'parser': true
 }
