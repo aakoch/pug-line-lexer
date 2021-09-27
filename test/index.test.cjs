@@ -3,7 +3,8 @@ var util = require('util')
 const expect = chai.expect;
 const dyp = require('dyp');
 
-const parser = require('/Users/aakoch/projects/new-foo/workspaces/parser-generation/build/body_nodes.cjs')
+// const parser = require('/Users/aakoch/projects/new-foo/workspaces/parser-generation/build/body_nodes.cjs')
+const parser = require('/Users/aakoch/projects/new-foo/workspaces/parser-generation/build/elements.cjs')
 
 describe('test', function () {
   it('should match a known working example', function () {
@@ -13,8 +14,10 @@ describe('test', function () {
     div Adam is me
     div.
       Ben is no longer living
+      He was my older brother.
     div
-      | Chris is my brother who is a doctor
+      | Chris is my brother who is a <em>doctor</em>.
+      | He is younger than me.
     div
       div
     `
@@ -23,62 +26,71 @@ describe('test', function () {
     // delete actual.children[1].children[1].children[0].children
     // console.log(actual.children[1].children[1].children[0])
     dyp(actual,
-      [{
-        "type": "tag",
-        "val": "html",
-        "children": [
+      [
+        {
+          "type": "tag",
+          "val": "html"
+        },
+        [
           {
             "type": "tag",
             "val": "head"
           },
           {
             "type": "tag",
-            "val": "body",
-            "children": [
+            "val": "body"
+          },
+          [
+            {
+              "type": "tag",
+              "val": "div",
+              "children": [
+                {
+                  "type": "text",
+                  "name": "Adam is me",
+                }
+              ]
+            },
+            {
+              "type": "tag",
+              "val": "div",
+              "children": [
+                {
+                  "type": "text",
+                  "name": "Ben is no longer living",
+                },
+                {
+                  "type": "text",
+                  "name": "He was my older brother.",
+                }
+              ]
+            },
+            {
+              "type": "node",
+              "name": "div",
+              "children": [
+                {
+                  "type": "text",
+                  "name": "Chris is my brother who is a <em>doctor</em>.",
+                },
+                {
+                  "type": "text",
+                  "name": "He is younger than me.",
+                }
+              ]
+            },
+            {
+              "type": "tag",
+              "val": "div"
+            },
+            [
               {
                 "type": "tag",
-                "val": "div",
-                "hint": 12,
-                "children": [
-                  {
-                    "type": "text",
-                    "val": " Adam is me"
-                  }
-                ]
-              },
-              {
-                "type": "node",
-                "name": "div",
-                "children": [
-                  {
-                    "type": "text",
-                    "name": "Ben is no longer living"
-                  }
-                ]
-              },
-              {
-                "type": "tag",
-                "val": "div",
-                "children": [
-                  {
-                    "type": "text",
-                    "name": " Chris is my brother who is a doctor"
-                  }
-                ]
-              },
-              {
-                "type": "tag",
-                "val": "div",
-                "children": [
-                  {
-                    "type": "tag",
-                    "val": "div"
-                  }
-                ]
+                "val": "div"
               }
             ]
-          }
+          ]
         ]
-      }])
+      ])
   })
 })

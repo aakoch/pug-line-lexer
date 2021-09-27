@@ -1,5 +1,7 @@
 /* 
- I was trying to dial in the handling of plain text. I am close, but I have a text node not in the correct place.
+ I was trying to dial in the handling of plain text. 
+ 
+ Last div is not in the correct depth
 
  TODO: npx jison -o build/elements.cjs --main src/elements.jison  && node build/elements.cjs /Users/aakoch/projects/adamkoch.com/nodes.pug
 
@@ -83,7 +85,7 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 %}
 
 <TEXT_STATE>\s*<<EOF>>		%{
-  debug('lex.space to EOF')
+  debug('lex.TEXT_STATE to EOF')
   // remaining DEDENTs implied by EOF, regardless of tabs/spaces
   return cleanEof.apply(this)
 %}	
@@ -111,6 +113,12 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   debug('lex.BODY_STATE.DOT');
   return 'DOT'
 %}
+
+<BODY_STATE>\s*<<EOF>>		%{
+  debug('lex.BODY_STATE to EOF')
+  // remaining DEDENTs implied by EOF, regardless of tabs/spaces
+  return cleanEof.apply(this)
+%}	
 
 '|' %{
   debug('lex.pipe');
@@ -255,7 +263,7 @@ node
   }
   | TAG_NAME TEXT
   {
-    debug('parse.node.TAG_NAME_SPACE_TEXT', $TAG_NAME, $TEXT)
+    debug('parse.node.TAG_NAME_TEXT', $TAG_NAME, $TEXT)
     $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 21 }] }
   } 
   | TAG_NAME SPACE TEXT
@@ -263,29 +271,31 @@ node
     debug('parse.node.TAG_NAME_SPACE_TEXT', $TAG_NAME, $TEXT)
     $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 31 }] }
   } 
-  | TAG_NAME node
-  {
-    debug('parse.node.TAG_NAME', $TAG_NAME)
-    $$ =  { type: 'tag', val: $TAG_NAME, hint: 17, children: [$node] }
-  }
-  | TAG_NAME children
-  {
-    debug('parse.node.TAG_NAME_children', $TAG_NAME, $children)
-    if (util.isArray($children)) {
-      $$ = { type: 'tag', val: $TAG_NAME, hint: 7, children: $children } 
-    }
-    else {
-      if ($children.val)
-        $children.val = $children.val.trim()
-      $$ = { type: 'tag', val: $TAG_NAME, hint: 8, children: [$children] } 
-    }
-  } 
+  // | TAG_NAME node
+  // {
+  //   debug('parse.node.TAG_NAME', $TAG_NAME)
+  //   $$ =  { type: 'tag', val: $TAG_NAME, hint: 17, children: [$node] }
+  // }
+  // | TAG_NAME children
+  // {
+  //   debug('parse.node.TAG_NAME_children', $TAG_NAME, $children)
+  //   if (util.isArray($children)) {
+  //     $$ = { type: 'tag', val: $TAG_NAME, hint: 7, children: $children } 
+  //   }
+  //   else {
+  //     if ($children.val)
+  //       $children.val = $children.val.trim()
+  //     $$ = { type: 'tag', val: $TAG_NAME, hint: 8, children: [$children] } 
+  //   }
+  // } 
   | node TEXT
   {
     debug('parse.node.TEXT', $node, $TEXT)
     $node.children = $node.children.concat({ type: 'text', name: $TEXT.trim(), hint: 41 });
     $$ = $node
   }
+  | INDENT nodes DEDENT
+  { $$ = $nodes }
   // | TEXT NEWLINE
   // {
   //   debug('parse.node.TEXT 2 ', $TEXT)
@@ -296,8 +306,8 @@ node
 children
   : INDENT nodes DEDENT
   { $$ = $nodes }
-  | SPACE node
-  { $$ = $node }
+  // | SPACE node
+  // { $$ = $node }
   ;
 
 
