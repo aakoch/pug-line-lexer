@@ -103,7 +103,8 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   // return 'NEWLINE'
 %}
 
-<BODY_STATE>{newline}+ %{
+// \s* for times when there is an extra space at the end of the line
+<BODY_STATE>\s*{newline}+ %{
   debug('lex.BODY_STATE', 'newline');
   this.popState()
   // return 'NEWLINE'
@@ -210,10 +211,12 @@ nodes
   {
     debug('parse.nodes.nodes_node', 'nodes=' + util.inspect($nodes), 'node=' + util.inspect($node))
     if (util.isArray($nodes)) {
+      debug('parse.nodes.nodes_node', 'nodes is an array, so we are pushing')
       $nodes.push($node);
       $$ = $nodes;
     }
     else { 
+      debug('parse.nodes.nodes_node', 'nodes is an object, so we are using children')
       $nodes.children = [$node]
       $$ = $nodes;
     }
@@ -244,9 +247,9 @@ node
     debug('parse.node.NAME', $NAME)
     $$ = { type: 'text', name: $NAME.trim(), hint: 1 }
   }
-  | NAME children
+  | NAME INDENT nodes DEDENT
   {
-    debug('parse.node.NAME_children', $NAME, $children)
+    debug('parse.node.NAME_children', $NAME, $nodes)
     let type = 'node'
     if ($NAME.startsWith('|')) {
       type = 'text'
@@ -254,12 +257,12 @@ node
     else if ($NAME.trim().endsWith('.')) {
       type = 'text'
     }
-    $$ = { type: type, name: $NAME, hint: 2, children: $children } 
+    $$ = { type: type, name: $NAME, hint: 2, children: $nodes } 
   } 
   | TAG_NAME
   {
     debug('parse.node.TAG_NAME', $TAG_NAME)
-    $$ =  { type: 'tag', val: $TAG_NAME }
+    $$ =  { type: 'tag', val: $TAG_NAME, hint: 32 }
   }
   | TAG_NAME TEXT
   {
@@ -271,44 +274,26 @@ node
     debug('parse.node.TAG_NAME_SPACE_TEXT', $TAG_NAME, $TEXT)
     $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 31 }] }
   } 
-  // | TAG_NAME node
-  // {
-  //   debug('parse.node.TAG_NAME', $TAG_NAME)
-  //   $$ =  { type: 'tag', val: $TAG_NAME, hint: 17, children: [$node] }
-  // }
-  // | TAG_NAME children
-  // {
-  //   debug('parse.node.TAG_NAME_children', $TAG_NAME, $children)
-  //   if (util.isArray($children)) {
-  //     $$ = { type: 'tag', val: $TAG_NAME, hint: 7, children: $children } 
-  //   }
-  //   else {
-  //     if ($children.val)
-  //       $children.val = $children.val.trim()
-  //     $$ = { type: 'tag', val: $TAG_NAME, hint: 8, children: [$children] } 
-  //   }
-  // } 
   | node TEXT
   {
     debug('parse.node.TEXT', $node, $TEXT)
     $node.children = $node.children.concat({ type: 'text', name: $TEXT.trim(), hint: 41 });
     $$ = $node
   }
+  // for cases where text is the last statement with no newlin
+  | node TEXT DEDENT
+  {
+    debug('parse.node.TEXT', $node, $TEXT)
+    $node.children = $node.children.concat({ type: 'text', name: $TEXT.trim(), hint: 41 });
+    $$ = $node
+  }
   | INDENT nodes DEDENT
-  { $$ = $nodes }
-  // | TEXT NEWLINE
-  // {
-  //   debug('parse.node.TEXT 2 ', $TEXT)
-  //   $$ = { type: 'text', name: $TEXT.trim(), hint: 22 }
-  // } 
+  { 
+    debug('parse.node.INDENT_nodes_DEDENT', $nodes)
+    $$ = $nodes 
+  }
 	;
 
-children
-  : INDENT nodes DEDENT
-  { $$ = $nodes }
-  // | SPACE node
-  // { $$ = $node }
-  ;
 
 
 %% 
