@@ -221,18 +221,6 @@ nodes
       $$ = $nodes;
     }
   }
-  // | nodes node NEWLINE
-  // {
-  //   debug('parse.nodes.nodes_node_NEWLINE', 'nodes=' + util.inspect($nodes), 'node=' + util.inspect($node))
-  //   if (util.isArray($nodes)) {
-  //     $nodes.push($node);
-  //     $$ = $nodes;
-  //   }
-  //   else { 
-  //     $nodes.children = [$node]
-  //     $$ = $nodes;
-  //   }
-  // }
   | node
   { 
     debug('parse.nodes.node', 'node=', $node)
@@ -245,11 +233,11 @@ node
   | NAME
   {
     debug('parse.node.NAME', $NAME)
-    $$ = { type: 'text', name: $NAME.trim(), hint: 1 }
+    $$ = { type: 'text', name: $NAME.trim(), hint: 1, loc: toLoc(yyloc) }
   }
   | NAME INDENT nodes DEDENT
   {
-    debug('parse.node.NAME_children', $NAME, $nodes)
+    debug('parse.node.NAME_INDENT_nodes_DEDENT', $NAME, $nodes)
     let type = 'node'
     if ($NAME.startsWith('|')) {
       type = 'text'
@@ -257,34 +245,45 @@ node
     else if ($NAME.trim().endsWith('.')) {
       type = 'text'
     }
-    $$ = { type: type, name: $NAME, hint: 2, children: $nodes } 
+    $$ = { type: type, name: $NAME, hint: 2, children: $nodes, loc: toLoc(yyloc) } 
   } 
   | TAG_NAME
   {
     debug('parse.node.TAG_NAME', $TAG_NAME)
-    $$ =  { type: 'tag', val: $TAG_NAME, hint: 32 }
+    $$ =  { type: 'tag', val: $TAG_NAME, hint: 32, loc: toLoc(yyloc) }
+  }
+  | TAG_NAME ATTRIBUTES
+  {
+    debug('parse.node.TAG_NAME_ATTRIBUTES', $TAG_NAME, $ATTRIBUTES)
+    $$ =  { type: 'tag', val: $TAG_NAME, attrs: $ATTRIBUTES, hint: 32, loc: toLoc(yyloc) }
   }
   | TAG_NAME TEXT
   {
     debug('parse.node.TAG_NAME_TEXT', $TAG_NAME, $TEXT)
+    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 21 }], loc: toLoc(yyloc) }
+  } 
+  // added for text that ended the line with a period
+  | TAG_NAME TEXT DEDENT
+  {
+    debug('parse.node.TAG_NAME_TEXT_DEDENT', $TAG_NAME, $TEXT)
     $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 21 }] }
   } 
   | TAG_NAME SPACE TEXT
   {
     debug('parse.node.TAG_NAME_SPACE_TEXT', $TAG_NAME, $TEXT)
-    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 31 }] }
+    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 31 }], loc: toLoc(yyloc) }
   } 
   | node TEXT
   {
     debug('parse.node.TEXT', $node, $TEXT)
-    $node.children = $node.children.concat({ type: 'text', name: $TEXT.trim(), hint: 41 });
+    $node.children = ($node.children || []).concat({ type: 'text', name: $TEXT.trim(), hint: 41, loc: toLoc(yyloc) });
     $$ = $node
   }
   // for cases where text is the last statement with no newlin
   | node TEXT DEDENT
   {
     debug('parse.node.TEXT', $node, $TEXT)
-    $node.children = $node.children.concat({ type: 'text', name: $TEXT.trim(), hint: 41 });
+    $node.children = ($node.children || []).concat({ type: 'text', name: $TEXT.trim(), hint: 41 });
     $$ = $node
   }
   | INDENT nodes DEDENT
@@ -325,7 +324,7 @@ function toLoc(yyloc) {
 var isText = false;
 var filename;
 var stripDown = false;
-var location = false;
+var location = true;
 
 var util = require('util')
 
