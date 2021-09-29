@@ -11,7 +11,7 @@
 
 start_dot_text \.\s*\n\s*\|
 tag_name			[a-zA-Z]+
-id			[_?a-zA-Z]+[_a-zA-Z0-9-]*\b
+id			[_?a-zA-Z]+[_a-zA-Z0-9-]+\b
 spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 not_spc_nor_newline			[^\n\r\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 not_spc_nor_newline_nor_pipe 		[^|\n\r\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
@@ -36,14 +36,33 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 
 %%
 
+\.{id} return 'CLASSNAME'
 
-{attributes}  return 'ATTRIBUTES'
+{attributes} 
+%{
+  debug('lex.__all__.attributes', 'yytext=' + yytext)
+  debug('lex.__all__.attributes', 'yy.lexer.conditionStack=' + yy.lexer.conditionStack)
+  this.pushState('ATTRIBUTES')
+  return 'ATTRIBUTES'
+%}
+
+<ATTRIBUTES>{not_newline}+ 
+%{
+  debug('lex.ATTRIBUTES.not_newline', yytext)
+  return 'TEXT'
+%}
+
+<ATTRIBUTES>{newline}+ 
+%{
+  debug('lex.ATTRIBUTES.newline')
+  this.popState();
+%}
+
 <TEXT_STATE>^({spc}*)([^\n\r]+) %{
   debug('lex.TEXT_STATE', 'beginning of line=' + yytext);
-  debug('lex.TEXT_STATE', 'matches[1].length=' + this.matches[1].length);
   
   const indentation5 = this.matches[1].length;
-  debug('lex.TEXT_STATE', 'stack[0]=' + stack[0]);
+  debug('lex.TEXT_STATE', 'matches[1].length=' + indentation5 + (indentation5 < stack[0] ? ' <' : ' >=') + ' stack[0]=' + stack[0]);
 
   yytext = yytext.trim()
   if(indentation5 < stack[0]) {
@@ -63,9 +82,9 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 
 <TEXT_STATE>({spc}{spc}|\t)+
 %{
-  debug('lex.TEXT_STATE', 'indent of length ' + yytext.length);
-  debug('lex.TEXT_STATE', 'stack ' + stack);
   const indentation4 = yytext.length
+  debug('lex.TEXT_STATE', 'indent of length ' + indentation4);
+  debug('lex.TEXT_STATE', 'stack ' + stack);
 
   if(indentation4 > stack[0]) {
     stack.unshift(indentation4)
@@ -90,8 +109,8 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   return cleanEof.apply(this)
 %}	
 
-<BODY_STATE>(?!{spc}+|\t)[^.\n\r]+(?<!\.\n) %{
-  debug('lex.BODY_STATE', 'TEXT=' + yytext);
+<BODY_STATE>(?!{spc}+|\t)[^.\n\r\(|]+(?<!\.\n) %{
+  debug('lex.BODY_STATE.complex1', 'yytext=' + yytext);
   return 'TEXT'
 %}
 
@@ -157,8 +176,8 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 
 ^({spc}{spc}|\t)+
 %{
-  debug('lex.__all__.spc_spc', 'indent of length ' + yytext.length);
   const indentation3 = yytext.length
+  debug('lex.__all__.spc_spc', 'yytext.length=' + indentation3 + (indentation3 < stack[0] ? ' <' : ' >=') + ' stack[0]=' + stack[0]);
 
   if(indentation3 > stack[0]) {
     stack.unshift(indentation3)
@@ -174,7 +193,6 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   
   this.popState()
   this.popState()
-  dotIs = false; 
 
   if (tokens3.length) {
     return tokens3;
@@ -207,7 +225,11 @@ start
 	;
 
 nodes
-  : nodes node
+  : 
+  {
+    debug('parse.nodes.[blank]', '$$=' + util.inspect($$))
+  }
+  | nodes node
   {
     debug('parse.nodes.nodes_node', 'nodes=' + util.inspect($nodes), 'node=' + util.inspect($node))
     if (util.isArray($nodes)) {
@@ -250,49 +272,72 @@ node
   | TAG_NAME
   {
     debug('parse.node.TAG_NAME', $TAG_NAME)
-    $$ =  { type: 'tag', val: $TAG_NAME, hint: 32, loc: toLoc(yyloc) }
+    $$ =  { type: 'tag', val: $TAG_NAME, hint: 3, loc: toLoc(yyloc) }
   }
   | TAG_NAME ATTRIBUTES
   {
     debug('parse.node.TAG_NAME_ATTRIBUTES', $TAG_NAME, $ATTRIBUTES)
-    $$ =  { type: 'tag', val: $TAG_NAME, attrs: $ATTRIBUTES, hint: 32, loc: toLoc(yyloc) }
+    $$ =  { type: 'tag', val: $TAG_NAME, attrs: $ATTRIBUTES, hint: 4, loc: toLoc(yyloc) }
   }
   | TAG_NAME TEXT
   {
     debug('parse.node.TAG_NAME_TEXT', $TAG_NAME, $TEXT)
-    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 21 }], loc: toLoc(yyloc) }
+    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 5 }], loc: toLoc(yyloc) }
   } 
   // added for text that ended the line with a period
   | TAG_NAME TEXT DEDENT
   {
     debug('parse.node.TAG_NAME_TEXT_DEDENT', $TAG_NAME, $TEXT)
-    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 21 }] }
+    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 6 }] }
   } 
   | TAG_NAME SPACE TEXT
   {
     debug('parse.node.TAG_NAME_SPACE_TEXT', $TAG_NAME, $TEXT)
-    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 31 }], loc: toLoc(yyloc) }
+    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 7 }], loc: toLoc(yyloc) }
   } 
   | node TEXT
   {
     debug('parse.node.TEXT', $node, $TEXT)
-    $node.children = ($node.children || []).concat({ type: 'text', name: $TEXT.trim(), hint: 41, loc: toLoc(yyloc) });
-    $$ = $node
+    if ($node == undefined) {
+      console.error('node is undefined')
+      $$ = { type: 'undefined', children: $TEXT }
+    }
+    else {
+      $node.children = ($node.children || []).concat({ type: 'text', name: $TEXT.trim(), hint: 8, loc: toLoc(yyloc) });
+      $$ = $node
+    }
   }
-  // for cases where text is the last statement with no newlin
+  // for cases where text is the last statement with no newline
   | node TEXT DEDENT
   {
-    debug('parse.node.TEXT', $node, $TEXT)
-    $node.children = ($node.children || []).concat({ type: 'text', name: $TEXT.trim(), hint: 41 });
-    $$ = $node
+    debug('parse.node.TEXT_DEDENT', $node, $TEXT)
+    if ($node == undefined) {
+      console.error('node is undefined')
+      $$ = { type: 'undefined', children: $TEXT }
+    }
+    else {
+      $node.children = ($node.children || []).concat({ type: 'text', name: $TEXT.trim(), hint: 9 });
+      $$ = $node
+    }
   }
   | INDENT nodes DEDENT
   { 
     debug('parse.node.INDENT_nodes_DEDENT', $nodes)
     $$ = $nodes 
   }
+  | TAG_NAME classnames
+  {
+    debug('parse.node.TAG_NAME_CLASSNAME', $TAG_NAME)
+    $$ =  { type: 'tag', val: $TAG_NAME, clz: $classnames, hint: 10, loc: toLoc(yyloc) }
+  }
 	;
 
+classnames
+  : CLASSNAME
+  { $$ = [$CLASSNAME] }
+  | classnames CLASSNAME
+  { $classnames.push($CLASSNAME); $$ = $classnames }
+  ;
 
 
 %% 
