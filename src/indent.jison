@@ -91,13 +91,13 @@ node
 
 something
   : PIPE_SPACE THEREST
-  { $$ = { text: $THEREST } }
+  { $$ = { text: $THEREST, loc: toLoc(yyloc) } }
   | TAG_NAME
-  { $$ = { tag: $TAG_NAME } }
+  { $$ = { tag: $TAG_NAME, loc: toLoc(yyloc) } }
   | TAG_NAME THEREST
-  { $$ = { tag: $TAG_NAME, val: $THEREST } }
+  { $$ = { tag: $TAG_NAME, val: $THEREST, loc: toLoc(yyloc) } }
   | THEREST
-  { $$ = { something: $THEREST } }
+  { $$ = { something: $THEREST, loc: toLoc(yyloc) } }
   ;
 
 %% 
@@ -127,7 +127,7 @@ function log() {
 
 var filename;
 var stripDown = false;
-var location = false;
+var location = true;
 
 var util = require('util')
 
