@@ -36,6 +36,8 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 
 %%
 
+'//' return 'DOUBLESLASH'
+
 \.{id} return 'CLASSNAME'
 
 {attributes} 
@@ -152,7 +154,7 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   debug('lex.INITAL', 'tag_name=' + yytext);
 
   if (tagLines.includes(yytext)) {
-    this.pushState('BODY_STATE')
+    // this.pushState('BODY_STATE')
     return 'TAG_NAME'
   }
   else 
@@ -214,6 +216,8 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
   return 'SPACE'
 %}
 
+{not_newline}+ return 'NOTNEWLINE'
+
 /lex
 
 %ebnf
@@ -223,127 +227,156 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 %%
 
 start
-	: nodes ENDOFFILE
-	{ 
-    debug('parse.start.nodes', $nodes); 
-    if (!util.isArray($nodes))
-      $$ = [$nodes]
-  }
+  : ( tag | text | comment )* ENDOFFILE
+	// : nodes ENDOFFILE
+	// { 
+  //   debug('parse.start.nodes', $nodes); 
+  //   if (!util.isArray($nodes))
+  //     $$ = [$nodes]
+  // }
 	;
 
-nodes
-  : nodes node
+tag
+  : tag_id
   {
-    debug('parse.nodes.nodes_node', 'nodes=' + util.inspect($nodes), 'node=' + util.inspect($node))
-    if ($nodes == undefined) {
-      $$ = $node;
-    }
-    else if (util.isArray($nodes)) {
-      debug('parse.nodes.nodes_node', 'nodes is an array, so we are pushing')
-      $nodes.push($node);
-      $$ = $nodes;
-    }
-    else { 
-      debug('parse.nodes.nodes_node', 'nodes is an object, so we are using children')
-      $nodes.children = [$node]
-      $$ = $nodes;
-    }
+    return { type: 'TAG', name: $tag_id }
   }
-  | node
-  { 
-    debug('parse.nodes.node', 'node=', $node)
-    // don't wrap in [] or 'nodes node' later won't see this as nested
-    $$ = $node
+  | tag_id body
+  {
+    return { type: 'TAG', name: $tag_id, body: $body }
   }
   ;
 
-node
-  : NAME
-  {
-    debug('parse.node.NAME', $NAME)
-    $$ = { type: 'text', name: $NAME.trim(), hint: 1, loc: toLoc(yyloc) }
-  }
-  | NAME INDENT nodes DEDENT
-  {
-    debug('parse.node.NAME_INDENT_nodes_DEDENT', $NAME, $nodes)
-    let type = 'node'
-    if ($NAME.startsWith('|')) {
-      type = 'text'
-    }
-    else if ($NAME.trim().endsWith('.')) {
-      type = 'text'
-    }
-    $$ = { type: type, name: $NAME, hint: 2, children: $nodes, loc: toLoc(yyloc) } 
-  } 
-  | TAG_NAME
-  {
-    debug('parse.node.TAG_NAME', $TAG_NAME)
-    $$ =  { type: 'tag', val: $TAG_NAME, hint: 3, loc: toLoc(yyloc) }
-  }
-  | TAG_NAME ATTRIBUTES NEWLINE
-  {
-    debug('parse.node.TAG_NAME_ATTRIBUTES', $TAG_NAME, $ATTRIBUTES)
-    $$ =  { type: 'tag', val: $TAG_NAME, attrs: $ATTRIBUTES, hint: 4, loc: toLoc(yyloc) }
-  }
-  | TAG_NAME TEXT
-  {
-    debug('parse.node.TAG_NAME_TEXT', $TAG_NAME, $TEXT)
-    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 5 }], loc: toLoc(yyloc) }
-  } 
-  // added for text that ended the line with a period
-  | TAG_NAME TEXT DEDENT
-  {
-    debug('parse.node.TAG_NAME_TEXT_DEDENT', $TAG_NAME, $TEXT)
-    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 6 }] }
-  } 
-  | TAG_NAME SPACE TEXT
-  {
-    debug('parse.node.TAG_NAME_SPACE_TEXT', $TAG_NAME, $TEXT)
-    $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 7 }], loc: toLoc(yyloc) }
-  } 
-  | node TEXT
-  {
-    debug('parse.node.TEXT', $node, $TEXT)
-    if ($node == undefined) {
-      console.error('node is undefined')
-      $$ = { type: 'undefined', children: $TEXT }
-    }
-    else {
-      $node.children = ($node.children || []).concat({ type: 'text', name: $TEXT.trim(), hint: 8, loc: toLoc(yyloc) });
-      $$ = $node
-    }
-  }
-  // for cases where text is the last statement with no newline
-  | node TEXT DEDENT
-  {
-    debug('parse.node.TEXT_DEDENT', $node, $TEXT)
-    if ($node == undefined) {
-      console.error('node is undefined')
-      $$ = { type: 'undefined', children: $TEXT }
-    }
-    else {
-      $node.children = ($node.children || []).concat({ type: 'text', name: $TEXT.trim(), hint: 9 });
-      $$ = $node
-    }
-  }
-  | INDENT nodes DEDENT
-  { 
-    debug('parse.node.INDENT_nodes_DEDENT', $nodes)
-    $$ = $nodes 
-  }
-  | TAG_NAME classnames
-  {
-    debug('parse.node.TAG_NAME_CLASSNAME', $TAG_NAME)
-    $$ =  { type: 'tag', val: $TAG_NAME, clz: $classnames, hint: 10, loc: toLoc(yyloc) }
-  }
-	;
-
-classnames
-  : CLASSNAME
-  { $$ = [$CLASSNAME] }
-  | classnames CLASSNAME
-  { $classnames.push($CLASSNAME); $$ = $classnames }
+tag_id
+  : TAG_NAME
   ;
+
+text
+  : ID
+  ;
+
+body
+  : DOT SPC* NEWLINE INDENT ID DEDENT
+  ;
+
+comment
+  : DOUBLESLASH NOTNEWLINE
+  ; 
+
+
+// nodes
+//   : nodes node
+//   {
+//     debug('parse.nodes.nodes_node', 'nodes=' + util.inspect($nodes), 'node=' + util.inspect($node))
+//     if ($nodes == undefined) {
+//       $$ = $node;
+//     }
+//     else if (util.isArray($nodes)) {
+//       debug('parse.nodes.nodes_node', 'nodes is an array, so we are pushing')
+//       $nodes.push($node);
+//       $$ = $nodes;
+//     }
+//     else { 
+//       debug('parse.nodes.nodes_node', 'nodes is an object, so we are using children')
+//       $nodes.children = [$node]
+//       $$ = $nodes;
+//     }
+//   }
+//   | node
+//   { 
+//     debug('parse.nodes.node', 'node=', $node)
+//     // don't wrap in [] or 'nodes node' later won't see this as nested
+//     $$ = $node
+//   }
+//   ;
+
+// node
+//   : NAME
+//   {
+//     debug('parse.node.NAME', $NAME)
+//     $$ = { type: 'text', name: $NAME.trim(), hint: 1, loc: toLoc(yyloc) }
+//   }
+//   | NAME INDENT nodes DEDENT
+//   {
+//     debug('parse.node.NAME_INDENT_nodes_DEDENT', $NAME, $nodes)
+//     let type = 'node'
+//     if ($NAME.startsWith('|')) {
+//       type = 'text'
+//     }
+//     else if ($NAME.trim().endsWith('.')) {
+//       type = 'text'
+//     }
+//     $$ = { type: type, name: $NAME, hint: 2, children: $nodes, loc: toLoc(yyloc) } 
+//   } 
+//   | TAG_NAME
+//   {
+//     debug('parse.node.TAG_NAME', $TAG_NAME)
+//     $$ =  { type: 'tag', val: $TAG_NAME, hint: 3, loc: toLoc(yyloc) }
+//   }
+//   | TAG_NAME ATTRIBUTES NEWLINE
+//   {
+//     debug('parse.node.TAG_NAME_ATTRIBUTES', $TAG_NAME, $ATTRIBUTES)
+//     $$ =  { type: 'tag', val: $TAG_NAME, attrs: $ATTRIBUTES, hint: 4, loc: toLoc(yyloc) }
+//   }
+//   | TAG_NAME TEXT
+//   {
+//     debug('parse.node.TAG_NAME_TEXT', $TAG_NAME, $TEXT)
+//     $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 5 }], loc: toLoc(yyloc) }
+//   } 
+//   // added for text that ended the line with a period
+//   | TAG_NAME TEXT DEDENT
+//   {
+//     debug('parse.node.TAG_NAME_TEXT_DEDENT', $TAG_NAME, $TEXT)
+//     $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 6 }] }
+//   } 
+//   | TAG_NAME SPACE TEXT
+//   {
+//     debug('parse.node.TAG_NAME_SPACE_TEXT', $TAG_NAME, $TEXT)
+//     $$ =  { type: 'tag', val: $TAG_NAME, children: [{ type: 'text', name: $TEXT.trim(), hint: 7 }], loc: toLoc(yyloc) }
+//   } 
+//   | node TEXT
+//   {
+//     debug('parse.node.TEXT', $node, $TEXT)
+//     if ($node == undefined) {
+//       console.error('node is undefined')
+//       $$ = { type: 'undefined', children: $TEXT }
+//     }
+//     else {
+//       $node.children = ($node.children || []).concat({ type: 'text', name: $TEXT.trim(), hint: 8, loc: toLoc(yyloc) });
+//       $$ = $node
+//     }
+//   }
+//   // for cases where text is the last statement with no newline
+//   | node TEXT DEDENT
+//   {
+//     debug('parse.node.TEXT_DEDENT', $node, $TEXT)
+//     if ($node == undefined) {
+//       console.error('node is undefined')
+//       $$ = { type: 'undefined', children: $TEXT }
+//     }
+//     else {
+//       $node.children = ($node.children || []).concat({ type: 'text', name: $TEXT.trim(), hint: 9 });
+//       $$ = $node
+//     }
+//   }
+//   | INDENT nodes DEDENT
+//   { 
+//     debug('parse.node.INDENT_nodes_DEDENT', $nodes)
+//     $$ = $nodes 
+//   }
+//   | TAG_NAME classnames
+//   {
+//     debug('parse.node.TAG_NAME_CLASSNAME', $TAG_NAME)
+//     $$ =  { type: 'tag', val: $TAG_NAME, clz: $classnames, hint: 10, loc: toLoc(yyloc) }
+//   }
+// 	;
+
+// classnames
+//   : CLASSNAME
+//   { $$ = [$CLASSNAME] }
+//   | classnames CLASSNAME
+//   { $classnames.push($CLASSNAME); $$ = $classnames }
+//   ;
 
 
 %% 

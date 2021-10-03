@@ -32,7 +32,10 @@ space			[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 
 					if (tokens.length) return tokens;
 				%}
+
 [\n\r]+{space}*/![^\n\r]		/* eat blank lines */
+
+
 // ^({space}{space}|\t)  %{
 <INITIAL>^({space}{space}|\t)+		%{
         debug('\n>>>>>>\n2 yyleng', yyleng)
@@ -114,7 +117,7 @@ line
   { 
   // log('token', yy.token);
   // log('describeSymbol', yy.parser.describeSymbol());
-  $$ = {type:'KEYWORD', val: $KEYWORD, loc: toLoc(yyloc)} }
+  $$ = {type:'KEYWORD', val: $KEYWORD, lo} }
   | ANYTHING
   {
     // log('yystack', yystack); 
@@ -127,11 +130,11 @@ line
     // log('#1', #1);
  
     // log('quoteName', yy.parser.quoteName());
-    $$ = {type:'NOT_INDENT', val: $ANYTHING, loc: toLoc(yyloc)}
+    $$ = {type:'NOT_INDENT', val: $ANYTHING}
     // $$ = 
   }
   | DEDENT
-  { $$ = {type:'DEDENT', loc: toLoc(yyloc)} }
+  { $$ = {type:'DEDENT'} }
   // | ENDOFFILE
   // { $$ = ' '; }
   ;

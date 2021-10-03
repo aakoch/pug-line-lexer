@@ -28,8 +28,90 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 %x EXPECT_INDENT
 %x PIPE_TEXT
 %x DOT_TEXT_START
+%x RAW_TEXT_ELEMENT
 
 %%
+
+
+// Raw text elements
+('script'|'style') %{
+  this.pushState('RAW_TEXT_ELEMENT')
+  return 'RAW_TEXT_ELEMENT_NAME'
+%}
+
+<RAW_TEXT_ELEMENT>(?![\(\n ]{not_newline})+ %{
+  debug('lex.RAW_TEXT_ELEMENT', 'yytext=', yytext);
+  if (yytext.length > 0)
+    return 'TEXT'
+  else 
+    this.popState()
+%}
+
+<RAW_TEXT_ELEMENT>{newline} %{
+  return 'NEWLINE'
+%}
+
+<RAW_TEXT_ELEMENT>{attributes}  return 'ATTRIBUTES'
+
+<RAW_TEXT_ELEMENT>^({spc}{spc}|\t)+
+%{
+  console.log('lex.RAW_TEXT_ELEMENT.indent');
+  const indentation4 = yytext.length
+
+  if(indentation4 > stack[0]) {
+    stack.unshift(indentation4)
+    this.pushState('RAW_TEXT')
+    return 'INDENT'
+  }
+
+  let tokens4 = []
+
+  while (indentation4 < stack[0]) {
+    tokens4.unshift("DEDENT");
+    stack.shift();
+  }
+  
+  this.popState()
+  this.popState()
+  dotIs = false; 
+
+  if (tokens4.length) {
+    return tokens4;
+  }
+%}
+
+<RAW_TEXT>\s+
+%{
+  console.log('lex.RAW_TEXT \\s+');
+  const indentation5 = yytext.length
+
+  debug('lex.RAW_TEXT', 'indentation5=' + indentation5, 'stack[0]=' + stack[0], 'yytext=' + yytext)
+
+  if(indentation5 > stack[0]) {
+    stack.unshift(indentation5)
+    this.pushState('RAW_TEXT')
+    return 'INDENT'
+  }
+
+  let tokens5 = []
+
+  while (indentation5 < stack[0]) {
+    tokens5.unshift("DEDENT");
+    stack.shift();
+    this.popState()
+  }
+
+  if (tokens5.length) {
+    return tokens5;
+  }
+%}
+
+<RAW_TEXT>\S+
+%{
+  console.log('lex.RAW_TEXT \\S+');
+  return 'TEXT'
+%}
+
 
 
 {attributes}  return 'ATTRIBUTES'
@@ -50,7 +132,7 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 %}
 
 <INITIAL>{not_spc_nor_newline_nor_pipe_nor_parens}+ %{
-  debug('lex.INITAL', 'not_spc_nor_newline=' + yytext);
+  debug('lex.INITAL.not_spc_nor_newline_nor_pipe_nor_parens', 'yytext=' + yytext);
   // this.pushState('TAG'); 
   dotIs = yytext.endsWith('.');
 
@@ -75,7 +157,8 @@ tag_declaration_terminator [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2
 
   if(indentation3 > stack[0]) {
     stack.unshift(indentation3)
-    return 'INDENT'
+    if (this.topState() != 'RAW_TEXT_ELEMENT')
+      return 'INDENT'
   }
 
   let tokens3 = []
@@ -157,12 +240,22 @@ node
   } 
   | TAG_NAME
   {
-    debug('parse.name.TAG_NAME', $TAG_NAME)
+    debug('parse.node.TAG_NAME', $TAG_NAME)
     $$ =  { type: 'tag', val: $TAG_NAME }
+  }
+  | RAW_TEXT_ELEMENT_NAME NEWLINE INDENT TEXT DEDENT
+  {
+    debug('parse.node.RAW_TEXT_ELEMENT_NAME', $RAW_TEXT_ELEMENT_NAME)
+    $$ =  { type: 'tag', val: $RAW_TEXT_ELEMENT_NAME, children: $TEXT }
+  } 
+  | RAW_TEXT_ELEMENT_NAME ATTRIBUTES NEWLINE INDENT texts DEDENT
+  {
+    debug('parse.node.RAW_TEXT_ELEMENT_NAME_ATTRIBUTES', $RAW_TEXT_ELEMENT_NAME)
+    $$ =  { type: 'tag', val: $RAW_TEXT_ELEMENT_NAME, attrs: $ATTRIBUTES, children: $texts }
   }
   | TAG_NAME ATTRIBUTES
   {
-    debug('parse.name.TAG_NAME', $TAG_NAME)
+    debug('parse.node.TAG_NAME', $TAG_NAME)
     $$ =  { type: 'tag', val: $TAG_NAME, attrs: $ATTRIBUTES }
   }
   | TAG_NAME children
@@ -189,6 +282,11 @@ node
   } 
 	;
 
+texts
+  : texts TEXT
+  | TEXT
+  ;
+
 children
   : INDENT nodes DEDENT
   { $$ = $nodes }
@@ -204,7 +302,7 @@ children
 nodes
   : nodes node
   {
-    debug('parse.nodes.nodes_node', 'nodes=' + $nodes, 'node=' + $node)
+    debug('parse.nodes.nodes_node', 'nodes=', $nodes, 'node=',  $node)
     if (util.isArray($nodes)) {
       $nodes.push($node);
       $$ = $nodes;
@@ -354,6 +452,31 @@ function debug() {
       console.log(util.inspect(arg, false, 10))
     })
     console.groupEnd()
+  }
+}
+
+function handleWhitespace(yytext) {
+  const indentation4 = yytext.length
+
+  if(indentation4 > stack[0]) {
+    stack.unshift(indentation4)
+    if (this.topState() != 'RAW_TEXT_ELEMENT')
+      return 'INDENT'
+  }
+
+  let tokens4 = []
+
+  while (indentation4 < stack[0]) {
+    tokens4.unshift("DEDENT");
+    stack.shift();
+  }
+  
+  this.popState()
+  this.popState()
+  dotIs = false; 
+
+  if (tokens4.length) {
+    return tokens4;
   }
 }
 

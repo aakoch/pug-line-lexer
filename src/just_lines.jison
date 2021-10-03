@@ -5,15 +5,21 @@
 /* lexical grammar */
 %lex
 
-dot     [^\n]+
+dot     [^\n ]
+space			[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 
 %%
 
-[\n\u000B]         return 'NEWLINE';
-{dot}      return 'ANYTHING';
+[\n\u000B]+         return 'NEWLINE';
+{dot}+      return 'ANYTHING';
+{space}+     return 'SPACES';
 <<EOF>>      return 'ENDOFFILE';
 
 /lex
+
+%ebnf
+
+%options token-stack
 
 %% 
 
@@ -24,19 +30,25 @@ start
   ;
 
 lines
-  : lines line
-  { $lines.push($line); $$ = $lines }
-  | line
-  { $$ = [$line]  }
+  // : lines line
+  // { $lines.push($line); $$ = $lines }
+  : line+
   ;
 
 line
   : NEWLINE
+  | SPACES ANYTHING
+  {  
+    // console.log(lexer.describeYYLLOC())
+    console.log(lexer.unput("SPACES"))
+    $$ = $ANYTHING
+  }
   | ANYTHING
-  { $$ = {type:'LINE', value:$ANYTHING, loc: toLoc(yyloc)} }
+  // { $$ = {type:'LINE', value:$ANYTHING} }
   ;
 
 %% 
+
 
 // feature of the GH fork: specify your own main.
 //
@@ -50,6 +62,7 @@ line
 //
 // to see the output.
 var stack = [0];
+location = false
 
 function toLoc(yyloc) {
   if (location)
