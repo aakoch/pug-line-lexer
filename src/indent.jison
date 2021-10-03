@@ -5,11 +5,26 @@
 
 spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 
+%s text
+
 %%
 
-(?!^\s+)[^\r\n]+ return 'THEREST'
+'| ' %{
+  this.pushState('text')
+  return 'PIPE_SPACE'
+%}
 
-[\r\n]+ ;
+<INITIAL>('a'|'abbr'|'acronym'|'address'|'applet'|'area'|'article'|'aside'|'audio'|'b'|'base'|'basefont'|'bdi'|'bdo'|'bgsound'|'big'|'blink'|'blockquote'|'body'|'br'|'button'|'canvas'|'caption'|'center'|'cite'|'code'|'col'|'colgroup'|'content'|'data'|'datalist'|'dd'|'del'|'details'|'dfn'|'dialog'|'dir'|'div'|'dl'|'dt'|'em'|'embed'|'fieldset'|'figcaption'|'figure'|'font'|'footer'|'form'|'frame'|'frameset'|'h1'|'head'|'header'|'hgroup'|'hr'|'html'|'i'|'iframe'|'image'|'img'|'input'|'ins'|'kbd'|'keygen'|'label'|'legend'|'li'|'link'|'main'|'map'|'mark'|'marquee'|'math'|'menu'|'menuitem'|'meta'|'meter'|'nav'|'nobr'|'noembed'|'noframes'|'noscript'|'object'|'ol'|'optgroup'|'option'|'output'|'p'|'param'|'picture'|'plaintext'|'portal'|'pre'|'progress'|'q'|'rb'|'rp'|'rt'|'rtc'|'ruby'|'s'|'samp'|'script'|'section'|'select'|'shadow'|'slot'|'small'|'source'|'spacer'|'span'|'strike'|'strong'|'style'|'sub'|'summary'|'sup'|'svg'|'table'|'tbody'|'td'|'template'|'textarea'|'tfoot'|'th'|'thead'|'time'|'title'|'tr'|'track'|'tt'|'u'|'ul'|'var'|'video'|'wbr'|'xmp')\b return 'TAG_NAME'
+
+(?!^\s{2,})[^\r\n]+ %{
+  if (yytext[0] == ' ')
+    yytext = yytext.substring(1)
+  return 'THEREST'
+%}
+
+[\r\n]+ %{
+  this.popState()
+%};
 
 \s*<<EOF>>		%{
   // remaining DEDENTs implied by EOF, regardless of tabs/spaces
@@ -75,7 +90,13 @@ node
 	;
 
 something
-  : THEREST
+  : PIPE_SPACE THEREST
+  { $$ = { text: $THEREST } }
+  | TAG_NAME
+  { $$ = { tag: $TAG_NAME } }
+  | TAG_NAME THEREST
+  { $$ = { tag: $TAG_NAME, val: $THEREST } }
+  | THEREST
   { $$ = { something: $THEREST } }
   ;
 
