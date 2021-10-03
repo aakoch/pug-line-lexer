@@ -58,38 +58,26 @@ spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\
 %%
 
 start
-	: lines ENDOFFILE
+	: nodes ENDOFFILE
 	;
 
-lines
-  : lines INDENT lines DEDENT
-  { $lines1.push($lines2); $$ = $lines1 }
-  | INDENT lines DEDENT
-  { $$ = $lines }
-  | lines stmt
-  { $lines.push($stmt); $$ = $lines }
-  | stmt
-  { $$ = [$stmt] }
+nodes
+  : nodes node
+  { $nodes.push($node); $$ = $nodes; }
+  | node
+  { $$ = [$node]; }
   ;
 
-// line
-// 	:  
-// 	| INDENT lines DEDENT
-//   | THEREST
-// 	;
+node
+	: something INDENT nodes DEDENT
+  { $something.children = $nodes; $$ = $something; }
+	| something
+	;
 
-// block
-// 	: INDENT line+ DEDENT
-// 	;
-
-stmt
+something
   : THEREST
-  { $$ = { val: $THEREST } }
+  { $$ = { something: $THEREST } }
   ;
-
-// the_rest
-//   : THEREST
-//   ;
 
 %% 
 
