@@ -1,6 +1,4 @@
-/* TODO: Fix parsing of head.pug - line 48 is commented and indentation is wrong and the start of the if statement on 46 doesn't work 
-
-TODO: TEXT lines aren't indented. Actually, not sure if I can even do ^^^.
+/* 
 */
 
 %lex
@@ -16,7 +14,6 @@ spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\
 \s*<<EOF>>		%{
   // remaining DEDENTs implied by EOF, regardless of tabs/spaces
   var tokens = [];
-  isText = false;
   while (0 < stack[0]) {
     this.popState();
     tokens.unshift("DEDENT");
@@ -24,38 +21,30 @@ spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\
   }
   tokens.unshift("ENDOFFILE")
     
-  if (tokens.length) return tokens;
+  if (tokens.length) 
+    return tokens;
 %}
-^{spc}*$		/* eat blank lines */
+
+^{spc}*$		/* remove blank lines */
+
 ^({spc}{spc}|\t)+  %{
-  log("enter", yylloc);
   var indentation = yyleng - yytext.search(/\s/) - 1;
-    log(indentation, stack)
 
   if (util.isArray(stack[0]) ?  indentation > stack[0][1] : indentation > stack[0]) {
     stack.unshift(util.isArray(stack[0]) ? ['text', indentation] : indentation);
-  log("returning INDENT on line " + yylloc.last_line, yylloc);
     return 'INDENT';
   }
 
   var tokens = [];
 
-    log("look if stack[0] is array", stack)
   while (util.isArray(stack[0]) ?  indentation < stack[0][1] : indentation < stack[0]) {
-    log("adding dedent on line", yylloc, stack)
     this.popState();
     tokens.unshift("DEDENT");
     stack.shift();
   }
   if (tokens.length) {
-    if (tokens.length != 1) {
-      log('<INITIAL>[\n\r]({spc}{spc}|\t)+	: setting isText to false');
-      isText = false;
-    }
     return tokens;
   }
-  else 
-  log('no indentation change on line ' + yylloc.last_line, stack[0])
 %}
 
 /lex
@@ -77,10 +66,10 @@ lines
   { $lines1.push($lines2); $$ = $lines1 }
   | INDENT lines DEDENT
   { $$ = $lines }
-  | lines THEREST
-  { $lines.push($THEREST); $$ = $lines }
-  | THEREST
-  { $$ = [$THEREST] }
+  | lines stmt
+  { $lines.push($stmt); $$ = $lines }
+  | stmt
+  { $$ = [$stmt] }
   ;
 
 // line
@@ -93,10 +82,10 @@ lines
 // 	: INDENT line+ DEDENT
 // 	;
 
-// stmt
-//   : block
-//   | the_rest
-//   ;
+stmt
+  : THEREST
+  { $$ = { val: $THEREST } }
+  ;
 
 // the_rest
 //   : THEREST
@@ -127,7 +116,6 @@ function log() {
   console.log(...arguments);
 }
 
-var isText = false;
 var filename;
 var stripDown = false;
 var location = false;
