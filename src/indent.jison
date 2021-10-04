@@ -54,15 +54,15 @@ letter [a-zA-Z]
   return 'ATTRS_BLOCK'
 %}
 
-// Text with a period at the end of the line.
-// Overwriting default handling because the period is just part of the text and this isn't the start of text but the end.
-<TEXT>\.\s*(?=[\r\n]+)  %{ // '.'\s*[\r\n]+ %{
-  debug('lex.TEXT.DOT_NEWLINE_IN_TEXT', yy.lexer.conditionStack, this.topState())
-  debug('lex.TEXT.DOT_NEWLINE_IN_TEXT', 'popping top state of ' + this.topState() + ' because of ' + yytext)
-  this.popState()
-  yytext = yytext.trim()
-  return 'THEREST'
-%}
+// // Text with a period at the end of the line.
+// // Overwriting default handling because the period is just part of the text and this isn't the start of text but the end.
+// <TEXT>\.\s*(?=[\r\n]+)  %{ // '.'\s*[\r\n]+ %{
+//   debug('lex.TEXT.DOT_NEWLINE_IN_TEXT', yy.lexer.conditionStack, this.topState())
+//   debug('lex.TEXT.DOT_NEWLINE_IN_TEXT', 'popping top state of ' + this.topState() + ' because of ' + yytext)
+//   this.popState()
+//   yytext = yytext.trim()
+//   return 'THEREST'
+// %}
 
 // A period at the end of the line.
 '.'\s*(?=[\r\n]+) %{
@@ -72,6 +72,7 @@ letter [a-zA-Z]
   // Removed the duplicate pushing and not popping on newline.
   // // doing this twice because the first one is removed by the following newline
   this.pushState('TEXT')
+  textStartIndent = stack[0]
   // this.pushState('TEXT')
 
   // added "return 'NEWLINE'" for line 25-26:
@@ -153,7 +154,10 @@ letter [a-zA-Z]
 
   while (indentation < stack[0]) {
     debug('lex.--none--.indent', 'popping top state of ' + this.topState())
-    this.popState();
+
+    if (this.topState() == 'TEXT' && indentation < textStartIndent) {
+      this.popState();
+    }
     tokens.unshift("DEDENT");
 
     // Removed so PIPE_SPACE -> newline -> dedent won't report an unexpected NEWLINE
@@ -252,28 +256,33 @@ line
   | THEREST
   {
     debug('parse.line.THEREST', 'THEREST=' + $1)
-    $$ = { THEREST: $1, loc: toLoc(yyloc), hint: 'THEREST', topState: yy.lexer.topState() }
+    if (yy.lexer.topState() == 'TEXT')
+      $$ = { text: $1, loc: toLoc(yyloc), hint: 'THEREST', topState: yy.lexer.topState() }
+    else 
+      $$ = { THEREST: $1, loc: toLoc(yyloc), hint: 'THEREST', topState: yy.lexer.topState() }
   }
   ;
 
 %% 
 
+
 var stack = [0];
+var textStartIndent = -1
 
 function toLoc(yyloc) {
   if (location)
-  return {
-        start: {
-          line: yyloc.first_line,
-          column: yyloc.first_column
-        },
-        end: {
-          line: yyloc.last_line,
-          column: yyloc.last_column
-        },
-        filename: filename,
-     }
-  else 
+    return {
+      start: {
+        line: yyloc.first_line,
+        column: yyloc.first_column
+      },
+      end: {
+        line: yyloc.last_line,
+        column: yyloc.last_column
+      },
+      filename: filename,
+    }
+  else
     return ''
 }
 
@@ -288,7 +297,7 @@ var location = true;
 var util = require('util')
 
 function ti(tagId) {
-  if (tagId == undefined) 
+  if (tagId == undefined)
     return '';
 
   let arr = []
@@ -329,7 +338,7 @@ const logLevels = {
 
 function isEnabled(pkg) {
   function findNearestLogLevel(pkg) {
-    while(!logLevels.hasOwnProperty(pkg)) {
+    while (!logLevels.hasOwnProperty(pkg)) {
       pkg = pkg.substring(0, pkg.lastIndexOf('.') || 0)
     }
     return logLevels[pkg]
@@ -351,20 +360,20 @@ function debug() {
 }
 
 parser.main = function (args) {
- parser.lexer.options.backtrack_lexer = true;
-  lexer.options.post_lex = function(token) {
-      // debug('main', parser.getSymbolName(token) || token)
-      // // debug('main', 'this=', this)
-      // debug('main', 'match=' + this.match)
-      // debug('main', 'yytext=' + this.yytext)
-      // // console.log(parser.quoteName())
-      // // console.log(parser.describeSymbol(l))
+  parser.lexer.options.backtrack_lexer = true;
+  lexer.options.post_lex = function (token) {
+    // debug('main', parser.getSymbolName(token) || token)
+    // // debug('main', 'this=', this)
+    // debug('main', 'match=' + this.match)
+    // debug('main', 'yytext=' + this.yytext)
+    // // console.log(parser.quoteName())
+    // // console.log(parser.describeSymbol(l))
 
-      debug('main', (parser.getSymbolName(token) || token) + '=' + this.yytext)
+    debug('main', (parser.getSymbolName(token) || token) + '=' + this.yytext)
   }
 
 
-  parser.post_parse = function(yy, retval, parseInfo) { 
+  parser.post_parse = function (yy, retval, parseInfo) {
     // debug('main', 'yy', yy)
     // debug('main', 'retval', retval)
     // debug('main', 'parseInfo', parseInfo)
@@ -373,27 +382,49 @@ parser.main = function (args) {
     return retval;
   }
 
-     if (!args[1]) {
-        console.log('Usage:', path.basename(args[0]) + ' FILE');
-        process.exit(1);
-    }
-    filename = args[1]
-    var source = fs.readFileSync(path.normalize(args[1]), 'utf8');
-    var dst = exports.parser.parse(source);
+  if (!args[1]) {
+    console.log('Usage:', path.basename(args[0]) + ' FILE');
+    process.exit(1);
+  }
+  filename = args[1]
 
-    if (stripDown) 
-      dst = strip(dst)
 
-    console.log('parser output:\n\n', {
-        type: typeof dst,
-        value: dst
-    });
-    try {
-        console.log("\n\nor as JSON:\n", JSON.stringify(dst, null, 2));
-    } catch (e) { /* ignore crashes; output MAY not be serializable! We are a generic bit of code, after all... */ }
-    var rv = 0;
-    if (typeof dst === 'number' || typeof dst === 'boolean') {
-        rv = dst;
+  let outFilename = false;
+
+  console.log(args[3])
+
+  if (args[2] == '-o') {
+    outFilename = args[3]
+    if (fs.existsSync(outFilename)) {
+      fs.truncateSync(outFilename)
     }
-    return dst;
+  }
+
+
+  var source = fs.readFileSync(path.normalize(args[1]), 'utf8');
+
+
+  var dst = exports.parser.parse(source);
+
+  if (stripDown) {
+    dst = strip(dst)
+  }
+
+  if (outFilename) {
+    console.log('writing to ' + outFilename);
+    fs.appendFileSync(outFilename, JSON.stringify(dst))
+  }
+
+  // console.log('parser output:\n\n', {
+  //     type: typeof dst,
+  //     value: dst
+  // });
+  try {
+    // console.log("\n\nor as JSON:\n", JSON.stringify(dst, null, 2));
+  } catch (e) { /* ignore crashes; output MAY not be serializable! We are a generic bit of code, after all... */ }
+  var rv = 0;
+  if (typeof dst === 'number' || typeof dst === 'boolean') {
+    rv = dst;
+  }
+  return dst;
 };
