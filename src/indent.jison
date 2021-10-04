@@ -5,13 +5,12 @@
 
 spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 
+letter [a-zA-Z]
+
 %s TEXT
 %s ATTRS
 %%
 
-
-// Remove blank lines
-^{spc}*$ ;
 
 // Added this because dedent wasn't being calculated for things that started the line.
 [\n](?=[^\s])  %{
@@ -41,17 +40,19 @@ spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\
 //   return 'THEREST'
 // %}
 
+<INITIAL>^{letter}+\b  return 'WORD';
+
 // <TEXT>\([^\r\n]+\)\s* %{
 //   return 'THEREST'
 // %}
 
-// // HTML attributes designated between parenthesis
-// // No prefix defined
-// // Suffix of 0 or more spaces
-// <INITIAL>\([^\r\n]+\)\s* %{
-//   debug('lex.INITIAL.???notnewlinethenspaces', yy.lexer.conditionStack, this.topState())
-//   return 'ATTRS_BLOCK'
-// %}
+// HTML attributes designated between parenthesis
+// No prefix defined
+// Suffix of 0 or more spaces
+<INITIAL>\([^\r\n]+\)\s* %{
+  debug('lex.INITIAL.???notnewlinethenspaces', yy.lexer.conditionStack, this.topState())
+  return 'ATTRS_BLOCK'
+%}
 
 // Text with a period at the end of the line.
 // Overwriting default handling because the period is just part of the text and this isn't the start of text but the end.
@@ -68,9 +69,10 @@ spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\
   debug('lex.--none--.DOT_NEWLINE', yy.lexer.conditionStack, this.topState())
   debug('lex.--none--.DOT_NEWLINE', 'pushing TEXT state twice')
 
-  // doing this twice because the first one is removed by the following newline
+  // Removed the duplicate pushing and not popping on newline.
+  // // doing this twice because the first one is removed by the following newline
   this.pushState('TEXT')
-  this.pushState('TEXT')
+  // this.pushState('TEXT')
 
   // added "return 'NEWLINE'" for line 25-26:
   // script(type='text/javascript').
@@ -82,6 +84,10 @@ spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\
 //   debug('lex.--none-.no-space', 'text=' + yytext)
 //   return 'WAT'
 // %}
+
+// Having this prevented parsing the end of the document. I don't know why.
+// // Remove blank lines
+// ^{spc}*$ ;
 
 // Matches words at the beginning of a line or after and indent of 2 or more spaces.
 //+ doctype html
@@ -95,8 +101,8 @@ spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\
 %}
 
 // Matches 1 or more newlines in which we usually want to pop the current state.
-// We shouldn't pop the state when in TEXT state
-[\r\n]+ %{
+// We shouldn't pop the state when in TEXT state - let DEDENT do that.
+\s?[\r\n]+ %{
   if (this.topState() != 'TEXT') {
     debug('lex.--none--.newline', 'popping top state of ' + this.topState())
     this.popState()
@@ -116,8 +122,10 @@ spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\
   }
    tokens.unshift("ENDOFFILE")
     
-  if (tokens.length) 
+  if (tokens.length) {
+    debug('lex.--none--.any_space_EOF', 'returning ' + tokens);
     return tokens;
+  }
 %}
 
 // An indentation or dentation. Groups of 2 spaces or a tab. If the current indentation is less than the current indentation on the stack, then we are dedenting. Is that a word?
@@ -139,6 +147,8 @@ spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\
     return 'INDENT';
   }
 
+  debug('lex.--none--.indent', 'INDENT decreased')
+
   var tokens = [];
 
   while (indentation < stack[0]) {
@@ -158,14 +168,13 @@ spc  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\
 
 /lex
 
-
 %options token-stack
 
 %%
 
 start
-	: nodes ENDOFFILE
-	;
+  : nodes ENDOFFILE
+  ;
 
 nodes
   : nodes node
@@ -175,11 +184,14 @@ nodes
   ;
 
 node
-	: something INDENT nodes DEDENT
-  { $something.children = $nodes; $$ = $something; }
+  : line INDENT nodes DEDENT
+  { $line.children = $nodes; $$ = $line; }
+  | line NEWLINE INDENT nodes DEDENT
+  { $line.children = $nodes; $$ = $line; }
   // a leaf
-  | something
-	;
+  | line
+  | line NEWLINE
+  ;
 
 something
   // : PIPE_SPACE THEREST
@@ -204,15 +216,43 @@ something
   //   debug('parse.something.TAG_NAME_THEREST_NEWLINE', 'TAG_NAME=' + $TAG_NAME)
   //   $$ = { tag: $TAG_NAME, val: $THEREST, loc: toLoc(yyloc) }
   // }
-  : THEREST
+  : line
   {
-    debug('parse.something.THEREST', 'THEREST=' + $1)
-    $$ = { something: $1, loc: toLoc(yyloc), hint: 'THEREST' } 
+    // debug('parse.something.line', 'line=' + $1)
+    // $$ = { something: $1, loc: toLoc(yyloc), hint: 'THEREST', topState: yy.lexer.topState() } 
   }
-  | THEREST NEWLINE
+  | line NEWLINE
   {
-    debug('parse.something.THEREST_NEWLINE', 'THEREST=' + $1)
-    $$ = { something: $1, loc: toLoc(yyloc), hint: 'THEREST NEWLINE' } 
+    // debug('parse.something.line_NEWLINE', 'line=' + $1)
+    // $$ = { something: $1, loc: toLoc(yyloc), hint: 'line NEWLINE', topState: yy.lexer.topState() } 
+  }
+  ;
+
+line
+  : WORD
+  {
+    debug('parse.line.WORD', 'WORD=' + $1)
+    $$ = { WORD: $1, loc: toLoc(yyloc), hint: 'WORD', topState: yy.lexer.topState() }
+  }
+  | WORD THEREST
+  {
+    debug('parse.line.WORD_THEREST', 'WORD=' + $1, 'THEREST=' + $2)
+    $$ = { name: $1, attrs: $2, loc: toLoc(yyloc), hint: 'WORD_THEREST', topState: yy.lexer.topState() }
+  }
+  | WORD ATTRS_BLOCK
+  {
+    debug('parse.line.WORD_ATTRS_BLOCK', 'WORD=' + $1, 'ATTRS_BLOCK=' + $2)
+    $$ = { name: $1, attrs: $2, loc: toLoc(yyloc), hint: 'WORD ATTRS_BLOCK', topState: yy.lexer.topState() }
+  }
+  // | WORD ATTRS_BLOCK THEREST
+  // {
+  //   debug('parse.line.WORD_ATTRS_BLOCK_THEREST', 'WORD=' + $1, 'ATTRS_BLOCK=' + $2, 'THEREST=' + $3)
+  //   $$ = { name: $1, attrs: $2, val: $3, loc: toLoc(yyloc), hint: 'WORD ATTRS_BLOCK THEREST', topState: yy.lexer.topState() }
+  // }
+  | THEREST
+  {
+    debug('parse.line.THEREST', 'THEREST=' + $1)
+    $$ = { THEREST: $1, loc: toLoc(yyloc), hint: 'THEREST', topState: yy.lexer.topState() }
   }
   ;
 
@@ -325,11 +365,11 @@ parser.main = function (args) {
 
 
   parser.post_parse = function(yy, retval, parseInfo) { 
-      // debug('main', 'yy', yy)
-      // debug('main', 'retval', retval)
-      // debug('main', 'parseInfo', parseInfo)
-      debug('main', 'parseInfo.token', parseInfo.token)
-      debug('main', 'parseInfo.value', parseInfo.value)
+    // debug('main', 'yy', yy)
+    // debug('main', 'retval', retval)
+    // debug('main', 'parseInfo', parseInfo)
+    debug('main', 'parseInfo.token', parseInfo.token)
+    debug('main', 'parseInfo.value', parseInfo.value)
     return retval;
   }
 
@@ -338,7 +378,7 @@ parser.main = function (args) {
         process.exit(1);
     }
     filename = args[1]
-    var source = fs.readFileSync(path.normalize(args[1]), 'utf8') + '\n';
+    var source = fs.readFileSync(path.normalize(args[1]), 'utf8');
     var dst = exports.parser.parse(source);
 
     if (stripDown) 
