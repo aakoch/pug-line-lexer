@@ -49,7 +49,7 @@ letter [a-zA-Z]
 // HTML attributes designated between parenthesis
 // No prefix defined
 // Suffix of 0 or more spaces
-<INITIAL>\([^\r\n]+\)\s* %{
+<INITIAL>\([^\r\n]+\)(?=\s*) %{
   debug('lex.INITIAL.???notnewlinethenspaces', yy.lexer.conditionStack, this.topState())
   return 'ATTRS_BLOCK'
 %}
@@ -72,7 +72,7 @@ letter [a-zA-Z]
   // Removed the duplicate pushing and not popping on newline.
   // // doing this twice because the first one is removed by the following newline
   this.pushState('TEXT')
-  textStartIndent = stack[0]
+  textStartIndent = stack[0] + 2
   // this.pushState('TEXT')
 
   // added "return 'NEWLINE'" for line 25-26:
@@ -170,6 +170,8 @@ letter [a-zA-Z]
   }
 %}
 
+// {spc} return 'SPACE';
+
 /lex
 
 %options token-stack
@@ -248,7 +250,7 @@ line
     debug('parse.line.WORD_ATTRS_BLOCK', 'WORD=' + $1, 'ATTRS_BLOCK=' + $2)
     $$ = { name: $1, attrs: $2, loc: toLoc(yyloc), hint: 'WORD ATTRS_BLOCK', topState: yy.lexer.topState() }
   }
-  // | WORD ATTRS_BLOCK THEREST
+  // | WORD ATTRS_BLOCK SPACE THEREST
   // {
   //   debug('parse.line.WORD_ATTRS_BLOCK_THEREST', 'WORD=' + $1, 'ATTRS_BLOCK=' + $2, 'THEREST=' + $3)
   //   $$ = { name: $1, attrs: $2, val: $3, loc: toLoc(yyloc), hint: 'WORD ATTRS_BLOCK THEREST', topState: yy.lexer.topState() }
@@ -412,19 +414,23 @@ parser.main = function (args) {
 
   if (outFilename) {
     console.log('writing to ' + outFilename);
-    fs.appendFileSync(outFilename, JSON.stringify(dst))
+    fs.appendFileSync(outFilename, JSON.stringify(dst, null, 2))
   }
 
-  // console.log('parser output:\n\n', {
-  //     type: typeof dst,
-  //     value: dst
-  // });
-  try {
-    // console.log("\n\nor as JSON:\n", JSON.stringify(dst, null, 2));
-  } catch (e) { /* ignore crashes; output MAY not be serializable! We are a generic bit of code, after all... */ }
-  var rv = 0;
-  if (typeof dst === 'number' || typeof dst === 'boolean') {
-    rv = dst;
+  else {
+    console.log('parser output:\n\n', {
+        type: typeof dst,
+        value: dst
+    });
+
+    try {
+      console.log("\n\nor as JSON:\n", JSON.stringify(dst, null, 2));
+    } catch (e) { /* ignore crashes; output MAY not be serializable! We are a generic bit of code, after all... */ }
+    var rv = 0;
+    if (typeof dst === 'number' || typeof dst === 'boolean') {
+      rv = dst;
+    }
+
   }
   return dst;
 };
