@@ -43,6 +43,20 @@ const lineTransformer = new stream.Transform({
   }
 })
 
+const extraCommaTransformer = new stream.Transform({
+  transform(chunk, enc, callback) {
+    this.cache = this.cache || ''
+    const str = this.cache + chunk.toString()
+    if (str.match(/,\s*$/)) {
+      this.cache = str
+    } else {
+      this.push(str.replaceAll(/,\s*\]/g, ']'))
+      this.cache = ''
+    }
+    callback();
+  }
+})
+
 const blankLineRemoverTransformer = new stream.Transform({
   transform(chunk, enc, callback) {
     const match = chunk.toString().match(/^\s*$/);
@@ -77,10 +91,10 @@ const indentTransformer = new stream.Transform({
   flush(callback) {
     if (this.ended) {
       // const ret = []
-      while (this.stack[0] > 1) {
+      while (1 < this.stack[0]) {
         this.stack.shift()
         // leaving this as a separate push for each makes the next transformer treat each as a separate call
-        this.push('DEDENT')
+        this.push('DEDENT ')
         // ret.push('DEDENT');
       }
       // this.push(ret.join(' '))
@@ -99,8 +113,9 @@ const indentTransformer = new stream.Transform({
       else if (num < this.stack[0]) {
         while (num < this.stack[0]) {
           this.stack.shift()
-          this.push('DEDENT ' + chunk.toString().trim() + '\n')
+          this.push('DEDENT \n')
         }
+        this.push(chunk.toString().trim() + '\n')
       }
       else {
         this.push(chunk.toString().trim() + '\n')
@@ -180,44 +195,107 @@ const tagTransformer = new stream.Transform({
   }
 })
 
+
+
+
+
 const nestingTransformer = new stream.Transform({
   flush(callback) {
+    debug('nestingTransformer', 'this.ended=' + this.ended)
     if (this.ended) {
-      this.push('}]');
+      this.push(this.stack.pop())
+      this.push(this.stack.pop())
+      this.push(']');
     }
     callback()
   },
   transform(chunk, enc, callback) {
+    debug('current indent=' + this.currentIndent)
     const ret = []
+    
+    debug('nestingTransformer', '\n1 chunk=' + chunk.toString())
 
-    debug('nestingTransformer', 'chunk=' + chunk.toString())
-
-    const regex = /(?<INDENT>INDENT )?(?<DEDENT>DEDENT)?(?<text>.*)/
+    const regex = /(?<INDENT>INDENT )?(?<DEDENT>DEDENT )?(?<text>.*)/
     // const groups = [...chunk.toString().matchAll(regex)]
     const matches = chunk.toString().match(regex)
 
     if (matches) {
-      debug('nestingTransformer', 'matches=', matches.groups)
+      debug('nestingTransformer', '2 matches=', matches.groups)
       if (matches.groups.INDENT) {
-        ret.push(', "children": [{ ')
+        this.previousWasDedent = false
+        this.currentIndent++
+        //ret.push(',CHILDREN' + this.currentIndent + ' ' + ''.padStart(this.currentIndent * 3, ' ') + '"children": [')
+        // ret.push(',"children":[')
+        // this.stack.push(']')
       }
       // TODO: handle mulitple DEDENTs
       else if (matches.groups.DEDENT) {
-        ret.push('}]}, { ')
+        ret.push(this.stack.pop())
+        ret.push(this.stack.pop())
+
+        this.currentIndent--
+        // if (matches.groups.DEDENT.length > 7) {
+        //   for (let i = 0; i < matches.groups.DEDENT.length / 7; i++) {
+        //     ret.push(']1, ')
+        //   }
+        // }
+        // else {
+          this.state = ''
+        // if (this.previousWasDedent) {
+        //   // ret.push(' ] }' + ''.padStart(this.currentIndent * 3, ' ') + 'REPEAT_DEDENT' + this.currentIndent + ' ')
+        //   ret.push(this.stack.pop())
+        // }
+        // else {
+        //   // ' + ''.padStart(this.currentIndent * 3, ' ') + '
+        //   // let closingObject = true
+        //   // let closingArray = true
+        //   // let closingObject2 = true
+        //   // let continuing = true
+        //   // if (closingObject) {
+        //   //   ret.push(' } ')
+        //   // }
+        //   // if (closingArray) {
+        //   //   ret.push(' ] ')
+        //   // }
+        //   // if (closingObject2) {
+        //   //   ret.push(' } ')
+        //   // }
+        //   // if (continuing) {
+        //   //   ret.push(' ,  ')
+        //   // }
+        //   ret.push(this.stack.pop())
+        // }
+        // this.previousWasDedent = true
+        // }
       }
       else {
+        this.previousWasDedent = false
         if (this.first) {
           this.first = false;
-          ret.push('[{')
+          ret.push('[')
         }
         else {
-          ret.push('}, {')
+          ret.push(this.stack.pop())
+          ret.push(this.stack.pop())
+          ret.push(',') // close children
+          // ret.push(', "hint": "continue", "currentIndent": ' + this.currentIndent + '},')
+          // ret.push(this.stack.pop() + ',')
         }
       }
 
       const text = matches.groups.text
-      if (text && text.trim().length > 0) {
-        ret.push('"text": "' + text.quote() + '"')
+      if (text.trim().length > 0) {
+        debug('nestingTransformer', 'before state=', this.state)
+        const thing = analyzeLine((this.state.length > 0 ? '<'+this.state+'>' : '') + text);
+        debug('nestingTransformer', 'thing=', thing)
+        this.state = thing.state || ''
+        debug('nestingTransformer', 'after state=', this.state)
+        delete thing.state
+        const thingStr = JSON.stringify(thing)
+        // console.log(thingStr)
+        ret.push(''.padStart(this.currentIndent * 2, ' ') + '{' + thingStr.substring(1, thingStr.length - 1) + ',"children":[')
+        this.stack.push('}')
+        this.stack.push(']')
       }
 
     }
@@ -225,15 +303,27 @@ const nestingTransformer = new stream.Transform({
       debug('nestingTransformer', 'NO matches=', chunk.toString())
       ret.push(chunk)
     }
-    let test = ret.join(' \n')
-    console.log(typeof test)
+    let test = ret.join(' \n');
+    debug('nestingTransformer', typeof test);
+    if (typeof test != 'string') {
+      error('nestingTransformer', typeof test)
+    }
     this.push(test)
     callback();
   }
 })
 nestingTransformer.first = true;
+nestingTransformer.currentIndent = 0;
+nestingTransformer.state = ''
+nestingTransformer.arrOrObj='unknown'
+nestingTransformer.stack=[]
+nestingTransformer.indentStack=[0]
 
-
+function analyzeLine(el) {
+  // if (el.match(/(<[A-Z_]+>)?\/\/.*/))
+  //   return '{}'
+  return parser.parse(el)
+}
 
 const simpleNestingTransformer = new stream.Transform({
   flush(callback) {
@@ -458,7 +548,6 @@ const directiveTransformer = new stream.Transform({
   }
 })
 
-
 const fileWriter = fs.createWriteStream('temp.json')
 
 process.stdin
@@ -468,8 +557,11 @@ process.stdin
   .pipe(blankLineRemoverTransformer)
 
   .pipe(indentTransformer)
-  // .pipe(nestingTransformer)
-  .pipe(simpleNestingTransformer)
+  .pipe(nestingTransformer)
+  // .pipe(extraCommaTransformer)
+  // .pipe(process.stdout);
+
+  // .pipe(simpleNestingTransformer)
   // .pipe(removeExtraEmptyElementTransformer)
   // .pipe(removeExtraEmptyElementTransformer2)
   // .pipe(objectify(function (chunk, enc, cb) {
@@ -477,9 +569,16 @@ process.stdin
   //   this.push(s)
   //   cb()
   // }))
-  // .pipe(process.stdout);
-
   .pipe(concat(function (str) {
+    try {
+      // console.dir(JSON.parse(str), {depth: 10})
+      console.log(str.toString())
+    }
+    catch (e) {
+      console.error('Could not parse:\n' + str)
+    }
+  }))
+    /*
     const arr = JSON.parse(str)
 
     // console.dir(arr)
@@ -518,75 +617,6 @@ process.stdin
     const thisArr = convert(newarr)
     console.log(util.inspect(thisArr, false, 10, true))
 
-    // const newerarr = []
-
-    // const anotherObj = { line: newarr[0] }
-    // if (next object is a string) {
-    //   newerarr.push(anotherObj)
-    // }
-    // else {
-    //   newObj.children = createObj2(newarr.splice(2))
-    // }
-    // // newerarr.push({ line: newarr[1], children: createObj2(newarr.splice(2)) })
-
-    // const newObj = { line: newarr[1] }
-    // newObj.children = createObj2(newarr.splice(2))
-    // newerarr.push(newObj)
-
-    // function createObj2(anotherArray) {
-    //   const anotherNewArray = []
-    //   const children = createObj2(anotherArray.splice(1));
-    //   anotherNewArray.push( { line: anotherArray[0], children: children } )
-    //   return anotherNewArray
-    // }
-
-
-    // console.log(util.inspect(newerarr, false, 10, true))
-
-    // console.log(util.inspect(toObjects([], newarr[0], 0), false, 10, true))
-
-    // function toObjects(previousObj, newObj, indent) {
-
-
-
-
-
-    //   return lineOrArr.map(line => {
-    //   // for (let i = 0; i < lineOrArr.length; i++) {
-    //     const unknown = createObj(line);
-
-    //     if (Array.isArray(unknown)) {
-    //       console.log('this is an array=' + unknown);
-    //     }
-    //     else {
-    //       console.log('this is NOT an array=' + unknown);
-    //     }
-    //   })
-
-    //   // if (util.isObject(parent)) {
-    //   //   parent.children.push(lineOrArr)
-    //   // }
-    //   // else {
-    //   //   parent.push(lineOrArr)
-    //   // }
-
-    //   // let obj = { children: [] }
-    //   // debug('toObjects', 'enter: indent=' + indent + ', lineOrArr=' + lineOrArr + ', type=' + typeof lineOrArr);
-    //   // const indentStr = ''.padStart(indent * 2, ' ')
-    //   // if (typeof lineOrArr == 'string') {
-    //   //   obj = createObj(lineOrArr)
-    //   // }
-    //   // else if (Array.isArray(lineOrArr)) {
-    //   //   for (let i = 0; i < lineOrArr.length; i++) {
-    //   //     obj.children.push(toObjects(lineOrArr[i], indent + 1))
-    //   //   }
-    //   // }
-    //   // else {
-    //   //   debug('toObjects', 'WTF is this? ' + typeof lineOrArr)
-    //   // }
-    //   // return obj
-    // }
-
     function createObj(line) {
       if (Array.isArray(line)) {
         return line.forEach(createObj)
@@ -596,28 +626,8 @@ process.stdin
       }
     }
 
-    // for (let i = 0; i < newarr.length; i++) {
-    //   backToLines(newarr[i], 0);
-    // }
-
-    // function backToLines(lineOrArr, indent) {
-    //   debug('backToLines', 'enter: indent=' + indent + ', lineOrArr=' + lineOrArr + ', type=' + typeof lineOrArr);
-    //   const indentStr = ''.padStart(indent * 2, ' ')
-    //   if (typeof lineOrArr == 'string') {
-    //     console.log(indentStr + lineOrArr);
-    //   }
-    //   else if (Array.isArray(lineOrArr)) {
-    //     for (let i = 0; i < lineOrArr.length; i++) {
-    //       backToLines(lineOrArr[i], indent + 1);
-    //     }
-
-    //   }
-    //   else {
-    //     debug('backToLines', 'WTF is this? ' + typeof lineOrArr)
-    //   }
-    // }
   }))
-
+  */
 
 //.pipe(fileWriter)
 
@@ -679,6 +689,7 @@ function debug(pkg, ...msgs) {
     // pkg == 'removeExtraEmptyElementTransformer'
     // pkg == 'convert'
     false
+    // pkg == 'nestingTransformer'
   ) {// && pkg != 'nestingTransformer') {
     debugContent.push(...msgs)
   }

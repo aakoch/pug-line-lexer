@@ -23,26 +23,29 @@ json.forEach(obj => {
 function printLine(obj, indent, textStartIndent) {
   let arr = [];
   try {
-      for (let i = 0; i < Math.min(textStartIndent, indent); i++) {
-        arr.push('  ');
-      }
-    
+    for (let i = 0; i < Math.min(textStartIndent, indent); i++) {
+      arr.push('  ');
+    }
+
     if (obj.hasOwnProperty('name')) {
       arr.push(obj.name)
+    }
+
+    if (obj.hasOwnProperty('attrs')) {
       if (/^[a-zA-Z0-9&]/.test(obj.attrs.toString())) {
         arr.push(' ');
       }
       arr.push(obj.attrs)
     }
-    
+
     if (obj.hasOwnProperty('THEREST')) {
       arr.push(obj.THEREST)
     }
-    
+
     if (obj.hasOwnProperty('WORD')) {
       arr.push(obj.WORD)
     }
-    
+
     if (obj.hasOwnProperty('text')) {
       if (textStartIndent == Number.MAX_SAFE_INTEGER) {
         textStartIndent = indent;
@@ -53,7 +56,7 @@ function printLine(obj, indent, textStartIndent) {
     }
 
     arr.push('\n')
-    
+
     // let text = obj.something || (obj.tag + (obj.attrs || (obj.val ? ' ' + obj.val : '') || '')) || obj.text
     // fs.appendFileSync("rewrite.pug", arr.join('') + text + '\n')
 
