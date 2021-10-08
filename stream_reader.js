@@ -9,6 +9,7 @@ import concat from 'concat-stream'
 
 import parser from './build/stream_reader_helper.cjs'
 
+
 String.prototype.quote = function () {
   return this.replaceAll('\\', '\\\\').replaceAll('"', '\\\"')
 }
@@ -210,73 +211,80 @@ const nestingTransformer = new stream.Transform({
     callback()
   },
   transform(chunk, enc, callback) {
-    debug('current indent=' + this.currentIndent)
-    const ret = []
-    
-    debug('nestingTransformer', '\n1 chunk=' + chunk.toString())
+    try {
+      this.lineNo++
+      debug('current indent=' + this.currentIndent)
+      const ret = []
+      
+      debug('nestingTransformer', '\n1 chunk=' + chunk.toString())
 
-    const regex = /(?<INDENT>INDENT )?(?<DEDENT>DEDENT )?(?<text>.*)/
-    const matches = chunk.toString().match(regex)
+      const regex = /(?<INDENT>INDENT )?(?<DEDENT>DEDENT )?(?<text>.*)/
+      const matches = chunk.toString().match(regex)
 
-    if (matches) {
-      debug('nestingTransformer', '2 matches=', matches.groups)
-      if (matches.groups.INDENT) {
-        this.previousWasDedent = false
-        this.currentIndent++
-      }
-      else if (matches.groups.DEDENT) {
-        ret.push(this.stack.pop())
-        ret.push(this.stack.pop())
+      if (matches) {
+        debug('nestingTransformer', '2 matches=', matches.groups)
+        if (matches.groups.INDENT) {
+          this.previousWasDedent = false
+          this.currentIndent++
+        }
+        else if (matches.groups.DEDENT) {
+          ret.push(this.stack.pop())
+          ret.push(this.stack.pop())
 
-        this.currentIndent--
-          this.state = ''
-      }
-      else {
-        this.previousWasDedent = false
-        if (this.first) {
-          this.first = false;
-          ret.push('[')
+          this.currentIndent--
+            this.state = ''
         }
         else {
-          ret.push(this.stack.pop())
-          ret.push(this.stack.pop())
-          ret.push(',')
+          this.previousWasDedent = false
+          if (this.first) {
+            this.first = false;
+            ret.push('[')
+          }
+          else {
+            ret.push(this.stack.pop())
+            ret.push(this.stack.pop())
+            ret.push(',')
+          }
         }
-      }
 
-      const text = matches.groups.text
-      if (text.trim().length > 0) {
-        debug('nestingTransformer', 'before state=', this.state)
-        const thing = analyzeLine((this.state.length > 0 ? '<'+this.state+'>' : '') + text);
-        debug('nestingTransformer', 'thing=', thing)
-        this.state = thing.state || ''
-        debug('nestingTransformer', 'after state=', this.state)
-        delete thing.state
-        const thingStr = JSON.stringify(thing)
-        ret.push(''.padStart(this.currentIndent * 2, ' ') + '{' + thingStr.substring(1, thingStr.length - 1) + ',"children":[')
-        this.stack.push('}')
-        this.stack.push(']')
-      }
+        const text = matches.groups.text
+        if (text.trim().length > 0) {
+          debug('nestingTransformer', 'before state=', this.state)
+          const thing = analyzeLine((this.state.length > 0 ? '<'+this.state+'>' : '') + text);
+          debug('nestingTransformer', 'thing=', thing)
+          this.state = thing.state || ''
+          debug('nestingTransformer', 'after state=', this.state)
+          delete thing.state
+          const thingStr = JSON.stringify(thing)
+          ret.push(''.padStart(this.currentIndent * 2, ' ') + '{' + thingStr.substring(1, thingStr.length - 1) + ',"children":[')
+          this.stack.push('}')
+          this.stack.push(']')
+        }
 
+      }
+      else {
+        debug('nestingTransformer', 'NO matches=', chunk.toString())
+        ret.push(chunk)
+      }
+      let test = ret.join(' \n');
+      debug('nestingTransformer', typeof test);
+      if (typeof test != 'string') {
+        error('nestingTransformer', typeof test)
+      }
+      this.push(test)
+      callback();
     }
-    else {
-      debug('nestingTransformer', 'NO matches=', chunk.toString())
-      ret.push(chunk)
+    catch(e) {
+      e.lineNo = this.lineNo
+      callback(e)
     }
-    let test = ret.join(' \n');
-    debug('nestingTransformer', typeof test);
-    if (typeof test != 'string') {
-      error('nestingTransformer', typeof test)
-    }
-    this.push(test)
-    callback();
   }
 })
 nestingTransformer.first = true;
 nestingTransformer.currentIndent = 0;
 nestingTransformer.state = ''
 nestingTransformer.stack=[]
-nestingTransformer.indentStack=[0]
+nestingTransformer.lineNo=0
 
 function analyzeLine(el) {
   // if (el.match(/(<[A-Z_]+>)?\/\/.*/))
