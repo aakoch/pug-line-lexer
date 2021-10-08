@@ -216,7 +216,6 @@ const nestingTransformer = new stream.Transform({
     debug('nestingTransformer', '\n1 chunk=' + chunk.toString())
 
     const regex = /(?<INDENT>INDENT )?(?<DEDENT>DEDENT )?(?<text>.*)/
-    // const groups = [...chunk.toString().matchAll(regex)]
     const matches = chunk.toString().match(regex)
 
     if (matches) {
@@ -224,49 +223,13 @@ const nestingTransformer = new stream.Transform({
       if (matches.groups.INDENT) {
         this.previousWasDedent = false
         this.currentIndent++
-        //ret.push(',CHILDREN' + this.currentIndent + ' ' + ''.padStart(this.currentIndent * 3, ' ') + '"children": [')
-        // ret.push(',"children":[')
-        // this.stack.push(']')
       }
-      // TODO: handle mulitple DEDENTs
       else if (matches.groups.DEDENT) {
         ret.push(this.stack.pop())
         ret.push(this.stack.pop())
 
         this.currentIndent--
-        // if (matches.groups.DEDENT.length > 7) {
-        //   for (let i = 0; i < matches.groups.DEDENT.length / 7; i++) {
-        //     ret.push(']1, ')
-        //   }
-        // }
-        // else {
           this.state = ''
-        // if (this.previousWasDedent) {
-        //   // ret.push(' ] }' + ''.padStart(this.currentIndent * 3, ' ') + 'REPEAT_DEDENT' + this.currentIndent + ' ')
-        //   ret.push(this.stack.pop())
-        // }
-        // else {
-        //   // ' + ''.padStart(this.currentIndent * 3, ' ') + '
-        //   // let closingObject = true
-        //   // let closingArray = true
-        //   // let closingObject2 = true
-        //   // let continuing = true
-        //   // if (closingObject) {
-        //   //   ret.push(' } ')
-        //   // }
-        //   // if (closingArray) {
-        //   //   ret.push(' ] ')
-        //   // }
-        //   // if (closingObject2) {
-        //   //   ret.push(' } ')
-        //   // }
-        //   // if (continuing) {
-        //   //   ret.push(' ,  ')
-        //   // }
-        //   ret.push(this.stack.pop())
-        // }
-        // this.previousWasDedent = true
-        // }
       }
       else {
         this.previousWasDedent = false
@@ -277,9 +240,7 @@ const nestingTransformer = new stream.Transform({
         else {
           ret.push(this.stack.pop())
           ret.push(this.stack.pop())
-          ret.push(',') // close children
-          // ret.push(', "hint": "continue", "currentIndent": ' + this.currentIndent + '},')
-          // ret.push(this.stack.pop() + ',')
+          ret.push(',')
         }
       }
 
@@ -292,7 +253,6 @@ const nestingTransformer = new stream.Transform({
         debug('nestingTransformer', 'after state=', this.state)
         delete thing.state
         const thingStr = JSON.stringify(thing)
-        // console.log(thingStr)
         ret.push(''.padStart(this.currentIndent * 2, ' ') + '{' + thingStr.substring(1, thingStr.length - 1) + ',"children":[')
         this.stack.push('}')
         this.stack.push(']')
@@ -315,7 +275,6 @@ const nestingTransformer = new stream.Transform({
 nestingTransformer.first = true;
 nestingTransformer.currentIndent = 0;
 nestingTransformer.state = ''
-nestingTransformer.arrOrObj='unknown'
 nestingTransformer.stack=[]
 nestingTransformer.indentStack=[0]
 
