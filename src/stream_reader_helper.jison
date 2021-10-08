@@ -89,104 +89,114 @@ other        [^a-zA-Z0-9 \n\\]+
 
 start
   : ENDOFFILE
-  | DOCTYPE ENDOFFILE
+  | element ENDOFFILE
+  ;
+
+element
+  : DOCTYPE
   {
     $$ = { type: 'doctype', val: 'html' }
   }
-  | TAG_NAME ENDOFFILE
+  | TAG_NAME
   {
     $$ = { type: 'tag', name: $TAG_NAME }
   }
-  | WORD ENDOFFILE
+  | WORD
   {
     $$ = { type: 'unknown', name: $WORD }
   }
-  | TAG_NAME LPAREN THEREST RPAREN ENDOFFILE
+  | TAG_NAME attrs
   {
-    $$ = { type: 'tag', name: $TAG_NAME, attrs: $THEREST }
+    $$ = { type: 'tag', name: $TAG_NAME, attrs: $attrs }
   }
-  | TEXT_TAG_NAME SPACE WORD* ENDOFFILE
+  | TEXT_TAG_NAME SPACE WORD*
   {
     $$ = { type: 'tag', name: $TEXT_TAG_NAME, state: 'TEXT_START', therest: $3.join('') }
   }
-  | TEXT_TAG_NAME DOT? SPACE+ THEREST* ENDOFFILE
+  | TEXT_TAG_NAME DOT? SPACE+ THEREST*
   {
     $$ = { type: 'tag', name: $TEXT_TAG_NAME, state: 'TEXT_START' }
   }
-  | TEXT_TAG_NAME DOT? LPAREN THEREST RPAREN ENDOFFILE
+  | TEXT_TAG_NAME DOT? attrs
   {
-    $$ = { type: 'tag', name: $TEXT_TAG_NAME, attrs: $THEREST, state: 'TEXT_START' }
+    $$ = { type: 'tag', name: $TEXT_TAG_NAME, attrs: $attrs, state: 'TEXT_START' }
   }
-  | TAG_NAME LPAREN THEREST RPAREN DOT ENDOFFILE
+  | TAG_NAME attrs DOT
   {
-    $$ = { type: 'tag', name: $TAG_NAME, attrs: $THEREST, state: 'TEXT_START' }
+    $$ = { type: 'tag', name: $TAG_NAME, attrs: $attrs, state: 'TEXT_START' }
   }
-  | TAG_NAME LPAREN THEREST RPAREN SPACE THEREST ENDOFFILE
+  | TAG_NAME attrs SPACE THEREST
   {
-    $$ = { type: 'tag', name: $TAG_NAME, attrs: $THEREST1, therest: $6 }
+    $$ = { type: 'tag', name: $TAG_NAME, attrs: $attrs, therest: $4 }
   }
-  | DIRECTIVE SPACE THEREST ENDOFFILE
+  | DIRECTIVE SPACE THEREST
   {
     $$ = { type: 'directive', name: $DIRECTIVE, params: $THEREST }
   }
-  | TEXT_START THEREST ENDOFFILE
+  | TEXT_START THEREST
   {
     $$ = { type: 'text', text: $THEREST }
   }
-  | TAG_NAME DOT SPACE* ENDOFFILE
+  | TAG_NAME DOT SPACE*
   {
     $$ = { type: 'tag', name: $TAG_NAME, state: 'TEXT_START' }
   }
-  | TAG_NAME CLASSNAME+ ENDOFFILE
+  | TAG_NAME CLASSNAME+
   {
     $$ = { type: 'tag', name: $TAG_NAME, classes: $2.map(classname => classname.substring(1)) }
   }
-  | TAG_NAME CLASSNAME+ SPACE+ THEREST ENDOFFILE
+  | TAG_NAME CLASSNAME+ SPACE+ THEREST
   {
     $$ = { type: 'tag', name: $TAG_NAME, classes: $2.map(classname => classname.substring(1)), therest: $4 }
   }
-  | TAG_NAME SPACE* TAG_NAME ENDOFFILE
+  | TAG_NAME SPACE* TAG_NAME
   {
     $$ = { type: 'tag', name: $TAG_NAME1, therest: $TAG_NAME2 }
   }
-  | TEXT ENDOFFILE
+  | TEXT
   {
     $$ = { type: 'text', text: $TEXT, state: 'TEXT_START' }
   }
-  | CLASSNAME ENDOFFILE
+  | CLASSNAME
   {
     $$ = { type: 'tag', classes: [$CLASSNAME.substring(1)] }
   }
-  | COMMENT TEXT* ENDOFFILE
+  | COMMENT TEXT*
   {
     $$ = { type: 'comment',  state: 'TEXT_START' }
   }
-  | PIPE TEXT ENDOFFILE
+  | PIPE TEXT
   {
     $$ = { type: 'text', text: $TEXT }
   }
-  | ID CLASSNAME* ENDOFFILE
+  | ID CLASSNAME*
   {
     $$ = { type: 'tag', id: $ID.substring(1), classes: $2.map(classname => classname.substring(1)) }
   }
-  | TAG_NAME ID LPAREN THEREST RPAREN ENDOFFILE
+  | TAG_NAME ID attrs
   {
-    $$ = { type: 'tag', name: $TAG_NAME, id: $ID.substring(1), attrs: $THEREST }
+    $$ = { type: 'tag', name: $TAG_NAME, id: $ID.substring(1), attrs: $attrs }
   }
-  | TAG_NAME ID ENDOFFILE
+  | TAG_NAME ID
   {
     $$ = { type: 'tag', name: $TAG_NAME, id: $ID.substring(1) }
   }
-  | TAG_NAME ID SPACE THEREST ENDOFFILE
+  | TAG_NAME ID SPACE THEREST
   {
     $$ = { type: 'tag', name: $TAG_NAME, id: $ID.substring(1), therest: $THEREST }
   }
-  | TAG_NAME ID CLASSNAME* ENDOFFILE
+  | TAG_NAME ID CLASSNAME*
   {
     $$ = { type: 'tag', name: $TAG_NAME, id: $ID.substring(1), classes: $3.map(classname => classname.substring(1)) }
   }
   ;
 
+attrs
+  : LPAREN THEREST RPAREN
+  {
+    $$ = $THEREST
+  }
+  ;
 %% 
 
 // feature of the GH fork: specify your own main.
@@ -254,4 +264,5 @@ test('a(href=\'https://www.adamkoch.com/\' rel=\'home\') Adam Koch', {type: 'tag
 test('h2#site-description Software Developer and Clean Code Advocate', {type: 'tag', name: 'h2', id: 'site-description', therest: 'Software Developer and Clean Code Advocate' })
 test('h3.assistive-text Main menu', {type: 'tag', name: 'h3', classes: ['assistive-text'], therest: 'Main menu' })
 test('ul#menu-header.menu', {type: 'tag', name: 'ul', id: 'menu-header', classes: ['menu']})
+// test('a(href=\'https://wordpress.adamkoch.com/posts/\') Posts', {})
 };
