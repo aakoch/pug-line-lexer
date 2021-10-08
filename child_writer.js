@@ -32,10 +32,10 @@ function printLine(obj, indent, textStartIndent) {
     }
 
     if (obj.hasOwnProperty('attrs')) {
-      if (/^[a-zA-Z0-9&]/.test(obj.attrs.toString())) {
-        arr.push(' ');
-      }
-      arr.push(obj.attrs)
+      // if (/^[a-zA-Z0-9&]/.test(obj.attrs.toString())) {
+      //   arr.push(' ');
+      // }
+      arr.push('(' + obj.attrs + ')')
     }
 
     if (obj.hasOwnProperty('THEREST')) {
