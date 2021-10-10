@@ -226,6 +226,9 @@ const nestingTransformer = new stream.Transform({
         if (matches.groups.INDENT) {
           this.previousWasDedent = false
           this.currentIndent++
+          if (this.state[this.state.length - 1] == 'TEXT_START' || this.state[this.state.length - 1] == 'TEXT') {
+            this.state.push('TEXT')
+          }
         }
         else if (matches.groups.DEDENT) {
           ret.push(this.stack.pop())
@@ -235,6 +238,9 @@ const nestingTransformer = new stream.Transform({
           this.state.pop()
         }
         else {
+          // if (this.state[this.state.length - 1] == 'TEXT_START' || this.state[this.state.length - 1] == 'TEXT') {
+          //   this.state.pop()
+          // }
           this.previousWasDedent = false
           if (this.first) {
             this.first = false;
@@ -249,13 +255,13 @@ const nestingTransformer = new stream.Transform({
 
         const text = matches.groups.text
         if (text.trim().length > 0) {
-          debug('nestingTransformer', 'before state=', this.state[this.state.length - 1])
+          debug('nestingTransformer', 'before state=', this.state)
           const thing = analyzeLine((this.state.length > 0 ? '<'+this.state[this.state.length - 1]+'>' : '') + text);
           debug('nestingTransformer', 'thing=', thing)
           if (thing.hasOwnProperty('state')) {
             this.state.push(thing.state)
           }
-          debug('nestingTransformer', 'after state=', thing.state)
+          debug('nestingTransformer', 'after state=', this.state)
           delete thing.state
           const thingStr = JSON.stringify(thing)
           ret.push(''.padStart(this.currentIndent * 2, ' ') + '{' + thingStr.substring(1, thingStr.length - 1) + ',"children":[')
@@ -518,6 +524,7 @@ const directiveTransformer = new stream.Transform({
 })
 
 const fileWriter = fs.createWriteStream('temp.json')
+const toFile = true
 
 process.stdin
   .pipe(lineTransformer)
@@ -527,125 +534,7 @@ process.stdin
 
   .pipe(indentTransformer)
   .pipe(nestingTransformer)
-  // .pipe(extraCommaTransformer)
-  .pipe(process.stdout);
-
-  // .pipe(simpleNestingTransformer)
-  // .pipe(removeExtraEmptyElementTransformer)
-  // .pipe(removeExtraEmptyElementTransformer2)
-  // .pipe(objectify(function (chunk, enc, cb) {
-  //   var s = chunk.toString()
-  //   this.push(s)
-  //   cb()
-  // }))
-  // .pipe(concat(function (str) {
-  //   try {
-  //     // console.dir(JSON.parse(str), {depth: 10})
-  //     console.log(str.toString())
-  //   }
-  //   catch (e) {
-  //     console.error('Could not parse:\n' + str)
-  //   }
-  // }))
-    /*
-    const arr = JSON.parse(str)
-
-    // console.dir(arr)
-
-    let newarr = deepFilter(arr, notEmpty)
-
-    // console.log(newarr)
-
-    function analyzeLine(el) {
-
-      return parser.parse(el.trim() == '//' ? '' : el) // { line: el }
-    }
-
-    function convert(el) {
-      const newArr = []
-      for (let i = 0; i < el.length; i++) {
-        if (i > 0 && Array.isArray(el[i])) {
-          if (newArr[newArr.length - 1].children && newArr[newArr.length - 1].children.length > 0) {
-            console.log('new obj=' + util.inspect(convert(el[i]), false, 10, true));
-            console.log('back ref=' + util.inspect(newArr[newArr.length - 1].children, false, 10, true));
-            throw new Error()
-            //newArr[newArr.length - 1].children.push(convert(el[i]))
-          }
-          else {
-            newArr[newArr.length - 1].children = convert(el[i])
-          }
-        }
-        else {
-          newArr.push(analyzeLine(el[i]))
-        }
-      }
-      debug('convert', 'returning ' + util.inspect(newArr))
-      return newArr
-    }
-
-    const thisArr = convert(newarr)
-    console.log(util.inspect(thisArr, false, 10, true))
-
-    function createObj(line) {
-      if (Array.isArray(line)) {
-        return line.forEach(createObj)
-      }
-      else {
-        return { line: line }
-      }
-    }
-
-  }))
-  */
-
-//.pipe(fileWriter)
-
-
-// .addListener('finish', async function (err) {
-//   if (err) {
-//     console.error('failed', err);
-//   } else {
-//     console.log('completed');
-
-//     try {
-//       const data = await fs.promises.readFile('temp.json', 'utf8');
-
-//       let arr = JSON.parse(data)
-
-//       console.log(arr)
-
-//       let newarr = deepFilter(arr, notEmpty)
-
-//       console.log(newarr)
-//     }
-//     catch (e) {
-//       console.error(e)
-//     }
-
-//   }
-// })
-
-function notEmpty(value, prop, subject) {
-  var key;
-
-  if (Array.isArray(value)) {
-    return value.length > 0;
-  } else if (!!value && typeof value === 'object' && value.constructor === Object) {
-    for (key in value) {
-      return true;
-    }
-    return false;
-  } else if (typeof value === 'string') {
-    subject[prop] = value = value.trim();
-
-    return value.length > 0;
-  } else {
-    return value != null;
-  }
-}
-
-// fileWriter.end('This is the end\n');
-// .pipe(process.stdout);
+  .pipe(toFile ? fileWriter : process.stdout);
 
 let debugContent = [];
 
@@ -657,8 +546,8 @@ function debug(pkg, ...msgs) {
     // && pkg != 'blankLineRemoverTransformer'
     // pkg == 'removeExtraEmptyElementTransformer'
     // pkg == 'convert'
-    false
-    // pkg == 'nestingTransformer'
+    // false
+    pkg == 'nestingTransformer'
   ) {// && pkg != 'nestingTransformer') {
     console.log(...msgs)
     debugContent.push(...msgs)

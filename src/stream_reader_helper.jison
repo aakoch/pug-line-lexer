@@ -5,6 +5,7 @@
 
 %options case-insensitive
 
+
 word         [a-zA-Z0-9]+\b
 classname         \.[a-zA-Z0-9-]+\b
 id                #[a-zA-Z0-9-]+\b
@@ -52,7 +53,7 @@ other        [^a-zA-Z0-9 \n\\-]+
   if (tagAlreadyFound) {
   // console.log('tag name was ' + (tagAlreadyFound ? '' : 'not ') + 'already found')
     this.unput(yytext)
-    this.pushState('TEXT_START')
+    this.pushState('TEXT')
     return 'THEREST'
   }
   else {
@@ -74,6 +75,7 @@ other        [^a-zA-Z0-9 \n\\-]+
   
 %}
 <INITIAL>{id}       %{
+  console.log('id='+yytext)
   return 'ID';
 %}
 <INITIAL>{classname}       %{
@@ -85,7 +87,7 @@ other        [^a-zA-Z0-9 \n\\-]+
 %}
 
 <INITIAL>{jsstart}            %{
-  this.pushState('TEXT_START')
+  this.pushState('TEXT')
   return 'JAVASCRIPT'
 %}
 
@@ -97,7 +99,7 @@ other        [^a-zA-Z0-9 \n\\-]+
 %}
 <INITIAL>')'             return           'RPAREN';
 '| '              %{
-  this.pushState('TEXT_START')
+  this.pushState('TEXT')
   return                                    'PIPE'
 %}
 '.'         %{
@@ -113,12 +115,15 @@ other        [^a-zA-Z0-9 \n\\-]+
   this.popState()
   return 'THEREST'
 %}
-<TEXT_START>[^\n\r]+  %{
+<TEXT>[^\n\r]+  %{
   this.popState()
   return 'TEXT'
 %}
 ^{word}$      return 'WORD';
+
 .+     return 'THEREST';
+<TEXT_START>.+     return ['ENDOFFILE', 'TEXT'];
+
 <INITIAL>{other}      %{
   return 'OTHER';
 %}
@@ -126,6 +131,7 @@ other        [^a-zA-Z0-9 \n\\-]+
 /lex
 
 %ebnf
+%options token-stack 
 
 %% 
 
@@ -152,10 +158,10 @@ element
   {
     $$ = { type: 'unknown', name: $WORD }
   }
-  | TAG_NAME tag_name_followers
+  | TAG_NAME classname_followers
   {
     // console.log('TAG_NAME tag_name_followers')
-    $$ = Object.assign({ type: 'tag', name: $TAG_NAME }, $tag_name_followers)
+    $$ = merge({ type: 'tag', name: $TAG_NAME }, $classname_followers)
   }
   | TEXT_TAG_NAME DOT? SPACE* attrs? DOT? (SPACE|THEREST|WORD)*
   {
@@ -171,14 +177,14 @@ element
   {
     $$ = { type: 'directive', name: $DIRECTIVE, params: $THEREST }
   }
-  | TEXT_START THEREST
-  {
-    $$ = { type: 'text', text: $THEREST }
-  }
+  // | TEXT_START THEREST
+  // {
+  //   $$ = { type: 'text', text: $THEREST }
+  // }
   | TEXT
   {
     // console.log('TEXT')
-    $$ = { type: 'text', text: $TEXT, state: 'TEXT_START' }
+    $$ = { type: 'text', text: $TEXT }
   }
   | CLASSNAME classname_followers
   {
@@ -196,10 +202,11 @@ element
     // console.log('PIPE TEXT')
     $$ = { type: 'text', text: $TEXT }
   }
-  | ID CLASSNAME*
+  | ID classname_followers
   {
     // console.log('ID CLASSNAME*')
-    $$ = { type: 'tag', id: $ID.substring(1), classes: $2.map(classname => classname.substring(1)) }
+    // $$ = { type: 'tag', id: $ID.substring(1), classes: $classname_followers }
+    $$ = merge( { type: 'tag', id: $ID.substring(1) }, $classname_followers )
   }
   | JAVASCRIPT? (THEREST|TEXT)
   {
@@ -216,199 +223,281 @@ attrs
   ;
 
 tag_name_followers
-  : 
+  : tag_name_followers tag_name_follower
+  | tag_name_follower
+  ;
+
+tag_name_follower
+  : ID
   {
-    // console.log('NOTHING')
-  }
-  | ID
-  {
-    // console.log('TAG_NAME ID')
     $$ = { id: $ID.substring(1) }
   }
-  | ID attrs
-  {
-    // console.log('ID attrs')
-    $$ = { id: $ID.substring(1), attrs: $attrs }
-  }
-  | ID CLASSNAME+
-  {
-    // console.log('TAG_NAME ID CLASSNAME+')
-    $$ = { id: $ID.substring(1), classes: $2.map(classname => classname.substring(1)) }
-  }
-  | ID SPACE THEREST
-  {
-    // console.log('TAG_NAME ID SPACE THEREST')
-    $$ = { id: $ID.substring(1), therest: $THEREST }
-  }
-  | attrs
-  {
-    // console.log('attrs')
-    $$ = { attrs: $attrs }
-  }
-  | attrs DOT
-  {
-    $$ = { attrs: $attrs, state: 'TEXT_START' }
-  }
-  | attrs SPACE (THEREST|WORD)
-  {
-    $$ = { attrs: $attrs, therest: $3 }
-  }
-  | DOT SPACE
-  {
-    $$ = { state: 'TEXT_START' }
-  }
-  | CLASSNAME+ classname_followers
-  {
-    // console.log('CLASSNAME+ classname_followers')
-    if (typeof $2 == 'string') {
-      obj = { therest: $2 }
-    }
-    else if ($2 != undefined) {
-      // console.log($2)
-      obj = [$2].flat().reduce((previousValue, currentValue) => { 
-      let merged = {}
-      for(let key in previousValue) {
-        if (previousValue.hasOwnProperty(key) &&
-            currentValue.hasOwnProperty(key)) {
-          merged[key] = previousValue[key] + currentValue[key]
-          delete previousValue[key] 
-          delete currentValue[key]
-        }
-      }
-      for(let key in currentValue) {
-        if (previousValue.hasOwnProperty(key) &&
-            currentValue.hasOwnProperty(key)) {
-          merged[key] = previousValue[key] + currentValue[key]
-          delete previousValue[key] 
-          delete currentValue[key]
-        }
-      }
-      return Object.assign(merged, previousValue, currentValue)
-    }, {})
-
-
-
-
-      // console.log(obj)
-    //   obj = $2.reduce((previousValue, currentValue) => { 
-    //     let text = (previousValue.therest || '') + (currentValue.therest || '')
-        if (obj.hasOwnProperty('therest') && obj.therest.startsWith(' ')) {
-          obj.therest = obj.therest.substring(1)
-        }
-
-
-
-    if (obj.hasOwnProperty('therest')) {
-      if (obj.therest.length == 0) {
-        delete obj.therest
-      }
-    }
-    //     return Object.assign(previousValue, currentValue, { therest: text }) 
-    //   }, {});
-    }
-    $$ = Object.assign({ classes: $1.map(classname => classname.substring(1)) }, obj)
-  }
-  // | CLASSNAME+ attrs?
-  // {
-  //   console.log('CLASSNAME+ attrs')
-  //   obj = { classes: $1.map(classname => classname.substring(1)) }
-  //   if ($2.length > 0) {
-  //     obj.attrs = $2
-  //   }
-  //   $$ = obj
-  // }
-  // | CLASSNAME+ attrs SPACE+ IMPOSTER_TAG_NAME THEREST
-  // {
-  //   console.log('CLASSNAME+ attrs SPACE+ IMPOSTER_TAG_NAME THEREST')
-  //   obj = { classes: $1.map(classname => classname.substring(1)) }
-  //   if ($2.length > 0) {
-  //     obj.attrs = $2
-  //   }
-  //   if ($4.length > 0) {
-  //     obj.therest = $4
-  //     if ($5.length > 0) {
-  //       obj.therest += $5
-  //     }
-  //   }
-  //   else if ($5.length > 0) {
-  //     obj.therest = $5
-  //   }
-  //   $$ = obj
-  // }
-  // | CLASSNAME+ attrs SPACE* (THEREST|WORD|TEXT) (THEREST|TEXT)+
-  // {
-  //   console.log('CLASSNAME+ attrs* (SPACE SPACE+)? (THEREST|WORD)?')
-  //   obj = { classes: $1.map(classname => classname.substring(1)) }
-  //   if ($2.length > 0) {
-  //     obj.attrs = $2
-  //   }
-  //   if ($5 != undefined && $5.length > 0) {
-  //     obj.therest = $4.splice(1).join('') + $5
-  //   }
-  //   $$ = obj
-  // }
-  | SPACE (TAG_NAME|THEREST) TEXT?
-  {
-    // console.log('SPACE (TAG_NAME|THEREST|TEXT)')
-    $$ = { therest: $2 + ($3 || '') }
-  }
-  | SPACE+ (THEREST|WORD)
-  {
-    // console.log('SPACE THEREST')
-    $1.pop()
-    // console.log('SPACE THEREST - $1=', $1.length)
-    $$ = { therest: ''.padStart($1.length, ' ') +  $2 }
-  }
-  |
   ;
+//   {
+//     // console.log('NOTHING')
+//   }
+//   | ID classname_followers
+//   {
+//     console.log('ID')
+//     // $$ = { id: $ID.substring(1) }
+
+//     // console.log('CLASSNAME+ classname_followers')
+//     if (typeof $2 == 'string') {
+//       obj = { therest: $2 }
+//     }
+//     else if ($2 != undefined) {
+//       // console.log($2)
+//       obj = [$2].flat().reduce((previousValue, currentValue) => { 
+//       let merged = {}
+//       for(let key in previousValue) {
+//         if (previousValue.hasOwnProperty(key) &&
+//             currentValue.hasOwnProperty(key)) {
+//           merged[key] = previousValue[key] + currentValue[key]
+//           delete previousValue[key] 
+//           delete currentValue[key]
+//         }
+//       }
+//       for(let key in currentValue) {
+//         if (previousValue.hasOwnProperty(key) &&
+//             currentValue.hasOwnProperty(key)) {
+//           merged[key] = previousValue[key] + currentValue[key]
+//           delete previousValue[key] 
+//           delete currentValue[key]
+//         }
+//       }
+//       return Object.assign(merged, previousValue, currentValue)
+//     }, {})
+
+
+
+
+//       // console.log(obj)
+//     //   obj = $2.reduce((previousValue, currentValue) => { 
+//     //     let text = (previousValue.therest || '') + (currentValue.therest || '')
+//         if (obj.hasOwnProperty('therest') && obj.therest.startsWith(' ')) {
+//           obj.therest = obj.therest.substring(1)
+//         }
+
+
+
+//     if (obj.hasOwnProperty('therest')) {
+//       if (obj.therest.length == 0) {
+//         delete obj.therest
+//       }
+//     }
+//     //     return Object.assign(previousValue, currentValue, { therest: text }) 
+//     //   }, {});
+//     }
+//     $$ = Object.assign({ id: $ID.substring(1) }, obj)
+//   }
+//   // | ID attrs
+//   // {
+//   //   // console.log('ID attrs')
+//   //   $$ = { id: $ID.substring(1) }
+//   //   if ($2) {
+//   //     $$ = Object.assign($$, { attrs: $2 })
+//   //   }
+//   // }
+//   // | ID CLASSNAME+
+//   // {
+//   //   // console.log('TAG_NAME ID CLASSNAME+')
+//   //   $$ = { id: $ID.substring(1), classes: $2.map(classname => classname.substring(1)) }
+//   // }
+//   // | ID SPACE THEREST
+//   // {
+//   //   // console.log('TAG_NAME ID SPACE THEREST')
+//   //   $$ = { id: $ID.substring(1), therest: $THEREST }
+//   // }
+//   | attrs
+//   {
+//     // console.log('attrs')
+//     $$ = { attrs: $attrs }
+//   }
+//   | attrs DOT
+//   {
+//     $$ = { attrs: $attrs, state: 'TEXT_START' }
+//   }
+//   | attrs SPACE (THEREST|WORD)
+//   {
+//     $$ = { attrs: $attrs, therest: $3 }
+//   }
+//   | DOT SPACE
+//   {
+//     $$ = { state: 'TEXT_START' }
+//   }
+//   | CLASSNAME+ classname_followers
+//   {
+//     // console.log('CLASSNAME+ classname_followers')
+//     if (typeof $2 == 'string') {
+//       obj = { therest: $2 }
+//     }
+//     else if ($2 != undefined) {
+//       // console.log($2)
+//       obj = [$2].flat().reduce((previousValue, currentValue) => { 
+//       let merged = {}
+//       for(let key in previousValue) {
+//         if (previousValue.hasOwnProperty(key) &&
+//             currentValue.hasOwnProperty(key)) {
+//           merged[key] = previousValue[key] + currentValue[key]
+//           delete previousValue[key] 
+//           delete currentValue[key]
+//         }
+//       }
+//       for(let key in currentValue) {
+//         if (previousValue.hasOwnProperty(key) &&
+//             currentValue.hasOwnProperty(key)) {
+//           merged[key] = previousValue[key] + currentValue[key]
+//           delete previousValue[key] 
+//           delete currentValue[key]
+//         }
+//       }
+//       return Object.assign(merged, previousValue, currentValue)
+//     }, {})
+
+
+
+
+//       // console.log(obj)
+//     //   obj = $2.reduce((previousValue, currentValue) => { 
+//     //     let text = (previousValue.therest || '') + (currentValue.therest || '')
+//         if (obj.hasOwnProperty('therest') && obj.therest.startsWith(' ')) {
+//           obj.therest = obj.therest.substring(1)
+//         }
+
+
+
+//     if (obj.hasOwnProperty('therest')) {
+//       if (obj.therest.length == 0) {
+//         delete obj.therest
+//       }
+//     }
+//     //     return Object.assign(previousValue, currentValue, { therest: text }) 
+//     //   }, {});
+//     }
+//     $$ = Object.assign({ classes: $1.map(classname => classname.substring(1)) }, obj)
+//   }
+//   // | CLASSNAME+ attrs?
+//   // {
+//   //   console.log('CLASSNAME+ attrs')
+//   //   obj = { classes: $1.map(classname => classname.substring(1)) }
+//   //   if ($2.length > 0) {
+//   //     obj.attrs = $2
+//   //   }
+//   //   $$ = obj
+//   // }
+//   // | CLASSNAME+ attrs SPACE+ IMPOSTER_TAG_NAME THEREST
+//   // {
+//   //   console.log('CLASSNAME+ attrs SPACE+ IMPOSTER_TAG_NAME THEREST')
+//   //   obj = { classes: $1.map(classname => classname.substring(1)) }
+//   //   if ($2.length > 0) {
+//   //     obj.attrs = $2
+//   //   }
+//   //   if ($4.length > 0) {
+//   //     obj.therest = $4
+//   //     if ($5.length > 0) {
+//   //       obj.therest += $5
+//   //     }
+//   //   }
+//   //   else if ($5.length > 0) {
+//   //     obj.therest = $5
+//   //   }
+//   //   $$ = obj
+//   // }
+//   // | CLASSNAME+ attrs SPACE* (THEREST|WORD|TEXT) (THEREST|TEXT)+
+//   // {
+//   //   console.log('CLASSNAME+ attrs* (SPACE SPACE+)? (THEREST|WORD)?')
+//   //   obj = { classes: $1.map(classname => classname.substring(1)) }
+//   //   if ($2.length > 0) {
+//   //     obj.attrs = $2
+//   //   }
+//   //   if ($5 != undefined && $5.length > 0) {
+//   //     obj.therest = $4.splice(1).join('') + $5
+//   //   }
+//   //   $$ = obj
+//   // }
+//   | SPACE (TAG_NAME|THEREST) TEXT?
+//   {
+//     // console.log('SPACE (TAG_NAME|THEREST|TEXT)')
+//     $$ = { therest: $2 + ($3 || '') }
+//   }
+//   | SPACE+ (THEREST|WORD)
+//   {
+//     // console.log('SPACE THEREST')
+//     $1.pop()
+//     // console.log('SPACE THEREST - $1=', $1.length)
+//     $$ = { therest: ''.padStart($1.length, ' ') +  $2 }
+//   }
+//   |
+//   ;
 
 classname_followers
   : classname_followers classname_follower
   {
-    // console.log('classname_followers classname_follower')
-    // console.log('classname_followers=', $classname_followers)
-    // console.log('classname_follower=', $classname_follower)
-    // // $classname_followers.push( { therest2: $classname_follower } )
-    // let a
-    // if (Array.isArray($classname_followers)) {
-    //   a = $classname_followers.map(o => o.threst).join('')
-    // }
-    // else if (typeof $classname_followers == 'object') {
-    //   if ($classname_followers.hasOwnProperty('therest'))
-    //     a = $classname_followers.therest
-    //   else 
-    //     console.log('unknown')
-    // }
-    // else {
-    //   console.log('typeof $classname_followers=' + typeof $classname_followers)
-    //   a = $classname_followers
-    // }
-    // console.log('a=', a)
-    // $$ = { therest: a + $classname_follower  }
-    // console.log('$$=', $$)
 
-    obj = [$classname_followers].flat().concat($classname_follower).reduce((previousValue, currentValue) => { 
-      let merged = {}
-      for(let key in previousValue) {
-        if (previousValue.hasOwnProperty(key) &&
-            currentValue.hasOwnProperty(key)) {
-          merged[key] = previousValue[key] + currentValue[key]
-          delete previousValue[key] 
-          delete currentValue[key]
-        }
-      }
-      for(let key in currentValue) {
-        if (previousValue.hasOwnProperty(key) &&
-            currentValue.hasOwnProperty(key)) {
-          merged[key] = previousValue[key] + currentValue[key]
-          delete previousValue[key] 
-          delete currentValue[key]
-        }
-      }
-      return Object.assign(merged, previousValue, currentValue)
-    }, {})
+    console.log('classname_followers classname_follower')
+    console.log('classname_followers=', $classname_followers)
+    console.log('classname_follower=', $classname_follower)
+    $$ = [merge(...$classname_followers, $classname_follower)]
+    // // // $classname_followers.push( { therest2: $classname_follower } )
+    // // let a
+    // // if (Array.isArray($classname_followers)) {
+    // //   a = $classname_followers.map(o => o.threst).join('')
+    // // }
+    // // else if (typeof $classname_followers == 'object') {
+    // //   if ($classname_followers.hasOwnProperty('therest'))
+    // //     a = $classname_followers.therest
+    // //   else 
+    // //     console.log('unknown')
+    // // }
+    // // else {
+    // //   console.log('typeof $classname_followers=' + typeof $classname_followers)
+    // //   a = $classname_followers
+    // // }
+    // // console.log('a=', a)
+    // // $$ = { therest: a + $classname_follower  }
+    // // console.log('$$=', $$)
+
+    // obj = [$classname_followers].flat().concat($classname_follower).reduce((previousValue, currentValue) => { 
+    //   const textMergeKeys = ['therest', 'text']
+    //   const arrayMergeKeys = ['classes']
+    //   let merged = {}
+    //   for(let key in previousValue) {
+    //     if (textMergeKeys.includes(key) &&
+    //         previousValue.hasOwnProperty(key) &&
+    //         currentValue.hasOwnProperty(key)) {
+    //       merged[key] = previousValue[key] + currentValue[key]
+    //       delete previousValue[key] 
+    //       delete currentValue[key]
+    //     }
+    //     else if (arrayMergeKeys.includes(key) &&
+    //         previousValue.hasOwnProperty(key) &&
+    //         currentValue.hasOwnProperty(key)) {
+    //       merged[key] = previousValue[key] + currentValue[key]
+    //       delete previousValue[key] 
+    //       delete currentValue[key]
+    //     }
+    //   }
+    //   for(let key in currentValue) {
+    //     if (textMergeKeys.includes(key) &&
+    //         previousValue.hasOwnProperty(key) &&
+    //         currentValue.hasOwnProperty(key)) {
+    //       merged[key] = previousValue[key] + currentValue[key]
+    //       delete previousValue[key] 
+    //       delete currentValue[key]
+    //     }
+    //     else if (arrayMergeKeys.includes(key) &&
+    //         previousValue.hasOwnProperty(key) &&
+    //         currentValue.hasOwnProperty(key)) {
+    //       merged[key] = previousValue[key] + currentValue[key]
+    //       delete previousValue[key] 
+    //       delete currentValue[key]
+    //     }
+    //   }
+    //   return Object.assign(merged, previousValue, currentValue)
+    // }, {})
     
-    $$ = obj
+    // console.log('returning from classname_followers classname_follower', obj)
+    // $$ = obj
   }
   | classname_follower
   {
@@ -427,14 +516,16 @@ classname_follower
   {
     $$ = { }
   }
-  | SPACE 
+  | SPACE SPACE* 
   {
-    $$ = { therest: $SPACE }
+    if ($2.length > 0) {
+      $$ = { therest: $2 }
+    }
   }
   | THEREST
   {
     // console.log('THEREST')
-    $$ = { therest: $THEREST }
+    $$ = { therest: $THEREST.trim() }
   }
   | WORD
   {
@@ -450,6 +541,16 @@ classname_follower
   {
     console.log('CLASSNAME=', $CLASSNAME.substring(1))
     $$ = { classes: [$CLASSNAME.substring(1)] }
+  }
+  | ID
+  {
+    // console.log('ID')
+    $$ = { id: $ID.substring(1) }
+  }
+  | attrs
+  {
+    // console.log('attrs')
+    $$ = [{ attrs: $attrs }]
   }
   ;
 
@@ -474,25 +575,40 @@ var _ = require("lodash");
 let tagAlreadyFound = false
 let obj
 
+const keysToMergeText = ['therest']
+
 function merge(obj, src) {
-
-
   console.log('merging', obj, src)
 
-  if (Array.isArray(src))
+  if (Array.isArray(src) && src.length > 0)
     src = src.reduce(merge)
 
   if (util.isDeepStrictEqual(src, [ { therest: '' } ]))
     return obj
 
   const ret = _.mergeWith(obj, src, function (objValue, srcValue, key, object, source, stack) {
-    console.log('inside _mergeWith', objValue, srcValue)
+    console.log('inside _mergeWith', key, objValue, srcValue)
+    if (objValue == undefined && srcValue == undefined) {
+      return {}
+    }
+    if (objValue == undefined) {
+      return srcValue
+    }
+    if (srcValue == undefined) {
+      return objValue
+    }
     if (objValue != undefined && srcValue != undefined) {
-      return objValue.concat(srcValue)
+      if (keysToMergeText.includes(key)) {
+        // return objValue.concat(srcValue).join('')
+        return objValue + srcValue
+      }
+      else {
+        return objValue.concat(srcValue)
+      }
     }
   })
+  console.log('returning', ret)
   return ret
-  // console.log('merged', obj, src)
   // return Object.assign(obj, src);
 }
 
@@ -526,8 +642,8 @@ test("title", {"type":"tag","name":"title"})
 test("| White-space and character 160 | Adam Koch ", {"type":"text","text":"White-space and character 160 | Adam Koch "})
 test("script(async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\")", {"type":"tag","name":"script","attrs":["async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\""], state: 'TEXT_START'})
 test("script.  ", {"type":"tag","name":"script","state":"TEXT_START"})
-test("<TEXT_START>window.dataLayer = window.dataLayer || [];   ", { type: 'text', text: 'window.dataLayer = window.dataLayer || [];   ', state: 'TEXT_START' })
-test("<TEXT_START>gtag('config', 'UA-452464-5');", {"type":"text","text":"gtag('config', 'UA-452464-5');", state: 'TEXT_START'})
+test("<TEXT>window.dataLayer = window.dataLayer || [];   ", { type: 'text', text: 'window.dataLayer = window.dataLayer || [];   ' })
+test("<TEXT>gtag('config', 'UA-452464-5');", {"type":"text","text":"gtag('config', 'UA-452464-5');"})
 test("", "")
 test("script test", {"type":"tag","name":"script","state":"TEXT_START","therest":"test"})
 test("tag", { type: 'unknown', name: 'tag' })
@@ -570,7 +686,8 @@ test('th  Browser', { type: 'tag', name: 'th', therest: ' Browser' })
 test('.sharedaddy.sd-sharing-enabled', {"type":"tag","classes":['sharedaddy', 'sd-sharing-enabled']})
 test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', { type: 'tag', name: 'time', attrs: ['datetime=\'2009-07-28T01:24:04-06:00\''], therest: '2009-07-28 at 1:24 AM'} )
 test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'js', val: 'var title = \'Fade Out On MouseOver Demo\'' })
-test('<TEXT_START>}).join(\' \')', { type: 'text', text: "}).join(' ')", state: 'TEXT_START' })
+test('<TEXT>}).join(\' \')', { type: 'text', text: "}).join(' ')" })
 test('  ', '')
+test('#content(role=\'main\')', { type: 'tag', id: 'content', attrs: ['role=\'main\'']})
 };
 
