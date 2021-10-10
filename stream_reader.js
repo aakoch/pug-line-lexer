@@ -232,7 +232,7 @@ const nestingTransformer = new stream.Transform({
           ret.push(this.stack.pop())
 
           this.currentIndent--
-            this.state = ''
+          this.state.pop()
         }
         else {
           this.previousWasDedent = false
@@ -249,11 +249,13 @@ const nestingTransformer = new stream.Transform({
 
         const text = matches.groups.text
         if (text.trim().length > 0) {
-          debug('nestingTransformer', 'before state=', this.state)
-          const thing = analyzeLine((this.state.length > 0 ? '<'+this.state+'>' : '') + text);
+          debug('nestingTransformer', 'before state=', this.state[this.state.length - 1])
+          const thing = analyzeLine((this.state.length > 0 ? '<'+this.state[this.state.length - 1]+'>' : '') + text);
           debug('nestingTransformer', 'thing=', thing)
-          this.state = thing.state || ''
-          debug('nestingTransformer', 'after state=', this.state)
+          if (thing.hasOwnProperty('state')) {
+            this.state.push(thing.state)
+          }
+          debug('nestingTransformer', 'after state=', thing.state)
           delete thing.state
           const thingStr = JSON.stringify(thing)
           ret.push(''.padStart(this.currentIndent * 2, ' ') + '{' + thingStr.substring(1, thingStr.length - 1) + ',"children":[')
@@ -282,7 +284,7 @@ const nestingTransformer = new stream.Transform({
 })
 nestingTransformer.first = true;
 nestingTransformer.currentIndent = 0;
-nestingTransformer.state = ''
+nestingTransformer.state=[]
 nestingTransformer.stack=[]
 nestingTransformer.lineNo=0
 
@@ -526,7 +528,7 @@ process.stdin
   .pipe(indentTransformer)
   .pipe(nestingTransformer)
   // .pipe(extraCommaTransformer)
-  // .pipe(process.stdout);
+  .pipe(process.stdout);
 
   // .pipe(simpleNestingTransformer)
   // .pipe(removeExtraEmptyElementTransformer)
@@ -536,15 +538,15 @@ process.stdin
   //   this.push(s)
   //   cb()
   // }))
-  .pipe(concat(function (str) {
-    try {
-      // console.dir(JSON.parse(str), {depth: 10})
-      console.log(str.toString())
-    }
-    catch (e) {
-      console.error('Could not parse:\n' + str)
-    }
-  }))
+  // .pipe(concat(function (str) {
+  //   try {
+  //     // console.dir(JSON.parse(str), {depth: 10})
+  //     console.log(str.toString())
+  //   }
+  //   catch (e) {
+  //     console.error('Could not parse:\n' + str)
+  //   }
+  // }))
     /*
     const arr = JSON.parse(str)
 
@@ -658,6 +660,7 @@ function debug(pkg, ...msgs) {
     false
     // pkg == 'nestingTransformer'
   ) {// && pkg != 'nestingTransformer') {
+    console.log(...msgs)
     debugContent.push(...msgs)
   }
 }
