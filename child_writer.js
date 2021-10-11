@@ -38,12 +38,18 @@ function printLine(obj, indent, textStartIndent) {
       arr.push('(' + obj.attrs + ')')
     }
 
-    if (obj.hasOwnProperty('THEREST')) {
-      arr.push(obj.THEREST)
+    if (obj.hasOwnProperty('therest')) {
+      arr.push(' ')
+      arr.push(obj.therest)
     }
 
     if (obj.hasOwnProperty('WORD')) {
       arr.push(obj.WORD)
+    }
+
+    if (obj.hasOwnProperty('params')) {
+      arr.push(' ')
+      arr.push(obj.params)
     }
 
     if (obj.hasOwnProperty('text')) {

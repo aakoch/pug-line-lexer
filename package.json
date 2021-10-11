@@ -13,6 +13,7 @@
     "@gerhobbelt/ast-util": "^0.6.1-4",
     "@gerhobbelt/recast": "^0.15.1-32",
     "concat-stream": "^2.0.0",
+    "debug": "^4.3.2",
     "deep-filter": "^1.0.2",
     "hasha": "^5.2.2",
     "jison-gho": "github:GerHobbelt/jison",

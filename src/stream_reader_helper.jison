@@ -18,6 +18,7 @@ other        [^a-zA-Z0-9 \n\\-]+
 
 %s ATTRS
 %x TEXT_START
+%x MIXIN
 %%
 
 <INITIAL>^(?!{other}){space}+$ 	%{
@@ -42,15 +43,42 @@ other        [^a-zA-Z0-9 \n\\-]+
   this.pushState(yytext.substring(1, yytext.length - 1));
 %}
 <INITIAL>^"doctype html" return 'DOCTYPE';
-<INITIAL>(mixin|include|block)        %{
-  this.pushState('ATTRS')
-  return 'DIRECTIVE';
+<INITIAL>'mixin'\s+{word}        %{
+  yytext = yytext.substring(6)
+  this.pushState('MIXIN')
+  return 'MIXIN_DECL';
+%}
+<INITIAL>'include'\s+.*        %{
+  yytext = yytext.substring(8).trim()
+  return 'INCLUDE_DECL';
+%}
+<INITIAL>'block'\s+.*        %{
+  yytext = yytext.substring(6).trim()
+  return 'BLOCK_DECL';
+%}
+<INITIAL>'extends'\s+.*        %{
+  yytext = yytext.substring(7).trim()
+  return 'EXTENDS_DECL';
+%}
+<INITIAL>'append'\s+.*        %{
+  yytext = yytext.substring(6).trim()
+  return 'APPEND_DECL';
+%}
+
+<INITIAL>'+'{word}'('       %{
+  yytext = yytext.substring(1, yytext.length - 1)
+  this.pushState('MIXIN_CALL')
+  return 'MIXIN_CALL';
 %}
 
 
-<INITIAL>^(a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b(?<![.# \(]\))      %{
-  // console.log('tag name='+yytext)
-  if (tagAlreadyFound) {
+<INITIAL>^(a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b':'?(?<![.# \(]\))      %{
+  console.log('tag name='+yytext)
+  if (yytext.endsWith(':')) {
+    yytext = yytext.substring(0, yytext.length - 1)
+    return 'NESTED_TAG'
+  }
+  else if (tagAlreadyFound) {
   // console.log('tag name was ' + (tagAlreadyFound ? '' : 'not ') + 'already found')
     this.unput(yytext)
     this.pushState('TEXT')
@@ -82,9 +110,6 @@ other        [^a-zA-Z0-9 \n\\-]+
   // console.log('classname='+yytext)
   return                                'CLASSNAME';
 %}
-<INITIAL>{block}       %{
-  return 'DIRECTIVE';
-%}
 
 <INITIAL>{jsstart}            %{
   this.pushState('TEXT')
@@ -115,13 +140,27 @@ other        [^a-zA-Z0-9 \n\\-]+
   this.popState()
   return 'THEREST'
 %}
+<MIXIN_CALL>.*(?=\))          %{
+  this.popState()
+  return 'THEREST'
+%}
+
 <TEXT>[^\n\r]+  %{
   this.popState()
   return 'TEXT'
 %}
-^{word}$      return 'WORD';
 
+<MIXIN>{word} return 'MIXIN_NAME';
+<MIXIN>'('             %{
+                                    return 'LPAREN'
+%}
+<MIXIN>')'             return           'RPAREN';
+<MIXIN><<EOF>>      return 'ENDOFFILE';
+
+
+^{word}$      return 'WORD';
 .+     return 'THEREST';
+
 <TEXT_START>.+     return ['ENDOFFILE', 'TEXT'];
 
 <INITIAL>{other}      %{
@@ -173,14 +212,47 @@ element
       $$.therest = $6.join('')
     }
   }
-  | DIRECTIVE SPACE THEREST
+  | NESTED_TAG SPACE TAG_NAME classname_followers
   {
-    $$ = { type: 'directive', name: $DIRECTIVE, params: $THEREST }
+
+    $$ = { 
+      type: 'tag', name: $NESTED_TAG, state: 'NESTED',
+      children: [ merge({ type: 'tag', name: $TAG_NAME }, $classname_followers) ]
+    }
+
   }
-  // | TEXT_START THEREST
-  // {
-  //   $$ = { type: 'text', text: $THEREST }
-  // }
+  | MIXIN_DECL attrs
+  {
+    $$ = { type: 'mixin_declaration', name: $MIXIN_DECL }
+    if ($2 != undefined && $2.length > 0) {
+      $$ = Object.assign($$, { params: $2 })
+    }
+  }
+  | MIXIN_CALL THEREST RPAREN
+  {
+    console.log('MIXIN_CALL')
+    $$ = { type: 'mixin_call', name: $MIXIN_CALL, params: $2 }
+  }
+  | INCLUDE_DECL 
+  {
+    $$ = { type: 'include_directive', params: $INCLUDE_DECL }
+  }
+  | BLOCK_DECL 
+  {
+    $$ = { type: 'directive', name: 'block', params: $BLOCK_DECL }
+  }
+  | EXTENDS_DECL 
+  {
+    $$ = { type: 'extends_declaration', template: $EXTENDS_DECL }
+  }
+  | APPEND_DECL 
+  {
+    $$ = { type: 'append_declaration', template: $APPEND_DECL }
+  }
+// | TEXT_START THEREST
+// {
+//   $$ = { type: 'text', text: $THEREST }
+// }
   | TEXT
   {
     // console.log('TEXT')
@@ -208,7 +280,7 @@ element
     // $$ = { type: 'tag', id: $ID.substring(1), classes: $classname_followers }
     $$ = merge( { type: 'tag', id: $ID.substring(1) }, $classname_followers )
   }
-  | JAVASCRIPT? (THEREST|TEXT)
+  | JAVASCRIPT (THEREST|TEXT)
   {
     console.log('JAVASCRIPT (THEREST|TEXT) 2=' + $2)
     $$ = { type: 'js', val: $2.substring(1) }
@@ -218,8 +290,10 @@ element
 attrs
   : LPAREN (THEREST|TEXT)* RPAREN
   {
+    console.log('attrs')
     $$ = $2
   }
+  | 
   ;
 
 tag_name_followers
@@ -233,271 +307,15 @@ tag_name_follower
     $$ = { id: $ID.substring(1) }
   }
   ;
-//   {
-//     // console.log('NOTHING')
-//   }
-//   | ID classname_followers
-//   {
-//     console.log('ID')
-//     // $$ = { id: $ID.substring(1) }
 
-//     // console.log('CLASSNAME+ classname_followers')
-//     if (typeof $2 == 'string') {
-//       obj = { therest: $2 }
-//     }
-//     else if ($2 != undefined) {
-//       // console.log($2)
-//       obj = [$2].flat().reduce((previousValue, currentValue) => { 
-//       let merged = {}
-//       for(let key in previousValue) {
-//         if (previousValue.hasOwnProperty(key) &&
-//             currentValue.hasOwnProperty(key)) {
-//           merged[key] = previousValue[key] + currentValue[key]
-//           delete previousValue[key] 
-//           delete currentValue[key]
-//         }
-//       }
-//       for(let key in currentValue) {
-//         if (previousValue.hasOwnProperty(key) &&
-//             currentValue.hasOwnProperty(key)) {
-//           merged[key] = previousValue[key] + currentValue[key]
-//           delete previousValue[key] 
-//           delete currentValue[key]
-//         }
-//       }
-//       return Object.assign(merged, previousValue, currentValue)
-//     }, {})
-
-
-
-
-//       // console.log(obj)
-//     //   obj = $2.reduce((previousValue, currentValue) => { 
-//     //     let text = (previousValue.therest || '') + (currentValue.therest || '')
-//         if (obj.hasOwnProperty('therest') && obj.therest.startsWith(' ')) {
-//           obj.therest = obj.therest.substring(1)
-//         }
-
-
-
-//     if (obj.hasOwnProperty('therest')) {
-//       if (obj.therest.length == 0) {
-//         delete obj.therest
-//       }
-//     }
-//     //     return Object.assign(previousValue, currentValue, { therest: text }) 
-//     //   }, {});
-//     }
-//     $$ = Object.assign({ id: $ID.substring(1) }, obj)
-//   }
-//   // | ID attrs
-//   // {
-//   //   // console.log('ID attrs')
-//   //   $$ = { id: $ID.substring(1) }
-//   //   if ($2) {
-//   //     $$ = Object.assign($$, { attrs: $2 })
-//   //   }
-//   // }
-//   // | ID CLASSNAME+
-//   // {
-//   //   // console.log('TAG_NAME ID CLASSNAME+')
-//   //   $$ = { id: $ID.substring(1), classes: $2.map(classname => classname.substring(1)) }
-//   // }
-//   // | ID SPACE THEREST
-//   // {
-//   //   // console.log('TAG_NAME ID SPACE THEREST')
-//   //   $$ = { id: $ID.substring(1), therest: $THEREST }
-//   // }
-//   | attrs
-//   {
-//     // console.log('attrs')
-//     $$ = { attrs: $attrs }
-//   }
-//   | attrs DOT
-//   {
-//     $$ = { attrs: $attrs, state: 'TEXT_START' }
-//   }
-//   | attrs SPACE (THEREST|WORD)
-//   {
-//     $$ = { attrs: $attrs, therest: $3 }
-//   }
-//   | DOT SPACE
-//   {
-//     $$ = { state: 'TEXT_START' }
-//   }
-//   | CLASSNAME+ classname_followers
-//   {
-//     // console.log('CLASSNAME+ classname_followers')
-//     if (typeof $2 == 'string') {
-//       obj = { therest: $2 }
-//     }
-//     else if ($2 != undefined) {
-//       // console.log($2)
-//       obj = [$2].flat().reduce((previousValue, currentValue) => { 
-//       let merged = {}
-//       for(let key in previousValue) {
-//         if (previousValue.hasOwnProperty(key) &&
-//             currentValue.hasOwnProperty(key)) {
-//           merged[key] = previousValue[key] + currentValue[key]
-//           delete previousValue[key] 
-//           delete currentValue[key]
-//         }
-//       }
-//       for(let key in currentValue) {
-//         if (previousValue.hasOwnProperty(key) &&
-//             currentValue.hasOwnProperty(key)) {
-//           merged[key] = previousValue[key] + currentValue[key]
-//           delete previousValue[key] 
-//           delete currentValue[key]
-//         }
-//       }
-//       return Object.assign(merged, previousValue, currentValue)
-//     }, {})
-
-
-
-
-//       // console.log(obj)
-//     //   obj = $2.reduce((previousValue, currentValue) => { 
-//     //     let text = (previousValue.therest || '') + (currentValue.therest || '')
-//         if (obj.hasOwnProperty('therest') && obj.therest.startsWith(' ')) {
-//           obj.therest = obj.therest.substring(1)
-//         }
-
-
-
-//     if (obj.hasOwnProperty('therest')) {
-//       if (obj.therest.length == 0) {
-//         delete obj.therest
-//       }
-//     }
-//     //     return Object.assign(previousValue, currentValue, { therest: text }) 
-//     //   }, {});
-//     }
-//     $$ = Object.assign({ classes: $1.map(classname => classname.substring(1)) }, obj)
-//   }
-//   // | CLASSNAME+ attrs?
-//   // {
-//   //   console.log('CLASSNAME+ attrs')
-//   //   obj = { classes: $1.map(classname => classname.substring(1)) }
-//   //   if ($2.length > 0) {
-//   //     obj.attrs = $2
-//   //   }
-//   //   $$ = obj
-//   // }
-//   // | CLASSNAME+ attrs SPACE+ IMPOSTER_TAG_NAME THEREST
-//   // {
-//   //   console.log('CLASSNAME+ attrs SPACE+ IMPOSTER_TAG_NAME THEREST')
-//   //   obj = { classes: $1.map(classname => classname.substring(1)) }
-//   //   if ($2.length > 0) {
-//   //     obj.attrs = $2
-//   //   }
-//   //   if ($4.length > 0) {
-//   //     obj.therest = $4
-//   //     if ($5.length > 0) {
-//   //       obj.therest += $5
-//   //     }
-//   //   }
-//   //   else if ($5.length > 0) {
-//   //     obj.therest = $5
-//   //   }
-//   //   $$ = obj
-//   // }
-//   // | CLASSNAME+ attrs SPACE* (THEREST|WORD|TEXT) (THEREST|TEXT)+
-//   // {
-//   //   console.log('CLASSNAME+ attrs* (SPACE SPACE+)? (THEREST|WORD)?')
-//   //   obj = { classes: $1.map(classname => classname.substring(1)) }
-//   //   if ($2.length > 0) {
-//   //     obj.attrs = $2
-//   //   }
-//   //   if ($5 != undefined && $5.length > 0) {
-//   //     obj.therest = $4.splice(1).join('') + $5
-//   //   }
-//   //   $$ = obj
-//   // }
-//   | SPACE (TAG_NAME|THEREST) TEXT?
-//   {
-//     // console.log('SPACE (TAG_NAME|THEREST|TEXT)')
-//     $$ = { therest: $2 + ($3 || '') }
-//   }
-//   | SPACE+ (THEREST|WORD)
-//   {
-//     // console.log('SPACE THEREST')
-//     $1.pop()
-//     // console.log('SPACE THEREST - $1=', $1.length)
-//     $$ = { therest: ''.padStart($1.length, ' ') +  $2 }
-//   }
-//   |
-//   ;
 
 classname_followers
   : classname_followers classname_follower
   {
-
     console.log('classname_followers classname_follower')
     console.log('classname_followers=', $classname_followers)
     console.log('classname_follower=', $classname_follower)
     $$ = [merge(...$classname_followers, $classname_follower)]
-    // // // $classname_followers.push( { therest2: $classname_follower } )
-    // // let a
-    // // if (Array.isArray($classname_followers)) {
-    // //   a = $classname_followers.map(o => o.threst).join('')
-    // // }
-    // // else if (typeof $classname_followers == 'object') {
-    // //   if ($classname_followers.hasOwnProperty('therest'))
-    // //     a = $classname_followers.therest
-    // //   else 
-    // //     console.log('unknown')
-    // // }
-    // // else {
-    // //   console.log('typeof $classname_followers=' + typeof $classname_followers)
-    // //   a = $classname_followers
-    // // }
-    // // console.log('a=', a)
-    // // $$ = { therest: a + $classname_follower  }
-    // // console.log('$$=', $$)
-
-    // obj = [$classname_followers].flat().concat($classname_follower).reduce((previousValue, currentValue) => { 
-    //   const textMergeKeys = ['therest', 'text']
-    //   const arrayMergeKeys = ['classes']
-    //   let merged = {}
-    //   for(let key in previousValue) {
-    //     if (textMergeKeys.includes(key) &&
-    //         previousValue.hasOwnProperty(key) &&
-    //         currentValue.hasOwnProperty(key)) {
-    //       merged[key] = previousValue[key] + currentValue[key]
-    //       delete previousValue[key] 
-    //       delete currentValue[key]
-    //     }
-    //     else if (arrayMergeKeys.includes(key) &&
-    //         previousValue.hasOwnProperty(key) &&
-    //         currentValue.hasOwnProperty(key)) {
-    //       merged[key] = previousValue[key] + currentValue[key]
-    //       delete previousValue[key] 
-    //       delete currentValue[key]
-    //     }
-    //   }
-    //   for(let key in currentValue) {
-    //     if (textMergeKeys.includes(key) &&
-    //         previousValue.hasOwnProperty(key) &&
-    //         currentValue.hasOwnProperty(key)) {
-    //       merged[key] = previousValue[key] + currentValue[key]
-    //       delete previousValue[key] 
-    //       delete currentValue[key]
-    //     }
-    //     else if (arrayMergeKeys.includes(key) &&
-    //         previousValue.hasOwnProperty(key) &&
-    //         currentValue.hasOwnProperty(key)) {
-    //       merged[key] = previousValue[key] + currentValue[key]
-    //       delete previousValue[key] 
-    //       delete currentValue[key]
-    //     }
-    //   }
-    //   return Object.assign(merged, previousValue, currentValue)
-    // }, {})
-    
-    // console.log('returning from classname_followers classname_follower', obj)
-    // $$ = obj
   }
   | classname_follower
   {
@@ -551,6 +369,10 @@ classname_follower
   {
     // console.log('attrs')
     $$ = [{ attrs: $attrs }]
+  }
+  | DOT SPACE?
+  {
+    $$ = { state: 'TEXT_START' }
   }
   ;
 
@@ -629,11 +451,12 @@ parser.main = function () {
 // const tags = tagLines.join('|')
 // console.log(tags)
 
+
 test('html', { type: 'tag', name: 'html' })
 test("doctype html", { type: 'doctype', val: 'html' })
 test("html(lang='en-US')", {"type":"tag","name":"html","attrs":["lang='en-US'"]})
 
-test("include something", { type: 'directive', name: 'include', params: 'something' })
+test("include something", { type: 'include_directive', params: 'something' })
 test("block here", { type: 'directive', name: 'block', params: 'here' })
 test("head", { type: 'tag', name: 'head' })
 test("meta(charset='UTF-8')", {"type":"tag","name":"meta","attrs":["charset='UTF-8'"]})
@@ -648,11 +471,6 @@ test("", "")
 test("script test", {"type":"tag","name":"script","state":"TEXT_START","therest":"test"})
 test("tag", { type: 'unknown', name: 'tag' })
 test(".classname", { type: 'tag', classes: ['classname'] })
-
-// test("// some text", { type: 'comment', text: ' some text', state: 'TEXT_START' })
-// test("// ", { type: 'comment', text: ' ', state: 'TEXT_START' })
-// test("//", { type: 'comment', text: ' ', state: 'TEXT_START' })
-
 test("// some text", { type: 'comment', state: 'TEXT_START' })
 test("// ", { type: 'comment', state: 'TEXT_START' })
 test("//", { type: 'comment', state: 'TEXT_START' })
@@ -689,5 +507,14 @@ test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'js', val: 'var tit
 test('<TEXT>}).join(\' \')', { type: 'text', text: "}).join(' ')" })
 test('  ', '')
 test('#content(role=\'main\')', { type: 'tag', id: 'content', attrs: ['role=\'main\'']})
+test('pre: code(class="language-scss").', { type: 'tag', name: 'pre', children: [ { type: 'tag', name: 'code', attrs: ['class="language-scss"'], state: 'TEXT_START'} ], state: 'NESTED'})
+
+test('mixin sensitive()', { type: 'mixin_declaration', name: 'sensitive' })
+test('extends ../templates/blogpost', {type: 'extends_declaration', template: '../templates/blogpost' })
+test('append head', {type: 'append_declaration', template: 'head' })
+test('p Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.', {type: 'tag', name: 'p', therest: 'Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.' })
+
+test('+project(\'Images\', \'On going\')', { type: 'mixin_call', name: 'project', params: "'Images', 'On going'" })
+test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project', params: "'Moddable Two (2) Case', 'Needing Documentation ', ['print']" })
 };
 
