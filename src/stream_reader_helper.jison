@@ -9,7 +9,7 @@
 word         [a-zA-Z0-9]+\b
 classname         \.[a-zA-Z0-9-]+\b
 id                #[a-zA-Z0-9-]+\b
-block                \+[a-zA-Z0-9-]+\b
+func_call                \+[a-zA-Z0-9-]+\b
 number       [0-9]+
 space			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 comment \/\/
@@ -19,6 +19,7 @@ other        [^a-zA-Z0-9 \n\\-]+
 %s ATTRS
 %x TEXT
 %x TEXT_START
+%x MIXIN
 %x MIXIN_CALL
 %%
 
@@ -44,9 +45,13 @@ other        [^a-zA-Z0-9 \n\\-]+
   this.pushState(yytext.substring(1, yytext.length - 1));
 %}
 <INITIAL>^"doctype html" return 'DOCTYPE';
-<INITIAL>'mixin'\s+{word}        %{
-  yytext = yytext.substring(6)
-  this.pushState('MIXIN')
+// <INITIAL>'mixin'(?<=\s+{word})        %{
+//   // yytext = yytext.substring(5)
+//   this.pushState('MIXIN')
+//   return 'MIXIN_DECL';
+// %}
+<INITIAL>'mixin'\s+.*        %{
+  yytext = yytext.substring(6).trim()
   return 'MIXIN_DECL';
 %}
 <INITIAL>'include'\s+.*        %{
@@ -64,6 +69,10 @@ other        [^a-zA-Z0-9 \n\\-]+
 <INITIAL>'append'\s+.*        %{
   yytext = yytext.substring(6).trim()
   return 'APPEND_DECL';
+%}
+<INITIAL>{func_call}        %{
+  yytext = yytext.substring(1)
+  return 'FUNC_CALL'
 %}
 
 <INITIAL>'+'{word}'('       %{
@@ -157,7 +166,10 @@ other        [^a-zA-Z0-9 \n\\-]+
   return 'TEXT'
 %}
 
-<MIXIN>{word} return 'MIXIN_NAME';
+<MIXIN>{word}     %{
+  this.popState()
+  return 'MIXIN_NAME'
+%}
 <MIXIN>'('             %{
                                     return 'LPAREN'
 %}
@@ -228,12 +240,9 @@ element
     }
 
   }
-  | MIXIN_DECL attrs
+  | MIXIN_DECL
   {
-    $$ = { type: 'mixin_declaration', name: $MIXIN_DECL }
-    if ($2 != undefined && $2.length > 0) {
-      $$ = Object.assign($$, { params: $2 })
-    }
+    $$ = { type: 'mixin_declaration', params: $MIXIN_DECL }
   }
   | MIXIN_CALL THEREST RPAREN
   {
@@ -255,6 +264,14 @@ element
   | APPEND_DECL 
   {
     $$ = { type: 'append_declaration', template: $APPEND_DECL }
+  }
+  | FUNC_CALL attrs
+  {
+    $$ = { type: 'func_call', name: $FUNC_CALL, params: $attrs }
+  }
+  | FUNC_CALL attrs SPACE THEREST
+  {
+    $$ = { type: 'func_call', name: $FUNC_CALL, params: $attrs, block: $THEREST }
   }
 // | TEXT_START THEREST
 // {
@@ -467,6 +484,7 @@ parser.main = function () {
 // const tags = tagLines.join('|')
 // debug(tags)
 
+// test('div(style="display:none" class= tag.replaceAll(" ", "_"))', {})
 
 test('html', { type: 'tag', name: 'html' })
 test("doctype html", { type: 'doctype', val: 'html' })
@@ -525,16 +543,39 @@ test('  ', '')
 test('#content(role=\'main\')', { type: 'tag', id: 'content', attrs: ['role=\'main\'']})
 test('pre: code(class="language-scss").', { type: 'tag', name: 'pre', children: [ { type: 'tag', name: 'code', attrs: ['class="language-scss"'], state: 'TEXT_START'} ], state: 'NESTED'})
 
-test('mixin sensitive()', { type: 'mixin_declaration', name: 'sensitive' })
+test('mixin sensitive()', { type: 'mixin_declaration', params: 'sensitive()' })
 test('extends ../templates/blogpost', {type: 'extends_declaration', template: '../templates/blogpost' })
 test('append head', {type: 'append_declaration', template: 'head' })
 test('p Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.', {type: 'tag', name: 'p', therest: 'Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.' })
 
-test('+project(\'Images\', \'On going\')', { type: 'mixin_call', name: 'project', params: "'Images', 'On going'" })
-test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project', params: "'Moddable Two (2) Case', 'Needing Documentation ', ['print']" })
+test('+project(\'Images\', \'On going\')', {
+  type: 'func_call',
+  name: 'project',
+  params: [ "'Images', 'On going'" ]
+})
+// test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project', params: "'Moddable Two (2) Case', 'Needing Documentation ', ['print']" })
+test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", {
+  block: "Case', 'Needing Documentation ', ['print'])",
+  name: 'project',
+  params: [
+    "'Moddable Two (2"
+  ],
+  type: 'func_call'
+})
 test('| . The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', text: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
 test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {"type":"text","text":"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;" })
-test('mixin sensitive()', { name: 'sensitive', type: 'mixin_declaration' })
 test('- ', { type: 'js', val: '' })
+test('mixin project(title)', { type: 'mixin_declaration', params: 'project(title)' })
+test('+code(\'Pretty-print any JSON file\') jq \'.\' package.json',
+{
+  params: [
+    "'Pretty-print any JSON file'"
+  ],
+  block: "jq '.' package.json",
+  name: 'code',
+  type: 'func_call'
+} )
+
+
 };
 
