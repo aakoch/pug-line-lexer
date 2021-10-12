@@ -24,7 +24,8 @@ json.forEach(obj => {
 
 function printLine(obj, indent, textStartIndent) {
   let arr = [];
-  try {
+  try { 
+
     for (let i = 0; i < Math.min(textStartIndent, indent); i++) {
       arr.push('  ');
     }
@@ -40,7 +41,7 @@ function printLine(obj, indent, textStartIndent) {
 
     if (obj.hasOwnProperty('classes')) {
       arr.push('.')
-      arr.push(obj.classes)
+      arr.push(obj.classes.join('.'))
     }
 
     if (obj.hasOwnProperty('id')) {
@@ -67,6 +68,11 @@ function printLine(obj, indent, textStartIndent) {
     if (obj.hasOwnProperty('params')) {
       arr.push(' ')
       arr.push(obj.params)
+    }
+
+    if (obj.hasOwnProperty('type') && obj.type == 'js') {
+      arr.push('- ')
+      arr.push(obj.val)
     }
 
     if (obj.hasOwnProperty('text')) {
