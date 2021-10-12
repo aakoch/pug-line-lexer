@@ -13,16 +13,17 @@ block                \+[a-zA-Z0-9-]+\b
 number       [0-9]+
 space			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 comment \/\/
-jsstart     -
+code_unbuf     -(?<=\s*\w|\s|)
 other        [^a-zA-Z0-9 \n\\-]+ 
 
 %s ATTRS
+%x TEXT
 %x TEXT_START
-%x MIXIN
+%x MIXIN_CALL
 %%
 
 <INITIAL>^(?!{other}){space}+$ 	%{
-  console.log('blank line')
+  debug('blank line')
   // return 'ENDOFFILE'
 %} /* eat blank lines */
 
@@ -73,13 +74,13 @@ other        [^a-zA-Z0-9 \n\\-]+
 
 
 <INITIAL>^(a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b':'?(?<![.# \(]\))      %{
-  console.log('tag name='+yytext)
+  debug('tag name='+yytext)
   if (yytext.endsWith(':')) {
     yytext = yytext.substring(0, yytext.length - 1)
     return 'NESTED_TAG'
   }
   else if (tagAlreadyFound) {
-  // console.log('tag name was ' + (tagAlreadyFound ? '' : 'not ') + 'already found')
+  // debug('tag name was ' + (tagAlreadyFound ? '' : 'not ') + 'already found')
     this.unput(yytext)
     this.pushState('TEXT')
     return 'THEREST'
@@ -91,7 +92,7 @@ other        [^a-zA-Z0-9 \n\\-]+
 %}
 <INITIAL>(script|style)      %{
   if (tagAlreadyFound) {
-  // console.log('tag name was ' + (tagAlreadyFound ? '' : 'not ') + 'already found')
+  // debug('tag name was ' + (tagAlreadyFound ? '' : 'not ') + 'already found')
     this.unput(yytext)
     this.pushState('TEXT_START')
     return 'THEREST'
@@ -103,32 +104,34 @@ other        [^a-zA-Z0-9 \n\\-]+
   
 %}
 <INITIAL>{id}       %{
-  console.log('id='+yytext)
+  debug('id='+yytext)
   return 'ID';
 %}
 <INITIAL>{classname}       %{
-  // console.log('classname='+yytext)
+  // debug('classname='+yytext)
   return                                'CLASSNAME';
 %}
 
-<INITIAL>{jsstart}            %{
+<INITIAL>{code_unbuf}            %{
   this.pushState('TEXT')
-  return 'JAVASCRIPT'
+  this.unput(' ')
+  return 'CODE_UNBUF'
 %}
 
 // <INITIAL>{number}     return              'NUMBER';
 <INITIAL>'('             %{
-  // console.log('LPAREN='+yytext)
+  // debug('LPAREN='+yytext)
   this.pushState('ATTRS')
                                     return 'LPAREN'
 %}
 <INITIAL>')'             return           'RPAREN';
 '| '              %{
+  debug('PIPE')
   this.pushState('TEXT')
   return                                    'PIPE'
 %}
 '.'         %{
-  // console.log('dot')
+  debug('DOT - topState=' + this.topState())
   return 'DOT'
 %}
 {space}      return 'SPACE';
@@ -146,6 +149,10 @@ other        [^a-zA-Z0-9 \n\\-]+
 %}
 
 <TEXT>[^\n\r]+  %{
+  debug('inside <TEXT>[^\n\r]+')
+  if (yytext.startsWith('| ')) {
+    yytext = yytext.substring(2)
+  }
   this.popState()
   return 'TEXT'
 %}
@@ -199,7 +206,7 @@ element
   }
   | TAG_NAME classname_followers
   {
-    // console.log('TAG_NAME tag_name_followers')
+    // debug('TAG_NAME tag_name_followers')
     $$ = merge({ type: 'tag', name: $TAG_NAME }, $classname_followers)
   }
   | TEXT_TAG_NAME DOT? SPACE* attrs? DOT? (SPACE|THEREST|WORD)*
@@ -230,7 +237,7 @@ element
   }
   | MIXIN_CALL THEREST RPAREN
   {
-    console.log('MIXIN_CALL')
+    debug('MIXIN_CALL')
     $$ = { type: 'mixin_call', name: $MIXIN_CALL, params: $2 }
   }
   | INCLUDE_DECL 
@@ -255,42 +262,49 @@ element
 // }
   | TEXT
   {
-    // console.log('TEXT')
+    // debug('TEXT')
     $$ = { type: 'text', text: $TEXT }
   }
   | CLASSNAME classname_followers
   {
-    console.log('CLASSNAME classname_followers', 'CLASSNAME=', $CLASSNAME)
+    debug('CLASSNAME classname_followers', 'CLASSNAME=', $CLASSNAME)
 
     $$ = merge({ type: 'tag', classes: [$CLASSNAME.substring(1)] }, $classname_followers)
   }
   | COMMENT TEXT*
   {
-    // console.log('COMMENT TEXT*')
+    // debug('COMMENT TEXT*')
     $$ = { type: 'comment',  state: 'TEXT_START' }
   }
   | PIPE TEXT
   {
-    // console.log('PIPE TEXT')
+    // debug('PIPE TEXT')
     $$ = { type: 'text', text: $TEXT }
   }
   | ID classname_followers
   {
-    // console.log('ID CLASSNAME*')
+    // debug('ID CLASSNAME*')
     // $$ = { type: 'tag', id: $ID.substring(1), classes: $classname_followers }
     $$ = merge( { type: 'tag', id: $ID.substring(1) }, $classname_followers )
   }
-  | JAVASCRIPT (THEREST|TEXT)
+  | CODE_UNBUF SPACE? (THEREST|TEXT)
   {
-    console.log('JAVASCRIPT (THEREST|TEXT) 2=' + $2)
-    $$ = { type: 'js', val: $2.substring(1) }
+    debug('CODE_UNBUF (THEREST|TEXT) 3=' + $3)
+    $$ = { type: 'js' }
+    if ($3) 
+      $$ = Object.assign($$, { val: $3.trim() } )
+  }
+  | THEREST
+  {
+    // debug('THEREST')
+    $$ = { therest: $THEREST.trim() }
   }
   ;
 
 attrs
   : LPAREN (THEREST|TEXT)* RPAREN
   {
-    console.log('attrs')
+    debug('attrs')
     $$ = $2
   }
   | 
@@ -312,19 +326,19 @@ tag_name_follower
 classname_followers
   : classname_followers classname_follower
   {
-    console.log('classname_followers classname_follower')
-    console.log('classname_followers=', $classname_followers)
-    console.log('classname_follower=', $classname_follower)
+    debug('classname_followers classname_follower')
+    debug('classname_followers=', $classname_followers)
+    debug('classname_follower=', $classname_follower)
     $$ = [merge(...$classname_followers, $classname_follower)]
   }
   | classname_follower
   {
-    // console.log('classname_follower111=', $classname_follower)
+    // debug('classname_follower111=', $classname_follower)
     $$ = [ $classname_follower ]
   }
   | attrs
   {
-    // console.log('attrs')
+    // debug('attrs')
     $$ = [{ attrs: $attrs }]
   }
   ;
@@ -342,32 +356,32 @@ classname_follower
   }
   | THEREST
   {
-    // console.log('THEREST')
+    // debug('THEREST')
     $$ = { therest: $THEREST.trim() }
   }
   | WORD
   {
-    // console.log('WORD')
+    // debug('WORD')
     $$ = { therest: $WORD }
   }
   | TEXT
   {
-    // console.log('TEXT')
+    // debug('TEXT')
     $$ = { therest: $TEXT }
   }
   | CLASSNAME
   {
-    console.log('CLASSNAME=', $CLASSNAME.substring(1))
+    debug('CLASSNAME=', $CLASSNAME.substring(1))
     $$ = { classes: [$CLASSNAME.substring(1)] }
   }
   | ID
   {
-    // console.log('ID')
+    // debug('ID')
     $$ = { id: $ID.substring(1) }
   }
   | attrs
   {
-    // console.log('attrs')
+    // debug('attrs')
     $$ = [{ attrs: $attrs }]
   }
   | DOT SPACE?
@@ -393,6 +407,8 @@ classname_follower
 var assert = require("assert");
 var util = require("util");
 var _ = require("lodash");
+var debugFunc = require('debug')
+const debug = debugFunc('stream-reader-helper')
 
 let tagAlreadyFound = false
 let obj
@@ -400,7 +416,7 @@ let obj
 const keysToMergeText = ['therest']
 
 function merge(obj, src) {
-  console.log('merging', obj, src)
+  debug('merging', obj, src)
 
   if (Array.isArray(src) && src.length > 0)
     src = src.reduce(merge)
@@ -409,7 +425,7 @@ function merge(obj, src) {
     return obj
 
   const ret = _.mergeWith(obj, src, function (objValue, srcValue, key, object, source, stack) {
-    console.log('inside _mergeWith', key, objValue, srcValue)
+    debug('inside _mergeWith', key, objValue, srcValue)
     if (objValue == undefined && srcValue == undefined) {
       return {}
     }
@@ -429,7 +445,7 @@ function merge(obj, src) {
       }
     }
   })
-  console.log('returning', ret)
+  debug('returning', ret)
   return ret
   // return Object.assign(obj, src);
 }
@@ -439,9 +455,9 @@ parser.main = function () {
   tagAlreadyFound = false
   function test(input, expected) {
     tagAlreadyFound = false
-    console.log(`\nTesting '${input}'...`)
+    debug(`\nTesting '${input}'...`)
     var actual = parser.parse(input)
-    console.log(input + ' ==> ', util.inspect(actual))
+    debug(input + ' ==> ', util.inspect(actual))
     assert.deepEqual(actual, expected)
   }
 
@@ -449,7 +465,7 @@ parser.main = function () {
 
 // const tagLines = fs.readFileSync('/Users/aakoch/projects/new-foo/workspaces/parser-generation/all_tags.txt', 'utf-8').split('\n')
 // const tags = tagLines.join('|')
-// console.log(tags)
+// debug(tags)
 
 
 test('html', { type: 'tag', name: 'html' })
@@ -516,5 +532,9 @@ test('p Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lo
 
 test('+project(\'Images\', \'On going\')', { type: 'mixin_call', name: 'project', params: "'Images', 'On going'" })
 test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project', params: "'Moddable Two (2) Case', 'Needing Documentation ', ['print']" })
+test('| . The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', text: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
+test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {"type":"text","text":"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;" })
+test('mixin sensitive()', { name: 'sensitive', type: 'mixin_declaration' })
+test('- ', { type: 'js', val: '' })
 };
 

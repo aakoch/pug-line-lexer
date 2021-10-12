@@ -1,5 +1,7 @@
 import fs from 'fs'
 import path from 'path'
+import debugFunc from 'debug'
+const debug = debugFunc('child-writer')
 // import util from 'util';
 
 fs.truncateSync('rewrite.pug')
@@ -27,8 +29,23 @@ function printLine(obj, indent, textStartIndent) {
       arr.push('  ');
     }
 
+    if (obj.type == 'doctype') {
+      arr.push('doctype ')
+      arr.push(obj.val)
+    }
+
     if (obj.hasOwnProperty('name')) {
       arr.push(obj.name)
+    }
+
+    if (obj.hasOwnProperty('classes')) {
+      arr.push('.')
+      arr.push(obj.classes)
+    }
+
+    if (obj.hasOwnProperty('id')) {
+      arr.push('#')
+      arr.push(obj.id)
     }
 
     if (obj.hasOwnProperty('attrs')) {
@@ -68,6 +85,7 @@ function printLine(obj, indent, textStartIndent) {
 
     // console.log('obj.children=', obj.children);
     if (obj.children != undefined) {
+      debug('obj.children.length=' + obj.children.length)
       obj.children.forEach(l => {
         arr.push(...printLine(l, indent + 1, textStartIndent));
       })
