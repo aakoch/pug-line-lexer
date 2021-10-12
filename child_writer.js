@@ -78,17 +78,29 @@ function printLine(obj, indent, textStartIndent) {
       arr.push(obj.text)
     }
 
-    arr.push('\n')
-
-    // let text = obj.something || (obj.tag + (obj.attrs || (obj.val ? ' ' + obj.val : '') || '')) || obj.text
-    // fs.appendFileSync("rewrite.pug", arr.join('') + text + '\n')
-
-    // console.log('obj.children=', obj.children);
-    if (obj.children != undefined) {
-      debug('obj.children.length=' + obj.children.length)
-      obj.children.forEach(l => {
-        arr.push(...printLine(l, indent + 1, textStartIndent));
-      })
+    if (obj.hasOwnProperty('type') && obj.type == 'comment') {
+      arr.push('//')
+      arr.push('\n')
+      if (obj.children != undefined) {
+        debug('obj.children.length=' + obj.children.length)
+        obj.children.forEach(l => {
+          for (let i = 0; i < Math.min(textStartIndent, indent); i++) {
+            arr.push('  ');
+          }
+          arr.push('//' + l.text);
+        })
+      }
+      arr.push('\n')
+    }
+    else {
+      arr.push('\n')
+      
+      if (obj.children != undefined) {
+        debug('obj.children.length=' + obj.children.length)
+        obj.children.forEach(l => {
+          arr.push(...printLine(l, indent + 1, textStartIndent));
+        })
+      }
     }
   } catch (e) {
     console.error(e);
