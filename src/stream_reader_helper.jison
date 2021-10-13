@@ -208,12 +208,7 @@ mixin_call              \+[a-z]+\b
 %ebnf
 %options token-stack 
 
-
-// %left CLASSNAME TAG
-
-
 %% 
-
 
 /* language grammar */
 
@@ -244,16 +239,6 @@ line
     debug('UNBUF_CODE=', $UNBUF_CODE)
     $$ = { type: 'unbuffered_code', val: $UNBUF_CODE }
   }
-  // commented out because of conflict. need to revisit
-  // | COMMENT
-  // {
-  //   $$ = { type: 'comment', state: 'TEXT' }
-  // }
-  // commented out to try moving it
-  // | PUG_KEYWORD TEXT
-  // {
-  //   $$ = { type: 'pug_keyword', name: $PUG_KEYWORD, params: $TEXT }
-  // }
   | text_tag_line
   | TAG NESTED_TAG_START something_followed_by_text DOT_END?
   {
@@ -323,21 +308,6 @@ something_followed_by_text
         $$ = Object.assign($$, { type: 'tag' })
     }
   }
-  // : TAG CLASSNAME+ something_following_text_tag?
-  // {
-  //   $$ = { type: 'tag', name: $TAG, classes: $2 }
-  //   if ($3) {
-  //     $$ = Object.assign($$, { attrs: [$3[1]] })
-  //   }
-  // }
-  // | CLASSNAME+
-  // {
-  //   $$ = { type: 'tag', classes: $1 }
-  // }
-  // | TAG something_following_text_tag
-  // {
-  //   $$ = Object.assign({ type: 'tag', name: $TAG }, $something_following_text_tag )
-  // }
   | PIPE
   {
     $$ = { type: 'text' }
@@ -346,44 +316,6 @@ something_followed_by_text
   {
     $$ = { type: 'TEXT_START', val: $1 }
   }
-  // | TAG_ID something_following_text_tag DOT_END?
-  // {
-  //   $$ = Object.assign({ type: 'tag', id: $TAG_ID }, $something_following_text_tag )
-  //   if ($3) {
-  //     debug('TAG_ID something_following_text_tag DOT_END?=', $3)
-  //     $$ = Object.assign($$, { state: 'TEXT_START' })
-  //   }
-  // }
-  // | TAG? TAG_ID
-  // {
-  //   $$ = { type: 'tag' }
-  //   if ($1) {
-  //     $$ = Object.assign($$, { name: $1 })
-  //   }
-  //   if ($2) {
-  //     $$ = Object.assign($$, { id: $2 })
-  //   }
-  // }
-  // | TAG TAG_ID CLASSNAME+
-  // {
-  //   $$ = { type: 'tag', name: $TAG, id: $TAG_ID, classes: $3 }
-  // }
-  // | TAG TAG_ID something_following_text_tag
-  // {
-  //   $$ = Object.assign({ type: 'tag', name: $TAG, id: $TAG_ID }, $something_following_text_tag )
-  // }
-  // | TAG_ID CLASSNAME+
-  // {
-  //   $$ = { type: 'tag', id: $TAG_ID, classes: $2 }
-  // }
-  // | TAG NESTED_TAG_START something_followed_by_text
-  // {
-  //   $$ = { type: 'tag', name: $TAG, state: 'NESTED', children: $something_followed_by_text }
-  // }
-  // | CODE TEXT
-  // {
-  //   $$ = { type: 'code', val: $TEXT }
-  // }
   | COMMENT
   {
     $$ = { type: 'comment', state: 'TEXT_START' }
@@ -407,30 +339,9 @@ tag_part
   {
     $$ = { attrs: [$ATTR_TEXT] }
   }
-  // | TEXT
-  // {
-  //   $$ = { val: $TEXT }
-  // }
-  // | DOT_END
-  // {
-  //   $$ = { }
-  // }
   ;
 
 %% 
-
-// feature of the GH fork: specify your own main.
-//
-// compile with
-// 
-//      jison -o test.js --main path/to/simple.jison
-//
-// then run
-//
-//      node ./test.js
-//
-// to see the output.
-
 var assert = require("assert");
 var util = require("util");
 var _ = require("lodash");
@@ -464,7 +375,6 @@ function merge(obj, src) {
     }
     if (objValue != undefined && srcValue != undefined) {
       if (keysToMergeText.includes(key)) {
-        //  return objValue.concat(srcValue).join('')
          return objValue + srcValue
       }
       else {
