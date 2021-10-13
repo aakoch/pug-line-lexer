@@ -1,14 +1,15 @@
 import fs from 'fs'
 import path, { parse } from 'path'
 import stream from 'stream'
-import util from 'util'
+import util, { callbackify } from 'util'
 // import deepFilter from 'deep-filter';
 // import objectify from 'through2-objectify'
 import concat from 'concat-stream'
-import lineTransformer from '../line-transformer/index.js'
 import indentTransformer from '../indent-transformer/index.js';
+import WrapLine from '@jaredpalmer/wrapline'
 
 import parser from './build/stream_reader_helper.cjs'
+// import parser from './build/flex_stream_reader_helper.cjs'
 import debugFunc from 'debug'
 
 String.prototype.quote = function () {
@@ -25,7 +26,6 @@ stream.finished(process.stdin, (err) => {
   if (err) {
     console.error('Stream failed', err);
   } else {
-    lineTransformer.ended = true
     indentTransformer.ended = true
     nestingTransformer.ended = true
   }
@@ -74,6 +74,7 @@ nestingTransformer.stack = {
 }
 nestingTransformer.lineNo = 0
 nestingTransformer.stack.push({ symbol: ']' })
+nestingTransformer.buffer = []
 
 function doStuff(inputString) {
   debug('nestingTransformer', 'inputString=', inputString)
@@ -102,6 +103,13 @@ function doStuff(inputString) {
       }
       else if (this.state[this.state.length - 1] == 'TEXT') {
         this.state.push('TEXT')
+      }
+      else if (this.state[this.state.length - 1] == 'UNBUF_CODE_START') {
+        this.state.pop()
+        this.state.push('UNBUF_CODE')
+      }
+      else if (this.state[this.state.length - 1] == 'UNBUF_CODE') {
+        this.state.push('UNBUF_CODE')
       }
     }
     else if (matches.groups.DEDENT) {
@@ -207,14 +215,21 @@ function analyzeLine(el) {
   // if (el.match(/(<[A-Z_]+>)?\/\/.*/))
   //   return '{}'
   debug('stream-reader', 'sending to parser: ' + el)
-  return parser.parse(el)
+  const returnedObj = parser.parse(el)
+  debug('stream-reader', 'returned from parser: ', returnedObj)
+  return returnedObj
 }
 
 const fileWriter = fs.createWriteStream('temp.json')
-const toFile = true
+const toFile = false
 
 process.stdin
-  .pipe(lineTransformer)
+  .pipe(WrapLine('|'))
+  .pipe(WrapLine(function(pre, line) {
+    // add 'line numbers' to each line
+    pre = pre || 0
+    return pre + 1
+  }))
   .pipe(indentTransformer)
   .pipe(nestingTransformer)
   .pipe(toFile ? fileWriter : process.stdout);

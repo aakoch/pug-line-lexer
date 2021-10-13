@@ -75,13 +75,18 @@ function printLine(obj, indent, textStartIndent) {
       arr.push(obj.val)
     }
 
-    if (obj.hasOwnProperty('text')) {
+    if (obj.hasOwnProperty('type') && obj.type == 'unbuffered_code') {
+      arr.push('- ')
+      arr.push(obj.val)
+    }
+
+    if (obj.hasOwnProperty('type') && obj.type == 'text') {
       if (textStartIndent == Number.MAX_SAFE_INTEGER) {
         textStartIndent = indent;
       }
       arr.push('| ')
       arr.push(''.padStart(indent - textStartIndent, '  '))
-      arr.push(obj.text)
+      arr.push(obj.val)
     }
 
     if (obj.hasOwnProperty('type') && obj.type == 'comment') {
