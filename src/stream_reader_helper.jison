@@ -25,6 +25,9 @@ mixin_call              \+[a-z]+\b
 %x ATTR_TEXT
 %x MIXIN_CALL_START
 %s ATTRS_END
+%x UNBUF_CODE_START
+%x UNBUF_CODE
+%x ONLY_FOR_SYNTAX_COLORING
 
 %%
 
@@ -252,6 +255,18 @@ line
   //   $$ = { type: 'pug_keyword', name: $PUG_KEYWORD, params: $TEXT }
   // }
   | text_tag_line
+  | TAG NESTED_TAG_START something_followed_by_text DOT_END?
+  {
+    $$ = { type: 'tag', name: $TAG, state: 'NESTED', children: [Object.assign($something_followed_by_text, {state: 'TEXT_START'})] }
+  }
+  | CODE 
+  {
+    $$ = { type: 'code', val: $CODE, state: 'UNBUF_CODE_START' }
+  }
+  | CODE TEXT
+  {
+    $$ = { type: 'code', val: $TEXT }
+  }
   ;
 
 text_tag_line
@@ -365,14 +380,10 @@ something_followed_by_text
   // {
   //   $$ = { type: 'tag', name: $TAG, state: 'NESTED', children: $something_followed_by_text }
   // }
-  | CODE 
-  {
-    $$ = { type: 'code', val: $CODE, state: 'UNBUF_CODE_START' }
-  }
-  | CODE TEXT
-  {
-    $$ = { type: 'code', val: $TEXT }
-  }
+  // | CODE TEXT
+  // {
+  //   $$ = { type: 'code', val: $TEXT }
+  // }
   | COMMENT
   {
     $$ = { type: 'comment', state: 'TEXT_START' }
@@ -404,10 +415,6 @@ tag_part
   // {
   //   $$ = { }
   // }
-  | TAG NESTED_TAG_START something_followed_by_text DOT_END?
-  {
-    $$ = { type: 'tag', name: $TAG, state: 'NESTED', children: [Object.assign($something_followed_by_text, {state: 'TEXT_START'})] }
-  }
   ;
 
 %% 
