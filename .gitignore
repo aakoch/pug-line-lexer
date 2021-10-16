@@ -1,9 +1,8 @@
-node_modules/
-.DS_Store
-build/
-jison/
+node_modules
+jison
+rewrite.pug
 temp.json
 temp.out
 test.pug
-build/
-rewrite.pug
+build
+.DS_Store
