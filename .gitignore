@@ -5,3 +5,5 @@ jison/
 temp.json
 temp.out
 test.pug
+build/
+rewrite.pug
