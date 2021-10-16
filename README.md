@@ -27,3 +27,7 @@ node src/lines_runner.mjs src/lines_test.pug
 npx jison -o build/indent.cjs --main src/indent.jison && node build/indent.cjs 404.pug -o temp.out
 node child_writer.js temp.out
 sdiff -s rewrite.pug 404.pug
+
+
+## TODO
+Try minimist or mri or yargs-parser instead of command-line-args
