@@ -4,14 +4,14 @@
 
 To build a lexer and run the tests included at the bottom of the file:
 ```shell
-npx jison -o build/test.js --main src/lines2.jison  && node build/test.js
+npx jison -o build/stream_reader_helper.cjs --main src/stream_reader_helper.jison && DEBUG='stream-reader-helper' node build/stream_reader_helper.cjs
 ```
 
 or
 
 To just build the lexer you can run this:
 ```shell
-npx jison -o build/lines.mjs -m es src/line2.jison
+npm run build
 ```
 
 ## Run

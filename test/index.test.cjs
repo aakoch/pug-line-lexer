@@ -4,7 +4,7 @@ const expect = chai.expect;
 const dyp = require('dyp');
 
 // const parser = require('/Users/aakoch/projects/new-foo/workspaces/parser-generation/build/body_nodes.cjs')
-const parser = require('/Users/aakoch/projects/new-foo/workspaces/parser-generation/build/elements.cjs')
+const parser = require('../build/elements.cjs')
 
 describe('test', function () {
   it('should match a known working example', function () {

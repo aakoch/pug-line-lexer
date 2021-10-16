@@ -7,10 +7,10 @@
 
 // ID          [A-Z-]+"?"?
 // NUM         ([1-9][0-9]+|[0-9])
-space			[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
-tag         \b(a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
+space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
+tag         \b(a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
-pug_keyword                \b(append|block|doctype|extends|include|mixin)\b
+pug_keyword             \b(append|block|case|default|doctype|else|extends|if|include|mixin|unless|when)\b
 
 letter                  [a-z] // case insensitive
 digit                   [0-9]
@@ -27,23 +27,17 @@ mixin_call              \+[a-z]+\b
 %s ATTRS_END
 %x UNBUF_CODE_START
 %x UNBUF_CODE
-%x ONLY_FOR_SYNTAX_COLORING
+%x MULTI_LINE_ATTRS
 
 %%
 
-<INITIAL>{pug_keyword}{space}    
+<INITIAL>{pug_keyword}{space}?    
 %{
   yytext = yytext.substring(0, yytext.length - 1);
   this.pushState('TEXT');
                                           return 'PUG_KEYWORD';
 %}
 
-// case for the 'block' keyword is used inside of a mixin declaration but doesn't have a space after
-<INITIAL>'block'    
-%{
-  this.pushState('TEXT');
-                                          return 'PUG_KEYWORD';
-%}
 <INITIAL>{tag}(?:' '?)
 %{
   yytext = this.matches[1]
@@ -97,7 +91,7 @@ mixin_call              \+[a-z]+\b
 %}
 <INITIAL>"/"                              return '/';
 <INITIAL>{digit}                          return 'DIGIT'
-<INITIAL>":"                              return ':';
+// <INITIAL>":"                              return ':';
 <INITIAL>'<'[A-Z_]+'>'
 %{
   this.pushState(yytext.substring(1, yytext.length - 1));
@@ -137,6 +131,7 @@ mixin_call              \+[a-z]+\b
   catch (e) {
     console.error(e)
   }
+  lparenOpen = false
   debug('1.2 yytext=', yytext)
                                           return 'ATTR_TEXT';
 %}
@@ -148,6 +143,24 @@ mixin_call              \+[a-z]+\b
   this.unput(this.matches[2])
   yytext = yytext.substring(0, yytext.indexOf(this.matches[1]) + this.matches[1].length);
   debug('2 yytext=', yytext)
+  lparenOpen = false
+                                          return 'ATTR_TEXT';
+%}
+<ATTRS_STARTED>(.+)\.?\s*<<EOF>>
+%{
+  this.popState()
+  debug('1 this.matches=', this.matches)
+  debug('1 this.matches.length=', this.matches.length)
+  debug('1 yytext=', yytext)
+  try {
+  if (this.matches.length > 1) {    
+    yytext = this.matches[1]
+  }
+  }
+  catch (e) {
+    console.error(e)
+  }
+  debug('1.2 yytext=', yytext)
                                           return 'ATTR_TEXT';
 %}
 
@@ -203,6 +216,9 @@ mixin_call              \+[a-z]+\b
                                           return 'TEXT';
 %}
 
+<MULTI_LINE_ATTRS>')'                     return 'ATTR_TEXT_END';
+<MULTI_LINE_ATTRS>.+                      return 'ATTR_TEXT';
+
 /lex
 
 %ebnf
@@ -215,6 +231,11 @@ mixin_call              \+[a-z]+\b
 start
   : EOF
   | line EOF
+  {
+    if (lparenOpen && !$line.hasOwnProperty('state')) {
+      $$ = Object.assign($line, { state: 'MULTI_LINE_ATTRS' })
+    }
+  }
   ;
 
 line
@@ -252,6 +273,23 @@ line
   {
     $$ = { type: 'code', val: $TEXT }
   }
+  // | tag_part LPAREN ATTR_TEXT?
+  // {
+  //   if ($3) {
+  //     $$ = merge($tag_part, { type: 'tag', attrs: $3 })
+  //   }
+  //   else {
+  //     $$ = merge($tag_part, { type: 'tag', state: 'MULTI_LINE_ATTRS' })
+  //   }
+  // }
+  // | ATTR_TEXT
+  // {
+  //   $$ = { attrs: $ATTR_TEXT }
+  // }
+  | ATTR_TEXT_END
+  {
+    $$ = { type: 'multiline_attrs_end' }
+  }
   ;
 
 text_tag_line
@@ -272,6 +310,12 @@ something_following_text_tag
   }
   | LPAREN ATTR_TEXT
   {
+    if ($ATTR_TEXT.endsWith(')') || $ATTR_TEXT.match(/[^\)]+\)\s*/)) {
+      lparenOpen = false
+    }
+    else {
+      debug('LPAREN ATTR_TEXT: didn\'t end with ): ' + $ATTR_TEXT)
+    }
     $$ = { attrs: [$ATTR_TEXT] }
   }
   ;
@@ -286,12 +330,16 @@ first_token
   {
     $$ = { type: 'pug_keyword', name: $PUG_KEYWORD }
   }
-  | MIXIN_CALL tag_part?
+  | MIXIN_CALL tag_part? ATTR_TEXT?
   {
     debug('MIXIN_CALL=', $1)
+    lparenOpen = false
     $$ = { type: 'mixin_call', mixin_name: $1 }
     if ($2) {
       Object.assign($$, $2)
+    }
+    if ($3) {
+      Object.assign($$, {attrs: [$3]})
     }
   }
   ;
@@ -325,7 +373,7 @@ something_followed_by_text
 tag_part
   : TAG
   {
-    $$ = { name: $TAG }
+    $$ = { name: $TAG, type: 'tag' }
   }
   | TAG_ID
   {
@@ -335,9 +383,20 @@ tag_part
   {
     $$ = { classes: [$1] }
   }
-  | LPAREN ATTR_TEXT
+  | LPAREN
   {
-    $$ = { attrs: [$ATTR_TEXT] }
+    lparenOpen = true
+    $$ = {}
+  }
+  | ATTR_TEXT
+  {
+    if ($ATTR_TEXT.endsWith(')') || $ATTR_TEXT.match(/[^\)]+\)\s*\.?\s*/)) {
+      lparenOpen = false
+    }
+    else {
+      debug('ATTR_TEXT: didn\'t end with ): ' + $ATTR_TEXT)
+    }
+    $$ = { attrs: [$1] }
   }
   ;
 
@@ -346,11 +405,12 @@ var assert = require("assert");
 var util = require("util");
 var _ = require("lodash");
 var debugFunc = require('debug')
+const dyp = require('dyp');
 const debug = debugFunc('stream-reader-helper')
 
 let tagAlreadyFound = false
 let obj
-
+var lparenOpen = false
 const keysToMergeText = ['therest']
 
 function merge(obj, src) {
@@ -390,12 +450,21 @@ function merge(obj, src) {
 parser.main = function () {
   
   tagAlreadyFound = false
-  function test(input, expected) {
+  lparenOpen = false
+  function test(input, expected, strict = true ) {
     tagAlreadyFound = false
+    lparenOpen = false
     debug(`\nTesting '${input}'...`)
     var actual = parser.parse(input)
     debug(input + ' ==> ', util.inspect(actual))
-    assert.deepEqual(actual, expected)
+    
+    let compareFunc
+    if (strict)
+      compareFunc = assert.deepEqual
+    else 
+      compareFunc = dyp
+
+    compareFunc.call({}, actual, expected)
   }
 
 
@@ -405,6 +474,147 @@ parser.main = function () {
 // debug(tags)
 
 // test('div(style="display:none" class= tag.replaceAll(" ", "_"))', {})
+// test('.status-wrapper Status: 
+// test('span.status #{status}
+// - var friends = 1
+// case friends
+//   when 0: p you have no friends
+//   when 1: p you have a friend
+//   default: p you have #{friends} friends
+// p This is plain old <em>text</em> content.
+
+// <html>
+// body
+//   p Indenting the body tag here would make no difference.
+//   p HTML itself isn't whitespace-sensitive.
+// </html>
+
+// div INDENT p This text belongs to the paragraph tag. NODENT br NODENT . INDENT This text belongs to the div tag.
+// <div>
+//   <p>This text belongs to the paragraph tag.</p><br />This text belongs to the div tag.
+// </div>
+
+test('a(href=\'/user/\' + id, class=\'button\')', {
+  attrs: [
+    "href='/user/' + id, class='button'"
+  ],
+  name: 'a',
+  type: 'tag'
+})
+
+test('- function answer() { return 42; }', {
+  type: 'code',
+  val: 'function answer() { return 42; }'
+})
+test('a(href=\'/user/\' + id, class=\'button\')', {
+  attrs: [
+    "href='/user/' + id, class='button'"
+  ],
+  name: 'a',
+  type: 'tag'
+})
+test('a(href  =  \'/user/\' + id, class  =  \'button\')', {
+  attrs: [
+    "href  =  '/user/' + id, class  =  'button'"
+  ],
+  name: 'a',
+  type: 'tag'
+})
+// test('a(class = [\'class1\', \'class2\'])', {})
+// test('a.tag-class(class = [\'class1\', \'class2\'])', {})
+// test('a(href=\'/user/\' + id class=\'button\')', {})
+// test('a(href  =  \'/user/\' + id class  =  \'button\')', {})
+// test('meta(key=\'answer\' value=answer())', {})
+test('div(id=id)&attributes({foo: \'bar\'})', {
+  attrs: [
+    "id=id)&attributes({foo: 'bar'}"
+  ],
+  name: 'div',
+  type: 'tag'
+})
+test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
+  attrs: [
+    "foo=null bar=bar)&attributes({baz: 'baz'}"
+  ],
+  name: 'div',
+  type: 'tag'
+})
+
+test('foo(abc', {type: 'tag', name: 'foo', attrs: ['abc'], state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>,def)', { attrs: [',def)'], type: 'tag'})
+
+test('span(', {type: 'tag', name: 'span', state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>v-for="item in items"', {
+  attrs: [
+    'v-for="item in items"'
+  ],
+  type: 'tag'
+})
+test('<MULTI_LINE_ATTRS>:key="item.id"', {
+  attrs: [
+    ':key="item.id"'
+  ],
+  type: 'tag'
+})
+test('<MULTI_LINE_ATTRS>:value="item.name"', {
+  attrs: [
+    ':value="item.name"'
+  ],
+  type: 'tag'
+})
+test('<MULTI_LINE_ATTRS>)', {type: 'multiline_attrs_end'})
+test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
+  attrs: [
+    ':link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more"'
+  ],
+  name: 'a',
+  type: 'tag',
+  val: 'Click Me!'
+})
+
+test('foo(data-user=user)', {
+  attrs: [
+    'data-user=user'
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-items=[1,2,3])', {
+  attrs: [
+    'data-items=[1,2,3]'
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-username=\'tobi\')', {
+  attrs: [
+    "data-username='tobi'"
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-escaped={message: "Let\'s rock!"})', {
+  attrs: [
+    `data-escaped={message: "Let's rock!"}`
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-ampersand={message: "a quote: &quot; this & that"})', {
+  attrs: [
+    'data-ampersand={message: "a quote: &quot; this & that"}'
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-epoc=new Date(0))', {
+  attrs: [
+    'data-epoc=new Date(0)'
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+
 
 test('+sensitive', {
   mixin_name: 'sensitive',
@@ -574,6 +784,7 @@ test('pre: code.', {
   state: 'NESTED',
   type: 'tag'
 })
+
 
 try {
 test("tag", { type: 'unknown', name: 'tag' })
