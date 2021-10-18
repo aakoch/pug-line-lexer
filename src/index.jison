@@ -184,11 +184,23 @@ mixin_call              \+[a-z]+\b
 %}
 
 
+<ATTRS_END>'= '
+%{
+  this.popState();
+  this.pushState('ASSIGNMENT_VALUE');
+                                          return 'ASSIGNMENT';
+%}
+<ASSIGNMENT_VALUE>.+
+%{
+  this.popState();
+                                          return 'ASSIGNMENT_VALUE';
+%}
 <ATTRS_END>.+
 %{
   debug('4.5 yytext=', yytext)
                                           return 'TEXT';
 %}
+
 <UNBUF_CODE_START>.+
 %{
   this.pushState('UNBUF_CODE');
@@ -265,7 +277,7 @@ line
   {
     $$ = { type: 'tag', name: $TAG, state: 'NESTED', children: [Object.assign($something_followed_by_text, {state: 'TEXT_START'})] }
   }
-  | CODE 
+  | CODE
   {
     $$ = { type: 'code', val: $CODE, state: 'UNBUF_CODE_START' }
   }
@@ -385,6 +397,14 @@ tag_part
     }
     $$ = { attrs: [$1] }
   }
+  | ASSIGNMENT
+  {
+    $$ = { assignment: true }
+  }
+  | ASSIGNMENT_VALUE
+  {
+    $$ = { assignment_val: $ASSIGNMENT_VALUE }
+  }
   ;
 
 %% 
@@ -451,6 +471,19 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
+
+
+
+
+test('a(href=url)= url', {
+  assignment: true,
+  assignment_val: 'url',
+  attrs: [
+    'href=url'
+  ],
+  name: 'a',
+  type: 'tag'
+})
 test('a(href=\'/user/\' + id, class=\'button\')', {
   attrs: [
     "href='/user/' + id, class='button'"

@@ -611,6 +611,8 @@ options: {
 symbols_: {
   "$accept": 0,
   "$end": 1,
+  "ASSIGNMENT": 21,
+  "ASSIGNMENT_VALUE": 22,
   "ATTR_TEXT": 13,
   "ATTR_TEXT_END": 9,
   "CLASSNAME": 20,
@@ -631,17 +633,17 @@ symbols_: {
   "UNBUF_CODE": 5,
   "UNBUF_CODE_START": 4,
   "error": 2,
-  "first_token": 25,
-  "first_token_option": 29,
-  "first_token_option2": 30,
-  "line": 22,
-  "line_option": 28,
-  "something_followed_by_text": 26,
-  "something_followed_by_text_repetition_plus": 31,
-  "something_following_text_tag": 24,
-  "start": 21,
-  "tag_part": 27,
-  "text_tag_line": 23
+  "first_token": 27,
+  "first_token_option": 31,
+  "first_token_option2": 32,
+  "line": 24,
+  "line_option": 30,
+  "something_followed_by_text": 28,
+  "something_followed_by_text_repetition_plus": 33,
+  "something_following_text_tag": 26,
+  "start": 23,
+  "tag_part": 29,
+  "text_tag_line": 25
 },
 terminals_: {
   1: "EOF",
@@ -663,7 +665,9 @@ terminals_: {
   17: "TEXT_START",
   18: "COMMENT",
   19: "TAG_ID",
-  20: "CLASSNAME"
+  20: "CLASSNAME",
+  21: "ASSIGNMENT",
+  22: "ASSIGNMENT_VALUE"
 },
 TERROR: 2,
     EOF: 1,
@@ -769,27 +773,27 @@ TERROR: 2,
     },
 productions_: bp({
   pop: u([
-  21,
-  21,
-  s,
-  [22, 10],
+  23,
   23,
   s,
-  [24, 3],
+  [24, 10],
+  25,
   s,
-  [25, 3],
+  [26, 3],
   s,
-  [26, 4],
+  [27, 3],
   s,
-  [27, 5],
-  28,
-  28,
-  29,
-  29,
+  [28, 4],
+  s,
+  [29, 7],
   30,
   30,
   31,
-  31
+  31,
+  32,
+  32,
+  33,
+  33
 ]),
   rule: u([
   1,
@@ -805,7 +809,7 @@ productions_: bp({
   [3, 3],
   3,
   s,
-  [1, 9],
+  [1, 11],
   0,
   1,
   0,
@@ -1038,32 +1042,44 @@ case 28:
     break;
 
 case 29:
-    /*! Production::    line_option : %epsilon */
+    /*! Production::    tag_part : ASSIGNMENT */
+
+    this.$ = { assignment: true }
+    break;
+
+case 30:
+    /*! Production::    tag_part : ASSIGNMENT_VALUE */
+
+    this.$ = { assignment_val: yyvstack[yysp] }
+    break;
+
 case 31:
-    /*! Production::    first_token_option : %epsilon */
+    /*! Production::    line_option : %epsilon */
 case 33:
+    /*! Production::    first_token_option : %epsilon */
+case 35:
     /*! Production::    first_token_option2 : %epsilon */
 
     this.$ = undefined;
     break;
 
-case 30:
-    /*! Production::    line_option : DOT_END */
 case 32:
-    /*! Production::    first_token_option : tag_part */
+    /*! Production::    line_option : DOT_END */
 case 34:
+    /*! Production::    first_token_option : tag_part */
+case 36:
     /*! Production::    first_token_option2 : ATTR_TEXT */
 
     this.$ = yyvstack[yysp];
     break;
 
-case 35:
+case 37:
     /*! Production::    something_followed_by_text_repetition_plus : tag_part */
 
     this.$ = [yyvstack[yysp]];
     break;
 
-case 36:
+case 38:
     /*! Production::    something_followed_by_text_repetition_plus : something_followed_by_text_repetition_plus tag_part */
 
     yyvstack[yysp - 1].push(yyvstack[yysp]);
@@ -1074,22 +1090,22 @@ case 36:
 },
 table: bt({
   len: u([
-  24,
+  26,
   1,
   0,
   1,
   2,
   s,
   [0, 4],
-  8,
+  10,
   c,
   [6, 4],
-  9,
-  4,
-  9,
-  s,
-  [0, 10],
   11,
+  4,
+  11,
+  s,
+  [0, 12],
+  13,
   0,
   4,
   s,
@@ -1108,11 +1124,11 @@ table: bt({
   9,
   10,
   s,
-  [12, 12, 1],
-  25,
-  26,
+  [12, 14, 1],
   27,
-  31,
+  28,
+  29,
+  33,
   s,
   [1, 3],
   3,
@@ -1122,55 +1138,55 @@ table: bt({
   7,
   12,
   13,
-  19,
-  20,
   c,
-  [10, 5],
+  [21, 4],
   c,
-  [9, 4],
-  27,
+  [12, 5],
+  c,
+  [11, 6],
   29,
+  31,
   3,
   11,
   12,
-  24,
+  26,
   c,
-  [13, 3],
+  [15, 3],
   11,
   c,
-  [14, 5],
+  [16, 7],
   c,
-  [20, 3],
+  [24, 3],
   c,
-  [51, 5],
+  [59, 7],
   c,
-  [47, 4],
+  [55, 4],
   3,
   13,
-  30,
+  32,
   13,
   1,
   11,
-  28
+  30
 ]),
   type: u([
   s,
-  [2, 17],
+  [2, 19],
   s,
   [0, 7],
   1,
   s,
-  [2, 20],
+  [2, 24],
   0,
   0,
   c,
   [5, 4],
   c,
-  [14, 9],
+  [16, 11],
   c,
-  [51, 11],
+  [59, 13],
   c,
-  [15, 7],
+  [17, 7],
   0
 ]),
   state: u([
@@ -1181,35 +1197,37 @@ table: bt({
   12,
   20,
   16,
-  30,
-  29,
   32,
-  36,
-  37,
+  31,
+  34,
+  38,
+  39,
   20,
   16,
-  38,
-  41
+  40,
+  43
 ]),
   mode: u([
   s,
-  [1, 18],
+  [1, 20],
   2,
   1,
   s,
   [2, 3],
   c,
   [4, 4],
+  s,
+  [2, 4],
   c,
-  [6, 5],
+  [8, 3],
   c,
-  [22, 9],
+  [26, 11],
   c,
-  [13, 3],
+  [15, 3],
   c,
-  [38, 13],
+  [46, 17],
   c,
-  [14, 3],
+  [18, 3],
   2,
   1
 ]),
@@ -1232,40 +1250,42 @@ table: bt({
   21,
   22,
   25,
-  3,
   26,
-  s,
-  [24, 3],
   27,
-  s,
-  [24, 4],
-  10,
+  3,
   28,
   s,
-  [31, 3],
+  [24, 3],
+  29,
+  s,
+  [24, 6],
+  10,
+  30,
+  s,
+  [33, 3],
   23,
   24,
-  21,
-  22,
-  33,
-  34,
+  c,
+  [24, 4],
   35,
+  36,
+  37,
   20,
   20,
+  33,
+  20,
+  c,
+  [13, 6],
+  c,
+  [20, 3],
+  c,
+  [47, 7],
+  35,
+  35,
+  41,
+  42,
   31,
-  20,
-  c,
-  [11, 4],
-  c,
-  [16, 3],
-  c,
-  [39, 5],
-  33,
-  33,
-  39,
-  40,
-  29,
-  42
+  44
 ])
 }),
 defaultActions: bda({
@@ -1277,13 +1297,13 @@ defaultActions: bda({
   12,
   13,
   s,
-  [17, 10, 1],
-  28,
+  [17, 12, 1],
+  30,
   s,
-  [30, 5, 1],
-  36,
+  [32, 5, 1],
+  38,
   s,
-  [38, 5, 1]
+  [40, 5, 1]
 ]),
   goto: u([
   1,
@@ -1295,23 +1315,23 @@ defaultActions: bda({
   21,
   22,
   23,
-  35,
+  37,
   s,
-  [25, 4, 1],
+  [25, 6, 1],
   2,
   4,
   11,
-  32,
+  34,
   24,
   13,
   14,
   15,
-  36,
+  38,
   19,
-  34,
+  36,
   16,
   9,
-  30
+  32
 ])
 }),
 parseError: function parseError(str, hash, ExceptionClass) {
@@ -1351,7 +1371,7 @@ parse: function parse(input) {
     var TERROR = this.TERROR;
     var EOF = this.EOF;
     var ERROR_RECOVERY_TOKEN_DISCARD_COUNT = (this.options.errorRecoveryTokenDiscardCount | 0) || 3;
-    var NO_ACTION = [0, 43 /* === table.length :: ensures that anyone using this new state will fail dramatically! */];
+    var NO_ACTION = [0, 45 /* === table.length :: ensures that anyone using this new state will fail dramatically! */];
 
     var lexer;
     if (this.__lexer__) {
@@ -3882,13 +3902,30 @@ EOF: 1,
 
       case 40:
         /*! Conditions:: ATTRS_END */
+        /*! Rule::       =  */
+        this.popState();
+
+        this.pushState('ASSIGNMENT_VALUE');
+        return 21;
+        break;
+
+      case 41:
+        /*! Conditions:: ASSIGNMENT_VALUE */
+        /*! Rule::       .+ */
+        this.popState();
+
+        return 22;
+        break;
+
+      case 42:
+        /*! Conditions:: ATTRS_END */
         /*! Rule::       .+ */
         debug('4.5 yy_.yytext=', yy_.yytext);
 
         return 3;
         break;
 
-      case 41:
+      case 43:
         /*! Conditions:: UNBUF_CODE_START */
         /*! Rule::       .+ */
         this.pushState('UNBUF_CODE');
@@ -3896,7 +3933,7 @@ EOF: 1,
         return 4;
         break;
 
-      case 43:
+      case 45:
         /*! Conditions:: MIXIN_CALL_START */
         /*! Rule::       \( */
         this.popState();
@@ -3905,14 +3942,14 @@ EOF: 1,
         return 12;
         break;
 
-      case 44:
+      case 46:
         /*! Conditions:: ONLY_FOR_SYNTAX_COLORING */
         /*! Rule::       \) */
 
 
         break;
 
-      case 45:
+      case 47:
         /*! Conditions:: TEXT */
         /*! Rule::       (?:\| )?(.+) */
         debug('5 this.matches=', this.matches);
@@ -4018,15 +4055,15 @@ EOF: 1,
 
       /*! Conditions:: UNBUF_CODE */
       /*! Rule::       .+ */
-      42: 5,
+      44: 5,
 
       /*! Conditions:: MULTI_LINE_ATTRS */
       /*! Rule::       \) */
-      46: 9,
+      48: 9,
 
       /*! Conditions:: MULTI_LINE_ATTRS */
       /*! Rule::       .+ */
-      47: 13
+      49: 13
     },
 
     rules: [
@@ -4070,19 +4107,21 @@ EOF: 1,
       /* 37: */  /^(?:(\.[\d\-a-z]+)(?: ?))/i,
       /* 38: */  /^(?:\.\s*$)/i,
       /* 39: */  /^(?:.+)/i,
-      /* 40: */  /^(?:.+)/i,
+      /* 40: */  /^(?:= )/i,
       /* 41: */  /^(?:.+)/i,
       /* 42: */  /^(?:.+)/i,
-      /* 43: */  /^(?:\()/i,
-      /* 44: */  /^(?:\))/i,
-      /* 45: */  /^(?:(?:\| )?(.+))/i,
+      /* 43: */  /^(?:.+)/i,
+      /* 44: */  /^(?:.+)/i,
+      /* 45: */  /^(?:\()/i,
       /* 46: */  /^(?:\))/i,
-      /* 47: */  /^(?:.+)/i
+      /* 47: */  /^(?:(?:\| )?(.+))/i,
+      /* 48: */  /^(?:\))/i,
+      /* 49: */  /^(?:.+)/i
     ],
 
     conditions: {
       'TEXT': {
-        rules: [45],
+        rules: [47],
         inclusive: false
       },
 
@@ -4107,27 +4146,27 @@ EOF: 1,
       },
 
       'MIXIN_CALL_START': {
-        rules: [43],
+        rules: [45],
         inclusive: false
       },
 
       'ATTRS_END': {
-        rules: [40],
+        rules: [40, 42],
         inclusive: true
       },
 
       'UNBUF_CODE_START': {
-        rules: [41],
+        rules: [43],
         inclusive: false
       },
 
       'UNBUF_CODE': {
-        rules: [42],
+        rules: [44],
         inclusive: false
       },
 
       'MULTI_LINE_ATTRS': {
-        rules: [46, 47],
+        rules: [48, 49],
         inclusive: false
       },
 
@@ -4169,8 +4208,13 @@ EOF: 1,
         inclusive: true
       },
 
+      'ASSIGNMENT_VALUE': {
+        rules: [41],
+        inclusive: false
+      },
+
       'ONLY_FOR_SYNTAX_COLORING': {
-        rules: [44],
+        rules: [46],
         inclusive: false
       }
     }
@@ -4249,31 +4293,17 @@ parser.main = function () {
 
 
 
-// const tagLines = fs.readFileSync('/Users/aakoch/projects/new-foo/workspaces/parser-generation/all_tags.txt', 'utf-8').split('\n')
-// const tags = tagLines.join('|')
-// debug(tags)
 
-// test('div(style="display:none" class= tag.replaceAll(" ", "_"))', {})
-// test('.status-wrapper Status: 
-// test('span.status #{status}
-// - var friends = 1
-// case friends
-//   when 0: p you have no friends
-//   when 1: p you have a friend
-//   default: p you have #{friends} friends
-// p This is plain old <em>text</em> content.
 
-// <html>
-// body
-//   p Indenting the body tag here would make no difference.
-//   p HTML itself isn't whitespace-sensitive.
-// </html>
-
-// div INDENT p This text belongs to the paragraph tag. NODENT br NODENT . INDENT This text belongs to the div tag.
-// <div>
-//   <p>This text belongs to the paragraph tag.</p><br />This text belongs to the div tag.
-// </div>
-
+test('a(href=url)= url', {
+  assignment: true,
+  assignment_val: 'url',
+  attrs: [
+    'href=url'
+  ],
+  name: 'a',
+  type: 'tag'
+})
 test('a(href=\'/user/\' + id, class=\'button\')', {
   attrs: [
     "href='/user/' + id, class='button'"
@@ -4602,9 +4632,8 @@ test('pre: code.', {
   type: 'tag'
 })
 
-
 try {
-test("tag", { type: 'unknown', name: 'tag' })
+  test("tag", { type: 'unknown', name: 'tag' })
 throw AssertionError('Expected exception')
 } catch (e) {}
 
