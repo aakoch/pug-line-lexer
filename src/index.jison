@@ -1,4 +1,4 @@
-/* simple parser */
+/* Pug single line parser */
 
 /* lexical grammar */
 %lex
@@ -273,19 +273,6 @@ line
   {
     $$ = { type: 'code', val: $TEXT }
   }
-  // | tag_part LPAREN ATTR_TEXT?
-  // {
-  //   if ($3) {
-  //     $$ = merge($tag_part, { type: 'tag', attrs: $3 })
-  //   }
-  //   else {
-  //     $$ = merge($tag_part, { type: 'tag', state: 'MULTI_LINE_ATTRS' })
-  //   }
-  // }
-  // | ATTR_TEXT
-  // {
-  //   $$ = { attrs: $ATTR_TEXT }
-  // }
   | ATTR_TEXT_END
   {
     $$ = { type: 'multiline_attrs_end' }
@@ -401,11 +388,8 @@ tag_part
   ;
 
 %% 
-var assert = require("assert");
-var util = require("util");
-var _ = require("lodash");
-var debugFunc = require('debug')
-const dyp = require('dyp');
+__module_imports__
+
 const debug = debugFunc('stream-reader-helper')
 
 let tagAlreadyFound = false
@@ -467,33 +451,6 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
-
-
-// const tagLines = fs.readFileSync('/Users/aakoch/projects/new-foo/workspaces/parser-generation/all_tags.txt', 'utf-8').split('\n')
-// const tags = tagLines.join('|')
-// debug(tags)
-
-// test('div(style="display:none" class= tag.replaceAll(" ", "_"))', {})
-// test('.status-wrapper Status: 
-// test('span.status #{status}
-// - var friends = 1
-// case friends
-//   when 0: p you have no friends
-//   when 1: p you have a friend
-//   default: p you have #{friends} friends
-// p This is plain old <em>text</em> content.
-
-// <html>
-// body
-//   p Indenting the body tag here would make no difference.
-//   p HTML itself isn't whitespace-sensitive.
-// </html>
-
-// div INDENT p This text belongs to the paragraph tag. NODENT br NODENT . INDENT This text belongs to the div tag.
-// <div>
-//   <p>This text belongs to the paragraph tag.</p><br />This text belongs to the div tag.
-// </div>
-
 test('a(href=\'/user/\' + id, class=\'button\')', {
   attrs: [
     "href='/user/' + id, class='button'"
@@ -520,11 +477,47 @@ test('a(href  =  \'/user/\' + id, class  =  \'button\')', {
   name: 'a',
   type: 'tag'
 })
-// test('a(class = [\'class1\', \'class2\'])', {})
-// test('a.tag-class(class = [\'class1\', \'class2\'])', {})
-// test('a(href=\'/user/\' + id class=\'button\')', {})
-// test('a(href  =  \'/user/\' + id class  =  \'button\')', {})
-// test('meta(key=\'answer\' value=answer())', {})
+
+test('a(class = [\'class1\', \'class2\'])', {
+  attrs: [
+    "class = ['class1', 'class2']"
+  ],
+  name: 'a',
+  type: 'tag'
+})
+test('a.tag-class(class = [\'class1\', \'class2\'])', {
+  attrs: [
+    "class = ['class1', 'class2']"
+  ],
+  classes: [
+    'tag-class'
+  ],
+  name: 'a',
+  type: 'tag'
+})
+test('a(href=\'/user/\' + id class=\'button\')', {
+  attrs: [
+    "href='/user/' + id class='button'"
+  ],
+  name: 'a',
+  type: 'tag'
+})
+test('a(href  =  \'/user/\' + id class  =  \'button\')', {
+  attrs: [
+    "href  =  '/user/' + id class  =  'button'"
+  ],
+  name: 'a',
+  type: 'tag'
+}
+)
+test('meta(key=\'answer\' value=answer())', {
+  attrs: [
+    "key='answer' value=answer()"
+  ],
+  name: 'meta',
+  type: 'tag'
+})
+
 test('div(id=id)&attributes({foo: \'bar\'})', {
   attrs: [
     "id=id)&attributes({foo: 'bar'}"
@@ -622,6 +615,7 @@ test('+sensitive', {
 })
 
 test('html', { type: 'tag', name: 'html' })
+test('html ', { type: 'tag', name: 'html' })
 
 // test("doctype html", { type: 'doctype', val: 'html' })
 test('doctype html', { type: 'pug_keyword', name: 'doctype', val: 'html' })
@@ -785,9 +779,8 @@ test('pre: code.', {
   type: 'tag'
 })
 
-
 try {
-test("tag", { type: 'unknown', name: 'tag' })
+  test("tag", { type: 'unknown', name: 'tag' })
 throw AssertionError('Expected exception')
 } catch (e) {}
 

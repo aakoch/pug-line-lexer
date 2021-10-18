@@ -4185,6 +4185,7 @@ var util = require("util");
 var _ = require("lodash");
 var debugFunc = require('debug')
 const dyp = require('dyp');
+
 const debug = debugFunc('stream-reader-helper')
 
 let tagAlreadyFound = false
@@ -4299,11 +4300,47 @@ test('a(href  =  \'/user/\' + id, class  =  \'button\')', {
   name: 'a',
   type: 'tag'
 })
-// test('a(class = [\'class1\', \'class2\'])', {})
-// test('a.tag-class(class = [\'class1\', \'class2\'])', {})
-// test('a(href=\'/user/\' + id class=\'button\')', {})
-// test('a(href  =  \'/user/\' + id class  =  \'button\')', {})
-// test('meta(key=\'answer\' value=answer())', {})
+
+test('a(class = [\'class1\', \'class2\'])', {
+  attrs: [
+    "class = ['class1', 'class2']"
+  ],
+  name: 'a',
+  type: 'tag'
+})
+test('a.tag-class(class = [\'class1\', \'class2\'])', {
+  attrs: [
+    "class = ['class1', 'class2']"
+  ],
+  classes: [
+    'tag-class'
+  ],
+  name: 'a',
+  type: 'tag'
+})
+test('a(href=\'/user/\' + id class=\'button\')', {
+  attrs: [
+    "href='/user/' + id class='button'"
+  ],
+  name: 'a',
+  type: 'tag'
+})
+test('a(href  =  \'/user/\' + id class  =  \'button\')', {
+  attrs: [
+    "href  =  '/user/' + id class  =  'button'"
+  ],
+  name: 'a',
+  type: 'tag'
+}
+)
+test('meta(key=\'answer\' value=answer())', {
+  attrs: [
+    "key='answer' value=answer()"
+  ],
+  name: 'meta',
+  type: 'tag'
+})
+
 test('div(id=id)&attributes({foo: \'bar\'})', {
   attrs: [
     "id=id)&attributes({foo: 'bar'}"
@@ -4401,6 +4438,7 @@ test('+sensitive', {
 })
 
 test('html', { type: 'tag', name: 'html' })
+test('html ', { type: 'tag', name: 'html' })
 
 // test("doctype html", { type: 'doctype', val: 'html' })
 test('doctype html', { type: 'pug_keyword', name: 'doctype', val: 'html' })
