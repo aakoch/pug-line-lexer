@@ -492,7 +492,7 @@ line_end
 %% 
 __module_imports__
 
-const debug = debugFunc('stream-reader-helper')
+const debug = debugFunc('pug-line-lexer')
 
 let tagAlreadyFound = false
 let obj

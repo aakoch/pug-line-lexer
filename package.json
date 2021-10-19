@@ -7,10 +7,12 @@
   "author": "Adam Koch",
   "license": "MIT",
   "scripts": {
-    "test_es": "npm run build_es && DEBUG='stream-reader-helper' node dist/index.mjs",
+    "test_es": "npm run build_es && DEBUG='pug-line-lexer' node dist/index.mjs",
     "build_es": "node src/replace.js es && npx jison -o dist/index.mjs -m es --main build/index.jison && node src/replace2.js",
-    "test_common": "npm run build_common && DEBUG='stream-reader-helper' node dist/index.cjs",
-    "build_common": "node src/replace.js common && npx jison -o dist/index.cjs --main build/index.jison"
+    "test_common": "npm run build_common && DEBUG='pug-line-lexer' node dist/index.cjs",
+    "build_common": "node src/replace.js common && npx jison -o dist/index.cjs --main build/index.jison",
+    "build": "npm run build_es && npm run build_common",
+    "watch": "fswatch -0ou src/index.jison | xargs -t -0 -n1 /bin/zsh -c $PWD/rebuild.sh"
   },
   "dependencies": {
     "@gerhobbelt/ast-util": "^0.6.1-4",
