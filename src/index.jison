@@ -10,7 +10,7 @@
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 tag         \b(a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
-pug_keyword             \b(append|block|case|default|doctype|else|extends|if|include|mixin|unless|when)\b
+pug_keyword             \b(append|block|case|default|doctype|each|else|extends|if|include|mixin|unless|when)\b
 
 letter                  [a-z] // case insensitive
 digit                   [0-9]
@@ -72,15 +72,24 @@ mixin_call              \+[a-z]+\b
                                           return 'MIXIN_CALL';
 %}
 <INITIAL>"+"                              return '+';
-<INITIAL>"-"(?:' ')?
+<INITIAL>"-"(?:{space})?
 %{
   this.pushState('AFTER_TAG_NAME');
   yytext = yytext.substring(1);
                                           return 'CODE';
 %}
-<INITIAL>{classname}
+<INITIAL>{classname}{space}?
 %{
+  debug('{classname}{space}?')
+  this.pushState('AFTER_TAG_NAME');
   yytext = yytext.substring(1);
+  if (yytext.endsWith(' ')) {
+    yytext = yytext.substring(0, yytext.length - 1)
+    debug('10 yytext=', yytext)
+  }
+  else {
+    debug('10 yytext doesn\'t end with a space')
+  }
                                           return 'CLASSNAME';
 %}
 <INITIAL>"."                              return '.';
@@ -103,11 +112,17 @@ mixin_call              \+[a-z]+\b
 <INITIAL>"]"                              return ']';
 <INITIAL>"_"                              return '_';
 <INITIAL>"| "                             return 'PIPE';
+<INITIAL>"|."
+%{
+  this.pushState('TEXT');
+  this.unput('.');
+%}
+
 <INITIAL>"}"                              return '}';
 <INITIAL>\s+                             ;
 
 
-<AFTER_TAG_NAME>': '
+<AFTER_TAG_NAME>':'{space}
 %{
   this.popState();
                                           return 'NESTED_TAG_START';
@@ -117,78 +132,104 @@ mixin_call              \+[a-z]+\b
   this.pushState('ATTRS_STARTED');
                                           return 'LPAREN';
 %}
-<ATTRS_STARTED>(.+)')'\.?\s*<<EOF>>
+<ATTRS_STARTED>(.+)')'\.\s*<<EOF>>
 %{
   this.popState()
-  debug('1 this.matches=', this.matches)
-  debug('1 this.matches.length=', this.matches.length)
-  debug('1 yytext=', yytext)
+  debug('20 this.matches=', this.matches)
+  debug('20 this.matches.length=', this.matches.length)
+  debug('20 yytext=', yytext)
   try {
-  if (this.matches.length > 1) {    
-    yytext = this.matches[1]
-  }
+    if (this.matches.length > 1) {    
+      yytext = this.matches[1]
+    }
   }
   catch (e) {
     console.error(e)
   }
   lparenOpen = false
-  debug('1.2 yytext=', yytext)
+  debug('20 yytext=', yytext)
+                                          return ['DOT_END', 'RPAREN', 'ATTR_TEXT'];
+%}
+<ATTRS_STARTED>(.+)')'\s*<<EOF>>
+%{
+  this.popState()
+  debug('30 this.matches=', this.matches)
+  debug('30 this.matches.length=', this.matches.length)
+  debug('30 yytext=', yytext)
+  try {
+    if (this.matches.length > 1) {    
+      yytext = this.matches[1]
+    }
+  }
+  catch (e) {
+    console.error(e)
+  }
+  lparenOpen = false
+  debug('30 yytext=', yytext)
                                           return 'ATTR_TEXT';
 %}
 <ATTRS_STARTED>(.+)')'\.?\s*(.+)<<EOF>>
 %{
   this.popState()
   this.pushState('ATTRS_END')
-  debug('2 this.matches=', this.matches)
+  debug('40 this.matches=', this.matches)
   this.unput(this.matches[2])
   yytext = yytext.substring(0, yytext.indexOf(this.matches[1]) + this.matches[1].length);
-  debug('2 yytext=', yytext)
+  debug('40 yytext=', yytext)
   lparenOpen = false
                                           return 'ATTR_TEXT';
 %}
 <ATTRS_STARTED>(.+)\.?\s*<<EOF>>
 %{
   this.popState()
-  debug('1 this.matches=', this.matches)
-  debug('1 this.matches.length=', this.matches.length)
-  debug('1 yytext=', yytext)
+  debug('50 this.matches=', this.matches)
+  debug('50 this.matches.length=', this.matches.length)
+  debug('50 yytext=', yytext)
   try {
-  if (this.matches.length > 1) {    
-    yytext = this.matches[1]
-  }
+    if (this.matches.length > 1) {    
+      yytext = this.matches[1]
+    }
   }
   catch (e) {
     console.error(e)
   }
-  debug('1.2 yytext=', yytext)
+  debug('50 yytext=', yytext)
                                           return 'ATTR_TEXT';
 %}
 
-<AFTER_TAG_NAME>{tag_id}(?:' '?)
+<AFTER_TAG_NAME>{tag_id}(?:{space}?)
 %{
   this.pushState('AFTER_TAG_NAME');
   yytext = this.matches[1].substring(1)
                                           return 'TAG_ID';
 %}
-<AFTER_TAG_NAME>{classname}(?:' '?)
+<AFTER_TAG_NAME>{classname}(?:{space}?)
 %{
   yytext = this.matches[1].substring(1);
-  debug('3 yytext=', yytext)
+  debug('60 yytext=', yytext)
                                           return 'CLASSNAME';
 %}
 <AFTER_TAG_NAME>'.'\s*<<EOF>>             return 'DOT_END';
 <AFTER_TAG_NAME>.+
 %{
-  debug('4 yytext=', yytext)
+  // if (yytext.startsWith(' ') {
+  //   yytext = yytext.substring(1);
+  // }
+  debug('70 yytext=', yytext);
                                           return 'TEXT';
 %}
 
 
-<ATTRS_END>'= '
+<ATTRS_END>'='{space}
 %{
   this.popState();
   this.pushState('ASSIGNMENT_VALUE');
                                           return 'ASSIGNMENT';
+%}
+<ATTRS_END>'.'
+%{
+  this.popState();
+                                          return 'DOT_END';
 %}
 <ASSIGNMENT_VALUE>.+
 %{
@@ -197,7 +238,7 @@ mixin_call              \+[a-z]+\b
 %}
 <ATTRS_END>.+
 %{
-  debug('4.5 yytext=', yytext)
+  debug('6 yytext=', yytext)
                                           return 'TEXT';
 %}
 
@@ -217,20 +258,31 @@ mixin_call              \+[a-z]+\b
   this.pushState('ATTRS_STARTED');
                                           return 'LPAREN';
 %}
+<MIXIN_CALL_START>{space}$             
+%{
+  this.popState();
+%}
 
+<ONLY_FOR_SYNTAX_COLORING>')'             ;
 <ONLY_FOR_SYNTAX_COLORING>')'             ;
 
 <TEXT>(?:\|' ')?(.+)             
 %{
-  debug('5 this.matches=', this.matches)
+  debug('80 this.matches=', this.matches)
   yytext = this.matches[1]
-  debug('5 yytext=', yytext)
+  debug('80 yytext=', yytext)
                                           return 'TEXT';
 %}
 
 <MULTI_LINE_ATTRS>')'                     return 'ATTR_TEXT_END';
 <MULTI_LINE_ATTRS>.+                      return 'ATTR_TEXT';
 
+// <INITIAL>{space}.+      
+// %{
+//   debug('<INITIAL>{space}.+ yytext=', yytext)
+//   yytext = yytext.substring(1);
+//                                           return 'TEXT';
+// %}
 /lex
 
 %ebnf
@@ -252,10 +304,10 @@ start
 
 line
   : first_token
-  | first_token TEXT
+  | first_token line_end
   {
-    debug('first_token TEXT: first_token=', $first_token, ', TEXT=', $TEXT)
-    $$ = Object.assign($first_token, { val: $TEXT } )
+    debug('line:first_token line_end: first_token=', $first_token, ', line_end=', $line_end)
+    $$ = merge($first_token, $line_end)
   }
   | TEXT
   {
@@ -273,9 +325,13 @@ line
     $$ = { type: 'unbuffered_code', val: $UNBUF_CODE }
   }
   | text_tag_line
-  | TAG NESTED_TAG_START something_followed_by_text DOT_END?
+  | tag_part NESTED_TAG_START line DOT_END?
   {
-    $$ = { type: 'tag', name: $TAG, state: 'NESTED', children: [Object.assign($something_followed_by_text, {state: 'TEXT_START'})] }
+    debug('tag_part+ NESTED_TAG_START line DOT_END? tag_part=', $1, 'line=', $3)
+    $$ = merge({ type: 'tag', state: 'NESTED', children: [$3] }, $1)
+    if ($4) {
+      $$.children = Object.assign($$.children, {state: 'TEXT_START'})
+    }
   }
   | CODE
   {
@@ -307,9 +363,9 @@ something_following_text_tag
   {
     $$ = { }
   }
-  | LPAREN ATTR_TEXT
+  | LPAREN ATTR_TEXT RPAREN?
   {
-    if ($ATTR_TEXT.endsWith(')') || $ATTR_TEXT.match(/[^\)]+\)\s*/)) {
+    if ($ATTR_TEXT.endsWith(')') || $ATTR_TEXT.match(/[^\)]+\)\.?\s*/)) {
       lparenOpen = false
     }
     else {
@@ -317,13 +373,17 @@ something_following_text_tag
     }
     $$ = { attrs: [$ATTR_TEXT] }
   }
+  | LPAREN ATTR_TEXT RPAREN DOT_END
+  {
+    $$ = { attrs: [$ATTR_TEXT], state: 'TEXT_START' }
+  }
   ;
 
 first_token
   : something_followed_by_text
   {
     yy.lexer.pushState('TEXT')
-    debug('something_followed_by_text=', $something_followed_by_text)
+    debug('first_token: something_followed_by_text=', $something_followed_by_text)
   }
   | PUG_KEYWORD
   {
@@ -348,7 +408,7 @@ something_followed_by_text
   {
     $$ = { }
     $1.forEach(obj => {
-      debug('obj=', obj)
+      debug('something_followed_by_text: tag_part: obj=', obj)
       $$ = merge($$, obj)
     })
     if (!$$.hasOwnProperty('type')) {
@@ -366,6 +426,10 @@ something_followed_by_text
   | COMMENT
   {
     $$ = { type: 'comment', state: 'TEXT_START' }
+  }
+  | SPACE
+  {
+    $$ = { state: 'TEXT_START' }
   }
   ;
 
@@ -385,6 +449,11 @@ tag_part
   | LPAREN
   {
     lparenOpen = true
+    $$ = {}
+  }
+  | RPAREN
+  {
+    lparenOpen = false
     $$ = {}
   }
   | ATTR_TEXT
@@ -407,6 +476,19 @@ tag_part
   }
   ;
 
+line_end
+  : TEXT
+  {
+    debug('line_end: TEXT=', $TEXT)
+    $$ = { type: 'text', val: $TEXT }
+  }
+  | DOT_END
+  {
+    debug('line_end: DOT_END')
+    $$ = { state: 'TEXT_START' }
+  }
+  ;
+
 %% 
 __module_imports__
 
@@ -416,6 +498,18 @@ let tagAlreadyFound = false
 let obj
 var lparenOpen = false
 const keysToMergeText = ['therest']
+
+function rank(type1, type2) {
+  if (type2 === 'text') {
+    return type1
+  }
+  else if (type1 === type2) {
+    return type1
+  }
+  else {
+    return type1.concat(type2)
+  }
+} 
 
 function merge(obj, src) {
   debug('merging', obj, src)
@@ -442,12 +536,12 @@ function merge(obj, src) {
          return objValue + srcValue
       }
       else {
-         return objValue.concat(srcValue)
+         return rank(objValue, srcValue)
       }
     }
   })
   debug('merging', ' returning', ret)
-   return ret
+  return ret
   //  return Object.assign(obj, src);
 }
 
@@ -472,8 +566,49 @@ parser.main = function () {
   }
 
 
+test('.rule: p.', {
+  children: [
+    {
+      name: 'p',
+      type: 'tag',
+      state: 'TEXT_START'
+    }
+  ],
+  classes: ['rule'],
+  state: 'NESTED',
+  type: 'tag'
+})
 
+test('code(class="language-scss").', { name: 'code', type: 'tag', attrs: [ 'class="language-scss"' ], state: 'TEXT_START' })
 
+test('p: a(href="https://www.thingiverse.com/thing:4578862") Thingiverse', {
+  children: [
+    {
+      name: 'a',
+      attrs: ['href="https://www.thingiverse.com/thing:4578862"'],
+      type: 'tag',
+      val: 'Thingiverse'
+    }
+  ],
+  name: 'p',
+  state: 'NESTED',
+  type: 'tag'
+})
+
+test('.project(class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" "))', {
+  classes: [ 'project' ],
+  attrs: [
+    'class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'
+  ],
+  type: 'tag'
+})
+
+test('.status-wrapper Status:', { classes: [ 'status-wrapper' ], type: 'tag', val: 'Status:' })
+
+test('+sensitive ', {
+  mixin_name: 'sensitive',
+  type: 'mixin_call'
+})
 
 test('a(href=url)= url', {
   assignment: true,
@@ -799,6 +934,12 @@ test("link(rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; W
   type: 'tag'
 })
 
+test('pre.', {
+  name: 'pre',
+  state: 'TEXT_START',
+  type: 'tag'
+})
+
 test('pre: code.', {
   children: [
     {
@@ -811,6 +952,8 @@ test('pre: code.', {
   state: 'NESTED',
   type: 'tag'
 })
+
+test('|. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
 
 try {
   test("tag", { type: 'unknown', name: 'tag' })
