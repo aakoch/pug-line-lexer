@@ -58,13 +58,13 @@ mixin_call              \+[a-z]+\b
   yytext = yytext.substring(1);
                                           return 'TAG_ID';
 %}
-<INITIAL>"#"                              return '#';
-<INITIAL>"$"                              return '$';
-<INITIAL>"&"                              return '&';
-<INITIAL>"'"                              return "'";
-<INITIAL>"("                              return '(';
-<INITIAL>")"                              return ')';
-<INITIAL>"*"                              return '*';
+// <INITIAL>"#"                              return '#';
+// <INITIAL>"$"                              return '$';
+// <INITIAL>"&"                              return '&';
+// <INITIAL>"'"                              return "'";
+// <INITIAL>"("                              return '(';
+// <INITIAL>")"                              return ')';
+// <INITIAL>"*"                              return '*';
 <INITIAL>{mixin_call}
 %{
   yytext = yytext.substring(1);
@@ -92,25 +92,25 @@ mixin_call              \+[a-z]+\b
   }
                                           return 'CLASSNAME';
 %}
-<INITIAL>"."                              return '.';
+// <INITIAL>"."                              return '.';
 <INITIAL>"//"             
 %{
   this.pushState('TEXT');
                                           return 'COMMENT';
 %}
-<INITIAL>"/"                              return '/';
+// <INITIAL>"/"                              return '/';
 <INITIAL>{digit}                          return 'DIGIT'
 // <INITIAL>":"                              return ':';
 <INITIAL>'<'[A-Z_]+'>'
 %{
   this.pushState(yytext.substring(1, yytext.length - 1));
 %}
-<INITIAL>"<"                              return '<';
-<INITIAL>"?"                              return '?';
-<INITIAL>"@"                              return '@';
-<INITIAL>"["                              return '[';
-<INITIAL>"]"                              return ']';
-<INITIAL>"_"                              return '_';
+// <INITIAL>"<"                              return '<';
+// <INITIAL>"?"                              return '?';
+// <INITIAL>"@"                              return '@';
+// <INITIAL>"["                              return '[';
+// <INITIAL>"]"                              return ']';
+// <INITIAL>"_"                              return '_';
 <INITIAL>"| "                             return 'PIPE';
 <INITIAL>"|."
 %{
@@ -263,8 +263,7 @@ mixin_call              \+[a-z]+\b
   this.popState();
 %}
 
-<ONLY_FOR_SYNTAX_COLORING>')'             ;
-<ONLY_FOR_SYNTAX_COLORING>')'             ;
+<ONLY_FOR_SYNTAX_COLORING>'))'             ;
 
 <TEXT>(?:\|' ')?(.+)             
 %{
@@ -386,18 +385,18 @@ first_token
   {
     $$ = { type: 'pug_keyword', name: $PUG_KEYWORD }
   }
-  | MIXIN_CALL tag_part? ATTR_TEXT?
-  {
-    debug('MIXIN_CALL=', $1)
-    lparenOpen = false
-    $$ = { type: 'mixin_call', mixin_name: $1 }
-    if ($2) {
-      Object.assign($$, $2)
-    }
-    if ($3) {
-      Object.assign($$, {attrs: [$3]})
-    }
-  }
+  // | MIXIN_CALL tag_part? ATTR_TEXT?
+  // {
+  //   debug('MIXIN_CALL=', $1)
+  //   lparenOpen = false
+  //   $$ = { type: 'mixin_call', mixin_name: $1 }
+  //   if ($2) {
+  //     Object.assign($$, $2)
+  //   }
+  //   if ($3) {
+  //     Object.assign($$, {attrs: [$3]})
+  //   }
+  // }
   ;
 
 something_followed_by_text
@@ -430,7 +429,7 @@ something_followed_by_text
   }
   ;
 
-tag_part
+first_token_for_reals
   : TAG
   {
     $$ = { name: $TAG, type: 'tag' }
@@ -443,6 +442,22 @@ tag_part
   {
     $$ = { classes: [$1] }
   }
+  | MIXIN_CALL
+  {
+    debug('MIXIN_CALL=', $1)
+  //   lparenOpen = false
+    $$ = { type: 'mixin_call', mixin_name: $1 }
+  //   if ($2) {
+  //     Object.assign($$, $2)
+  //   }
+  //   if ($3) {
+  //     Object.assign($$, {attrs: [$3]})
+  //   }
+  }
+  ;
+
+tag_part
+  : first_token_for_reals
   | LPAREN
   {
     lparenOpen = true
