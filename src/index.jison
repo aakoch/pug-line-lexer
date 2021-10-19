@@ -325,13 +325,10 @@ line
     $$ = { type: 'unbuffered_code', val: $UNBUF_CODE }
   }
   | text_tag_line
-  | tag_part NESTED_TAG_START line DOT_END?
+  | tag_part NESTED_TAG_START line
   {
     debug('tag_part+ NESTED_TAG_START line DOT_END? tag_part=', $1, 'line=', $3)
     $$ = merge({ type: 'tag', state: 'NESTED', children: [$3] }, $1)
-    if ($4) {
-      $$.children = Object.assign($$.children, {state: 'TEXT_START'})
-    }
   }
   | CODE
   {
