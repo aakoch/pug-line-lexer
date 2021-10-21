@@ -8,12 +8,10 @@
 // ID          [A-Z-]+"?"?
 // NUM         ([1-9][0-9]+|[0-9])
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
-tag         \b(a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
+tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
-pug_keyword             \b(append|block|case|default|doctype|each|else|extends|if|include|mixin|unless|when)\b
+pug_keyword             (append|block|case|default|doctype|each|else|extends|if|include|mixin|unless|when)\b
 
-letter                  [a-z] // case insensitive
-digit                   [0-9]
 classname               \.[a-z0-9-]+
 tag_id                  #[a-z-]+
 mixin_call              \+[a-z]+\b
@@ -31,27 +29,27 @@ mixin_call              \+[a-z]+\b
 
 %%
 
-<INITIAL>{pug_keyword}{space}?    
+<INITIAL>{pug_keyword}
 %{
-  yytext = yytext.substring(0, yytext.length - 1);
-  this.pushState('TEXT');
+  // yytext = yytext.substring(0, yytext.length - 1);
+  this.pushState('AFTER_PUG_KEYWORD');
                                           return 'PUG_KEYWORD';
 %}
 
-<INITIAL>{tag}(?:' '?)
+<INITIAL>{tag}
 %{
-  yytext = this.matches[1]
+  // yytext = this.matches[1]
   this.pushState('AFTER_TAG_NAME');
                                           return 'TAG';
 %}
-<INITIAL>('script'|'style')(?:' '?)
+<INITIAL>('script'|'style')
 %{
-  yytext = this.matches[1]
-  this.pushState('AFTER_TAG_NAME');
+  // yytext = this.matches[1]
+  this.pushState('AFTER_TEXT_TAG_NAME');
                                           return 'TEXT_TAG';
 %}
-<INITIAL>"!"                              return '!';
-<INITIAL>'"'                              return '"';
+// <INITIAL>"!"                              return '!';
+// <INITIAL>'"'                              return '"';
 <INITIAL>{tag_id}
 %{
   this.pushState('AFTER_TAG_NAME');
@@ -71,25 +69,25 @@ mixin_call              \+[a-z]+\b
   this.pushState('MIXIN_CALL_START');
                                           return 'MIXIN_CALL';
 %}
-<INITIAL>"+"                              return '+';
+// <INITIAL>"+"                              return '+';
 <INITIAL>"-"(?:{space})?
 %{
   this.pushState('AFTER_TAG_NAME');
   yytext = yytext.substring(1);
                                           return 'CODE';
 %}
-<INITIAL>{classname}{space}?
+<INITIAL>{classname}
 %{
-  debug('{classname}{space}?')
+  // debug('{classname}{space}?')
   this.pushState('AFTER_TAG_NAME');
   yytext = yytext.substring(1);
-  if (yytext.endsWith(' ')) {
-    yytext = yytext.substring(0, yytext.length - 1)
-    debug('10 yytext=', yytext)
-  }
-  else {
-    debug('10 yytext doesn\'t end with a space')
-  }
+  // if (yytext.endsWith(' ')) {
+  //   yytext = yytext.substring(0, yytext.length - 1)
+  //   debug('10 yytext=', yytext)
+  // }
+  // else {
+  //   debug('10 yytext doesn\'t end with a space')
+  // }
                                           return 'CLASSNAME';
 %}
 // <INITIAL>"."                              return '.';
@@ -99,7 +97,7 @@ mixin_call              \+[a-z]+\b
                                           return 'COMMENT';
 %}
 // <INITIAL>"/"                              return '/';
-<INITIAL>{digit}                          return 'DIGIT'
+// <INITIAL>{digit}                          return 'DIGIT'
 // <INITIAL>":"                              return ':';
 <INITIAL>'<'[A-Z_]+'>'
 %{
@@ -118,23 +116,25 @@ mixin_call              \+[a-z]+\b
   this.unput('.');
 %}
 
-<INITIAL>"}"                              return '}';
-<INITIAL>\s+                             ;
+// <INITIAL>"}"                              return '}';
+// <INITIAL>\s+                             ;
 
 
-<AFTER_TAG_NAME>':'{space}
+<AFTER_TAG_NAME,AFTER_ATTRS>':'{space}
 %{
   this.popState();
                                           return 'NESTED_TAG_START';
 %}
-<AFTER_TAG_NAME>'('             
+<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('             
 %{
   this.pushState('ATTRS_STARTED');
                                           return 'LPAREN';
 %}
-<ATTRS_STARTED>(.+)')'\.\s*<<EOF>>
+<ATTRS_STARTED>(.+)')'
 %{
+  // ')'\.\s*<<EOF>>
   this.popState()
+  this.pushState('ATTRS_END')
   debug('20 this.matches=', this.matches)
   debug('20 this.matches.length=', this.matches.length)
   debug('20 yytext=', yytext)
@@ -148,7 +148,7 @@ mixin_call              \+[a-z]+\b
   }
   lparenOpen = false
   debug('20 yytext=', yytext)
-                                          return ['DOT_END', 'RPAREN', 'ATTR_TEXT'];
+                                          return ['RPAREN', 'ATTR_TEXT'];
 %}
 <ATTRS_STARTED>(.+)')'\s*<<EOF>>
 %{
@@ -166,7 +166,7 @@ mixin_call              \+[a-z]+\b
   }
   lparenOpen = false
   debug('30 yytext=', yytext)
-                                          return 'ATTR_TEXT';
+                                          return ['RPAREN', 'ATTR_TEXT'];
 %}
 <ATTRS_STARTED>(.+)')'\.?\s*(.+)<<EOF>>
 %{
@@ -177,7 +177,7 @@ mixin_call              \+[a-z]+\b
   yytext = yytext.substring(0, yytext.indexOf(this.matches[1]) + this.matches[1].length);
   debug('40 yytext=', yytext)
   lparenOpen = false
-                                          return 'ATTR_TEXT';
+                                          return ['RPAREN', 'ATTR_TEXT'];
 %}
 <ATTRS_STARTED>(.+)\.?\s*<<EOF>>
 %{
@@ -194,23 +194,33 @@ mixin_call              \+[a-z]+\b
     console.error(e)
   }
   debug('50 yytext=', yytext)
-                                          return 'ATTR_TEXT';
+                                          return 'ATTR_TEXT_CONT';
 %}
 
-<AFTER_TAG_NAME>{tag_id}(?:{space}?)
+<AFTER_TAG_NAME>{tag_id}
 %{
   this.pushState('AFTER_TAG_NAME');
   yytext = this.matches[1].substring(1)
                                           return 'TAG_ID';
 %}
-<AFTER_TAG_NAME>{classname}(?:{space}?)
+<AFTER_TAG_NAME>{classname}
 %{
   yytext = this.matches[1].substring(1);
   debug('60 yytext=', yytext)
                                           return 'CLASSNAME';
 %}
-<AFTER_TAG_NAME>'.'\s*<<EOF>>             return 'DOT_END';
-<AFTER_TAG_NAME>.+
+<AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME>{space}
+%{
+  debug('space');
+                                                              return 'SPACE';
+%}
+<ATTRS_END>{space}
+%{
+  this.pushState('TEXT');
+  debug('space');
+%}
+<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'.'\s*<<EOF>>             return 'DOT_END';
+<AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE>.+
 %{
   // if (yytext.startsWith(' ') {
   //   yytext = yytext.substring(1);
@@ -238,6 +248,7 @@ mixin_call              \+[a-z]+\b
 %}
 <ATTRS_END>.+
 %{
+  yytext = yytext.substring(1)
   debug('6 yytext=', yytext)
                                           return 'TEXT';
 %}
@@ -341,12 +352,23 @@ line
   {
     $$ = { type: 'multiline_attrs_end' }
   }
+  | ATTR_TEXT
+  {
+    $$ = { attrs: [$ATTR_TEXT] }
+  }
+  ;
+
+line_splitter
+  : SPACE
+  {
+    $$ = undefined
+  }
   ;
 
 text_tag_line
-  : TEXT_TAG something_following_text_tag
+  : TEXT_TAG line_splitter? something_following_text_tag
   {
-    $$ = Object.assign({ type: 'tag', name: $TEXT_TAG, state: 'TEXT_START' }, $something_following_text_tag)
+    $$ = Object.assign({ type: 'tag', name: $TEXT_TAG, state: 'TEXT_START' }, $3)
   }
   ;
 
@@ -379,37 +401,18 @@ first_token
   : something_followed_by_text
   {
     yy.lexer.pushState('TEXT')
-    debug('first_token: something_followed_by_text=', $something_followed_by_text)
+    debug('first_token: something_followed_by_text=', $1)
   }
-  | PUG_KEYWORD
+  | PUG_KEYWORD SPACE
   {
     $$ = { type: 'pug_keyword', name: $PUG_KEYWORD }
   }
-  // | MIXIN_CALL tag_part? ATTR_TEXT?
-  // {
-  //   debug('MIXIN_CALL=', $1)
-  //   lparenOpen = false
-  //   $$ = { type: 'mixin_call', mixin_name: $1 }
-  //   if ($2) {
-  //     Object.assign($$, $2)
-  //   }
-  //   if ($3) {
-  //     Object.assign($$, {attrs: [$3]})
-  //   }
-  // }
   ;
 
 something_followed_by_text
-  : tag_part+
+  : tag_part
   {
-    $$ = { }
-    $1.forEach(obj => {
-      debug('something_followed_by_text: tag_part: obj=', obj)
-      $$ = merge($$, obj)
-    })
-    if (!$$.hasOwnProperty('type')) {
-        $$ = Object.assign($$, { type: 'tag' })
-    }
+      debug('something_followed_by_text: tag_part=', $tag_part)
   }
   | PIPE
   {
@@ -434,57 +437,77 @@ first_token_for_reals
   {
     $$ = { name: $TAG, type: 'tag' }
   }
+  | MIXIN_CALL
+  {
+    debug('MIXIN_CALL=', $1)
+    $$ = { type: 'mixin_call', mixin_name: $1 }
+  }
   | TAG_ID
   {
     $$ = { id: $TAG_ID }
   }
+  | CLASSNAME 
+  {
+    $$ = { type: 'tag', classes: [$1] }
+  }
+  ;
+
+after_tags
+  : after_tags after_tag
+  {
+    $$ = merge($after_tags, $after_tag)
+  }
+  | after_tag
+  ;
+
+after_tag
+  : LPAREN ATTR_TEXT RPAREN
+  {
+    $$ = { attrs: [$2] }
+  }
+  | LPAREN ATTR_TEXT_CONT
+  {
+    $$ = { attrs: [$2], state: 'MULTI_LINE_ATTRS' }
+  }
+  | LPAREN
+  {
+    $$ = { state: 'MULTI_LINE_ATTRS' }
+  }
+  | ASSIGNMENT ASSIGNMENT_VALUE
+  {
+    $$ = { assignment: true, assignment_val: $ASSIGNMENT_VALUE }
+  }
   | CLASSNAME
   {
-    $$ = { classes: [$1] }
+    $$ = { type: 'tag', classes: [$1] }
   }
-  | MIXIN_CALL
+  | TAG_ID
   {
-    debug('MIXIN_CALL=', $1)
-  //   lparenOpen = false
-    $$ = { type: 'mixin_call', mixin_name: $1 }
-  //   if ($2) {
-  //     Object.assign($$, $2)
-  //   }
-  //   if ($3) {
-  //     Object.assign($$, {attrs: [$3]})
-  //   }
+    $$ = { id: $TAG_ID }
   }
   ;
 
 tag_part
   : first_token_for_reals
-  | LPAREN
+  | first_token_for_reals after_tags
   {
-    lparenOpen = true
-    $$ = {}
+    $$ = $1
+    if ($2) 
+      $$ = merge($$, $2)
   }
-  | RPAREN
+  | first_token_for_reals line_splitter
   {
-    lparenOpen = false
-    $$ = {}
+    $$ = $1
+    if ($2) 
+      $$ = merge($$, $2)
   }
-  | ATTR_TEXT
+  | first_token_for_reals line_splitter after_tags
   {
-    if ($ATTR_TEXT.endsWith(')') || $ATTR_TEXT.match(/[^\)]+\)\s*\.?\s*/)) {
-      lparenOpen = false
-    }
-    else {
-      debug('ATTR_TEXT: didn\'t end with ): ' + $ATTR_TEXT)
-    }
-    $$ = { attrs: [$1] }
-  }
-  | ASSIGNMENT
-  {
-    $$ = { assignment: true }
-  }
-  | ASSIGNMENT_VALUE
-  {
-    $$ = { assignment_val: $ASSIGNMENT_VALUE }
+    $$ = $1
+    if ($3) 
+      $$ = merge($$, $3) 
+    if ($2) 
+      $$ = merge($$, $2)
   }
   ;
 
@@ -492,6 +515,7 @@ line_end
   : TEXT
   {
     debug('line_end: TEXT=', $TEXT)
+    // if ($TEXT.trim().length)
     $$ = { type: 'text', val: $TEXT }
   }
   | DOT_END
@@ -578,18 +602,7 @@ parser.main = function () {
   }
 
 
-test('.rule: p.', {
-  children: [
-    {
-      name: 'p',
-      type: 'tag',
-      state: 'TEXT_START'
-    }
-  ],
-  classes: ['rule'],
-  state: 'NESTED',
-  type: 'tag'
-})
+
 
 test('code(class="language-scss").', { name: 'code', type: 'tag', attrs: [ 'class="language-scss"' ], state: 'TEXT_START' })
 
@@ -714,26 +727,23 @@ test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
 })
 
 test('foo(abc', {type: 'tag', name: 'foo', attrs: ['abc'], state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>,def)', { attrs: [',def)'], type: 'tag'})
+test('<MULTI_LINE_ATTRS>,def)', { attrs: [',def)'] })
 
 test('span(', {type: 'tag', name: 'span', state: 'MULTI_LINE_ATTRS'})
 test('<MULTI_LINE_ATTRS>v-for="item in items"', {
   attrs: [
     'v-for="item in items"'
-  ],
-  type: 'tag'
+  ]
 })
 test('<MULTI_LINE_ATTRS>:key="item.id"', {
   attrs: [
     ':key="item.id"'
-  ],
-  type: 'tag'
+  ]
 })
 test('<MULTI_LINE_ATTRS>:value="item.name"', {
   attrs: [
     ':value="item.name"'
-  ],
-  type: 'tag'
+  ]
 })
 test('<MULTI_LINE_ATTRS>)', {type: 'multiline_attrs_end'})
 test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
@@ -795,7 +805,7 @@ test('+sensitive', {
 })
 
 test('html', { type: 'tag', name: 'html' })
-test('html ', { type: 'tag', name: 'html' })
+test('html ', { type: 'tag', name: 'html' }, false)
 
 // test("doctype html", { type: 'doctype', val: 'html' })
 test('doctype html', { type: 'pug_keyword', name: 'doctype', val: 'html' })
@@ -967,6 +977,30 @@ test('pre: code.', {
 
 test('|. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
 
+test('.rule: p.', {
+  children: [
+    {
+      name: 'p',
+      type: 'tag',
+      state: 'TEXT_START'
+    }
+  ],
+  classes: ['rule'],
+  state: 'NESTED',
+  type: 'tag'
+})
+test('.rule.unratified: p.', {
+  children: [
+    {
+      name: 'p',
+      type: 'tag',
+      state: 'TEXT_START'
+    }
+  ],
+  classes: ['rule', 'unratified'],
+  state: 'NESTED',
+  type: 'tag'
+})
 try {
   test("tag", { type: 'unknown', name: 'tag' })
 throw AssertionError('Expected exception')
