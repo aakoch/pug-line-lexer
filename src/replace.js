@@ -4,18 +4,19 @@ import { argv } from 'process';
 import path from 'path'
 import { fileURLToPath } from 'url';
 import debugFunc from 'debug'
-const debug = debugFunc.debug('pug-line-lexer:replace')
+const debug = debugFunc.debug('pug-line-lexer.replace')
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const buildDirectoryPath = path.resolve(path.normalize(path.join(__dirname, '../build')))
 debug('Creating build directory ' + buildDirectoryPath)
 fs.mkdirSync(buildDirectoryPath, {recursive:true})
+const inFileName = 'index.jison';
 
 let toFilename
 try {
-  const fromFilename = path.resolve(__dirname, 'index.jison');
-  toFilename = path.resolve(buildDirectoryPath, 'index.jison');
+  const fromFilename = path.resolve(__dirname, inFileName);
+  toFilename = path.resolve(buildDirectoryPath, inFileName);
   debug('Copying ' + fromFilename + ' to ' + toFilename)
 
   await fs.promises.copyFile(fromFilename, toFilename);

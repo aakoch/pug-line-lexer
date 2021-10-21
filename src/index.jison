@@ -23,104 +23,89 @@ mixin_call              \+[a-z]+\b
 %x ATTR_TEXT
 %x MIXIN_CALL_START
 %s ATTRS_END
-%x UNBUF_CODE_START
+%x CODE_START
 %x UNBUF_CODE
 %x MULTI_LINE_ATTRS
+%x COMMENT
+%x AFTER_ATTRS
+%x AFTER_TEXT_TAG_NAME
+%x AFTER_PUG_KEYWORD
+%x NO_MORE_SPACE
+%x ASSIGNMENT_VALUE
 
 %%
 
 <INITIAL>{pug_keyword}
 %{
-  // yytext = yytext.substring(0, yytext.length - 1);
   this.pushState('AFTER_PUG_KEYWORD');
                                           return 'PUG_KEYWORD';
 %}
-
 <INITIAL>{tag}
 %{
-  // yytext = this.matches[1]
   this.pushState('AFTER_TAG_NAME');
                                           return 'TAG';
 %}
 <INITIAL>('script'|'style')
 %{
-  // yytext = this.matches[1]
   this.pushState('AFTER_TEXT_TAG_NAME');
                                           return 'TEXT_TAG';
 %}
-// <INITIAL>"!"                              return '!';
-// <INITIAL>'"'                              return '"';
 <INITIAL>{tag_id}
 %{
   this.pushState('AFTER_TAG_NAME');
   yytext = yytext.substring(1);
                                           return 'TAG_ID';
 %}
-// <INITIAL>"#"                              return '#';
-// <INITIAL>"$"                              return '$';
-// <INITIAL>"&"                              return '&';
-// <INITIAL>"'"                              return "'";
-// <INITIAL>"("                              return '(';
-// <INITIAL>")"                              return ')';
-// <INITIAL>"*"                              return '*';
 <INITIAL>{mixin_call}
 %{
   yytext = yytext.substring(1);
   this.pushState('MIXIN_CALL_START');
                                           return 'MIXIN_CALL';
 %}
-// <INITIAL>"+"                              return '+';
-<INITIAL>"-"(?:{space})?
+// <INITIAL>'-'{space}*(?:\w+)
+// %{
+//   debug('10 this.matches=', this.matches)
+//   debug('10 this.matches.length=', this.matches.length)
+//   debug('10 yytext=', yytext)
+//   this.pushState('AFTER_TAG_NAME');
+//   yytext = yytext.substring(1);
+//   if (yytext.startsWith(' ')) {
+//     yytext = yytext.substring(1);
+//   }
+//                                           return 'CODE';
+// %}
+<INITIAL>'-'
 %{
-  this.pushState('AFTER_TAG_NAME');
-  yytext = yytext.substring(1);
-                                          return 'CODE';
+  this.pushState('CODE_START');
+                                          return 'CODE_START';
 %}
 <INITIAL>{classname}
 %{
   // debug('{classname}{space}?')
   this.pushState('AFTER_TAG_NAME');
   yytext = yytext.substring(1);
-  // if (yytext.endsWith(' ')) {
-  //   yytext = yytext.substring(0, yytext.length - 1)
-  //   debug('10 yytext=', yytext)
-  // }
-  // else {
-  //   debug('10 yytext doesn\'t end with a space')
-  // }
                                           return 'CLASSNAME';
 %}
-// <INITIAL>"."                              return '.';
 <INITIAL>"//"             
 %{
   this.pushState('TEXT');
                                           return 'COMMENT';
 %}
-// <INITIAL>"/"                              return '/';
-// <INITIAL>{digit}                          return 'DIGIT'
-// <INITIAL>":"                              return ':';
 <INITIAL>'<'[A-Z_]+'>'
 %{
   this.pushState(yytext.substring(1, yytext.length - 1));
 %}
-// <INITIAL>"<"                              return '<';
-// <INITIAL>"?"                              return '?';
-// <INITIAL>"@"                              return '@';
-// <INITIAL>"["                              return '[';
-// <INITIAL>"]"                              return ']';
-// <INITIAL>"_"                              return '_';
-<INITIAL>"| "                             return 'PIPE';
+<INITIAL,TEXT>"| "
+%{
+  this.pushState('TEXT');
+                                           return 'PIPE';
+%}
 <INITIAL>"|."
 %{
   this.pushState('TEXT');
   this.unput('.');
 %}
-
-// <INITIAL>"}"                              return '}';
-// <INITIAL>\s+                             ;
-
-
-<AFTER_TAG_NAME,AFTER_ATTRS>':'{space}
+<AFTER_TAG_NAME,AFTER_ATTRS>': '
 %{
   this.popState();
                                           return 'NESTED_TAG_START';
@@ -130,17 +115,24 @@ mixin_call              \+[a-z]+\b
   this.pushState('ATTRS_STARTED');
                                           return 'LPAREN';
 %}
-<ATTRS_STARTED>(.+)')'
+<ATTRS_END>')'
+%{      
+                                          return 'RPAREN';
+%}
+<ATTRS_STARTED>(.+)(')')
 %{
-  // ')'\.\s*<<EOF>>
   this.popState()
   this.pushState('ATTRS_END')
   debug('20 this.matches=', this.matches)
   debug('20 this.matches.length=', this.matches.length)
   debug('20 yytext=', yytext)
   try {
+    this.unput(')');
     if (this.matches.length > 1) {    
       yytext = this.matches[1]
+      // if (yytext.startsWith(')')) {
+      //   yytext = yytext.substring(1)
+      // }
     }
   }
   catch (e) {
@@ -148,7 +140,7 @@ mixin_call              \+[a-z]+\b
   }
   lparenOpen = false
   debug('20 yytext=', yytext)
-                                          return ['RPAREN', 'ATTR_TEXT'];
+                                          return 'ATTR_TEXT';
 %}
 <ATTRS_STARTED>(.+)')'\s*<<EOF>>
 %{
@@ -203,21 +195,42 @@ mixin_call              \+[a-z]+\b
   yytext = this.matches[1].substring(1)
                                           return 'TAG_ID';
 %}
+
+
 <AFTER_TAG_NAME>{classname}
 %{
   yytext = this.matches[1].substring(1);
   debug('60 yytext=', yytext)
                                           return 'CLASSNAME';
 %}
+
+
+<INITIAL>{space}{2,}
+%{
+  debug('{space}{2,}');
+                                                              return 'SPACE';
+%}
+
+<AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{space}
+%{
+  this.pushState('TEXT');
+  debug('space space');
+  this.unput(' ');
+                                                              return 'SPACE';
+%}
+
 <AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME>{space}
 %{
   debug('space');
                                                               return 'SPACE';
 %}
+
+
 <ATTRS_END>{space}
 %{
   this.pushState('TEXT');
   debug('space');
+                                                              return 'SPACE';
 %}
 <AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'.'\s*<<EOF>>             return 'DOT_END';
 <AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE>.+
@@ -253,14 +266,14 @@ mixin_call              \+[a-z]+\b
                                           return 'TEXT';
 %}
 
-<UNBUF_CODE_START>.+
+<CODE_START>{space}
 %{
-  this.pushState('UNBUF_CODE');
-                                          return 'UNBUF_CODE_START';
+  debug('CODE_START space');
+                                          return 'SPACE';
 %}
-<UNBUF_CODE>.+
+<CODE_START>.+
 %{
-                                          return 'UNBUF_CODE';
+                                          return 'CODE';
 %}
 
 <MIXIN_CALL_START>'('             
@@ -276,10 +289,9 @@ mixin_call              \+[a-z]+\b
 
 <ONLY_FOR_SYNTAX_COLORING>'))'             ;
 
-<TEXT>(?:\|' ')?(.+)             
+// removed "[^{space}]" from the beginning because of COMMENT
+<TEXT>.+
 %{
-  debug('80 this.matches=', this.matches)
-  yytext = this.matches[1]
   debug('80 yytext=', yytext)
                                           return 'TEXT';
 %}
@@ -287,12 +299,6 @@ mixin_call              \+[a-z]+\b
 <MULTI_LINE_ATTRS>')'                     return 'ATTR_TEXT_END';
 <MULTI_LINE_ATTRS>.+                      return 'ATTR_TEXT';
 
-// <INITIAL>{space}.+      
-// %{
-//   debug('<INITIAL>{space}.+ yytext=', yytext)
-//   yytext = yytext.substring(1);
-//                                           return 'TEXT';
-// %}
 /lex
 
 %ebnf
@@ -305,52 +311,62 @@ mixin_call              \+[a-z]+\b
 start
   : EOF
   | line EOF
+  | SPACE EOF
   {
-    if (lparenOpen && !$line.hasOwnProperty('state')) {
-      $$ = Object.assign($line, { state: 'MULTI_LINE_ATTRS' })
-    }
+    $$ = ''
   }
   ;
 
 line
-  : first_token
-  | first_token line_end
+  : line_start
+  // if I change TEXT to line_end, I get a bunch of conflicts. I don't want to deal with them now
+  | line_start TEXT
   {
-    debug('line:first_token line_end: first_token=', $first_token, ', line_end=', $line_end)
-    $$ = merge($first_token, $line_end)
+    $$ = merge($line_start, { type: 'text', val: $TEXT })
   }
-  | TEXT
+  | line_start line_splitter line_end
   {
-    debug('TEXT=', $TEXT)
-    $$ = { type: 'text', val: $TEXT }
+    $$ = merge($line_start, [$line_splitter, $line_end])
   }
-  | UNBUF_CODE_START
+  | line_start NESTED_TAG_START line
   {
-    debug('UNBUF_CODE_START=', $UNBUF_CODE_START)
-    $$ = { type: 'unbuffered_code', val: $UNBUF_CODE_START }
+    $$ = merge($line_start, { state: 'NESTED', children: [$line] })
   }
-  | UNBUF_CODE
-  {
-    debug('UNBUF_CODE=', $UNBUF_CODE)
-    $$ = { type: 'unbuffered_code', val: $UNBUF_CODE }
-  }
-  | text_tag_line
-  | tag_part NESTED_TAG_START line
-  {
-    debug('tag_part+ NESTED_TAG_START line DOT_END? tag_part=', $1, 'line=', $3)
-    $$ = merge({ type: 'tag', state: 'NESTED', children: [$3] }, $1)
-  }
-  | CODE
-  {
-    $$ = { type: 'code', val: $CODE, state: 'UNBUF_CODE_START' }
-  }
-  | CODE TEXT
-  {
-    $$ = { type: 'code', val: $TEXT }
-  }
+  // | MIXIN_CALL MIXIN_PARAMS
+  // {
+  //   debug('MIXIN_CALL=', $1)
+  //   $$ = { type: 'mixin_call', mixin_name: $1 }
+  // }
   | ATTR_TEXT_END
   {
     $$ = { type: 'multiline_attrs_end' }
+  }
+  ;
+
+line_start
+  : first_token
+  | first_token tag_part
+  {
+    $$ = merge($first_token, $tag_part)
+  }
+  | first_token attrs
+  {
+    $$ = merge($first_token, $attrs)
+  }
+  | first_token LPAREN ATTR_TEXT_CONT?
+  {
+    $$ = merge($first_token, { state: 'MULTI_LINE_ATTRS' })
+    if ($3) {
+      $$ = merge($first_token, { attrs: [$3] })
+    }
+  }
+  | first_token tag_part LPAREN ATTR_TEXT_CONT
+  {
+    $$ = merge($first_token, [$tag_part, $ATTR_TEXT_CONT])
+  }
+  | first_token tag_part attrs
+  {
+    $$ = merge($first_token, [$tag_part, $attrs])
   }
   | ATTR_TEXT
   {
@@ -358,124 +374,14 @@ line
   }
   ;
 
-line_splitter
-  : SPACE
-  {
-    $$ = undefined
-  }
-  ;
-
-text_tag_line
-  : TEXT_TAG line_splitter? something_following_text_tag
-  {
-    $$ = Object.assign({ type: 'tag', name: $TEXT_TAG, state: 'TEXT_START' }, $3)
-  }
-  ;
-
-something_following_text_tag
-  : TEXT
-  {
-    $$ = { val: $TEXT }
-  }
-  | DOT_END
-  {
-    $$ = { }
-  }
-  | LPAREN ATTR_TEXT RPAREN?
-  {
-    if ($ATTR_TEXT.endsWith(')') || $ATTR_TEXT.match(/[^\)]+\)\.?\s*/)) {
-      lparenOpen = false
-    }
-    else {
-      debug('LPAREN ATTR_TEXT: didn\'t end with ): ' + $ATTR_TEXT)
-    }
-    $$ = { attrs: [$ATTR_TEXT] }
-  }
-  | LPAREN ATTR_TEXT RPAREN DOT_END
-  {
-    $$ = { attrs: [$ATTR_TEXT], state: 'TEXT_START' }
-  }
-  ;
-
 first_token
-  : something_followed_by_text
-  {
-    yy.lexer.pushState('TEXT')
-    debug('first_token: something_followed_by_text=', $1)
-  }
-  | PUG_KEYWORD SPACE
-  {
-    $$ = { type: 'pug_keyword', name: $PUG_KEYWORD }
-  }
-  ;
-
-something_followed_by_text
-  : tag_part
-  {
-      debug('something_followed_by_text: tag_part=', $tag_part)
-  }
-  | PIPE
-  {
-    $$ = { type: 'text' }
-  }
-  | TEXT_START
-  {
-    $$ = { type: 'TEXT_START', val: $1 }
-  }
-  | COMMENT
-  {
-    $$ = { type: 'comment', state: 'TEXT_START' }
-  }
-  | SPACE
-  {
-    $$ = { state: 'TEXT_START' }
-  }
-  ;
-
-first_token_for_reals
   : TAG
   {
     $$ = { name: $TAG, type: 'tag' }
   }
-  | MIXIN_CALL
+  | TEXT_TAG
   {
-    debug('MIXIN_CALL=', $1)
-    $$ = { type: 'mixin_call', mixin_name: $1 }
-  }
-  | TAG_ID
-  {
-    $$ = { id: $TAG_ID }
-  }
-  | CLASSNAME 
-  {
-    $$ = { type: 'tag', classes: [$1] }
-  }
-  ;
-
-after_tags
-  : after_tags after_tag
-  {
-    $$ = merge($after_tags, $after_tag)
-  }
-  | after_tag
-  ;
-
-after_tag
-  : LPAREN ATTR_TEXT RPAREN
-  {
-    $$ = { attrs: [$2] }
-  }
-  | LPAREN ATTR_TEXT_CONT
-  {
-    $$ = { attrs: [$2], state: 'MULTI_LINE_ATTRS' }
-  }
-  | LPAREN
-  {
-    $$ = { state: 'MULTI_LINE_ATTRS' }
-  }
-  | ASSIGNMENT ASSIGNMENT_VALUE
-  {
-    $$ = { assignment: true, assignment_val: $ASSIGNMENT_VALUE }
+    $$ = { name: $TEXT_TAG, type: 'tag', state: 'TEXT_START' }
   }
   | CLASSNAME
   {
@@ -483,44 +389,107 @@ after_tag
   }
   | TAG_ID
   {
-    $$ = { id: $TAG_ID }
+    $$ = { type: 'tag', id: $TAG_ID }
+  }
+  | TEXT
+  {
+    $$ = { type: 'text', val: $TEXT }
+  }
+  | COMMENT
+  {
+    $$ = { type: 'comment', state: 'TEXT_START' }
+  }
+  | CODE_START
+  {
+    debug('CODE_START')
+    $$ = { type: 'code' }
+  }
+  | CODE
+  {
+    $$ = { type: 'code', val: $CODE }
+  }
+  | MIXIN_CALL
+  {
+    debug('MIXIN_CALL=', $1)
+    $$ = { type: 'mixin_call', name: $1 }
+  }
+  | PUG_KEYWORD
+  {
+    $$ = { type: 'pug_keyword', name: $PUG_KEYWORD }
+  }
+  | PIPE
+  {
+    $$ = { type: 'text' }
   }
   ;
 
 tag_part
-  : first_token_for_reals
-  | first_token_for_reals after_tags
+  : TAG_ID
   {
-    $$ = $1
-    if ($2) 
-      $$ = merge($$, $2)
+    $$ = { id: $TAG_ID }
   }
-  | first_token_for_reals line_splitter
+  | TAG_ID classnames
   {
-    $$ = $1
-    if ($2) 
-      $$ = merge($$, $2)
+    $$ = merge({ id: $TAG_ID }, $classnames)
   }
-  | first_token_for_reals line_splitter after_tags
+  | classnames
+  ;
+
+attrs
+  : LPAREN ATTR_TEXT RPAREN
   {
-    $$ = $1
-    if ($3) 
-      $$ = merge($$, $3) 
-    if ($2) 
-      $$ = merge($$, $2)
+    $$ = { attrs: [$2] }
+  }
+  ;
+
+classnames
+  : CLASSNAME+
+  {
+    $$ = { type: 'tag', classes: $1 }
   }
   ;
 
 line_end
-  : TEXT
+  : 
   {
-    debug('line_end: TEXT=', $TEXT)
-    // if ($TEXT.trim().length)
-    $$ = { type: 'text', val: $TEXT }
+    debug('line_end: <blank>')
   }
   | DOT_END
   {
     debug('line_end: DOT_END')
+    $$ = { state: 'TEXT_START' }
+  }
+  | ASSIGNMENT_VALUE
+  {
+    $$ = { assignment_val: $ASSIGNMENT_VALUE }
+  }
+  | ATTR_TEXT_CONT
+  {
+    $$ = { attrscont: [$1] }
+  }
+  | TEXT
+  {
+    $$ = { type: 'text', val: $TEXT }
+  }
+  | CODE
+  {
+    $$ = { type: 'code', val: $CODE }
+  }
+  ;
+
+line_splitter
+  : SPACE
+  {
+    debug('line_splitter: SPACE')
+    $$ = undefined
+  }
+  | ASSIGNMENT
+  {
+    $$ = { assignment: true }
+  }
+  | DOT_END
+  {
+    debug('line_splitter: DOT_END')
     $$ = { state: 'TEXT_START' }
   }
   ;
@@ -604,6 +573,12 @@ parser.main = function () {
 
 
 
+
+
+test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project',   attrs: [
+    "'Moddable Two (2) Case', 'Needing Documentation ', ['print']"
+  ]})
+
 test('code(class="language-scss").', { name: 'code', type: 'tag', attrs: [ 'class="language-scss"' ], state: 'TEXT_START' })
 
 test('p: a(href="https://www.thingiverse.com/thing:4578862") Thingiverse', {
@@ -631,7 +606,7 @@ test('.project(class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join("
 test('.status-wrapper Status:', { classes: [ 'status-wrapper' ], type: 'tag', val: 'Status:' })
 
 test('+sensitive ', {
-  mixin_name: 'sensitive',
+  name: 'sensitive',
   type: 'mixin_call'
 })
 
@@ -800,7 +775,7 @@ test('foo(data-epoc=new Date(0))', {
 
 
 test('+sensitive', {
-  mixin_name: 'sensitive',
+  name: 'sensitive',
   type: 'mixin_call'
 })
 
@@ -893,19 +868,21 @@ test('+project(\'Images\', \'On going\')', {
     "'Images', 'On going'"
   ],
   type: 'mixin_call',
-  mixin_name: 'project'
+  name: 'project'
 })
-// test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project', params: "'Moddable Two (2) Case', 'Needing Documentation ', ['print']" })
 test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", {
   attrs: [
     "'Moddable Two (2) Case', 'Needing Documentation ', ['print']"
   ],
   type: 'mixin_call',
-  mixin_name: 'project'
+  name: 'project'
 })
 test('| . The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
 test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {"type":"text","val":"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;" })
-test('- ', { type: 'code', val: ' ', state: 'UNBUF_CODE_START' })
+
+// test('- ', { type: 'code', val: ' ', state: 'UNBUF_CODE_START' })
+test('- ', { type: 'code' })
+
 test('mixin project(title)', {
   name: 'mixin',
   type: 'pug_keyword',
@@ -916,7 +893,7 @@ test('+code(\'Pretty-print any JSON file\') jq \'.\' package.json',
   attrs: [
     "'Pretty-print any JSON file'"
   ],
-  mixin_name: 'code',
+  name: 'code',
   type: 'mixin_call',
   val: "jq '.' package.json"
 } )
@@ -932,19 +909,17 @@ test('meta(property=\'og:description\' content=\'I came across a problem in Inte
 })
 
 test('-', {
-  state: 'UNBUF_CODE_START',
-  type: 'code',
-  val: ''
+  type: 'code'
 })
 
-test(' -', {
-  state: 'UNBUF_CODE_START',
-  type: 'code',
-  val: ''
-})
+// test(' -', {
+//   state: 'UNBUF_CODE_START',
+//   type: 'code',
+//   val: ''
+// })
 
-test('<UNBUF_CODE>var i', {
-  type: 'unbuffered_code',
+test('<CODE_START>var i', {
+  type: 'code',
   val: 'var i'
 })
 
