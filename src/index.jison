@@ -13,7 +13,7 @@ tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basef
 pug_keyword             (append|block|case|default|doctype|each|else|extends|if|include|mixin|unless|when)\b
 
 classname               \.[a-z0-9-]+
-tag_id                  #[a-z-]+
+tag_id                  #[a-z0-9-]+
 mixin_call              \+[a-z]+\b
 
 %x TEXT
@@ -62,6 +62,13 @@ mixin_call              \+[a-z]+\b
   this.pushState('MIXIN_CALL_START');
                                           return 'MIXIN_CALL';
 %}
+
+<INITIAL>'}'
+%{
+  this.pushState('AFTER_PUG_KEYWORD');
+                                          return 'RCURLY';
+%}
+
 // <INITIAL>'-'{space}*(?:\w+)
 // %{
 //   debug('10 this.matches=', this.matches)
@@ -221,7 +228,8 @@ mixin_call              \+[a-z]+\b
 
 <AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME>{space}
 %{
-  debug('space');
+  this.pushState('ATTRS_END');
+  debug('<AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
                                                               return 'SPACE';
 %}
 
@@ -229,10 +237,10 @@ mixin_call              \+[a-z]+\b
 <ATTRS_END>{space}
 %{
   this.pushState('TEXT');
-  debug('space');
+  debug('<ATTRS_END>{space}');
                                                               return 'SPACE';
 %}
-<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'.'\s*<<EOF>>             return 'DOT_END';
+<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,ATTRS_END>'.'\s*<<EOF>>             return 'DOT_END';
 <AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE>.+
 %{
   // if (yytext.startsWith(' ') {
@@ -249,7 +257,7 @@ mixin_call              \+[a-z]+\b
   this.pushState('ASSIGNMENT_VALUE');
                                           return 'ASSIGNMENT';
 %}
-<ATTRS_END>'.'
+<ATTRS_END>'.'\s*<<EOF>>
 %{
   this.popState();
                                           return 'DOT_END';
@@ -261,17 +269,17 @@ mixin_call              \+[a-z]+\b
 %}
 <ATTRS_END>.+
 %{
-  yytext = yytext.substring(1)
+  // yytext = yytext.substring(1)
   debug('6 yytext=', yytext)
                                           return 'TEXT';
 %}
 
-<CODE_START>{space}
+<CODE_START,UNBUF_CODE>{space}
 %{
-  debug('CODE_START space');
+  debug('<CODE_START,UNBUF_CODE>{space}');
                                           return 'SPACE';
 %}
-<CODE_START>.+
+<CODE_START,UNBUF_CODE>.+
 %{
                                           return 'CODE';
 %}
@@ -402,7 +410,7 @@ first_token
   | CODE_START
   {
     debug('CODE_START')
-    $$ = { type: 'code' }
+    $$ = { type: 'code', state: 'CODE_START' }
   }
   | CODE
   {
@@ -421,6 +429,10 @@ first_token
   {
     $$ = { type: 'text' }
   }
+  | RCURLY
+  {
+    $$ = { type: 'block_end' }
+  }
   ;
 
 tag_part
@@ -433,6 +445,10 @@ tag_part
     $$ = merge({ id: $TAG_ID }, $classnames)
   }
   | classnames
+  | classnames TAG_ID
+  {
+    $$ = merge({ id: $TAG_ID }, $classnames)
+  }
   ;
 
 attrs
@@ -571,9 +587,24 @@ parser.main = function () {
   }
 
 
+test('span.font-monospace .htmlnanorc', {
+  type: 'tag', name: 'span', classes: ['font-monospace'], val: '.htmlnanorc'})
 
+test('.container.post#post-20210905', {
+  type: 'tag',
+  id: 'post-20210905',
+  classes: ['container', 'post']
+})
 
+test('<UNBUF_CODE>var i', {
+  type: 'code',
+  val: 'var i'
+})
 
+test('} else {', {
+  type: 'block_end',
+  val: 'else {'
+})
 
 test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project',   attrs: [
     "'Moddable Two (2) Case', 'Needing Documentation ', ['print']"
@@ -628,6 +659,7 @@ test('a(href=\'/user/\' + id, class=\'button\')', {
 })
 
 test('- function answer() { return 42; }', {
+  state: 'CODE_START',
   type: 'code',
   val: 'function answer() { return 42; }'
 })
@@ -844,7 +876,7 @@ test('.sd-content', { type: 'tag', classes: [ 'sd-content' ] })
 test('th  Browser', { type: 'tag', name: 'th', val: ' Browser' })
 test('.sharedaddy.sd-sharing-enabled', {"type":"tag","classes":['sharedaddy', 'sd-sharing-enabled']})
 test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', { type: 'tag', name: 'time', attrs: ['datetime=\'2009-07-28T01:24:04-06:00\''], val: '2009-07-28 at 1:24 AM'} )
-test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'code', val: 'var title = \'Fade Out On MouseOver Demo\'' })
+test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'code', val: 'var title = \'Fade Out On MouseOver Demo\'', state: 'CODE_START' })
 test('<TEXT>}).join(\' \')', { type: 'text', val: "}).join(' ')" })
 test('  ', '')
 test('#content(role=\'main\')', { type: 'tag', id: 'content', attrs: ['role=\'main\'']})
@@ -881,7 +913,7 @@ test('| . The only "gotcha" was I originally had "www.adamkoch.com" as the A rec
 test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {"type":"text","val":"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;" })
 
 // test('- ', { type: 'code', val: ' ', state: 'UNBUF_CODE_START' })
-test('- ', { type: 'code' })
+test('- ', { type: 'code', state: 'CODE_START' })
 
 test('mixin project(title)', {
   name: 'mixin',
@@ -909,7 +941,8 @@ test('meta(property=\'og:description\' content=\'I came across a problem in Inte
 })
 
 test('-', {
-  type: 'code'
+  type: 'code',
+  state: 'CODE_START'
 })
 
 // test(' -', {
@@ -918,7 +951,7 @@ test('-', {
 //   val: ''
 // })
 
-test('<CODE_START>var i', {
+test('<UNBUF_CODE>var i', {
   type: 'code',
   val: 'var i'
 })
@@ -976,6 +1009,16 @@ test('.rule.unratified: p.', {
   state: 'NESTED',
   type: 'tag'
 })
+
+test("style(id='wp-block-library-inline-css' type='text/css'). ", {
+  attrs: [
+    "id='wp-block-library-inline-css' type='text/css'"
+  ],
+  name: 'style',
+  state: 'TEXT_START',
+  type: 'tag'
+})
+
 try {
   test("tag", { type: 'unknown', name: 'tag' })
 throw AssertionError('Expected exception')
