@@ -15,6 +15,7 @@ pug_keyword             (append|block|case|default|doctype|each|else|extends|if|
 classname               \.[a-z0-9-]+
 tag_id                  #[a-z0-9-]+
 mixin_call              \+[a-z]+\b
+conditional             -?(if|else if|else)
 
 %x TEXT
 %x TEXT_START
@@ -32,6 +33,7 @@ mixin_call              \+[a-z]+\b
 %x AFTER_PUG_KEYWORD
 %x NO_MORE_SPACE
 %x ASSIGNMENT_VALUE
+%x COND_START
 
 %%
 
@@ -47,8 +49,14 @@ mixin_call              \+[a-z]+\b
 %}
 <INITIAL>('script'|'style')
 %{
+if (TEXT_TAGS_ALLOW_SUB_TAGS) {
+  this.pushState('AFTER_TAG_NAME');
+                                          return 'TAG';
+}
+else {
   this.pushState('AFTER_TEXT_TAG_NAME');
                                           return 'TEXT_TAG';
+}
 %}
 <INITIAL>{tag_id}
 %{
@@ -68,6 +76,27 @@ mixin_call              \+[a-z]+\b
   this.pushState('AFTER_PUG_KEYWORD');
                                           return 'RCURLY';
 %}
+
+<INITIAL>{conditional}
+%{
+  this.pushState('COND_START');
+  if (yytext.startsWith('-')) {
+    yytext = yytext.substring(1);
+  }
+                                          return 'CONDITIONAL';
+%}
+<COND_START>'('
+%{
+  this.pushState('COND_START');
+                                          return 'LPAREN';
+%}
+<COND_START>.+')'
+%{
+  this.popState();
+  yytext = yytext.substring(0, yytext.length - 1)
+                                          return ['RPAREN', 'CONDITION'];
+%}
+
 
 // <INITIAL>'-'{space}*(?:\w+)
 // %{
@@ -111,6 +140,11 @@ mixin_call              \+[a-z]+\b
 %{
   this.pushState('TEXT');
   this.unput('.');
+%}
+<INITIAL>'|'<<EOF>>
+%{
+  this.pushState('TEXT');
+                                           return 'SPACE'; // only because it is an empty object 
 %}
 <AFTER_TAG_NAME,AFTER_ATTRS>': '
 %{
@@ -257,7 +291,7 @@ mixin_call              \+[a-z]+\b
   this.pushState('ASSIGNMENT_VALUE');
                                           return 'ASSIGNMENT';
 %}
-<ATTRS_END>'.'\s*<<EOF>>
+<INITIAL,ATTRS_END>'.'\s*<<EOF>>
 %{
   this.popState();
                                           return 'DOT_END';
@@ -319,10 +353,6 @@ mixin_call              \+[a-z]+\b
 start
   : EOF
   | line EOF
-  | SPACE EOF
-  {
-    $$ = ''
-  }
   ;
 
 line
@@ -331,6 +361,10 @@ line
   | line_start TEXT
   {
     $$ = merge($line_start, { type: 'text', val: $TEXT })
+  }
+  | line_start CODE
+  {
+    $$ = merge($line_start, { type: 'code', val: $CODE })
   }
   | line_start line_splitter line_end
   {
@@ -363,9 +397,9 @@ line_start
   }
   | first_token LPAREN ATTR_TEXT_CONT?
   {
-    $$ = merge($first_token, { state: 'MULTI_LINE_ATTRS' })
+    $$ = merge($first_token, { type: 'tag_with_multiline_attrs', state: 'MULTI_LINE_ATTRS' })
     if ($3) {
-      $$ = merge($first_token, { attrs: [$3] })
+      $$ = merge($first_token, { type: 'tag_with_multiline_attrs', attrs: [$3] })
     }
   }
   | first_token tag_part LPAREN ATTR_TEXT_CONT
@@ -378,7 +412,7 @@ line_start
   }
   | ATTR_TEXT
   {
-    $$ = { attrs: [$ATTR_TEXT] }
+    $$ = { type: 'attrs_cont', attrs: [$ATTR_TEXT] }
   }
   ;
 
@@ -433,6 +467,19 @@ first_token
   {
     $$ = { type: 'block_end' }
   }
+  | DOT_END
+  {
+    debug('line: DOT_END')
+    $$ = { state: 'TEXT_START' }
+  }
+  | SPACE
+  {
+    $$ = {type: 'empty'}
+  }
+  | CONDITIONAL
+  {
+    $$ = { type: 'conditional', name: $CONDITIONAL }
+  }
   ;
 
 tag_part
@@ -455,6 +502,10 @@ attrs
   : LPAREN ATTR_TEXT RPAREN
   {
     $$ = { attrs: [$2] }
+  }
+  | LPAREN CONDITION RPAREN
+  {
+    $$ = { condition: $2 }
   }
   ;
 
@@ -508,10 +559,13 @@ line_splitter
     debug('line_splitter: DOT_END')
     $$ = { state: 'TEXT_START' }
   }
+  | RPAREN
   ;
 
 %% 
 __module_imports__
+
+const TEXT_TAGS_ALLOW_SUB_TAGS = true
 
 const debug = debugFunc('pug-line-lexer')
 
@@ -525,6 +579,12 @@ function rank(type1, type2) {
     return type1
   }
   else if (type1 === type2) {
+    return type1
+  }
+  else if (type1 == 'tag' && type2 == 'tag_with_multiline_attrs') {
+    return type2
+  }
+  else if (type1 == 'tag_with_multiline_attrs' && type2 == 'tag') {
     return type1
   }
   else {
@@ -587,6 +647,8 @@ parser.main = function () {
   }
 
 
+test('-var ajax = true', {type: 'code', val: 'var ajax = true', state: 'CODE_START' })
+test('-if( ajax )', {type: 'conditional', name: 'if', condition: ' ajax '})
 test('span.font-monospace .htmlnanorc', {
   type: 'tag', name: 'span', classes: ['font-monospace'], val: '.htmlnanorc'})
 
@@ -733,27 +795,31 @@ test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
   type: 'tag'
 })
 
-test('foo(abc', {type: 'tag', name: 'foo', attrs: ['abc'], state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>,def)', { attrs: [',def)'] })
+test('foo(abc', {type: 'tag_with_multiline_attrs', name: 'foo', attrs: ['abc'], state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_cont', attrs: [',def)'] })
 
-test('span(', {type: 'tag', name: 'span', state: 'MULTI_LINE_ATTRS'})
+test('span(', {type: 'tag_with_multiline_attrs', name: 'span', state: 'MULTI_LINE_ATTRS'})
 test('<MULTI_LINE_ATTRS>v-for="item in items"', {
+  type: 'attrs_cont',
   attrs: [
     'v-for="item in items"'
   ]
 })
 test('<MULTI_LINE_ATTRS>:key="item.id"', {
+  type: 'attrs_cont',
   attrs: [
     ':key="item.id"'
   ]
 })
 test('<MULTI_LINE_ATTRS>:value="item.name"', {
+  type: 'attrs_cont',
   attrs: [
     ':value="item.name"'
   ]
 })
 test('<MULTI_LINE_ATTRS>)', {type: 'multiline_attrs_end'})
 test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
+  type: 'attrs_cont',
   attrs: [
     ':link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more"'
   ],
@@ -830,12 +896,14 @@ test("meta(charset='UTF-8')", {"type":"tag","name":"meta","attrs":["charset='UTF
 test("meta(name='viewport' content='width=device-width')", { type: 'tag', name: 'meta', attrs: ["name='viewport' content='width=device-width'"]})
 test("title", {"type":"tag","name":"title"})
 test("| White-space and character 160 | Adam Koch ", {"type":"text","val":"White-space and character 160 | Adam Koch "})
-test("script(async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\")", {"type":"tag","name":"script","attrs":["async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\""], state: 'TEXT_START'})
+if (!TEXT_TAGS_ALLOW_SUB_TAGS)
+  test("script(async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\")", {"type":"tag","name":"script","attrs":["async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\""], state: 'TEXT_START'})
 test("script.  ", {"type":"tag","name":"script","state":"TEXT_START"})
 test("<TEXT>window.dataLayer = window.dataLayer || [];   ", { type: 'text', val: 'window.dataLayer = window.dataLayer || [];   ' })
 test("<TEXT>gtag('config', 'UA-452464-5');", {"type":"text","val":"gtag('config', 'UA-452464-5');"})
 test("", "")
-test("script test", {"type":"tag","name":"script","state":"TEXT_START","val":"test"})
+if (!TEXT_TAGS_ALLOW_SUB_TAGS)
+  test("script test", {"type":"tag","name":"script","state":"TEXT_START","val":"test"})
 test(".classname", { type: 'tag', classes: ['classname'] })
 
 //test("// some text", { type: 'comment', state: 'TEXT_START' })
@@ -878,7 +946,9 @@ test('.sharedaddy.sd-sharing-enabled', {"type":"tag","classes":['sharedaddy', 's
 test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', { type: 'tag', name: 'time', attrs: ['datetime=\'2009-07-28T01:24:04-06:00\''], val: '2009-07-28 at 1:24 AM'} )
 test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'code', val: 'var title = \'Fade Out On MouseOver Demo\'', state: 'CODE_START' })
 test('<TEXT>}).join(\' \')', { type: 'text', val: "}).join(' ')" })
-test('  ', '')
+test('  ', {
+  type: 'empty'
+})
 test('#content(role=\'main\')', { type: 'tag', id: 'content', attrs: ['role=\'main\'']})
 test('pre: code(class="language-scss").', { type: 'tag', name: 'pre', children: [ { type: 'tag', name: 'code', attrs: ['class="language-scss"'], state: 'TEXT_START'} ], state: 'NESTED'})
 
@@ -1018,6 +1088,11 @@ test("style(id='wp-block-library-inline-css' type='text/css'). ", {
   state: 'TEXT_START',
   type: 'tag'
 })
+
+test('|', {
+  type: 'empty'
+})
+test('.', { state: 'TEXT_START' })
 
 try {
   test("tag", { type: 'unknown', name: 'tag' })
