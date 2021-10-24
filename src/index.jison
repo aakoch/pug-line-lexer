@@ -10,12 +10,14 @@
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
-pug_keyword             (append|block|case|default|doctype|each|else|extends|if|include|mixin|unless|when)\b
+pug_keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|unless|when|while)\b
 
 classname               \.[a-z0-9-]+
 tag_id                  #[a-z0-9-]+
 mixin_call              \+[a-z]+\b
 conditional             -?(if|else if|else)
+interpolation_start     #\{
+interpolation           #\{.+\}
 
 %x TEXT
 %x TEXT_START
@@ -34,6 +36,8 @@ conditional             -?(if|else if|else)
 %x NO_MORE_SPACE
 %x ASSIGNMENT_VALUE
 %x COND_START
+%x MULTI_LINE_ATTRS_END
+%x INTERPOLATION_START
 
 %%
 
@@ -97,6 +101,13 @@ else {
                                           return ['RPAREN', 'CONDITION'];
 %}
 
+// for lines that start with a )
+<MULTI_LINE_ATTRS_END>')'
+%{
+  debug('<MULTI_LINE_ATTRS_END>\')\'')
+  this.popState();
+                                          return 'MULTI_LINE_ATTRS_END';
+%}
 
 // <INITIAL>'-'{space}*(?:\w+)
 // %{
@@ -145,6 +156,27 @@ else {
 %{
   this.pushState('TEXT');
                                            return 'SPACE'; // only because it is an empty object 
+%}
+
+<INITIAL>{interpolation}
+%{
+  debug('{interpolation}')
+  this.pushState('AFTER_TAG_NAME');
+                                          return 'INTERPOLATION';
+%}
+
+<INITIAL>{interpolation_start}
+%{
+  debug('{interpolation_start}')
+  this.pushState('INTERPOLATION_START');
+                                          return 'INTERPOLATION_START';
+%}
+
+<AFTER_TAG_NAME>'= '
+%{
+  this.popState();
+  this.pushState('ASSIGNMENT_VALUE');
+                                          return 'ASSIGNMENT';
 %}
 <AFTER_TAG_NAME,AFTER_ATTRS>': '
 %{
@@ -353,6 +385,10 @@ else {
 start
   : EOF
   | line EOF
+  | MULTI_LINE_ATTRS_END EOF
+  {
+    $$ = { type: 'MULTI_LINE_ATTRS_END' }
+  }
   ;
 
 line
@@ -480,6 +516,14 @@ first_token
   {
     $$ = { type: 'conditional', name: $CONDITIONAL }
   }
+  | INTERPOLATION
+  {
+    $$ = { type: 'interpolation', name: $INTERPOLATION }
+  }
+  | INTERPOLATION_START
+  {
+    $$ = { type: 'interpolation_start', state: 'INTERPOLATION_START' }
+  }
   ;
 
 tag_part
@@ -541,6 +585,10 @@ line_end
   | CODE
   {
     $$ = { type: 'code', val: $CODE }
+  }
+  | RPAREN
+  {
+    $$ = { type: 'text', val: $RPAREN }
   }
   ;
 
@@ -646,6 +694,28 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
+
+
+test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
+test("#{'foo'}(bar='baz') /", {
+  attrs: [
+    "bar='baz'"
+  ],
+  name: "#{'foo'}",
+  type: 'interpolation',
+  val: '/'
+})
+
+test('li= item', {
+  assignment: true,
+  assignment_val: 'item',
+  name: 'li',
+  type: 'tag'
+})
+test('<MULTI_LINE_ATTRS_END>)', {
+  type: 'MULTI_LINE_ATTRS_END'
+})
+// test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {})
 
 test('-var ajax = true', {type: 'code', val: 'var ajax = true', state: 'CODE_START' })
 test('-if( ajax )', {type: 'conditional', name: 'if', condition: ' ajax '})
