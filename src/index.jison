@@ -11,6 +11,7 @@ space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200
 tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
 pug_keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|unless|when|while)\b
+pug_filter              \:[a-z0-9-]+\b
 
 classname               \.[a-z0-9-]+
 tag_id                  #[a-z0-9-]+
@@ -183,6 +184,11 @@ else {
   this.popState();
                                           return 'NESTED_TAG_START';
 %}
+<AFTER_PUG_KEYWORD>{pug_filter}
+%{
+  yytext = yytext.substring(1)
+                                          return 'PUG_FILTER';
+%}
 <AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('             
 %{
   this.pushState('ATTRS_STARTED');
@@ -261,23 +267,18 @@ else {
   debug('50 yytext=', yytext)
                                           return 'ATTR_TEXT_CONT';
 %}
-
 <AFTER_TAG_NAME>{tag_id}
 %{
   this.pushState('AFTER_TAG_NAME');
   yytext = this.matches[1].substring(1)
                                           return 'TAG_ID';
 %}
-
-
 <AFTER_TAG_NAME>{classname}
 %{
   yytext = this.matches[1].substring(1);
   debug('60 yytext=', yytext)
                                           return 'CLASSNAME';
 %}
-
-
 <INITIAL>{space}{2,}
 %{
   debug('{space}{2,}');
@@ -540,6 +541,10 @@ tag_part
   {
     $$ = merge({ id: $TAG_ID }, $classnames)
   }
+  | PUG_FILTER
+  {
+    $$ = { filter: $PUG_FILTER }
+  }
   ;
 
 attrs
@@ -695,7 +700,7 @@ parser.main = function () {
   }
 
 
-
+test('include:markdown-it article.md', { type: 'pug_keyword', name: 'include', val: 'article.md', filter: 'markdown-it' })
 test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
 test("#{'foo'}(bar='baz') /", {
   attrs: [
