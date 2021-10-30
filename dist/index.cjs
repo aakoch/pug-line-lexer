@@ -624,15 +624,15 @@ symbols_: {
   "CONDITIONAL": 23,
   "DOT_END": 21,
   "EOF": 1,
+  "FILTER": 26,
   "INTERPOLATION": 24,
   "INTERPOLATION_START": 25,
+  "KEYWORD": 18,
   "LPAREN": 8,
   "MIXIN_CALL": 17,
   "MULTI_LINE_ATTRS_END": 3,
   "NESTED_TAG_START": 6,
   "PIPE": 19,
-  "PUG_FILTER": 26,
-  "PUG_KEYWORD": 18,
   "RCURLY": 20,
   "RPAREN": 27,
   "SPACE": 22,
@@ -671,7 +671,7 @@ terminals_: {
   15: "COMMENT",
   16: "CODE_START",
   17: "MIXIN_CALL",
-  18: "PUG_KEYWORD",
+  18: "KEYWORD",
   19: "PIPE",
   20: "RCURLY",
   21: "DOT_END",
@@ -679,7 +679,7 @@ terminals_: {
   23: "CONDITIONAL",
   24: "INTERPOLATION",
   25: "INTERPOLATION_START",
-  26: "PUG_FILTER",
+  26: "FILTER",
   27: "RPAREN",
   28: "CONDITION",
   29: "ASSIGNMENT_VALUE",
@@ -887,7 +887,7 @@ case 2:
 case 3:
     /*! Production::    start : MULTI_LINE_ATTRS_END EOF */
 
-    this.$ = { type: 'attrs', state: 'END' }
+    this.$ = { type: 'MULTI_LINE_ATTRS_END' }
     break;
 
 case 5:
@@ -919,7 +919,7 @@ case 8:
 case 9:
     /*! Production::    line : ATTR_TEXT_END */
 
-    this.$ = { type: 'attrs' }
+    this.$ = { type: 'multiline_attrs_end' }
     break;
 
 case 11:
@@ -960,7 +960,7 @@ case 17:
 case 18:
     /*! Production::    first_token : TEXT_TAG */
 
-    this.$ = { name: yyvstack[yysp], type: 'tag', state: 'START' }
+    this.$ = { name: yyvstack[yysp], type: 'tag', state: 'TEXT_START' }
     break;
 
 case 19:
@@ -1014,9 +1014,9 @@ case 25:
     break;
 
 case 26:
-    /*! Production::    first_token : PUG_KEYWORD */
+    /*! Production::    first_token : KEYWORD */
 
-    this.$ = { type: 'pug_keyword', name: yyvstack[yysp] }
+    this.$ = { type: yyvstack[yysp] }
     break;
 
 case 27:
@@ -1081,7 +1081,7 @@ case 37:
     break;
 
 case 38:
-    /*! Production::    tag_part : PUG_FILTER */
+    /*! Production::    tag_part : FILTER */
 
     this.$ = { filter: yyvstack[yysp] }
     break;
@@ -3868,8 +3868,8 @@ EOF: 1,
       switch (yyrulenumber) {
       case 0:
         /*! Conditions:: INITIAL */
-        /*! Rule::       {pug_keyword} */
-        this.pushState('AFTER_PUG_KEYWORD');
+        /*! Rule::       {keyword} */
+        this.pushState('AFTER_KEYWORD');
 
         return 18;
         break;
@@ -3916,7 +3916,7 @@ EOF: 1,
       case 5:
         /*! Conditions:: INITIAL */
         /*! Rule::       \} */
-        this.pushState('AFTER_PUG_KEYWORD');
+        this.pushState('AFTER_KEYWORD');
 
         return 20;
         break;
@@ -4052,8 +4052,8 @@ EOF: 1,
         break;
 
       case 21:
-        /*! Conditions:: AFTER_PUG_KEYWORD */
-        /*! Rule::       {pug_filter} */
+        /*! Conditions:: AFTER_KEYWORD */
+        /*! Rule::       {filter} */
         yy_.yytext = yy_.yytext.substring(1);
 
         return 26;
@@ -4179,7 +4179,7 @@ EOF: 1,
         break;
 
       case 31:
-        /*! Conditions:: AFTER_TAG_NAME AFTER_PUG_KEYWORD AFTER_TEXT_TAG_NAME */
+        /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */
         /*! Rule::       {space}{space} */
         this.pushState('TEXT');
 
@@ -4189,11 +4189,11 @@ EOF: 1,
         break;
 
       case 32:
-        /*! Conditions:: AFTER_TAG_NAME AFTER_PUG_KEYWORD AFTER_TEXT_TAG_NAME */
+        /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */
         /*! Rule::       {space} */
         this.pushState('ATTRS_END');
 
-        debug('<AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
+        debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
         return 22;
         break;
 
@@ -4207,7 +4207,7 @@ EOF: 1,
         break;
 
       case 35:
-        /*! Conditions:: AFTER_TAG_NAME AFTER_PUG_KEYWORD AFTER_TEXT_TAG_NAME NO_MORE_SPACE */
+        /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME NO_MORE_SPACE */
         /*! Rule::       .+ */
         // if (yy_.yytext.startsWith(' ') {
         //   yy_.yytext = yy_.yytext.substring(1);
@@ -4434,7 +4434,7 @@ EOF: 1,
         inclusive: false
       },
 
-      'AFTER_PUG_KEYWORD': {
+      'AFTER_KEYWORD': {
         rules: [21, 31, 32, 35],
         inclusive: false
       },
@@ -4565,12 +4565,12 @@ parser.main = function () {
     else 
       compareFunc = dyp
 
-    // compareFunc.call({}, actual, expected)
+    compareFunc.call({}, actual, expected)
   }
 
 
 test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
-test('include:markdown-it article.md', { type: 'pug_keyword', name: 'include', val: 'article.md', filter: 'markdown-it' })
+test('include:markdown-it article.md', { type: 'include', target: 'article.md', filter: 'markdown-it' })
 test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
 test("#{'foo'}(bar='baz') /", {
   attrs: [
@@ -4826,15 +4826,15 @@ test('html', { type: 'tag', name: 'html' })
 test('html ', { type: 'tag', name: 'html' }, false)
 
 // test("doctype html", { type: 'doctype', val: 'html' })
-test('doctype html', { type: 'pug_keyword', name: 'doctype', val: 'html' })
+test('doctype html', { type: 'doctype', val: 'html' })
 
 test("html(lang='en-US')", {"type":"tag","name":"html","attrs":["lang='en-US'"]})
 
 // test("include something", { type: 'include_directive', params: 'something' })
-test('include something', { type: 'pug_keyword', name: 'include', val: 'something' })
+test('include something', { type: 'include', target: 'something' })
 
 // test("block here", { type: 'directive', name: 'block', params: 'here' })
-test("block here", { type: 'pug_keyword', name: 'block', val: 'here' })
+test("block here", { type: 'block', val: 'here' })
 
 test("head", { type: 'tag', name: 'head' })
 test("meta(charset='UTF-8')", {"type":"tag","name":"meta","attrs":["charset='UTF-8'"]})
@@ -4897,15 +4897,13 @@ test('  ', {
 test('#content(role=\'main\')', { type: 'tag', id: 'content', attrs: ['role=\'main\'']})
 test('pre: code(class="language-scss").', { type: 'tag', name: 'pre', children: [ { type: 'tag', name: 'code', attrs: ['class="language-scss"'], state: 'TEXT_START'} ], state: 'NESTED'})
 
-test('mixin sensitive()', { type: 'pug_keyword', name: 'mixin', val: 'sensitive()' })
+test('mixin sensitive()', { type: 'mixin', val: 'sensitive()' })
 test('extends ../templates/blogpost', {
-  name: 'extends',
-  type: 'pug_keyword',
+  type: 'extends',
   val: '../templates/blogpost'
 })
 test('append head', {
-  name: 'append',
-  type: 'pug_keyword',
+  type: 'append',
   val: 'head'
 })
 test('p Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.', {type: 'tag', name: 'p', val: 'Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.' })
@@ -4931,8 +4929,7 @@ test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figca
 test('- ', { type: 'code', state: 'CODE_START' })
 
 test('mixin project(title)', {
-  name: 'mixin',
-  type: 'pug_keyword',
+  type: 'mixin',
   val: 'project(title)'
 })
 test('+code(\'Pretty-print any JSON file\') jq \'.\' package.json',

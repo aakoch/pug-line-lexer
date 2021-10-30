@@ -10,8 +10,8 @@
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
-pug_keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|unless|when|while)\b
-pug_filter              \:[a-z0-9-]+\b
+keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|unless|when|while)\b
+filter              \:[a-z0-9-]+\b
 
 classname               \.[a-z0-9-]+
 tag_id                  #[a-z0-9-]+
@@ -33,7 +33,7 @@ interpolation           #\{.+\}
 %x COMMENT
 %x AFTER_ATTRS
 %x AFTER_TEXT_TAG_NAME
-%x AFTER_PUG_KEYWORD
+%x AFTER_KEYWORD
 %x NO_MORE_SPACE
 %x ASSIGNMENT_VALUE
 %x COND_START
@@ -42,10 +42,10 @@ interpolation           #\{.+\}
 
 %%
 
-<INITIAL>{pug_keyword}
+<INITIAL>{keyword}
 %{
-  this.pushState('AFTER_PUG_KEYWORD');
-                                          return 'PUG_KEYWORD';
+  this.pushState('AFTER_KEYWORD');
+                                          return 'KEYWORD';
 %}
 <INITIAL>{tag}
 %{
@@ -78,7 +78,7 @@ else {
 
 <INITIAL>'}'
 %{
-  this.pushState('AFTER_PUG_KEYWORD');
+  this.pushState('AFTER_KEYWORD');
                                           return 'RCURLY';
 %}
 
@@ -184,10 +184,10 @@ else {
   this.popState();
                                           return 'NESTED_TAG_START';
 %}
-<AFTER_PUG_KEYWORD>{pug_filter}
+<AFTER_KEYWORD>{filter}
 %{
   yytext = yytext.substring(1)
-                                          return 'PUG_FILTER';
+                                          return 'FILTER';
 %}
 <AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('             
 %{
@@ -285,7 +285,7 @@ else {
                                                               return 'SPACE';
 %}
 
-<AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{space}
+<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{space}
 %{
   this.pushState('TEXT');
   debug('space space');
@@ -293,10 +293,10 @@ else {
                                                               return 'SPACE';
 %}
 
-<AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME>{space}
+<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}
 %{
   this.pushState('ATTRS_END');
-  debug('<AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
+  debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
                                                               return 'SPACE';
 %}
 
@@ -308,7 +308,7 @@ else {
                                                               return 'SPACE';
 %}
 <AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,ATTRS_END>'.'\s*<<EOF>>             return 'DOT_END';
-<AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE>.+
+<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE>.+
 %{
   // if (yytext.startsWith(' ') {
   //   yytext = yytext.substring(1);
@@ -492,9 +492,9 @@ first_token
     debug('MIXIN_CALL=', $1)
     $$ = { type: 'mixin_call', name: $1 }
   }
-  | PUG_KEYWORD
+  | KEYWORD
   {
-    $$ = { type: 'pug_keyword', name: $PUG_KEYWORD }
+    $$ = { type: $KEYWORD }
   }
   | PIPE
   {
@@ -541,9 +541,9 @@ tag_part
   {
     $$ = merge({ id: $TAG_ID }, $classnames)
   }
-  | PUG_FILTER
+  | FILTER
   {
-    $$ = { filter: $PUG_FILTER }
+    $$ = { filter: $FILTER }
   }
   ;
 
@@ -683,6 +683,7 @@ parser.main = function () {
   
   tagAlreadyFound = false
   lparenOpen = false
+
   function test(input, expected, strict = true ) {
     tagAlreadyFound = false
     lparenOpen = false
@@ -701,7 +702,7 @@ parser.main = function () {
 
 
 test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
-test('include:markdown-it article.md', { type: 'pug_keyword', name: 'include', val: 'article.md', filter: 'markdown-it' })
+test('include:markdown-it article.md', { type: 'include', target: 'article.md', filter: 'markdown-it' })
 test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
 test("#{'foo'}(bar='baz') /", {
   attrs: [
@@ -957,15 +958,15 @@ test('html', { type: 'tag', name: 'html' })
 test('html ', { type: 'tag', name: 'html' }, false)
 
 // test("doctype html", { type: 'doctype', val: 'html' })
-test('doctype html', { type: 'pug_keyword', name: 'doctype', val: 'html' })
+test('doctype html', { type: 'doctype', val: 'html' })
 
 test("html(lang='en-US')", {"type":"tag","name":"html","attrs":["lang='en-US'"]})
 
 // test("include something", { type: 'include_directive', params: 'something' })
-test('include something', { type: 'pug_keyword', name: 'include', val: 'something' })
+test('include something', { type: 'include', target: 'something' })
 
 // test("block here", { type: 'directive', name: 'block', params: 'here' })
-test("block here", { type: 'pug_keyword', name: 'block', val: 'here' })
+test("block here", { type: 'block', val: 'here' })
 
 test("head", { type: 'tag', name: 'head' })
 test("meta(charset='UTF-8')", {"type":"tag","name":"meta","attrs":["charset='UTF-8'"]})
@@ -1028,15 +1029,13 @@ test('  ', {
 test('#content(role=\'main\')', { type: 'tag', id: 'content', attrs: ['role=\'main\'']})
 test('pre: code(class="language-scss").', { type: 'tag', name: 'pre', children: [ { type: 'tag', name: 'code', attrs: ['class="language-scss"'], state: 'TEXT_START'} ], state: 'NESTED'})
 
-test('mixin sensitive()', { type: 'pug_keyword', name: 'mixin', val: 'sensitive()' })
+test('mixin sensitive()', { type: 'mixin', val: 'sensitive()' })
 test('extends ../templates/blogpost', {
-  name: 'extends',
-  type: 'pug_keyword',
+  type: 'extends',
   val: '../templates/blogpost'
 })
 test('append head', {
-  name: 'append',
-  type: 'pug_keyword',
+  type: 'append',
   val: 'head'
 })
 test('p Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.', {type: 'tag', name: 'p', val: 'Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.' })
@@ -1062,8 +1061,7 @@ test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figca
 test('- ', { type: 'code', state: 'CODE_START' })
 
 test('mixin project(title)', {
-  name: 'mixin',
-  type: 'pug_keyword',
+  type: 'mixin',
   val: 'project(title)'
 })
 test('+code(\'Pretty-print any JSON file\') jq \'.\' package.json',
