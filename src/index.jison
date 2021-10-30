@@ -700,6 +700,7 @@ parser.main = function () {
   }
 
 
+test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
 test('include:markdown-it article.md', { type: 'pug_keyword', name: 'include', val: 'article.md', filter: 'markdown-it' })
 test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
 test("#{'foo'}(bar='baz') /", {

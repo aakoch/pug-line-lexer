@@ -1,0 +1,841 @@
+{
+  "lex": {
+    "rules": [
+      [
+        [
+          "INITIAL"
+        ],
+        "{pug_keyword}",
+        "this.pushState('AFTER_PUG_KEYWORD');\n                                          return 'PUG_KEYWORD';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "{tag}",
+        "this.pushState('AFTER_TAG_NAME');\n                                          return 'TAG';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "(script|style)",
+        "if (TEXT_TAGS_ALLOW_SUB_TAGS) {\n  this.pushState('AFTER_TAG_NAME');\n                                          return 'TAG';\n}\nelse {\n  this.pushState('AFTER_TEXT_TAG_NAME');\n                                          return 'TEXT_TAG';\n}"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "{tag_id}",
+        "this.pushState('AFTER_TAG_NAME');\n  yytext = yytext.substring(1);\n                                          return 'TAG_ID';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "{mixin_call}",
+        "yytext = yytext.substring(1);\n  this.pushState('MIXIN_CALL_START');\n                                          return 'MIXIN_CALL';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "\\}",
+        "this.pushState('AFTER_PUG_KEYWORD');\n                                          return 'RCURLY';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "{conditional}",
+        "this.pushState('COND_START');\n  if (yytext.startsWith('-')) {\n    yytext = yytext.substring(1);\n  }\n                                          return 'CONDITIONAL';"
+      ],
+      [
+        [
+          "COND_START"
+        ],
+        "\\(",
+        "this.pushState('COND_START');\n                                          return 'LPAREN';"
+      ],
+      [
+        [
+          "COND_START"
+        ],
+        ".+\\)",
+        "this.popState();\n  yytext = yytext.substring(0, yytext.length - 1)\n                                          return ['RPAREN', 'CONDITION'];"
+      ],
+      [
+        [
+          "MULTI_LINE_ATTRS_END"
+        ],
+        "\\)",
+        "debug('<MULTI_LINE_ATTRS_END>\\')\\'')\n  this.popState();\n                                          return 'MULTI_LINE_ATTRS_END';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "-",
+        "this.pushState('CODE_START');\n                                          return 'CODE_START';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "{classname}",
+        "// debug('{classname}{space}?')\n  this.pushState('AFTER_TAG_NAME');\n  yytext = yytext.substring(1);\n                                          return 'CLASSNAME';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "\\/\\/",
+        "this.pushState('TEXT');\n                                          return 'COMMENT';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "<[A-Z_]+>",
+        "this.pushState(yytext.substring(1, yytext.length - 1));"
+      ],
+      [
+        [
+          "INITIAL",
+          "TEXT"
+        ],
+        "\\| ",
+        "this.pushState('TEXT');\n                                           return 'PIPE';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "\\|\\.",
+        "this.pushState('TEXT');\n  this.unput('.');"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "\\|$",
+        "this.pushState('TEXT');\n                                           return 'SPACE'; // only because it is an empty object"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "{interpolation}",
+        "debug('{interpolation}')\n  this.pushState('AFTER_TAG_NAME');\n                                          return 'INTERPOLATION';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "{interpolation_start}",
+        "debug('{interpolation_start}')\n  this.pushState('INTERPOLATION_START');\n                                          return 'INTERPOLATION_START';"
+      ],
+      [
+        [
+          "AFTER_TAG_NAME"
+        ],
+        "= ",
+        "this.popState();\n  this.pushState('ASSIGNMENT_VALUE');\n                                          return 'ASSIGNMENT';"
+      ],
+      [
+        [
+          "AFTER_TAG_NAME",
+          "AFTER_ATTRS"
+        ],
+        ": ",
+        "this.popState();\n                                          return 'NESTED_TAG_START';"
+      ],
+      [
+        [
+          "AFTER_PUG_KEYWORD"
+        ],
+        "{pug_filter}",
+        "yytext = yytext.substring(1)\n                                          return 'PUG_FILTER';"
+      ],
+      [
+        [
+          "AFTER_TAG_NAME",
+          "AFTER_TEXT_TAG_NAME"
+        ],
+        "\\(",
+        "this.pushState('ATTRS_STARTED');\n                                          return 'LPAREN';"
+      ],
+      [
+        [
+          "ATTRS_END"
+        ],
+        "\\)",
+        "return 'RPAREN';"
+      ],
+      [
+        [
+          "ATTRS_STARTED"
+        ],
+        "(.+)(\\))",
+        "this.popState()\n  this.pushState('ATTRS_END')\n  debug('20 this.matches=', this.matches)\n  debug('20 this.matches.length=', this.matches.length)\n  debug('20 yytext=', yytext)\n  try {\n    this.unput(')');\n    if (this.matches.length > 1) {    \n      yytext = this.matches[1]\n      // if (yytext.startsWith(')')) {\n      //   yytext = yytext.substring(1)\n      // }\n    }\n  }\n  catch (e) {\n    console.error(e)\n  }\n  lparenOpen = false\n  debug('20 yytext=', yytext)\n                                          return 'ATTR_TEXT';"
+      ],
+      [
+        [
+          "ATTRS_STARTED"
+        ],
+        "(.+)\\)\\s*$",
+        "this.popState()\n  debug('30 this.matches=', this.matches)\n  debug('30 this.matches.length=', this.matches.length)\n  debug('30 yytext=', yytext)\n  try {\n    if (this.matches.length > 1) {    \n      yytext = this.matches[1]\n    }\n  }\n  catch (e) {\n    console.error(e)\n  }\n  lparenOpen = false\n  debug('30 yytext=', yytext)\n                                          return ['RPAREN', 'ATTR_TEXT'];"
+      ],
+      [
+        [
+          "ATTRS_STARTED"
+        ],
+        "(.+)\\)\\.?\\s*(.+)$",
+        "this.popState()\n  this.pushState('ATTRS_END')\n  debug('40 this.matches=', this.matches)\n  this.unput(this.matches[2])\n  yytext = yytext.substring(0, yytext.indexOf(this.matches[1]) + this.matches[1].length);\n  debug('40 yytext=', yytext)\n  lparenOpen = false\n                                          return ['RPAREN', 'ATTR_TEXT'];"
+      ],
+      [
+        [
+          "ATTRS_STARTED"
+        ],
+        "(.+)\\.?\\s*$",
+        "this.popState()\n  debug('50 this.matches=', this.matches)\n  debug('50 this.matches.length=', this.matches.length)\n  debug('50 yytext=', yytext)\n  try {\n    if (this.matches.length > 1) {    \n      yytext = this.matches[1]\n    }\n  }\n  catch (e) {\n    console.error(e)\n  }\n  debug('50 yytext=', yytext)\n                                          return 'ATTR_TEXT_CONT';"
+      ],
+      [
+        [
+          "AFTER_TAG_NAME"
+        ],
+        "{tag_id}",
+        "this.pushState('AFTER_TAG_NAME');\n  yytext = this.matches[1].substring(1)\n                                          return 'TAG_ID';"
+      ],
+      [
+        [
+          "AFTER_TAG_NAME"
+        ],
+        "{classname}",
+        "yytext = this.matches[1].substring(1);\n  debug('60 yytext=', yytext)\n                                          return 'CLASSNAME';"
+      ],
+      [
+        [
+          "INITIAL"
+        ],
+        "{space}{2,}",
+        "debug('{space}{2,}');\n                                                              return 'SPACE';"
+      ],
+      [
+        [
+          "AFTER_TAG_NAME",
+          "AFTER_PUG_KEYWORD",
+          "AFTER_TEXT_TAG_NAME"
+        ],
+        "{space}{space}",
+        "this.pushState('TEXT');\n  debug('space space');\n  this.unput(' ');\n                                                              return 'SPACE';"
+      ],
+      [
+        [
+          "AFTER_TAG_NAME",
+          "AFTER_PUG_KEYWORD",
+          "AFTER_TEXT_TAG_NAME"
+        ],
+        "{space}",
+        "this.pushState('ATTRS_END');\n  debug('<AFTER_TAG_NAME,AFTER_PUG_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');\n                                                              return 'SPACE';"
+      ],
+      [
+        [
+          "ATTRS_END"
+        ],
+        "{space}",
+        "this.pushState('TEXT');\n  debug('<ATTRS_END>{space}');\n                                                              return 'SPACE';"
+      ],
+      [
+        [
+          "AFTER_TAG_NAME",
+          "AFTER_TEXT_TAG_NAME",
+          "ATTRS_END"
+        ],
+        "\\.\\s*$",
+        "return 'DOT_END';"
+      ],
+      [
+        [
+          "AFTER_TAG_NAME",
+          "AFTER_PUG_KEYWORD",
+          "AFTER_TEXT_TAG_NAME",
+          "NO_MORE_SPACE"
+        ],
+        ".+",
+        "// if (yytext.startsWith(' ') {\n  //   yytext = yytext.substring(1);\n  // }\n  debug('70 yytext=', yytext);\n                                          return 'TEXT';"
+      ],
+      [
+        [
+          "ATTRS_END"
+        ],
+        "={space}",
+        "this.popState();\n  this.pushState('ASSIGNMENT_VALUE');\n                                          return 'ASSIGNMENT';"
+      ],
+      [
+        [
+          "INITIAL",
+          "ATTRS_END"
+        ],
+        "\\.\\s*$",
+        "this.popState();\n                                          return 'DOT_END';"
+      ],
+      [
+        [
+          "ASSIGNMENT_VALUE"
+        ],
+        ".+",
+        "this.popState();\n                                          return 'ASSIGNMENT_VALUE';"
+      ],
+      [
+        [
+          "ATTRS_END"
+        ],
+        ".+",
+        "// yytext = yytext.substring(1)\n  debug('6 yytext=', yytext)\n                                          return 'TEXT';"
+      ],
+      [
+        [
+          "CODE_START",
+          "UNBUF_CODE"
+        ],
+        "{space}",
+        "debug('<CODE_START,UNBUF_CODE>{space}');\n                                          return 'SPACE';"
+      ],
+      [
+        [
+          "CODE_START",
+          "UNBUF_CODE"
+        ],
+        ".+",
+        "return 'CODE';"
+      ],
+      [
+        [
+          "MIXIN_CALL_START"
+        ],
+        "\\(",
+        "this.popState();\n  this.pushState('ATTRS_STARTED');\n                                          return 'LPAREN';"
+      ],
+      [
+        [
+          "MIXIN_CALL_START"
+        ],
+        "{space}$",
+        "this.popState();"
+      ],
+      [
+        [
+          "ONLY_FOR_SYNTAX_COLORING"
+        ],
+        "\\)\\)",
+        ";"
+      ],
+      [
+        [
+          "TEXT"
+        ],
+        ".+",
+        "debug('80 yytext=', yytext)\n                                          return 'TEXT';"
+      ],
+      [
+        [
+          "MULTI_LINE_ATTRS"
+        ],
+        "\\)",
+        "return 'ATTR_TEXT_END';"
+      ],
+      [
+        [
+          "MULTI_LINE_ATTRS"
+        ],
+        ".+",
+        "return 'ATTR_TEXT';"
+      ]
+    ],
+    "macros": {
+      "space": "[ \\u00a0\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u200b\\u2028\\u2029\\u3000]",
+      "tag": "(a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\\b",
+      "pug_keyword": "(append|block|case|default|doctype|each|else|extends|for|if|include|mixin|unless|when|while)\\b",
+      "pug_filter": ":[a-z0-9-]+\\b",
+      "classname": "\\.[a-z0-9-]+",
+      "tag_id": "#[a-z0-9-]+",
+      "mixin_call": "\\+[a-z]+\\b",
+      "conditional": "-?(if|elseif|else)",
+      "interpolation_start": "#\\{",
+      "interpolation": "#\\{.+\\}"
+    },
+    "startConditions": {
+      "TEXT": 1,
+      "TEXT_START": 1,
+      "AFTER_TAG_NAME": 1,
+      "ATTRS_STARTED": 1,
+      "ATTR_TEXT": 1,
+      "MIXIN_CALL_START": 1,
+      "ATTRS_END": 0,
+      "CODE_START": 1,
+      "UNBUF_CODE": 1,
+      "MULTI_LINE_ATTRS": 1,
+      "COMMENT": 1,
+      "AFTER_ATTRS": 1,
+      "AFTER_TEXT_TAG_NAME": 1,
+      "AFTER_PUG_KEYWORD": 1,
+      "NO_MORE_SPACE": 1,
+      "ASSIGNMENT_VALUE": 1,
+      "COND_START": 1,
+      "MULTI_LINE_ATTRS_END": 1,
+      "INTERPOLATION_START": 1
+    },
+    "codeSections": [],
+    "importDecls": [],
+    "unknownDecls": [],
+    "options": {
+      "case-insensitive": true
+    }
+  },
+  "options": {
+    "ebnf": true,
+    "token-stack": true
+  },
+  "moduleInclude": " \n__module_imports__\n\nconst TEXT_TAGS_ALLOW_SUB_TAGS = true\n\nconst debug = debugFunc('pug-line-lexer')\n\nlet tagAlreadyFound = false\nlet obj\nvar lparenOpen = false\nconst keysToMergeText = ['therest']\n\nfunction rank(type1, type2) {\n  if (type2 === 'text') {\n    return type1\n  }\n  else if (type1 === type2) {\n    return type1\n  }\n  else if (type1 == 'tag' && type2 == 'tag_with_multiline_attrs') {\n    return type2\n  }\n  else if (type1 == 'tag_with_multiline_attrs' && type2 == 'tag') {\n    return type1\n  }\n  else {\n    return type1.concat(type2)\n  }\n} \n\nfunction merge(obj, src) {\n  debug('merging', obj, src)\n\n  if (Array.isArray(src) && src.length > 0)\n    src = src.reduce(merge)\n\n  if (util.isDeepStrictEqual(src, [ { therest: '' } ]))\n     return obj\n\n  const ret = _.mergeWith(obj, src, function (objValue, srcValue, key, object, source, stack) {\n    debug('merging', 'inside _mergeWith', key, objValue, srcValue)\n    if (objValue == undefined && srcValue == undefined) {\n       return {}\n    }\n    if (objValue == undefined) {\n       return srcValue\n    }\n    if (srcValue == undefined) {\n       return objValue\n    }\n    if (objValue != undefined && srcValue != undefined) {\n      if (keysToMergeText.includes(key)) {\n         return objValue + srcValue\n      }\n      else {\n         return rank(objValue, srcValue)\n      }\n    }\n  })\n  debug('merging', ' returning', ret)\n  return ret\n  //  return Object.assign(obj, src);\n}\n\nparser.main = function () {\n  \n  tagAlreadyFound = false\n  lparenOpen = false\n  function test(input, expected, strict = true ) {\n    tagAlreadyFound = false\n    lparenOpen = false\n    debug(`\\nTesting '${input}'...`)\n    var actual = parser.parse(input)\n    debug(input + ' ==> ', util.inspect(actual))\n    \n    let compareFunc\n    if (strict)\n      compareFunc = assert.deepEqual\n    else \n      compareFunc = dyp\n\n    compareFunc.call({}, actual, expected)\n  }\n\n\ntest('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})\ntest('include:markdown-it article.md', { type: 'pug_keyword', name: 'include', val: 'article.md', filter: 'markdown-it' })\ntest('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})\ntest(\"#{'foo'}(bar='baz') /\", {\n  attrs: [\n    \"bar='baz'\"\n  ],\n  name: \"#{'foo'}\",\n  type: 'interpolation',\n  val: '/'\n})\n\ntest('li= item', {\n  assignment: true,\n  assignment_val: 'item',\n  name: 'li',\n  type: 'tag'\n})\ntest('<MULTI_LINE_ATTRS_END>)', {\n  type: 'MULTI_LINE_ATTRS_END'\n})\n// test('a(:link=\"goHere\" value=\"static\" :my-value=\"dynamic\" @click=\"onClick()\" :another=\"more\") Click Me!', {})\n\ntest('-var ajax = true', {type: 'code', val: 'var ajax = true', state: 'CODE_START' })\ntest('-if( ajax )', {type: 'conditional', name: 'if', condition: ' ajax '})\ntest('span.font-monospace .htmlnanorc', {\n  type: 'tag', name: 'span', classes: ['font-monospace'], val: '.htmlnanorc'})\n\ntest('.container.post#post-20210905', {\n  type: 'tag',\n  id: 'post-20210905',\n  classes: ['container', 'post']\n})\n\ntest('<UNBUF_CODE>var i', {\n  type: 'code',\n  val: 'var i'\n})\n\ntest('} else {', {\n  type: 'block_end',\n  val: 'else {'\n})\n\ntest(\"+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])\", { type: 'mixin_call', name: 'project',   attrs: [\n    \"'Moddable Two (2) Case', 'Needing Documentation ', ['print']\"\n  ]})\n\ntest('code(class=\"language-scss\").', { name: 'code', type: 'tag', attrs: [ 'class=\"language-scss\"' ], state: 'TEXT_START' })\n\ntest('p: a(href=\"https://www.thingiverse.com/thing:4578862\") Thingiverse', {\n  children: [\n    {\n      name: 'a',\n      attrs: ['href=\"https://www.thingiverse.com/thing:4578862\"'],\n      type: 'tag',\n      val: 'Thingiverse'\n    }\n  ],\n  name: 'p',\n  state: 'NESTED',\n  type: 'tag'\n})\n\ntest('.project(class= (tags || []).map((tag) => tag.replaceAll(\" \", \"_\")).join(\" \"))', {\n  classes: [ 'project' ],\n  attrs: [\n    'class= (tags || []).map((tag) => tag.replaceAll(\" \", \"_\")).join(\" \")'\n  ],\n  type: 'tag'\n})\n\ntest('.status-wrapper Status:', { classes: [ 'status-wrapper' ], type: 'tag', val: 'Status:' })\n\ntest('+sensitive ', {\n  name: 'sensitive',\n  type: 'mixin_call'\n})\n\ntest('a(href=url)= url', {\n  assignment: true,\n  assignment_val: 'url',\n  attrs: [\n    'href=url'\n  ],\n  name: 'a',\n  type: 'tag'\n})\ntest('a(href=\\'/user/\\' + id, class=\\'button\\')', {\n  attrs: [\n    \"href='/user/' + id, class='button'\"\n  ],\n  name: 'a',\n  type: 'tag'\n})\n\ntest('- function answer() { return 42; }', {\n  state: 'CODE_START',\n  type: 'code',\n  val: 'function answer() { return 42; }'\n})\ntest('a(href=\\'/user/\\' + id, class=\\'button\\')', {\n  attrs: [\n    \"href='/user/' + id, class='button'\"\n  ],\n  name: 'a',\n  type: 'tag'\n})\ntest('a(href  =  \\'/user/\\' + id, class  =  \\'button\\')', {\n  attrs: [\n    \"href  =  '/user/' + id, class  =  'button'\"\n  ],\n  name: 'a',\n  type: 'tag'\n})\n\ntest('a(class = [\\'class1\\', \\'class2\\'])', {\n  attrs: [\n    \"class = ['class1', 'class2']\"\n  ],\n  name: 'a',\n  type: 'tag'\n})\ntest('a.tag-class(class = [\\'class1\\', \\'class2\\'])', {\n  attrs: [\n    \"class = ['class1', 'class2']\"\n  ],\n  classes: [\n    'tag-class'\n  ],\n  name: 'a',\n  type: 'tag'\n})\ntest('a(href=\\'/user/\\' + id class=\\'button\\')', {\n  attrs: [\n    \"href='/user/' + id class='button'\"\n  ],\n  name: 'a',\n  type: 'tag'\n})\ntest('a(href  =  \\'/user/\\' + id class  =  \\'button\\')', {\n  attrs: [\n    \"href  =  '/user/' + id class  =  'button'\"\n  ],\n  name: 'a',\n  type: 'tag'\n}\n)\ntest('meta(key=\\'answer\\' value=answer())', {\n  attrs: [\n    \"key='answer' value=answer()\"\n  ],\n  name: 'meta',\n  type: 'tag'\n})\n\ntest('div(id=id)&attributes({foo: \\'bar\\'})', {\n  attrs: [\n    \"id=id)&attributes({foo: 'bar'}\"\n  ],\n  name: 'div',\n  type: 'tag'\n})\ntest('div(foo=null bar=bar)&attributes({baz: \\'baz\\'})', {\n  attrs: [\n    \"foo=null bar=bar)&attributes({baz: 'baz'}\"\n  ],\n  name: 'div',\n  type: 'tag'\n})\n\ntest('foo(abc', {type: 'tag_with_multiline_attrs', name: 'foo', attrs: ['abc'], state: 'MULTI_LINE_ATTRS'})\ntest('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_cont', attrs: [',def)'] })\n\ntest('span(', {type: 'tag_with_multiline_attrs', name: 'span', state: 'MULTI_LINE_ATTRS'})\ntest('<MULTI_LINE_ATTRS>v-for=\"item in items\"', {\n  type: 'attrs_cont',\n  attrs: [\n    'v-for=\"item in items\"'\n  ]\n})\ntest('<MULTI_LINE_ATTRS>:key=\"item.id\"', {\n  type: 'attrs_cont',\n  attrs: [\n    ':key=\"item.id\"'\n  ]\n})\ntest('<MULTI_LINE_ATTRS>:value=\"item.name\"', {\n  type: 'attrs_cont',\n  attrs: [\n    ':value=\"item.name\"'\n  ]\n})\ntest('<MULTI_LINE_ATTRS>)', {type: 'multiline_attrs_end'})\ntest('a(:link=\"goHere\" value=\"static\" :my-value=\"dynamic\" @click=\"onClick()\" :another=\"more\") Click Me!', {\n  type: 'attrs_cont',\n  attrs: [\n    ':link=\"goHere\" value=\"static\" :my-value=\"dynamic\" @click=\"onClick()\" :another=\"more\"'\n  ],\n  name: 'a',\n  type: 'tag',\n  val: 'Click Me!'\n})\n\ntest('foo(data-user=user)', {\n  attrs: [\n    'data-user=user'\n  ],\n  name: 'foo',\n  type: 'tag'\n})\ntest('foo(data-items=[1,2,3])', {\n  attrs: [\n    'data-items=[1,2,3]'\n  ],\n  name: 'foo',\n  type: 'tag'\n})\ntest('foo(data-username=\\'tobi\\')', {\n  attrs: [\n    \"data-username='tobi'\"\n  ],\n  name: 'foo',\n  type: 'tag'\n})\ntest('foo(data-escaped={message: \"Let\\'s rock!\"})', {\n  attrs: [\n    `data-escaped={message: \"Let's rock!\"}`\n  ],\n  name: 'foo',\n  type: 'tag'\n})\ntest('foo(data-ampersand={message: \"a quote: &quot; this & that\"})', {\n  attrs: [\n    'data-ampersand={message: \"a quote: &quot; this & that\"}'\n  ],\n  name: 'foo',\n  type: 'tag'\n})\ntest('foo(data-epoc=new Date(0))', {\n  attrs: [\n    'data-epoc=new Date(0)'\n  ],\n  name: 'foo',\n  type: 'tag'\n})\n\n\ntest('+sensitive', {\n  name: 'sensitive',\n  type: 'mixin_call'\n})\n\ntest('html', { type: 'tag', name: 'html' })\ntest('html ', { type: 'tag', name: 'html' }, false)\n\n// test(\"doctype html\", { type: 'doctype', val: 'html' })\ntest('doctype html', { type: 'pug_keyword', name: 'doctype', val: 'html' })\n\ntest(\"html(lang='en-US')\", {\"type\":\"tag\",\"name\":\"html\",\"attrs\":[\"lang='en-US'\"]})\n\n// test(\"include something\", { type: 'include_directive', params: 'something' })\ntest('include something', { type: 'pug_keyword', name: 'include', val: 'something' })\n\n// test(\"block here\", { type: 'directive', name: 'block', params: 'here' })\ntest(\"block here\", { type: 'pug_keyword', name: 'block', val: 'here' })\n\ntest(\"head\", { type: 'tag', name: 'head' })\ntest(\"meta(charset='UTF-8')\", {\"type\":\"tag\",\"name\":\"meta\",\"attrs\":[\"charset='UTF-8'\"]})\ntest(\"meta(name='viewport' content='width=device-width')\", { type: 'tag', name: 'meta', attrs: [\"name='viewport' content='width=device-width'\"]})\ntest(\"title\", {\"type\":\"tag\",\"name\":\"title\"})\ntest(\"| White-space and character 160 | Adam Koch \", {\"type\":\"text\",\"val\":\"White-space and character 160 | Adam Koch \"})\nif (!TEXT_TAGS_ALLOW_SUB_TAGS)\n  test(\"script(async src=\\\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\\\")\", {\"type\":\"tag\",\"name\":\"script\",\"attrs\":[\"async src=\\\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\\\"\"], state: 'TEXT_START'})\ntest(\"script.  \", {\"type\":\"tag\",\"name\":\"script\",\"state\":\"TEXT_START\"})\ntest(\"<TEXT>window.dataLayer = window.dataLayer || [];   \", { type: 'text', val: 'window.dataLayer = window.dataLayer || [];   ' })\ntest(\"<TEXT>gtag('config', 'UA-452464-5');\", {\"type\":\"text\",\"val\":\"gtag('config', 'UA-452464-5');\"})\ntest(\"\", \"\")\nif (!TEXT_TAGS_ALLOW_SUB_TAGS)\n  test(\"script test\", {\"type\":\"tag\",\"name\":\"script\",\"state\":\"TEXT_START\",\"val\":\"test\"})\ntest(\".classname\", { type: 'tag', classes: ['classname'] })\n\n//test(\"// some text\", { type: 'comment', state: 'TEXT_START' })\ntest(\"// some text\", { type: 'comment', state: 'TEXT_START', val: ' some text' })\n\n// test(\"// \", { type: 'comment', state: 'TEXT_START' })\ntest(\"// \", { type: 'comment', val: ' ', state: 'TEXT_START' })\n\ntest(\"//\", { type: 'comment', state: 'TEXT_START' })\n\n\ntest('a.url.fn.n(href=\\'https://wordpress.adamkoch.com/author/admin/\\' title=\\'View all posts by Adam\\' rel=\\'author\\') Adam',  {\n  type: 'tag',\n  name: 'a',\n  classes: [ 'url', 'fn', 'n' ],\n  val: 'Adam',\n  attrs: [\"href='https://wordpress.adamkoch.com/author/admin/' title='View all posts by Adam' rel='author'\"]\n})\ntest('style(id=\\'wp-block-library-inline-css\\' type=\\'text/css\\').', {\"type\":\"tag\",\"name\":\"style\",\"attrs\":[\"id='wp-block-library-inline-css' type='text/css'\"],\"state\":\"TEXT_START\"})\ntest('| #start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}', {\"type\":\"text\",\"val\":\"#start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}\"})\ntest('body.post-template-default.single.single-post.postid-1620.single-format-standard.wp-embed-responsive.single-author.singular.two-column.right-sidebar', {\"type\":\"tag\",\"name\":\"body\",\"classes\":[\"post-template-default\",\"single\",\"single-post\",\"postid-1620\",\"single-format-standard\",\"wp-embed-responsive\",\"single-author\",\"singular\",\"two-column\",\"right-sidebar\"]})\ntest('#page.hfeed', {\"type\":\"tag\",\"id\":\"page\",\"classes\":[\"hfeed\"]})\ntest('header#branding(role=\\'banner\\')', {\"type\":\"tag\",\"name\":\"header\",\"id\":\"branding\",\"attrs\":[\"role='banner'\"]})\ntest('h1#site-title', {type: 'tag', name: 'h1', id: 'site-title'})\ntest('a(href=\\'https://www.adamkoch.com/\\' rel=\\'home\\') Adam Koch', {type: 'tag', name: 'a', attrs: ['href=\\'https://www.adamkoch.com/\\' rel=\\'home\\''], val: 'Adam Koch'})\ntest('h2#site-description Software Developer and Clean Code Advocate', {type: 'tag', name: 'h2', id: 'site-description', val: 'Software Developer and Clean Code Advocate' })\ntest('h3.assistive-text Main menu', {type: 'tag', name: 'h3', classes: ['assistive-text'], val: 'Main menu' })\ntest('ul#menu-header.menu', {type: 'tag', name: 'ul', id: 'menu-header', classes: ['menu']})\ntest('a(href=\\'https://wordpress.adamkoch.com/posts/\\') Posts', {type: 'tag', name: 'a', attrs: ['href=\\'https://wordpress.adamkoch.com/posts/\\''], val: 'Posts'})\ntest('span.sep  by', {type:'tag', name: 'span', classes: ['sep'], val: ' by' })\ntest('style.', {\"type\":\"tag\",\"name\":\"style\",\"state\":\"TEXT_START\"})\ntest('p I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I\\'ll just call the', {\n  type: 'tag',\n  name: 'p',\n  val: \"I came across a problem in Internet Explorer (it wasn't a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I'll just call the\"\n})\ntest('.sd-content', { type: 'tag', classes: [ 'sd-content' ] })\ntest('th  Browser', { type: 'tag', name: 'th', val: ' Browser' })\ntest('.sharedaddy.sd-sharing-enabled', {\"type\":\"tag\",\"classes\":['sharedaddy', 'sd-sharing-enabled']})\ntest('time(datetime=\\'2009-07-28T01:24:04-06:00\\') 2009-07-28 at 1:24 AM', { type: 'tag', name: 'time', attrs: ['datetime=\\'2009-07-28T01:24:04-06:00\\''], val: '2009-07-28 at 1:24 AM'} )\ntest('- var title = \\'Fade Out On MouseOver Demo\\'', { type: 'code', val: 'var title = \\'Fade Out On MouseOver Demo\\'', state: 'CODE_START' })\ntest('<TEXT>}).join(\\' \\')', { type: 'text', val: \"}).join(' ')\" })\ntest('  ', {\n  type: 'empty'\n})\ntest('#content(role=\\'main\\')', { type: 'tag', id: 'content', attrs: ['role=\\'main\\'']})\ntest('pre: code(class=\"language-scss\").', { type: 'tag', name: 'pre', children: [ { type: 'tag', name: 'code', attrs: ['class=\"language-scss\"'], state: 'TEXT_START'} ], state: 'NESTED'})\n\ntest('mixin sensitive()', { type: 'pug_keyword', name: 'mixin', val: 'sensitive()' })\ntest('extends ../templates/blogpost', {\n  name: 'extends',\n  type: 'pug_keyword',\n  val: '../templates/blogpost'\n})\ntest('append head', {\n  name: 'append',\n  type: 'pug_keyword',\n  val: 'head'\n})\ntest('p Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.', {type: 'tag', name: 'p', val: 'Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.' })\n\ntest('+project(\\'Images\\', \\'On going\\')', {\n  attrs: [\n    \"'Images', 'On going'\"\n  ],\n  type: 'mixin_call',\n  name: 'project'\n})\ntest(\"+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])\", {\n  attrs: [\n    \"'Moddable Two (2) Case', 'Needing Documentation ', ['print']\"\n  ],\n  type: 'mixin_call',\n  name: 'project'\n})\ntest('| . The only \"gotcha\" was I originally had \"www.adamkoch.com\" as the A record instead of \"adamkoch.com\". Not a big deal and easy to rectify.', { type: 'text', val: '. The only \"gotcha\" was I originally had \"www.adamkoch.com\" as the A record instead of \"adamkoch.com\". Not a big deal and easy to rectify.' })\ntest('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {\"type\":\"text\",\"val\":\"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;\" })\n\n// test('- ', { type: 'code', val: ' ', state: 'UNBUF_CODE_START' })\ntest('- ', { type: 'code', state: 'CODE_START' })\n\ntest('mixin project(title)', {\n  name: 'mixin',\n  type: 'pug_keyword',\n  val: 'project(title)'\n})\ntest('+code(\\'Pretty-print any JSON file\\') jq \\'.\\' package.json',\n{\n  attrs: [\n    \"'Pretty-print any JSON file'\"\n  ],\n  name: 'code',\n  type: 'mixin_call',\n  val: \"jq '.' package.json\"\n} )\ntest('// comment', {\n  state: 'TEXT_START',\n  type: 'comment',\n  val: ' comment'\n})\ntest('meta(property=\\'og:description\\' content=\\'I came across a problem in Internet Explorer (it wasn\\\\\\'t a problem with Firefox) when I...\\')',  {\n  type: 'tag',\n  name: 'meta',\n  attrs: [\"property=\\'og:description' content='I came across a problem in Internet Explorer (it wasn\\\\'t a problem with Firefox) when I...'\"]\n})\n\ntest('-', {\n  type: 'code',\n  state: 'CODE_START'\n})\n\n// test(' -', {\n//   state: 'UNBUF_CODE_START',\n//   type: 'code',\n//   val: ''\n// })\n\ntest('<UNBUF_CODE>var i', {\n  type: 'code',\n  val: 'var i'\n})\n\ntest(\"link(rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; White-space and character 160 Comments Feed' href='https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/')\", {\n  attrs: [\n    \"rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; White-space and character 160 Comments Feed' href='https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/'\"\n  ],\n  name: 'link',\n  type: 'tag'\n})\n\ntest('pre.', {\n  name: 'pre',\n  state: 'TEXT_START',\n  type: 'tag'\n})\n\ntest('pre: code.', {\n  children: [\n    {\n      name: 'code',\n      state: 'TEXT_START',\n      type: 'tag'\n    }\n  ],\n  name: 'pre',\n  state: 'NESTED',\n  type: 'tag'\n})\n\ntest('|. The only \"gotcha\" was I originally had \"www.adamkoch.com\" as the A record instead of \"adamkoch.com\". Not a big deal and easy to rectify.', { type: 'text', val: '. The only \"gotcha\" was I originally had \"www.adamkoch.com\" as the A record instead of \"adamkoch.com\". Not a big deal and easy to rectify.' })\n\ntest('.rule: p.', {\n  children: [\n    {\n      name: 'p',\n      type: 'tag',\n      state: 'TEXT_START'\n    }\n  ],\n  classes: ['rule'],\n  state: 'NESTED',\n  type: 'tag'\n})\ntest('.rule.unratified: p.', {\n  children: [\n    {\n      name: 'p',\n      type: 'tag',\n      state: 'TEXT_START'\n    }\n  ],\n  classes: ['rule', 'unratified'],\n  state: 'NESTED',\n  type: 'tag'\n})\n\ntest(\"style(id='wp-block-library-inline-css' type='text/css'). \", {\n  attrs: [\n    \"id='wp-block-library-inline-css' type='text/css'\"\n  ],\n  name: 'style',\n  state: 'TEXT_START',\n  type: 'tag'\n})\n\ntest('|', {\n  type: 'empty'\n})\ntest('.', { state: 'TEXT_START' })\n\ntry {\n  test(\"tag\", { type: 'unknown', name: 'tag' })\nthrow AssertionError('Expected exception')\n} catch (e) {}\n\n};\n\n",
+  "ebnf": {
+    "start": [
+      "EOF",
+      "line EOF",
+      [
+        "MULTI_LINE_ATTRS_END EOF",
+        "\n    $$ = { type: 'MULTI_LINE_ATTRS_END' }\n  "
+      ]
+    ],
+    "line": [
+      "line_start",
+      [
+        "line_start TEXT",
+        "\n    $$ = merge($line_start, { type: 'text', val: $TEXT })\n  "
+      ],
+      [
+        "line_start CODE",
+        "\n    $$ = merge($line_start, { type: 'code', val: $CODE })\n  "
+      ],
+      [
+        "line_start line_splitter line_end",
+        "\n    $$ = merge($line_start, [$line_splitter, $line_end])\n  "
+      ],
+      [
+        "line_start NESTED_TAG_START line",
+        "\n    $$ = merge($line_start, { state: 'NESTED', children: [$line] })\n  "
+      ],
+      [
+        "ATTR_TEXT_END",
+        "\n    $$ = { type: 'multiline_attrs_end' }\n  "
+      ]
+    ],
+    "line_start": [
+      "first_token",
+      [
+        "first_token tag_part",
+        "\n    $$ = merge($first_token, $tag_part)\n  "
+      ],
+      [
+        "first_token attrs",
+        "\n    $$ = merge($first_token, $attrs)\n  "
+      ],
+      [
+        "first_token LPAREN ATTR_TEXT_CONT?",
+        "\n    $$ = merge($first_token, { type: 'tag_with_multiline_attrs', state: 'MULTI_LINE_ATTRS' })\n    if ($3) {\n      $$ = merge($first_token, { type: 'tag_with_multiline_attrs', attrs: [$3] })\n    }\n  "
+      ],
+      [
+        "first_token tag_part LPAREN ATTR_TEXT_CONT",
+        "\n    $$ = merge($first_token, [$tag_part, $ATTR_TEXT_CONT])\n  "
+      ],
+      [
+        "first_token tag_part attrs",
+        "\n    $$ = merge($first_token, [$tag_part, $attrs])\n  "
+      ],
+      [
+        "ATTR_TEXT",
+        "\n    $$ = { type: 'attrs_cont', attrs: [$ATTR_TEXT] }\n  "
+      ]
+    ],
+    "first_token": [
+      [
+        "TAG",
+        "\n    $$ = { name: $TAG, type: 'tag' }\n  "
+      ],
+      [
+        "TEXT_TAG",
+        "\n    $$ = { name: $TEXT_TAG, type: 'tag', state: 'TEXT_START' }\n  "
+      ],
+      [
+        "CLASSNAME",
+        "\n    $$ = { type: 'tag', classes: [$1] }\n  "
+      ],
+      [
+        "TAG_ID",
+        "\n    $$ = { type: 'tag', id: $TAG_ID }\n  "
+      ],
+      [
+        "TEXT",
+        "\n    $$ = { type: 'text', val: $TEXT }\n  "
+      ],
+      [
+        "COMMENT",
+        "\n    $$ = { type: 'comment', state: 'TEXT_START' }\n  "
+      ],
+      [
+        "CODE_START",
+        "\n    debug('CODE_START')\n    $$ = { type: 'code', state: 'CODE_START' }\n  "
+      ],
+      [
+        "CODE",
+        "\n    $$ = { type: 'code', val: $CODE }\n  "
+      ],
+      [
+        "MIXIN_CALL",
+        "\n    debug('MIXIN_CALL=', $1)\n    $$ = { type: 'mixin_call', name: $1 }\n  "
+      ],
+      [
+        "PUG_KEYWORD",
+        "\n    $$ = { type: 'pug_keyword', name: $PUG_KEYWORD }\n  "
+      ],
+      [
+        "PIPE",
+        "\n    $$ = { type: 'text' }\n  "
+      ],
+      [
+        "RCURLY",
+        "\n    $$ = { type: 'block_end' }\n  "
+      ],
+      [
+        "DOT_END",
+        "\n    debug('line: DOT_END')\n    $$ = { state: 'TEXT_START' }\n  "
+      ],
+      [
+        "SPACE",
+        "\n    $$ = {type: 'empty'}\n  "
+      ],
+      [
+        "CONDITIONAL",
+        "\n    $$ = { type: 'conditional', name: $CONDITIONAL }\n  "
+      ],
+      [
+        "INTERPOLATION",
+        "\n    $$ = { type: 'interpolation', name: $INTERPOLATION }\n  "
+      ],
+      [
+        "INTERPOLATION_START",
+        "\n    $$ = { type: 'interpolation_start', state: 'INTERPOLATION_START' }\n  "
+      ]
+    ],
+    "tag_part": [
+      [
+        "TAG_ID",
+        "\n    $$ = { id: $TAG_ID }\n  "
+      ],
+      [
+        "TAG_ID classnames",
+        "\n    $$ = merge({ id: $TAG_ID }, $classnames)\n  "
+      ],
+      "classnames",
+      [
+        "classnames TAG_ID",
+        "\n    $$ = merge({ id: $TAG_ID }, $classnames)\n  "
+      ],
+      [
+        "PUG_FILTER",
+        "\n    $$ = { filter: $PUG_FILTER }\n  "
+      ]
+    ],
+    "attrs": [
+      [
+        "LPAREN ATTR_TEXT RPAREN",
+        "\n    $$ = { attrs: [$2] }\n  "
+      ],
+      [
+        "LPAREN CONDITION RPAREN",
+        "\n    $$ = { condition: $2 }\n  "
+      ]
+    ],
+    "classnames": [
+      [
+        "CLASSNAME+",
+        "\n    $$ = { type: 'tag', classes: $1 }\n  "
+      ]
+    ],
+    "line_end": [
+      [
+        "",
+        "\n    debug('line_end: <blank>')\n  "
+      ],
+      [
+        "DOT_END",
+        "\n    debug('line_end: DOT_END')\n    $$ = { state: 'TEXT_START' }\n  "
+      ],
+      [
+        "ASSIGNMENT_VALUE",
+        "\n    $$ = { assignment_val: $ASSIGNMENT_VALUE }\n  "
+      ],
+      [
+        "ATTR_TEXT_CONT",
+        "\n    $$ = { attrscont: [$1] }\n  "
+      ],
+      [
+        "TEXT",
+        "\n    $$ = { type: 'text', val: $TEXT }\n  "
+      ],
+      [
+        "CODE",
+        "\n    $$ = { type: 'code', val: $CODE }\n  "
+      ],
+      [
+        "RPAREN",
+        "\n    $$ = { type: 'text', val: $RPAREN }\n  "
+      ]
+    ],
+    "line_splitter": [
+      [
+        "SPACE",
+        "\n    debug('line_splitter: SPACE')\n    $$ = undefined\n  "
+      ],
+      [
+        "ASSIGNMENT",
+        "\n    $$ = { assignment: true }\n  "
+      ],
+      [
+        "DOT_END",
+        "\n    debug('line_splitter: DOT_END')\n    $$ = { state: 'TEXT_START' }\n  "
+      ],
+      "RPAREN"
+    ]
+  },
+  "bnf": {
+    "start": [
+      "EOF",
+      "line EOF",
+      [
+        "MULTI_LINE_ATTRS_END EOF",
+        "\n    $$ = { type: 'MULTI_LINE_ATTRS_END' }\n  "
+      ]
+    ],
+    "line": [
+      "line_start",
+      [
+        "line_start TEXT",
+        "\n    $$ = merge($line_start, { type: 'text', val: $TEXT })\n  "
+      ],
+      [
+        "line_start CODE",
+        "\n    $$ = merge($line_start, { type: 'code', val: $CODE })\n  "
+      ],
+      [
+        "line_start line_splitter line_end",
+        "\n    $$ = merge($line_start, [$line_splitter, $line_end])\n  "
+      ],
+      [
+        "line_start NESTED_TAG_START line",
+        "\n    $$ = merge($line_start, { state: 'NESTED', children: [$line] })\n  "
+      ],
+      [
+        "ATTR_TEXT_END",
+        "\n    $$ = { type: 'multiline_attrs_end' }\n  "
+      ]
+    ],
+    "line_start": [
+      "first_token",
+      [
+        "first_token tag_part",
+        "\n    $$ = merge($first_token, $tag_part)\n  "
+      ],
+      [
+        "first_token attrs",
+        "\n    $$ = merge($first_token, $attrs)\n  "
+      ],
+      [
+        "first_token LPAREN line_start_option",
+        "\n    $$ = merge($first_token, { type: 'tag_with_multiline_attrs', state: 'MULTI_LINE_ATTRS' })\n    if ($3) {\n      $$ = merge($first_token, { type: 'tag_with_multiline_attrs', attrs: [$3] })\n    }\n  "
+      ],
+      [
+        "first_token tag_part LPAREN ATTR_TEXT_CONT",
+        "\n    $$ = merge($first_token, [$tag_part, $ATTR_TEXT_CONT])\n  "
+      ],
+      [
+        "first_token tag_part attrs",
+        "\n    $$ = merge($first_token, [$tag_part, $attrs])\n  "
+      ],
+      [
+        "ATTR_TEXT",
+        "\n    $$ = { type: 'attrs_cont', attrs: [$ATTR_TEXT] }\n  "
+      ]
+    ],
+    "first_token": [
+      [
+        "TAG",
+        "\n    $$ = { name: $TAG, type: 'tag' }\n  "
+      ],
+      [
+        "TEXT_TAG",
+        "\n    $$ = { name: $TEXT_TAG, type: 'tag', state: 'TEXT_START' }\n  "
+      ],
+      [
+        "CLASSNAME",
+        "\n    $$ = { type: 'tag', classes: [$1] }\n  "
+      ],
+      [
+        "TAG_ID",
+        "\n    $$ = { type: 'tag', id: $TAG_ID }\n  "
+      ],
+      [
+        "TEXT",
+        "\n    $$ = { type: 'text', val: $TEXT }\n  "
+      ],
+      [
+        "COMMENT",
+        "\n    $$ = { type: 'comment', state: 'TEXT_START' }\n  "
+      ],
+      [
+        "CODE_START",
+        "\n    debug('CODE_START')\n    $$ = { type: 'code', state: 'CODE_START' }\n  "
+      ],
+      [
+        "CODE",
+        "\n    $$ = { type: 'code', val: $CODE }\n  "
+      ],
+      [
+        "MIXIN_CALL",
+        "\n    debug('MIXIN_CALL=', $1)\n    $$ = { type: 'mixin_call', name: $1 }\n  "
+      ],
+      [
+        "PUG_KEYWORD",
+        "\n    $$ = { type: 'pug_keyword', name: $PUG_KEYWORD }\n  "
+      ],
+      [
+        "PIPE",
+        "\n    $$ = { type: 'text' }\n  "
+      ],
+      [
+        "RCURLY",
+        "\n    $$ = { type: 'block_end' }\n  "
+      ],
+      [
+        "DOT_END",
+        "\n    debug('line: DOT_END')\n    $$ = { state: 'TEXT_START' }\n  "
+      ],
+      [
+        "SPACE",
+        "\n    $$ = {type: 'empty'}\n  "
+      ],
+      [
+        "CONDITIONAL",
+        "\n    $$ = { type: 'conditional', name: $CONDITIONAL }\n  "
+      ],
+      [
+        "INTERPOLATION",
+        "\n    $$ = { type: 'interpolation', name: $INTERPOLATION }\n  "
+      ],
+      [
+        "INTERPOLATION_START",
+        "\n    $$ = { type: 'interpolation_start', state: 'INTERPOLATION_START' }\n  "
+      ]
+    ],
+    "tag_part": [
+      [
+        "TAG_ID",
+        "\n    $$ = { id: $TAG_ID }\n  "
+      ],
+      [
+        "TAG_ID classnames",
+        "\n    $$ = merge({ id: $TAG_ID }, $classnames)\n  "
+      ],
+      "classnames",
+      [
+        "classnames TAG_ID",
+        "\n    $$ = merge({ id: $TAG_ID }, $classnames)\n  "
+      ],
+      [
+        "PUG_FILTER",
+        "\n    $$ = { filter: $PUG_FILTER }\n  "
+      ]
+    ],
+    "attrs": [
+      [
+        "LPAREN ATTR_TEXT RPAREN",
+        "\n    $$ = { attrs: [$2] }\n  "
+      ],
+      [
+        "LPAREN CONDITION RPAREN",
+        "\n    $$ = { condition: $2 }\n  "
+      ]
+    ],
+    "classnames": [
+      [
+        "classnames_repetition_plus",
+        "\n    $$ = { type: 'tag', classes: $1 }\n  "
+      ]
+    ],
+    "line_end": [
+      [
+        "",
+        "\n    debug('line_end: <blank>')\n  "
+      ],
+      [
+        "DOT_END",
+        "\n    debug('line_end: DOT_END')\n    $$ = { state: 'TEXT_START' }\n  "
+      ],
+      [
+        "ASSIGNMENT_VALUE",
+        "\n    $$ = { assignment_val: $ASSIGNMENT_VALUE }\n  "
+      ],
+      [
+        "ATTR_TEXT_CONT",
+        "\n    $$ = { attrscont: [$1] }\n  "
+      ],
+      [
+        "TEXT",
+        "\n    $$ = { type: 'text', val: $TEXT }\n  "
+      ],
+      [
+        "CODE",
+        "\n    $$ = { type: 'code', val: $CODE }\n  "
+      ],
+      [
+        "RPAREN",
+        "\n    $$ = { type: 'text', val: $RPAREN }\n  "
+      ]
+    ],
+    "line_splitter": [
+      [
+        "SPACE",
+        "\n    debug('line_splitter: SPACE')\n    $$ = undefined\n  "
+      ],
+      [
+        "ASSIGNMENT",
+        "\n    $$ = { assignment: true }\n  "
+      ],
+      [
+        "DOT_END",
+        "\n    debug('line_splitter: DOT_END')\n    $$ = { state: 'TEXT_START' }\n  "
+      ],
+      "RPAREN"
+    ],
+    "line_start_option": [
+      [
+        "",
+        "$$ = undefined;"
+      ],
+      [
+        "ATTR_TEXT_CONT",
+        "$$ = $1;"
+      ]
+    ],
+    "classnames_repetition_plus": [
+      [
+        "CLASSNAME",
+        "$$ = [$1];"
+      ],
+      [
+        "classnames_repetition_plus CLASSNAME",
+        "$1.push($2);\n$$ = $1;"
+      ]
+    ]
+  }
+}
