@@ -887,7 +887,7 @@ case 2:
 case 3:
     /*! Production::    start : MULTI_LINE_ATTRS_END EOF */
 
-    this.$ = { type: 'MULTI_LINE_ATTRS_END' }
+    this.$ = { state: 'MULTI_LINE_ATTRS_END' }
     break;
 
 case 5:
@@ -4570,7 +4570,7 @@ parser.main = function () {
 
 
 test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
-test('include:markdown-it article.md', { type: 'include', target: 'article.md', filter: 'markdown-it' })
+test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it' })
 test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
 test("#{'foo'}(bar='baz') /", {
   attrs: [
@@ -4588,7 +4588,7 @@ test('li= item', {
   type: 'tag'
 })
 test('<MULTI_LINE_ATTRS_END>)', {
-  type: 'MULTI_LINE_ATTRS_END'
+  state: 'MULTI_LINE_ATTRS_END'
 })
 // test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {})
 
@@ -4831,7 +4831,7 @@ test('doctype html', { type: 'doctype', val: 'html' })
 test("html(lang='en-US')", {"type":"tag","name":"html","attrs":["lang='en-US'"]})
 
 // test("include something", { type: 'include_directive', params: 'something' })
-test('include something', { type: 'include', target: 'something' })
+test('include something', { type: 'include', val: 'something' })
 
 // test("block here", { type: 'directive', name: 'block', params: 'here' })
 test("block here", { type: 'block', val: 'here' })

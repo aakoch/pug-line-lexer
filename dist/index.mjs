@@ -886,7 +886,7 @@ case 2:
 case 3:
     /*! Production::    start : MULTI_LINE_ATTRS_END EOF */
 
-    this.$ = { type: 'MULTI_LINE_ATTRS_END' }
+    this.$ = { state: 'MULTI_LINE_ATTRS_END' }
     break;
 
 case 5:
@@ -4587,7 +4587,7 @@ test('li= item', {
   type: 'tag'
 })
 test('<MULTI_LINE_ATTRS_END>)', {
-  type: 'MULTI_LINE_ATTRS_END'
+  state: 'MULTI_LINE_ATTRS_END'
 })
 // test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {})
 
