@@ -1,4 +1,6 @@
 #! zsh
-npx jison -o build/inline.cjs --main src/inline.jison
+node src/replace.js inline.jison common
 
-DEBUG='pug-line-lexer:inline' node build/inline.cjs
+npx jison -o dist/inline.cjs --main build/inline.jison
+
+DEBUG='pug-line-lexer:inline' node dist/inline.cjs
