@@ -376,9 +376,8 @@
  *  }
  */
 
-        
-    
-            var index = (function () {
+
+
 
 
 // See also:
@@ -562,7 +561,7 @@ var parser = {
     //   parser table compression mode: ... 2
     //   export debug tables: ............. false
     //   export *all* tables: ............. false
-    //   module type: ..................... commonjs
+    //   module type: ..................... es
     //   parser engine type: .............. lalr
     //   output main() in the module: ..... false
     //   has user-specified main(): ....... false
@@ -4480,11 +4479,11 @@ EOF: 1,
 }();
 parser.lexer = lexer;
 
-var assert = require("assert");
-var util = require("util");
-var _ = require("lodash");
-var debugFunc = require('debug')
-const dyp = require('dyp');
+import assert from "assert"
+import util from "util"
+import _ from "lodash"
+import debugFunc from 'debug'
+import dyp from 'dyp'
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
 
@@ -5045,32 +5044,14 @@ throw AssertionError('Expected exception')
 
 };
 
-function Parser() {
-  this.yy = {};
-}
-Parser.prototype = parser;
-parser.Parser = Parser;
-
-return new Parser();
-})();
-
-        
 
 
-if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-  exports.parser = index;
-  exports.Parser = index.Parser;
-  exports.parse = function () {
-    return index.parse.apply(index, arguments);
-  };
-  
+
+import fs from 'fs'
+import path from 'path';
 
 
-var fs = require('fs');
-var path = require('path');
-
-
-exports.main = function (args) {
+var yymain = function (args) {
     // When the parser comes with its own `main` function, then use that one:
     if (typeof exports.parser.main === 'function') {
       return exports.parser.main(args);
@@ -5096,10 +5077,33 @@ exports.main = function (args) {
     return dst;
 };
 
+function yyExecMain() {
+  yymain(process.argv.slice(1));
+}
+
+
+function Parser() {
+    this.yy = {};
+}
+Parser.prototype = parser;
+parser.Parser = Parser;
+
+function yyparse() {
+    return parser.parse.apply(parser, arguments);
+}
+
+
 // IFF this is the main module executed by NodeJS,
 // then run 'main()' immediately:
 if (typeof module !== 'undefined' && require.main === module) {
-  exports.main(process.argv.slice(1));
+  yyExecMain();
 }
 
-}
+
+export default {
+    parser,
+    Parser,
+    parse: yyparse,
+    main: yyExecMain,
+};
+

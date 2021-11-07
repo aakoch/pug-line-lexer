@@ -2,10 +2,10 @@
 
 Parses one line at a time. To be used by pug-lexing-transformer.
 
-## Build
+## Incremental build / WIP
 
 ```shell
-npm run build
+./rebuild.sh
 ```
 
 ## Test
@@ -14,9 +14,15 @@ npm run build
 npm run test
 ```
 
+## Build for deployment
+
+```shell
+npm run build
+```
+
 ## Roundtrip from Pug -> AST -> Pug (can't do include yet)
 npx jison -o build/indent.cjs --main src/indent.jison && node build/indent.cjs 404.pug -o temp.out
-node child_writer.js temp.out
+node writer.js temp.out
 sdiff -s rewrite.pug 404.pug
 
 

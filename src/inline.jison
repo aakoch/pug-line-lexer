@@ -9,11 +9,9 @@
 // NUM         ([1-9][0-9]+|[0-9])
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 tag_name              (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
-pug_tag_start         #\[(a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
 html_tag_end             \<\/\w+\>
 pug_tag_end             \]
-word                    \w
 dot                     \.
 
 %x AFTER_TAG_START
@@ -44,13 +42,15 @@ dot                     \.
   debug('30 this.matches=', this.matches)
   debug('yytext = ' + yytext)
   debug('tags = ' + tags)
-  if (this.matches[1] == tags.pop()) {
+  const expectedTag = tags.pop();
+  if (this.matches[1] == expectedTag) {
     debug('inside')
     this.popState()
                                           return 'TAG_END';
   }
   else {
-    this.unput(this.matches.input)
+    //this.unput()
+    throw new Error(`Ending tag "${this.matches.input}" didn't match start "${expectedTag}"`)
   }
   // yytext = yytext.substring(1, yytext.length - 1)
   // tags.push(yytext)
@@ -64,7 +64,7 @@ dot                     \.
 //   }
 //                                           return 'TAG_END';
 // %}
-{pug_tag_start}{space}
+'#['{tag_name}{space}
 %{
   this.pushState('AFTER_TAG_START_END');
   yytext = yytext.substring(2, yytext.length - 1)
@@ -79,7 +79,7 @@ dot                     \.
 %{
                                           return 'SPACE';
 %}
-<INITIAL>{word}+
+<INITIAL>\w+
 %{
                                           return 'WORD';
 %}
@@ -87,9 +87,13 @@ dot                     \.
 %{
                                           return 'WORD';
 %}
-<AFTER_TAG_START_END>{word}+
+<AFTER_TAG_START_END>\w+
 %{
                                           return 'WORD';
+%}
+<AFTER_TAG_START_END>[,]+
+%{
+                                          return 'PUNC';
 %}
 <<EOF>>                                   return 'EOF';
 
@@ -147,6 +151,9 @@ words
   {
     $$ = [$word]
   }
+  // {
+  //   $$ = [{ type: 'text', val: $PUNC }]
+  // }
   ;
 
 word
@@ -178,6 +185,11 @@ word
     debug('WORD: WORD=', $WORD)
     $$ = [$WORD]
   }
+  | PUNC
+  {
+    debug('PUNC: PUNC=', $PUNC)
+    $$ = [$PUNC]
+  }
   ;
 
 line_parts
@@ -188,9 +200,9 @@ line_parts
 tag
   : opening_tag line_part TAG_END
   {
-    debug('TAG_START line_part TAG_END: TAG_START=', $opening_tag, ', line_part=', $line_part)
+    debug('opening_tag line_part TAG_END: opening_tag=', $opening_tag, ', line_part=', $line_part)
     if ($line_part.type === 'text') {
-      $$ = { type: 'tag', name: $opening_tag, val: $line_part.val }
+      $$ = { type: 'tag', name: $opening_tag, children: [$line_part] }
     }
     else {
       $$ = { type: 'tag', name: $opening_tag, val: $line_part }
@@ -198,13 +210,13 @@ tag
   }
   | opening_tag line_part line_parts TAG_END
   {
-    debug('TAG_START line_part line_parts TAG_END: TAG_START=', $opening_tag, ', line_part=', $line_part, ', line_parts=', $line_parts)
-    if ($line_part.type === 'text') {
-      $$ = { type: 'tag', name: $opening_tag, val: $line_part.val }
-    }
-    else {
-      $$ = { type: 'tag', name: $opening_tag, val: $line_part }
-    }
+    debug('opening_tag line_part line_parts TAG_END: opening_tag=', $opening_tag, ', line_part=', $line_part, ', line_parts=', $line_parts)
+    // if ($line_part.type === 'text') {
+    //   $$ = { type: 'tag', name: $opening_tag, children: [$line_part] }
+    // }
+    // else {
+      $$ = { type: 'tag', name: $opening_tag, children: [$line_part, $line_parts] }
+    // }
   }
   | opening_tag TAG_END
   {
@@ -221,11 +233,7 @@ opening_tag
   ;
 
 %% 
-var assert = require("assert");
-var util = require("util");
-var _ = require("lodash");
-var debugFunc = require('debug')
-const dyp = require('dyp');
+__module_imports__
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
 
@@ -301,13 +309,16 @@ parser.main = function () {
     lparenOpen = false
     debug(`\nTesting '${input}'...`)
     var actual = parser.parse(input)
-    debug(input + ' ==> ', util.inspect(actual))
+    debug(input + ' ==> ', util.inspect(actual, false, 8))
     
     let compareFunc
     if (strict)
       compareFunc = assert.deepEqual
     else 
       compareFunc = dyp
+
+    // fs.writeFileSync('actual.json', JSON.stringify(actual))
+    // fs.writeFileSync('expected.json', JSON.stringify(expected))
 
     compareFunc.call({}, actual, expected)
   }
@@ -325,26 +336,109 @@ test('<div></div>a', [
   }
 ])
 
-// test('A sentence with a <span><strong>strongly</strong> worded phrase</span> that cannot be <em>ignored</em>.', [
-//     { type: 'text', val: 'A sentence with a ' },
-//     { type: 'tag', name: 'strong', val: 'strongly worded phrase' },
-//     { type: 'text', val: ' that cannot be ' },
-//     { type: 'tag', name: 'em', val: 'ignored' },
-//     { type: 'text', val: '.' }
-//   ])
+test('A sentence with a <span><strong>strongly</strong> worded phrase</span> that cannot be <em>ignored</em>.', [
+    { type: 'text', val: 'A sentence with a ' },
+    { type: 'tag', name: 'span', children: [{ type: 'tag', name: 'strong', children: [{ type: 'text', val: 'strongly' }]}, 
+                                            { type: 'text', val: ' worded phrase' }] },
+    { type: 'text', val: ' that cannot be ' },
+    { type: 'tag', name: 'em', children: [{ type: 'text', val: 'ignored' }] },
+    { type: 'text', val: '.' }
+  ])
+test('1A sentence with a <span><strong>strongly </strong>worded phrase</span> that cannot be <em>ignored</em>.', [
+  {"type": "text", "val": "1A sentence with a "},
+  {"type": "tag", "name": "span", "children": [{"type": "tag", "name": "strong", "children": [{"type": "text", "val": "strongly "}]}, {"type": "text", "val": "worded phrase"}]},
+  {"type": "text", "val": " that cannot be "},
+  {"type": "tag", "name": "em", "children": [{"type": "text", "val": "ignored"}]},
+  {"type": "text", "val": "."}
+])
+test(
+  '2A sentence with a <span><strong>strongly, <em>italicized</em></strong>worded phrase</span> that cannot be <em>ignored</em>.',
+  [{
+      type: 'text',
+      val: '2A sentence with a '
+    }, {
+      type: 'tag',
+      name: 'span',
+      children: [{
+          type: 'tag',
+          name: 'strong',
+          children: [{
+              type: 'text',
+              val: 'strongly, '
+            }, {
+              type: 'tag',
+              name: 'em',
+              children: [{
+                  type: 'text',
+                  val: 'italicized'
+                }
+              ]
+            }
+          ]
+        }, {
+          type: 'text',
+          val: 'worded phrase'
+        }
+      ]
+    }, {
+      type: 'text',
+      val: ' that cannot be '
+    }, {
+      type: 'tag',
+      name: 'em',
+      children: [{
+          type: 'text',
+          val: 'ignored'
+        }
+      ]
+    }, {
+      type: 'text',
+      val: '.'
+    }
+  ])
+test('3A sentence with a <span><strong>strongly </strong>worded phrase</span> that cannot be <em>ignored</em>.', [
+  { type: "text", val: "3A sentence with a " },
+  {
+    type: "tag",
+    name: "span",
+    children: [
+      {
+        type: "tag",
+        name: "strong",
+        children: [ { type: "text", val: "strongly " } ]
+      },
+      { type: "text", val: "worded phrase" }
+    ]
+  },
+  { type: "text", val: " that cannot be " },
+  {
+    type: "tag",
+    name: "em",
+    children: [ { type: "text", val: "ignored" } ]
+  },
+  { type: "text", val: "." }
+])
 test('A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', [
     { type: 'text', val: 'A sentence with a ' },
-    { type: 'tag', name: 'strong', val: 'strongly worded phrase' },
+    { type: 'tag', name: 'strong', children: [{ type: 'text', val: 'strongly worded phrase' }] },
     { type: 'text', val: ' that cannot be ' },
-    { type: 'tag', name: 'em', val: 'ignored' },
+    { type: 'tag', name: 'em', children: [{ type: 'text', val: 'ignored' }] },
     { type: 'text', val: '.' }
   ])
 test('A sentence with a <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>.', [
     { type: 'text', val: 'A sentence with a ' },
-    { type: 'tag', name: 'strong', val: 'strongly worded phrase' },
+    { type: 'tag', name: 'strong', children: [{ type: 'text', val: 'strongly worded phrase' }] },
     { type: 'text', val: ' that cannot be ' },
-    { type: 'tag', name: 'em', val: 'ignored' },
+    { type: 'tag', name: 'em', children: [{ type: 'text', val: 'ignored' }] },
     { type: 'text', val: '.' }
   ])
+
+try {
+  test('<div></span>')
+  assert.fail('Should have thrown an error')
+} catch (ignore) {
+  assert.equal(ignore.message, `Ending tag "</span>" didn't match start "div"`)
+}
+
 };
 

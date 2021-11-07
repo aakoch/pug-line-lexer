@@ -1,5 +1,5 @@
 {
-  "name": "@aakoch/pug-line-parser",
+  "name": "pug-line-parser",
   "version": "0.1.0",
   "description": "Jison generated Pug parser",
   "main": "dist/index.cjs",
@@ -8,10 +8,10 @@
   "license": "MIT",
   "scripts": {
     "test_es": "npm run build_es && DEBUG='pug-line-lexer' node dist/index.mjs",
-    "build_es": "node src/replace.js es && npx jison -o dist/index.mjs -m es --main build/index.jison && node src/replace2.js",
+    "build_es": "scripts/build_es.sh",
     "test_common": "npm run build_common && DEBUG='pug-line-lexer' node dist/index.cjs",
-    "build_common": "node src/replace.js common && npx jison -o dist/index.cjs --main build/index.jison",
-    "build": "npm run build_es && npm run build_common",
+    "build_common": "scripts/build_common.js",
+    "build": "scripts/build.sh",
     "watch": "fswatch -0ou src/index.jison | xargs -t -0 -n1 /bin/zsh -c $PWD/rebuild.sh"
   },
   "dependencies": {

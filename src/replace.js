@@ -11,7 +11,10 @@ const __dirname = path.dirname(__filename);
 const buildDirectoryPath = path.resolve(path.normalize(path.join(__dirname, '../build')))
 debug('Creating build directory ' + buildDirectoryPath)
 fs.mkdirSync(buildDirectoryPath, {recursive:true})
-const inFileName = 'index.jison';
+const inFileName = process.argv[2];
+debug('Input file=' + inFileName)
+const moduleOpt = argv[3];
+debug('Module=' + moduleOpt)
 
 let toFilename
 try {
@@ -25,15 +28,15 @@ try {
 }
 
 let moduleFilename
-if (argv[2] == 'es') {
+if (moduleOpt == 'es') {
   debug('Replacing imports with ES-specific ones')
   moduleFilename = path.resolve(__dirname, "es.js")
 }
-else if (argv[2] == 'common') {
+else if (moduleOpt == 'common') {
   debug('Replacing imports with CommonJS-specific ones')
   moduleFilename = path.resolve(__dirname, "common.js")
 }
-else if (argv[2] == '') {
+else if (moduleOpt == '') {
   console.error('Missing module type es|common')
   process.exit(1)
 }
@@ -50,4 +53,7 @@ const options = {
   to: fileContents,
 };
 
-replace(options).then(() => debug('Complete'))
+debug('Replacing contents in ' + toFilename)
+replace(options).then((e) => {
+  debug('Complete')
+})

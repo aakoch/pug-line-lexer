@@ -378,7 +378,7 @@
 
         
     
-            var index = (function () {
+            var main = (function () {
 
 
 // See also:
@@ -5058,10 +5058,10 @@ return new Parser();
 
 
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-  exports.parser = index;
-  exports.Parser = index.Parser;
+  exports.parser = main;
+  exports.Parser = main.Parser;
   exports.parse = function () {
-    return index.parse.apply(index, arguments);
+    return main.parse.apply(main, arguments);
   };
   
 
