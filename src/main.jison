@@ -706,8 +706,8 @@ test('span(v-for="item in items" :key="item.id" :value="item.name")', {
   type: 'tag',
   attrs: [ 'v-for="item in items" :key="item.id" :value="item.name"' ]
 })
-test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {})
-test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {})
+// test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {})
+// test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {})
 
 test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
 test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it' })
