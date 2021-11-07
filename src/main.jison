@@ -701,7 +701,11 @@ parser.main = function () {
   }
 
 
-test('span(v-for="item in items" :key="item.id" :value="item.name")', {})
+test('span(v-for="item in items" :key="item.id" :value="item.name")', {
+  name: 'span',
+  type: 'tag',
+  attrs: [ 'v-for="item in items" :key="item.id" :value="item.name"' ]
+})
 test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {})
 test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {})
 
