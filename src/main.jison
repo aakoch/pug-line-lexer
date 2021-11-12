@@ -13,7 +13,8 @@ tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basef
 keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|unless|when|while)\b
 filter              \:[a-z0-9-]+\b
 
-classname               \.[a-z0-9-]+
+// classname               \.[a-z0-9-]+
+classname               \.-?[_a-zA-Z]+[_a-zA-Z0-9-]*
 tag_id                  #[a-z0-9-]+
 mixin_call              \+[a-z]+\b
 conditional             -?(if|else if|else)
@@ -39,6 +40,7 @@ interpolation           #\{.+\}
 %x COND_START
 %x MULTI_LINE_ATTRS_END
 %x INTERPOLATION_START
+%x MIXIN_PARAMS_STARTED
 
 %%
 
@@ -129,7 +131,7 @@ else {
 %}
 <INITIAL>{classname}
 %{
-  // debug('{classname}{space}?')
+  // debug('<INITIAL>{classname}')
   this.pushState('AFTER_TAG_NAME');
   yytext = yytext.substring(1);
                                           return 'CLASSNAME';
@@ -184,6 +186,7 @@ else {
   this.popState();
                                           return 'NESTED_TAG_START';
 %}
+
 <AFTER_KEYWORD>{filter}
 %{
   yytext = yytext.substring(1)
@@ -194,9 +197,17 @@ else {
   this.pushState('ATTRS_STARTED');
                                           return 'LPAREN';
 %}
-<ATTRS_END>')'
+<ATTRS_END,MIXIN_PARAMS_END>')'
 %{      
                                           return 'RPAREN';
+%}
+// The addition of ATTRS_END is for the edge case of allowing a classname to immediately follow the attributes: a.class(some=attr).class
+<INITIAL,ATTRS_END>{classname}
+%{
+  debug('<INITIAL>{classname}')
+  this.pushState('AFTER_TAG_NAME');
+  yytext = yytext.substring(1);
+                                          return 'CLASSNAME';
 %}
 <ATTRS_STARTED>(.+)(')')
 %{
@@ -293,6 +304,15 @@ else {
                                                               return 'SPACE';
 %}
 
+// This is a bit to unwind. I added this to counter the affect of allowing a classname directly after the attributes.
+// If I don't allow that, this isn't needed. 
+<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname}
+%{
+  this.pushState('ATTRS_END');
+  yytext = yytext.substring(1);
+                                          return 'TEXT';
+%}
+
 <AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}
 %{
   this.pushState('ATTRS_END');
@@ -354,7 +374,7 @@ else {
 <MIXIN_CALL_START>'('             
 %{
   this.popState();
-  this.pushState('ATTRS_STARTED');
+  this.pushState('MIXIN_PARAMS_STARTED');
                                           return 'LPAREN';
 %}
 <MIXIN_CALL_START>{space}$             
@@ -373,6 +393,80 @@ else {
 
 <MULTI_LINE_ATTRS>')'                     return 'ATTR_TEXT_END';
 <MULTI_LINE_ATTRS>.+                      return 'ATTR_TEXT';
+
+
+
+<MIXIN_PARAMS_STARTED>(.+)(')')
+%{
+  this.popState()
+  this.pushState('MIXIN_PARAMS_END')
+  debug('120 this.matches=', this.matches)
+  debug('120 this.matches.length=', this.matches.length)
+  debug('120 yytext=', yytext)
+  try {
+    this.unput(')');
+    if (this.matches.length > 1) {    
+      yytext = this.matches[1]
+      // if (yytext.startsWith(')')) {
+      //   yytext = yytext.substring(1)
+      // }
+    }
+  }
+  catch (e) {
+    console.error(e)
+  }
+  lparenOpen = false
+  debug('120 yytext=', yytext)
+                                          return 'MIXIN_PARAMS';
+%}
+// <MIXIN_PARAMS_STARTED>(.+)')'\s*<<EOF>>
+// %{
+//   this.popState()
+//   debug('130 this.matches=', this.matches)
+//   debug('130 this.matches.length=', this.matches.length)
+//   debug('130 yytext=', yytext)
+//   try {
+//     if (this.matches.length > 1) {    
+//       yytext = this.matches[1]
+//     }
+//   }
+//   catch (e) {
+//     console.error(e)
+//   }
+//   lparenOpen = false
+//   debug('130 yytext=', yytext)
+//                                           return ['RPAREN', 'MIXIN_PARAMS'];
+// %}
+// <MIXIN_PARAMS_STARTED>(.+)')'\.?\s*(.+)<<EOF>>
+// %{
+//   this.popState()
+//   this.pushState('MIXIN_PARAMS_END')
+//   debug('140 this.matches=', this.matches)
+//   this.unput(this.matches[2])
+//   yytext = yytext.substring(0, yytext.indexOf(this.matches[1]) + this.matches[1].length);
+//   debug('140 yytext=', yytext)
+//   lparenOpen = false
+//                                           return ['RPAREN', 'MIXIN_PARAMS'];
+// %}
+
+// // Can mixin parameters span lines?
+// <MIXIN_PARAMS_STARTED>(.+)\.?\s*<<EOF>>
+// %{
+//   this.popState()
+//   debug('150 this.matches=', this.matches)
+//   debug('150 this.matches.length=', this.matches.length)
+//   debug('150 yytext=', yytext)
+//   try {
+//     if (this.matches.length > 1) {    
+//       yytext = this.matches[1]
+//     }
+//   }
+//   catch (e) {
+//     console.error(e)
+//   }
+//   debug('150 yytext=', yytext)
+//                                           return 'MIXIN_PARAMS_CONT';
+// %}
 
 /lex
 
@@ -411,11 +505,6 @@ line
   {
     $$ = merge($line_start, { state: 'NESTED', children: [$line] })
   }
-  // | MIXIN_CALL MIXIN_PARAMS
-  // {
-  //   debug('MIXIN_CALL=', $1)
-  //   $$ = { type: 'mixin_call', mixin_name: $1 }
-  // }
   | ATTR_TEXT_END
   {
     $$ = { type: 'multiline_attrs_end' }
@@ -426,14 +515,17 @@ line_start
   : first_token
   | first_token tag_part
   {
+    debug('line_start: first_token tag_part')
     $$ = merge($first_token, $tag_part)
   }
   | first_token attrs
   {
+    debug('line_start: first_token attrs')
     $$ = merge($first_token, $attrs)
   }
   | first_token LPAREN ATTR_TEXT_CONT?
   {
+    debug('line_start: first_token LPAREN ATTR_TEXT_CONT?')
     $$ = merge($first_token, { type: 'tag_with_multiline_attrs', state: 'MULTI_LINE_ATTRS' })
     if ($3) {
       $$ = merge($first_token, { type: 'tag_with_multiline_attrs', attrs: [$3] })
@@ -441,15 +533,27 @@ line_start
   }
   | first_token tag_part LPAREN ATTR_TEXT_CONT
   {
+    debug('line_start: first_token tag_part LPAREN ATTR_TEXT_CONT')
     $$ = merge($first_token, [$tag_part, $ATTR_TEXT_CONT])
   }
   | first_token tag_part attrs
   {
+    debug('line_start: first_token tag_part attrs')
     $$ = merge($first_token, [$tag_part, $attrs])
+  }
+  // Rule for the edgecase a.foo(class='bar').baz
+  | first_token tag_part attrs CLASSNAME
+  {
+    $$ = merge($first_token, [$tag_part, $attrs, { classes: $CLASSNAME }])
   }
   | ATTR_TEXT
   {
+    debug('line_start: ATTR_TEXT')
     $$ = { type: 'attrs_cont', attrs: [$ATTR_TEXT] }
+  }
+  | first_token LPAREN MIXIN_PARAMS RPAREN
+  {
+    $$ = merge($first_token, { params: $MIXIN_PARAMS })
   }
   ;
 
@@ -550,10 +654,27 @@ tag_part
 attrs
   : LPAREN ATTR_TEXT RPAREN
   {
-    $$ = { attrs: [$2] }
+    debug('Calling parseAttrs with ', $2)
+    const attrs = parseAttrs.parse($2)
+    debug('attrs=', attrs)
+    $$ = {}
+    attrs.forEach(attr => {
+      if (attr.hasOwnProperty('key') && attr.key == 'class' && !attr.assignment) {
+        $$ = merge($$, { classes: attr.val.split(' ') } )
+        delete attr.class
+      }
+      else if (attr.hasOwnProperty('id')) {
+        $$ = merge($$, { id: attr.id } )
+        delete attr.id
+      }
+      else if (!_.isEmpty(attr)) {
+        $$ = merge($$, { attrs: [attr] })
+      }
+    })
   }
   | LPAREN CONDITION RPAREN
   {
+    debug('attrs: LPAREN CONDITION RPAREN')
     $$ = { condition: $2 }
   }
   ;
@@ -581,6 +702,7 @@ line_end
   }
   | ATTR_TEXT_CONT
   {
+    debug('line_end: ATTR_TEXT_CONT')
     $$ = { attrscont: [$1] }
   }
   | TEXT
@@ -701,10 +823,29 @@ parser.main = function () {
   }
 
 
+
+test(`a(class=['foo', 'bar', 'baz'])`, { type: 'tag', name: 'a', classes: ['foo', 'bar', 'baz'] })
+test(`a.foo(class='bar').baz`, { type: 'tag', name: 'a', classes: ['foo', 'bar', 'baz'] })
+test(`a.foo-bar_baz`, { type: 'tag', name: 'a', classes: ['foo-bar_baz'] })
+test(`a(class={foo: true, bar: false, baz: true})`, { type: 'tag', name: 'a', classes: ['foo', 'baz'] })
+
 test('span(v-for="item in items" :key="item.id" :value="item.name")', {
+  attrs: [
+    {
+      key: 'v-for',
+      val: 'item in items'
+    },
+    {
+      key: ':key',
+      val: 'item.id'
+    },
+    {
+      key: ':value',
+      val: 'item.name'
+    }
+  ],
   name: 'span',
-  type: 'tag',
-  attrs: [ 'v-for="item in items" :key="item.id" :value="item.name"' ]
+  type: 'tag'
 })
 // test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {})
 // test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {})
@@ -714,7 +855,10 @@ test('include:markdown-it article.md', { type: 'include', val: 'article.md', fil
 test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
 test("#{'foo'}(bar='baz') /", {
   attrs: [
-    "bar='baz'"
+    {
+      key: 'bar',
+      val: 'baz'
+    }
   ],
   name: "#{'foo'}",
   type: 'interpolation',
@@ -753,17 +897,17 @@ test('} else {', {
   val: 'else {'
 })
 
-test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project',   attrs: [
+test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project', params: 
     "'Moddable Two (2) Case', 'Needing Documentation ', ['print']"
-  ]})
+  })
 
-test('code(class="language-scss").', { name: 'code', type: 'tag', attrs: [ 'class="language-scss"' ], state: 'TEXT_START' })
+test('code(class="language-scss").', { name: 'code', type: 'tag', classes: [ 'language-scss' ], state: 'TEXT_START' })
 
 test('p: a(href="https://www.thingiverse.com/thing:4578862") Thingiverse', {
   children: [
     {
       name: 'a',
-      attrs: ['href="https://www.thingiverse.com/thing:4578862"'],
+      attrs: [{key: 'href', val: 'https://www.thingiverse.com/thing:4578862'}],
       type: 'tag',
       val: 'Thingiverse'
     }
@@ -776,7 +920,11 @@ test('p: a(href="https://www.thingiverse.com/thing:4578862") Thingiverse', {
 test('.project(class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" "))', {
   classes: [ 'project' ],
   attrs: [
-    'class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'
+    {
+      assignment: true,
+      key: 'class',
+      val: '(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'
+    }
   ],
   type: 'tag'
 })
@@ -792,38 +940,42 @@ test('a(href=url)= url', {
   assignment: true,
   assignment_val: 'url',
   attrs: [
-    'href=url'
+    { key: 'href', assignment: true, val: 'url' }
   ],
   name: 'a',
   type: 'tag'
 })
-test('a(href=\'/user/\' + id, class=\'button\')', {
-  attrs: [
-    "href='/user/' + id, class='button'"
-  ],
-  name: 'a',
-  type: 'tag'
-})
+
+// I'm not supporting this right now
+// test('a(href=\'/user/\' + id, class=\'button\')', {
+//   attrs: [
+//     "href='/user/' + id, class='button'"
+//   ],
+//   name: 'a',
+//   type: 'tag'
+// })
 
 test('- function answer() { return 42; }', {
   state: 'CODE_START',
   type: 'code',
   val: 'function answer() { return 42; }'
 })
-test('a(href=\'/user/\' + id, class=\'button\')', {
-  attrs: [
-    "href='/user/' + id, class='button'"
-  ],
-  name: 'a',
-  type: 'tag'
-})
-test('a(href  =  \'/user/\' + id, class  =  \'button\')', {
-  attrs: [
-    "href  =  '/user/' + id, class  =  'button'"
-  ],
-  name: 'a',
-  type: 'tag'
-})
+
+// I'm not supporting this right now
+// test('a(href=\'/user/\' + id, class=\'button\')', {
+//   attrs: [
+//     "href='/user/' + id, class='button'"
+//   ],
+//   name: 'a',
+//   type: 'tag'
+// })
+// test('a(href  =  \'/user/\' + id, class  =  \'button\')', {
+//   attrs: [
+//     "href  =  '/user/' + id, class  =  'button'"
+//   ],
+//   name: 'a',
+//   type: 'tag'
+// })
 
 test('a(class = [\'class1\', \'class2\'])', {
   attrs: [

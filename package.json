@@ -28,7 +28,8 @@
     "jison-gho": "github:GerHobbelt/jison",
     "pretty-format": "^27.2.0",
     "replace-in-file": "^6.3.1",
-    "through2-objectify": "^0.1.1"
+    "through2-objectify": "^0.1.1",
+    "@aakoch/utils": "file:../utils"
   },
   "devDependencies": {
     "chai": "^4.3.4",

@@ -3483,7 +3483,7 @@ EOF: 1,
       switch (yyrulenumber) {
       case 0:
         /*! Conditions:: INITIAL AFTER_TAG_START_END */
-        /*! Rule::       <\s*({tag_name}) */
+        /*! Rule::       <\s*({tag}) */
         // yy_.yytext = yy_.yytext.substring(1, yy_.yytext.length - 1)
         debug('start tag: ' + this.matches[1]);
 
@@ -3527,7 +3527,7 @@ EOF: 1,
 
       case 3:
         /*! Conditions:: INITIAL */
-        /*! Rule::       #\[{tag_name}{space} */
+        /*! Rule::       #\[{tag}{space} */
         this.pushState('AFTER_TAG_START_END');
 
         yy_.yytext = yy_.yytext.substring(2, yy_.yytext.length - 1);

@@ -1088,7 +1088,7 @@ case 38:
 case 39:
     /*! Production::    attrs : LPAREN ATTR_TEXT RPAREN */
 
-    this.$ = { attrs: [yyvstack[yysp - 1]] }
+    this.$ = { attrs: parseAttrs(yyvstack[yysp - 1]) }
     break;
 
 case 40:
@@ -4484,6 +4484,7 @@ import util from "util"
 import _ from "lodash"
 import debugFunc from 'debug'
 import dyp from 'dyp'
+import parseAttrs from '../dist/parseAttrs.mjs'
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
 
@@ -4567,8 +4568,20 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
-test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {})
-test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {})
+
+
+test(`a(class=['foo', 'bar', 'baz'])`, { type: 'tag', classes: ['foo', 'bar', 'baz'] })
+test(`a.foo(class='bar').baz`, { type: 'tag', classes: ['foo', 'bar', 'baz'] })
+test(`a.foo-bar_baz`, { type: 'tag', classes: ['foo-bar_baz'] })
+test(`a(class={foo: true, bar: false, baz: true})`, { type: 'tag', classes: ['foo', 'baz'] })
+
+test('span(v-for="item in items" :key="item.id" :value="item.name")', {
+  name: 'span',
+  type: 'tag',
+  attrs: [ 'v-for="item in items" :key="item.id" :value="item.name"' ]
+})
+// test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {})
+// test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {})
 
 test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
 test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it' })
