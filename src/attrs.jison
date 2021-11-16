@@ -6,118 +6,64 @@
 // ID          [A-Z-]+"?"?
 // NUM         ([1-9][0-9]+|[0-9])
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
-quote  ['"]
+// quote  ['"]
 
 
-%x AFTER_OP
-%x QUOTE_STARTED_WITH_SINGLE
-%x QUOTE_STARTED_WITH_DOUBLE
-%x OBJ_STARTED
-%x ASSIGNMENT_STATE
+%x AFTER_NAME
+%x AFTER_EQ
 
 %%
 
-'='
+<INITIAL>','\s*
 %{
-  this.pushState('AFTER_OP')
-                                          return 'OP'
+                                          return 'COMMA'
 %}
-<AFTER_OP>{space}
+<INITIAL>'...'\w+
 %{
-  this.popState()
-  this.pushState('ASSIGNMENT_STATE')
-                                          return 'ASSIGNMENT'
+  debug('spread')
+                                          return 'SPREAD'
 %}
-<AFTER_OP>'{'
+// SPACE before NAME for list delimiting
+<INITIAL>{space}
 %{
-  this.popState()
-  this.pushState('OBJ_STARTED')
-                                          return 'LCURLY'
-%}
-<AFTER_OP,OBJ_STARTED>'}'
-%{
-  this.popState()
-                                          return 'RCURLY'
-%}
-<INITIAL,AFTER_OP>{space}
-%{
-    this.popState()
                                           return 'SPACE'
 %}
-<INITIAL,AFTER_OP>','                                        return 'COMMA'
-<INITIAL,AFTER_OP>'['
+<INITIAL>\s*[^=]+
+%{
+  this.pushState('AFTER_NAME')
+                                          return 'NAME'
+%}
+<AFTER_NAME>\s*'='\s*
 %{
   this.popState()
-                                            return 'OPEN_BRACKET'
+  this.pushState('AFTER_EQ')
+                                          return 'EQ'
 %}
-<INITIAL,AFTER_OP>']'
+<AFTER_EQ>'['[^\]]+']'
 %{
   this.popState()
-                                            return 'CLOSE_BRACKET'
+                                          return 'VAL'
 %}
-<INITIAL,AFTER_OP>('"'|"'")
+<AFTER_EQ>'{'[^\}]+'}'
 %{
   this.popState()
-  debug('quote started with "' + yytext + '"')
-  if (yytext == '\'') {
-    this.pushState('QUOTE_STARTED_WITH_SINGLE')
-  }
-  else {
-    this.pushState('QUOTE_STARTED_WITH_DOUBLE')
-  }
-                                           return 'QUOTE'
+                                          return 'VAL'
 %}
-<INITIAL>[^=+, ]+                             return 'ID'
-<AFTER_OP>[^\[\]]+                         return 'VARIABLE'
-<QUOTE_STARTED_WITH_SINGLE>[^']+                      return 'VAL'
-<QUOTE_STARTED_WITH_SINGLE>"'"
+<AFTER_EQ>'"'[^"]+'"'
 %{
-    this.popState()
-                                           return 'QUOTE'
+  this.popState()
+                                          return 'VAL'
 %}
-<QUOTE_STARTED_WITH_DOUBLE>[^"]+                      return 'VAL'
-<QUOTE_STARTED_WITH_DOUBLE>'"'
+<AFTER_EQ>[^,]+
 %{
-    this.popState()
-                                           return 'QUOTE'
+  this.popState()
+                                          return 'VAL'
 %}
-// <OBJ_STARTED>([^}\s])+\s*(?<=':')                         return 'KEY'
-// <OBJ_STARTED>(?=':')\s*([^}\s])+                         return 'VAL'
-// <OBJ_STARTED>{space}+                                   return
-<OBJ_STARTED>','                                                                        return 'COMMA'
-<OBJ_STARTED>{quote}?([^\:\'\"]+){quote}?{space}*':'{space}*{quote}([^\'\"]+){quote}?     return 'KEY_VAL'
-<OBJ_STARTED>{quote}?([^\:\'\"]+){quote}?{space}*':'{space}*(\d+)               return 'KEY_DIG'
-<OBJ_STARTED>{quote}?([^\:\'\"]+){quote}?{space}*':'{space}*('true'|'false')     return 'KEY_BOOL'
-
-<ASSIGNMENT_STATE>'('
+<AFTER_EQ>[^ ,]+
 %{
-  debug(`<ASSIGNMENT_STATE>'('`)
-  debug('yytext=' + yytext)
-  parens.push('(')
-                                                      return 'VAL'
-  ')))' // syntax highlighting hack
+  this.popState()
+                                          return 'VAL'
 %}
-<ASSIGNMENT_STATE>[^()]+
-%{        
-  debug(`<ASSIGNMENT_STATE>[^)]+`)
-  debug('yytext=' + yytext)
-                                                       return 'VAL'
-%}
-<ASSIGNMENT_STATE>')' 
-%{
-  debug(`<ASSIGNMENT_STATE>')'`)
-  debug('yytext=' + yytext)
-  debug('parens.length=' + parens.length)
-  if (parens.length) {
-    parens.pop()
-                                                      return 'VAL'
-  }
-  else {
-    this.popState()
-                                                      return 'RPAREN'
-  }
-%}
-'+'                                                   return 'ASSIGNMENT'
 
 /lex
 
@@ -132,7 +78,7 @@ start
   ;
 
 attrs
-  : attrs SPACE attr
+  : attrs (SPACE|COMMA) attr
   {
     $attrs.push($attr)
     $$ = $attrs
@@ -141,142 +87,18 @@ attrs
   {
     $$ = [$attr]
   }
-  | attrs COMMA attr
-  {
-    $attrs.push($attr)
-    $$ = $attrs
-  }
   ;
 
 attr
-  : ID OP val
+  : NAME EQ VAL
   {
-    debug('attr: ID OP val: ID=', $ID, ', OP=', $OP, ', val=', $val)
-    $$ = { key: $ID, val: $val }
+    debug('attr: NAME EQ VAL: NAME=', $NAME, ', VAL=', $VAL)
+    $$ = { name: $NAME.trim(), val: $VAL }
   } 
-  | ID spaces OP val
+  | SPREAD
   {
-    debug('attr: ID OP val: ID=', $ID, ', OP=', $OP, ', val=', $val)
-    $$ = { key: $ID, val: $val }
+    $$ = { name: $SPREAD, val: $SPREAD }
   }
-  | ID OP ASSIGNMENT VAL+ RPAREN?
-  {
-    debug('attr: ID OP ASSIGNMENT VAL+: ID=', $ID, ', OP=', $OP, ', ASSIGNMENT=', $ASSIGNMENT)
-    $$ = { assignment: true, key: $ID, val: $4.join('') }
-  }
-  | ID spaces OP spaces val
-  {
-    debug('attr: ID spaces OP spaces val: ID=', $ID, ', OP=', $OP, ', val=', $val)
-    $$ = { assignment: true, key: $ID, val: $4.join('') }
-  }
-  | ID OP VARIABLE
-  {
-    $$ = { key: $ID, assignment: true, val: $VARIABLE }
-  }
-  | ID OP val ASSIGNMENT SPACE* ID
-  {
-    debug('$0=', $0)
-    debug('attr: ASSIGNMENT SPACE* ID: ASSIGNMENT=', $ASSIGNMENT, ', ID=', $3)
-    // $-1['val'] = '"' + $-1.val + '" ' + $ASSIGNMENT + $3
-    $$ = {}
-  }
-  ;
-
-val
-  : QUOTE VAL QUOTE
-  {
-    debug('val: VAL: VAL=', $VAL)
-    $$ = $VAL
-  }
-  | OPEN_BRACKET list CLOSE_BRACKET
-  {
-    debug('val: OPEN_BRACKET list CLOSE_BRACKET')
-    $$ = $list.join(' ')
-  }
-  | obj
-  {
-    debug('val: obj: obj=', $obj)
-    // this could be improved...
-    $$ = _.map(_.filter($obj, (obj) => _.values(obj)[0]), (obj2) => _.keys(obj2)[0]).join(' ')
-    debug('val: obj: $$=', $$)
-  }
-  ;
-
-obj
-  : LCURLY key_value_pairs RCURLY
-  {
-    // {foo: true, bar: false, baz: true}
-    debug('$key_value_pairs=', $key_value_pairs)
-    $$ = $key_value_pairs
-    // let obj = JSON.parse('{' + $key_value_pairs + '}')
-    // debug('obj=', obj)
-  }
-  ;
-
-key_value_pairs
-  : key_value_pairs COMMA key_value_pair
-  {
-    if ($key_value_pair != null) {
-      $key_value_pairs.push($key_value_pair)
-    }
-    $$ = $key_value_pairs
-  }
-  | key_value_pair
-  {
-    $$ = [$key_value_pair]
-  }
-  ;
-
-key_value_pair
-  : KEY SPACE* COLON SPACE* VAL
-  | KEY_VAL
-  | KEY_DIG
-  | KEY_BOOL
-  {
-    let [key, value] = $KEY_BOOL.split(':')
-    $$ = {}
-    $$[key.trim()] = value.trim().toLowerCase() == 'true'
-    // let [val, shouldUse] = $KEY_BOOL.split(':')
-    // debug('val=', val.trim())
-    // debug('shouldUse=', shouldUse.trim())
-    // if (shouldUse.trim() == 'true') {
-    //   $$ = val
-    // }
-    // else {
-    //   $$ = null
-    // }
-  }
-  ;
-
-list
-  : list list_item
-  {
-    $list.push([$list_item].flat()[0])
-    $$ = $list
-  }
-  | list_item
-  {
-    $$ = [ $list_item ]
-  }
-  ;
-
-list_item
-  : QUOTE VAL QUOTE COMMA SPACE?
-  {
-    debug('list_item: QUOTE VAL QUOTE COMMA SPACE?: VAL=', $VAL)
-    $$ = $VAL
-  }
-  | QUOTE VAL QUOTE
-  {
-    debug('list_item: QUOTE VAL QUOTE: VAL=', $VAL)
-    $$ = $VAL
-  }
-  ;
-
-spaces
-  : 
-  | spaces SPACE
-  | SPACE
   ;
 
 %% 
@@ -287,16 +109,32 @@ const TEXT_TAGS_ALLOW_SUB_TAGS = true
 const debug = debugFunc('pug-line-lexer:attrs')
 
 let tagAlreadyFound = false
-let obj
+let obj, name, value
 var lparenOpen = false
 const keysToMergeText = ['therest']
 const quoteStack = []
 const parens = []
 
+function parseNumber(str) {
+  try {
+    if (str.includes('.')) {
+      return parseFloat(str)
+    }
+    else {
+      return parseInt(str)
+    }
+  } catch (e) {
+    console.error('Unparseable string "' + str + '"')
+    return NaN
+  }
+}
+
 parser.main = function () {
   
   tagAlreadyFound = false
   lparenOpen = false
+
+
 
   function test(input, expected, strict = true ) {
     tagAlreadyFound = false
@@ -314,40 +152,130 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
-test(`class=['foo', 'bar', 'baz']`, [{ key: 'class', val: 'foo bar baz' }])
-test(`class='bar'`, [{ key: 'class', val: 'bar' }])
-test(`class={foo: true, bar: false, baz: true}`, [{ key: 'class', val: 'foo baz' }])
-test(`v-for="item in items" :key="item.id" :value="item.name"`, [{
-  key: "v-for",
-  val: "item in items"
-}, {
-  key: ":key",
-  val: "item.id"
-}, {
-  key: ":value",
-  val: "item.name"
-}])
+test(`class=['foo', 'bar', 'baz']`, [{ name: 'class', val: "['foo', 'bar', 'baz']" }])
 
-test(`class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`, [{
-  assignment: true,
-  val: `(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`,
-  key: 'class'
-}])
+// commenting this all out for now while I test pug-attr {
+test(`class='bar'`, [{ name: 'class', val: "'bar'" }])
+// test(`class={foo: true, bar: false, baz: true}`, [{ name: 'class', val: "[ 'foo', 'baz' ]" }])
+// test(`v-for="item in items" :name="item.id" :value="item.name"`, [{
+//   name: "v-for",
+//   val: "item in items"
+// }, {
+//   name: ":name",
+//   val: "item.id"
+// }, {
+//   name: ":value",
+//   val: "item.name"
+// }])
 
-// url is a variable in a mixin
-test(`href=url`, [
-    { key: 'href', assignment: true, val: 'url' }
-  ])
+// test(`class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`, [{
+//   assignment: true,
+//   val: `(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`,
+//   name: 'class'
+// }])
+
+// // url is a variable in a mixin
+// test(`href=url`, [
+//     { name: 'href', assignment: true, val: 'url' }
+//   ])
+
+// }
+
+test(`data-escaped={message: "Let's rock!"}`, [{ name: 'data-escaped', val: '{message: "Let\'s rock!"}' }])
+test(`data-items=[1,2,3]`, [{ name: 'data-items', val: '[1,2,3]' }])
+test(`href  =  '/user/' + id, class  =  'button'`, [{name: 'href', val: "'/user/' + id"}, {name: 'class', val: "'button'"}])
 
 // I'm not supporting this right now
 // test(`href='/user/' + id, class='button'`, [{
-//   key: 'href',
+//   name: 'href',
 //   assignment: true,
 //   val: '"/user/" + id'
 // },
-// {key: 'class', val: 'button'}])
+// {name: 'class', val: 'button'}])
 
-// test(`class = ['class1', 'class2']`, [{ key: 'class', val: 'class1 class2'}])
+// test(`class = ['class1', 'class2']`, [{ name: 'class', val: 'class1 class2'}])
+
+test(`href='/user/' + id, class='button'`, [
+  {
+    name: 'href',
+    val: "'/user/' + id"
+  },
+  {
+    name: 'class',
+    val: "'button'"
+  }
+])
+test(`href  =  '/user/' + id, class  =  'button'`, [ {
+    name: 'href',
+    val: "'/user/' + id"
+  },  {
+    name: 'class',
+    val: "'button'"
+  }])
+test(`key='answer', value=answer()`, [
+  {
+    name: 'key',
+    val: "'answer'"
+  },
+  {
+    name: 'value',
+    val: 'answer()'
+  }
+])
+test(`class = ['class1', 'class2']`, [
+  {
+    name: 'class',
+    val: "['class1', 'class2']"
+  }
+])
+test(`class = ['class1', 'class2']`, [
+  {
+    name: 'class',
+    val: "['class1', 'class2']"
+  }
+])
+test(`href='/user/' + id class='button'`, [ {
+    name: 'href',
+    val: "'/user/' + id"
+  },  {
+    name: 'class',
+    val: "'button'"
+  }])
+test(`href  =  '/user/' + id class  =  'button'`, [ {
+    name: 'href',
+    val: "'/user/' + id"
+  },  {
+    name: 'class',
+    val: "'button'"
+  }])
+test(`key='answer' value=answer()`, [ {
+    name: 'href',
+    val: "'/user/' + id"
+  },  {
+    name: 'class',
+    val: "'button'"
+  }])
+test(`class = ['class1', 'class2']`, [
+  {
+    name: 'class',
+    val: "['class1', 'class2']"
+  }
+])
+test(`class = ['class1', 'class2']`, [
+  {
+    name: 'class',
+    val: "['class1', 'class2']"
+  }
+])
+
+// test(`id=id)&attributes({foo: 'bar'}`)
+// - var bar = null
+// test(`foo=null bar=bar)&attributes({baz: 'baz'})
+
+test(`...object`, [{name: '...object', val: '...object'}])
+test(`...object after="after"`, [{name: '...object', val: '...object'}, {name: 'after', val: '"after"'}])
+test(`before="before" ...object`, [{name: 'before', val: '"before"'}, {name: '...object', val: '...object'}])
+test(`before="before" ...object after="after"`, [{name: 'before', val: '"before"'}, {name: '...object', val: '...object'}, {name: 'after', val: '"after"'}])
 
 };
 
