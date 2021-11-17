@@ -160,7 +160,11 @@ else {
   this.pushState('TEXT');
                                            return 'SPACE'; // only because it is an empty object 
 %}
-
+<INITIAL,ATTRS_END>'&attributes('[^\)]+')'
+%{
+  debug("'&attributes('[^\)]+')'")
+                                          return 'AT_ATTRS'
+%}
 <INITIAL>{interpolation}
 %{
   debug('{interpolation}')
@@ -192,13 +196,20 @@ else {
   yytext = yytext.substring(1)
                                           return 'FILTER';
 %}
-<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('             
+<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('
 %{
+  ')' // hack for syntax
+  debug(`<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('`)
   this.pushState('ATTRS_STARTED');
                                           return 'LPAREN';
 %}
-<ATTRS_END,MIXIN_PARAMS_END>')'
-%{      
+<ATTRS_END>')'
+%{
+                                          return 'RPAREN';
+%}
+<MIXIN_PARAMS_END>')'
+%{
+  // this.popState() // for inline blocks after mixin calls
                                           return 'RPAREN';
 %}
 // The addition of ATTRS_END is for the edge case of allowing a classname to immediately follow the attributes: a.class(some=attr).class
@@ -209,7 +220,65 @@ else {
   yytext = yytext.substring(1);
                                           return 'CLASSNAME';
 %}
-<ATTRS_STARTED>(.+)(')')
+
+// <ATTRS_STARTED>')'
+// %{
+//   this.popState()
+//   this.pushState('ATTRS_END')
+//   // that ended quickly ;)
+//                                           return 'RPAREN';
+// %}
+
+// Match key='answer' value=answer()
+<ATTRS_STARTED>(\(.+|.+\().+
+%{
+  '))'
+  debug('15 yytext=', yytext)
+  debug('15 this.matches=', this.matches)
+
+  const stack = []
+  let i = 0
+  for(; i < yytext.length; i++) {
+    // debug('yytext[i]=', yytext[i])
+    if (/[\)\]}]/.test(yytext[i])) {
+      debug('match')
+      debug('stack.peek()=', stack.peek())
+      if (stack.length == 0 || stack.pop() != yytext[i]) {
+        debug('stack.length=', stack.length)
+        break;
+      }
+      // else if () {
+      // }
+    }
+    else {
+      switch (yytext[i]) {
+        case '(':
+          stack.push(')')
+          break;
+        case '[':
+          stack.push(']')
+          break;
+        case '{':
+          stack.push('}')
+          break;
+      }
+      // else if () {
+      // }
+    }
+  }
+
+  this.unput(yytext.substring(i))
+  yytext = yytext.substring(0, i)
+  debug('15 yytext=', yytext)
+
+  this.popState()
+  this.pushState('ATTRS_END')
+                                          return 'ATTR_TEXT';
+%}
+
+// Don't match `class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`
+// But match `a.foo(class='bar').baz`
+<ATTRS_STARTED>([^\)]+)(')')(?!\s*\..+')')
 %{
   this.popState()
   this.pushState('ATTRS_END')
@@ -232,6 +301,7 @@ else {
   debug('20 yytext=', yytext)
                                           return 'ATTR_TEXT';
 %}
+
 <ATTRS_STARTED>(.+)')'\s*<<EOF>>
 %{
   this.popState()
@@ -278,6 +348,33 @@ else {
   debug('50 yytext=', yytext)
                                           return 'ATTR_TEXT_CONT';
 %}
+
+// // match `class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`
+// <ATTRS_STARTED>.+')'
+// %{
+//   this.popState()
+//   this.pushState('ATTRS_END')
+//   debug('55 this.matches=', this.matches)
+//   debug('55 this.matches.length=', this.matches.length)
+//   debug('55 yytext=', yytext)
+//   try {
+//     this.unput(')');
+//     if (this.matches.length > 1) {    
+//       yytext = this.matches[1]
+//       // if (yytext.startsWith(')')) {
+//       //   yytext = yytext.substring(1)
+//       // }
+//     }
+//   }
+//   catch (e) {
+//     console.error(e)
+//   }
+//   lparenOpen = false
+//   debug('55 yytext=', yytext)
+//                                           return 'ATTR_TEXT';
+// %}
+
+
 <AFTER_TAG_NAME>{tag_id}
 %{
   this.pushState('AFTER_TAG_NAME');
@@ -321,7 +418,7 @@ else {
 %}
 
 
-<ATTRS_END>{space}
+<ATTRS_END,MIXIN_PARAMS_END>{space}
 %{
   this.pushState('TEXT');
   debug('<ATTRS_END>{space}');
@@ -373,6 +470,7 @@ else {
 
 <MIXIN_CALL_START>'('             
 %{
+  ')'
   this.popState();
   this.pushState('MIXIN_PARAMS_STARTED');
                                           return 'LPAREN';
@@ -381,8 +479,6 @@ else {
 %{
   this.popState();
 %}
-
-<ONLY_FOR_SYNTAX_COLORING>'))'             ;
 
 // removed "[^{space}]" from the beginning because of COMMENT
 <TEXT>.+
@@ -491,6 +587,7 @@ line
   // if I change TEXT to line_end, I get a bunch of conflicts. I don't want to deal with them now
   | line_start TEXT
   {
+    debug('line: line_start TEXT: $line_start=', $line_start, ', $TEXT=', $TEXT)
     $$ = merge($line_start, { type: 'text', val: $TEXT })
   }
   | line_start CODE
@@ -508,6 +605,18 @@ line
   | ATTR_TEXT_END
   {
     $$ = { type: 'multiline_attrs_end' }
+  }
+  | line_start AT_ATTRS
+  {
+    debug('line: line_start AT_ATTRS: $AT_ATTRS=', $AT_ATTRS)
+    let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
+    let entries2 = Object.entries(func())
+    debug('entries2=', entries2)
+    let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
+      debug('key=', key, 'value=', value)
+      return { name: key, val: value }
+    })
+    $$ = merge($line_start, { type: 'tag', attrs: attrs2 })
   }
   ;
 
@@ -615,7 +724,7 @@ first_token
   }
   | SPACE
   {
-    $$ = {type: 'empty'}
+    $$ = { type: 'empty' }
   }
   | CONDITIONAL
   {
@@ -824,516 +933,621 @@ parser.main = function () {
   }
 
 
+
+test(`div(id=id)&attributes({foo: 'bar', fred: 'bart'})`, {
+  type: 'tag',
+  name: 'div',
+  attrs: [{
+    name: 'id',
+    val: 'id'
+  }, {
+    name: 'foo',
+    val: 'bar'
+  }, {
+    name: 'fred',
+    val: 'bart'
+  }]
+})
+
 // commenting this all out for now while I test pug-attr {
-// test(`a(class=['foo', 'bar', 'baz'])`, { type: 'tag', name: 'a', classes: ['foo', 'bar', 'baz'] })
-// test(`a.foo(class='bar').baz`, { type: 'tag', name: 'a', classes: ['foo', 'bar', 'baz'] })
-// test(`a.foo-bar_baz`, { type: 'tag', name: 'a', classes: ['foo-bar_baz'] })
-// test(`a(class={foo: true, bar: false, baz: true})`, { type: 'tag', name: 'a', classes: ['foo', 'baz'] })
+test(`a(class=['foo', 'bar', 'baz'])`, { type: 'tag', name: 'a', attrs: [
+    {
+      name: 'class',
+      val: "['foo', 'bar', 'baz']"
+    }
+  ] })
 
-// test('span(v-for="item in items" :key="item.id" :value="item.name")', {
+// TODO: revisit
+test(`a.foo(class='bar').baz`, {
+  attrs: [
+    {
+      name: 'class',
+      val: "'bar'"
+    }
+  ],
+  classes: [
+    'foo',
+    'baz'
+  ],
+  name: 'a',
+  type: 'tag'
+})
+
+
+test(`a.foo-bar_baz`, {
+  classes: [
+    'foo-bar_baz'
+  ],
+  name: 'a',
+  type: 'tag'
+})
+test(`a(class={foo: true, bar: false, baz: true})`, {
+  attrs: [
+    {
+      name: 'class',
+      val: '{foo: true, bar: false, baz: true}'
+    }
+  ],
+  name: 'a',
+  type: 'tag'
+})
+
+test('span(v-for="item in items" :key="item.id" :value="item.name")', {
+  name: 'span',
+  type: 'tag',
+  attrs: [
+    { name: 'v-for', val: '"item in items"' },
+    { name: ':key', val: '"item.id"' },
+    { name: ':value', val: '"item.name"' }
+  ]
+})
+// test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {})
+// test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {})
+
+test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
+test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it' })
+test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
+test("#{'foo'}(bar='baz') /", {
+  attrs: [
+    {
+      name: 'bar',
+      val: "'baz'"
+    }
+  ],
+  name: "#{'foo'}",
+  type: 'interpolation',
+  val: '/'
+})
+
+test('li= item', {
+  assignment: true,
+  assignment_val: 'item',
+  name: 'li',
+  type: 'tag'
+})
+test('<MULTI_LINE_ATTRS_END>)', {
+  state: 'MULTI_LINE_ATTRS_END'
+})
+// test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {})
+
+test('-var ajax = true', {type: 'code', val: 'var ajax = true', state: 'CODE_START' })
+test('-if( ajax )', {type: 'conditional', name: 'if', condition: ' ajax '})
+test('span.font-monospace .htmlnanorc', {
+  type: 'tag', name: 'span', classes: ['font-monospace'], val: '.htmlnanorc'})
+
+test('.container.post#post-20210905', {
+  type: 'tag',
+  id: 'post-20210905',
+  classes: ['container', 'post']
+})
+
+test('<UNBUF_CODE>var i', {
+  type: 'code',
+  val: 'var i'
+})
+
+test('} else {', {
+  type: 'block_end',
+  val: 'else {'
+})
+
+test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project', params: 
+    "'Moddable Two (2) Case', 'Needing Documentation ', ['print']"
+  })
+
+test('code(class="language-scss").', {
+  name: 'code',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"language-scss"' } ],
+  state: 'TEXT_START'
+})
+
+test('p: a(href="https://www.thingiverse.com/thing:4578862") Thingiverse', {
+  name: 'p',
+  type: 'tag',
+  state: 'NESTED',
+  children: [ { name: 'a', type: 'tag', attrs: [{
+          name: 'href',
+          val: '"https://www.thingiverse.com/thing:4578862"'
+        }], val: 'Thingiverse' } ]
+})
+
+test('.project(class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" "))', {
+  type: 'tag',
+  classes: [ 'project' ],
+  attrs: [
+    {
+      name: 'class',
+      val: '(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'
+    }
+  ]
+})
+
+test('.status-wrapper Status:', { classes: [ 'status-wrapper' ], type: 'tag', val: 'Status:' })
+
+test('+sensitive ', {
+  name: 'sensitive',
+  type: 'mixin_call'
+})
+
+test('a(href=url)= url', {
+  assignment: true,
+  assignment_val: 'url',
+  attrs: [
+    { name: 'href', val: 'url' }
+  ],
+  name: 'a',
+  type: 'tag'
+})
+
+// I'm not supporting this right now
+// test('a(href=\'/user/\' + id, class=\'button\')', {
 //   attrs: [
-//     {
-//       key: 'v-for',
-//       val: 'item in items'
-//     },
-//     {
-//       key: ':key',
-//       val: 'item.id'
-//     },
-//     {
-//       key: ':value',
-//       val: 'item.name'
-//     }
+//     "href='/user/' + id, class='button'"
 //   ],
-//   name: 'span',
+//   name: 'a',
 //   type: 'tag'
 // })
-// // test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {})
-// // test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {})
 
-// test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
-// test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it' })
-// test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
-// test("#{'foo'}(bar='baz') /", {
+test('- function answer() { return 42; }', {
+  state: 'CODE_START',
+  type: 'code',
+  val: 'function answer() { return 42; }'
+})
+
+// I'm not supporting this right now
+// test('a(href=\'/user/\' + id, class=\'button\')', {
 //   attrs: [
-//     {
-//       key: 'bar',
-//       val: 'baz'
-//     }
+//     "href='/user/' + id, class='button'"
 //   ],
-//   name: "#{'foo'}",
-//   type: 'interpolation',
-//   val: '/'
-// })
-
-// test('li= item', {
-//   assignment: true,
-//   assignment_val: 'item',
-//   name: 'li',
+//   name: 'a',
 //   type: 'tag'
 // })
-// test('<MULTI_LINE_ATTRS_END>)', {
-//   state: 'MULTI_LINE_ATTRS_END'
-// })
-// // test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {})
-
-// test('-var ajax = true', {type: 'code', val: 'var ajax = true', state: 'CODE_START' })
-// test('-if( ajax )', {type: 'conditional', name: 'if', condition: ' ajax '})
-// test('span.font-monospace .htmlnanorc', {
-//   type: 'tag', name: 'span', classes: ['font-monospace'], val: '.htmlnanorc'})
-
-// test('.container.post#post-20210905', {
-//   type: 'tag',
-//   id: 'post-20210905',
-//   classes: ['container', 'post']
+// test('a(href  =  \'/user/\' + id, class  =  \'button\')', {
+//   attrs: [
+//     "href  =  '/user/' + id, class  =  'button'"
+//   ],
+//   name: 'a',
+//   type: 'tag'
 // })
 
-// test('<UNBUF_CODE>var i', {
+test('a(class = [\'class1\', \'class2\'])',  {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'class', val: "['class1', 'class2']" } ]
+})
+test('a.tag-class(class = [\'class1\', \'class2\'])', {
+  attrs: [
+    {
+      name: 'class',
+      val: "['class1', 'class2']"
+    }
+  ],
+  classes: [
+    'tag-class'
+  ],
+  name: 'a',
+  type: 'tag'
+})
+test('a(href=\'/user/\' + id class=\'button\')',  {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'href', val: "'/user/' + id" },
+    { name: 'class', val: "'button'" }
+  ]
+})
+test('a(href  =  \'/user/\' + id class  =  \'button\')', {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'href', val: "'/user/' + id" },
+    { name: 'class', val: "'button'" }
+  ]
+})
+test('meta(key=\'answer\' value=answer())', {
+  name: 'meta',
+  type: 'tag',
+  attrs: [
+    { name: 'key', val: "'answer'" },
+    { name: 'value', val: 'answer()' }
+  ]
+})
+
+test('div(id=id)&attributes({foo: \'bar\'})', {
+  name: 'div',
+  type: 'tag',
+  attrs: [ { name: 'id', val: 'id' }, { name: 'foo', val: 'bar' } ]
+})
+test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
+  name: 'div',
+  type: 'tag',
+  attrs: [
+    { name: 'foo', val: 'null' },
+    { name: 'bar', val: 'bar' },
+    { name: 'baz', val: 'baz' }
+  ]
+})
+
+test('foo(abc', {type: 'tag_with_multiline_attrs', name: 'foo', attrs: ['abc'], state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_cont', attrs: [',def)'] })
+
+test('span(', {type: 'tag_with_multiline_attrs', name: 'span', state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>v-for="item in items"', {
+  type: 'attrs_cont',
+  attrs: [
+    'v-for="item in items"'
+  ]
+})
+test('<MULTI_LINE_ATTRS>:key="item.id"', {
+  type: 'attrs_cont',
+  attrs: [
+    ':key="item.id"'
+  ]
+})
+test('<MULTI_LINE_ATTRS>:value="item.name"', {
+  type: 'attrs_cont',
+  attrs: [
+    ':value="item.name"'
+  ]
+})
+test('<MULTI_LINE_ATTRS>)', {type: 'multiline_attrs_end'})
+test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: ':link', val: '"goHere"' },
+    { name: 'value', val: '"static"' },
+    { name: ':my-value', val: '"dynamic"' },
+    { name: '@click', val: '"onClick()"' },
+    { name: ':another', val: '"more"' }
+  ],
+  val: 'Click Me!'
+})
+
+test('foo(data-user=user)', {
+  name: 'foo',
+  type: 'tag',
+  attrs: [ { name: 'data-user', val: 'user' } ]
+})
+test('foo(data-items=[1,2,3])', {
+  name: 'foo',
+  type: 'tag',
+  attrs: [ { name: 'data-items', val: '[1,2,3]' } ]
+})
+test('foo(data-username=\'tobi\')', {
+  attrs: [ { name: 'data-username', val: "'tobi'" } ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-escaped={message: "Let\'s rock!"})', {
+  attrs: [
+    { name: 'data-escaped', val: '{message: "Let\'s rock!"}' }
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-ampersand={message: "a quote: &quot; this & that"})', {
+  attrs: [
+    { name: 'data-ampersand', val: '{message: "a quote: &quot; this & that"}' }
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-epoc=new Date(0))', {
+  attrs: [
+    { name: 'data-epoc', val: 'new Date(0)' }
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+
+
+test('+sensitive', {
+  name: 'sensitive',
+  type: 'mixin_call'
+})
+
+test('html', { type: 'tag', name: 'html' })
+test('html ', { type: 'tag', name: 'html' }, false)
+
+// test("doctype html", { type: 'doctype', val: 'html' })
+test('doctype html', { type: 'doctype', val: 'html' })
+
+test("html(lang='en-US')", {"type":"tag","name":"html","attrs":[{name:"lang", val: "'en-US'"}]})
+
+// test("include something", { type: 'include_directive', params: 'something' })
+test('include something', { type: 'include', val: 'something' })
+
+// test("block here", { type: 'directive', name: 'block', params: 'here' })
+test("block here", { type: 'block', val: 'here' })
+
+test("head", { type: 'tag', name: 'head' })
+test("meta(charset='UTF-8')", {"type":"tag","name":"meta","attrs":[{name:"charset", val:"'UTF-8'"}]})
+test("meta(name='viewport' content='width=device-width')", { type: 'tag', name: 'meta', attrs: [{name: 'name', val: "'viewport'"}, {name: 'content', val: "'width=device-width'"}]})
+test("title", {"type":"tag","name":"title"})
+test("| White-space and character 160 | Adam Koch ", {"type":"text","val":"White-space and character 160 | Adam Koch "})
+if (!TEXT_TAGS_ALLOW_SUB_TAGS)
+  test("script(async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\")", {"type":"tag","name":"script","attrs":["async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\""], state: 'TEXT_START'})
+test("script.  ", {"type":"tag","name":"script","state":"TEXT_START"})
+test("<TEXT>window.dataLayer = window.dataLayer || [];   ", { type: 'text', val: 'window.dataLayer = window.dataLayer || [];   ' })
+test("<TEXT>gtag('config', 'UA-452464-5');", {"type":"text","val":"gtag('config', 'UA-452464-5');"})
+test("", "")
+if (!TEXT_TAGS_ALLOW_SUB_TAGS)
+  test("script test", {"type":"tag","name":"script","state":"TEXT_START","val":"test"})
+test(".classname", { type: 'tag', classes: ['classname'] })
+
+//test("// some text", { type: 'comment', state: 'TEXT_START' })
+test("// some text", { type: 'comment', state: 'TEXT_START', val: ' some text' })
+
+// test("// ", { type: 'comment', state: 'TEXT_START' })
+test("// ", { type: 'comment', val: ' ', state: 'TEXT_START' })
+
+test("//", { type: 'comment', state: 'TEXT_START' })
+
+
+test('a.url.fn.n(href=\'https://wordpress.adamkoch.com/author/admin/\' title=\'View all posts by Adam\' rel=\'author\') Adam',  {
+  name: 'a',
+  type: 'tag',
+  classes: [ 'url', 'fn', 'n' ],
+  attrs: [
+    {
+      name: 'href',
+      val: "'https://wordpress.adamkoch.com/author/admin/'"
+    },
+    { name: 'title', val: "'View all posts by Adam'" },
+    { name: 'rel', val: "'author'" }
+  ],
+  val: 'Adam'
+})
+test('style(id=\'wp-block-library-inline-css\' type=\'text/css\').', {
+  name: 'style',
+  type: 'tag',
+  attrs: [
+    { name: 'id', val: "'wp-block-library-inline-css'" },
+    { name: 'type', val: "'text/css'" }
+  ],
+  state: 'TEXT_START'
+})
+test('| #start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}', {"type":"text","val":"#start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}"})
+test('body.post-template-default.single.single-post.postid-1620.single-format-standard.wp-embed-responsive.single-author.singular.two-column.right-sidebar', {"type":"tag","name":"body","classes":["post-template-default","single","single-post","postid-1620","single-format-standard","wp-embed-responsive","single-author","singular","two-column","right-sidebar"]})
+test('#page.hfeed', {"type":"tag","id":"page","classes":["hfeed"]})
+test('header#branding(role=\'banner\')', {
+  name: 'header',
+  type: 'tag',
+  id: 'branding',
+  attrs: [ { name: 'role', val: "'banner'" } ]
+})
+test('h1#site-title', {type: 'tag', name: 'h1', id: 'site-title'})
+test('a(href=\'https://www.adamkoch.com/\' rel=\'home\') Adam Koch', {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'href', val: "'https://www.adamkoch.com/'" },
+    { name: 'rel', val: "'home'" }
+  ],
+  val: 'Adam Koch'
+})
+test('h2#site-description Software Developer and Clean Code Advocate', {type: 'tag', name: 'h2', id: 'site-description', val: 'Software Developer and Clean Code Advocate' })
+test('h3.assistive-text Main menu', {type: 'tag', name: 'h3', classes: ['assistive-text'], val: 'Main menu' })
+test('ul#menu-header.menu', {type: 'tag', name: 'ul', id: 'menu-header', classes: ['menu']})
+test('a(href=\'https://wordpress.adamkoch.com/posts/\') Posts', {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'href', val: "'https://wordpress.adamkoch.com/posts/'" } ],
+  val: 'Posts'
+})
+test('span.sep  by', {type:'tag', name: 'span', classes: ['sep'], val: ' by' })
+test('style.', {"type":"tag","name":"style","state":"TEXT_START"})
+test('p I came across a problem in Internet Explorer (it wasn\'t a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I\'ll just call the', {
+  type: 'tag',
+  name: 'p',
+  val: "I came across a problem in Internet Explorer (it wasn't a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I'll just call the"
+})
+test('.sd-content', { type: 'tag', classes: [ 'sd-content' ] })
+test('th  Browser', { type: 'tag', name: 'th', val: ' Browser' })
+test('.sharedaddy.sd-sharing-enabled', {"type":"tag","classes":['sharedaddy', 'sd-sharing-enabled']})
+test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', {
+  name: 'time',
+  type: 'tag',
+  attrs: [ { name: 'datetime', val: "'2009-07-28T01:24:04-06:00'" } ],
+  val: '2009-07-28 at 1:24 AM'
+} )
+test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'code', val: 'var title = \'Fade Out On MouseOver Demo\'', state: 'CODE_START' })
+test('<TEXT>}).join(\' \')', { type: 'text', val: "}).join(' ')" })
+test('  ', {
+  type: 'empty'
+})
+test('#content(role=\'main\')', {
+  type: 'tag',
+  id: 'content',
+  attrs: [ { name: 'role', val: "'main'" } ]
+})
+test('pre: code(class="language-scss").', {
+  name: 'pre',
+  type: 'tag',
+  state: 'NESTED',
+  children: [
+    { name: 'code', type: 'tag', attrs: [
+        {
+          name: 'class',
+          val: '"language-scss"'
+        }], state: 'TEXT_START' }
+  ]
+})
+
+test('mixin sensitive()', { type: 'mixin', val: 'sensitive()' })
+test('extends ../templates/blogpost', {
+  type: 'extends',
+  val: '../templates/blogpost'
+})
+test('append head', {
+  type: 'append',
+  val: 'head'
+})
+test('p Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.', {type: 'tag', name: 'p', val: 'Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.' })
+
+test('+project(\'Images\', \'On going\')', { type: 'mixin_call', name: 'project', params: "'Images', 'On going'" })
+test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", {
+  type: 'mixin_call',
+  name: 'project',
+  params: "'Moddable Two (2) Case', 'Needing Documentation ', ['print']"
+})
+test('| . The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
+test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {"type":"text","val":"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;" })
+
+// test('- ', { type: 'code', val: ' ', state: 'UNBUF_CODE_START' })
+test('- ', { type: 'code', state: 'CODE_START' })
+
+test('mixin project(title)', {
+  type: 'mixin',
+  val: 'project(title)'
+})
+test('// comment', {
+  state: 'TEXT_START',
+  type: 'comment',
+  val: ' comment'
+})
+test('meta(property=\'og:description\' content=\'I came across a problem in Internet Explorer (it wasn\\\'t a problem with Firefox) when I...\')',  {
+  name: 'meta',
+  type: 'tag',
+  attrs: [
+    { name: 'property', val: "'og:description'" },
+    {
+      name: 'content',
+      val: "'I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'"
+    }
+  ]
+})
+
+test('-', {
+  type: 'code',
+  state: 'CODE_START'
+})
+
+// test(' -', {
+//   state: 'UNBUF_CODE_START',
 //   type: 'code',
-//   val: 'var i'
+//   val: ''
 // })
 
-// test('} else {', {
-//   type: 'block_end',
-//   val: 'else {'
-// })
+test('<UNBUF_CODE>var i', {
+  type: 'code',
+  val: 'var i'
+})
 
-// test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project', params: 
-//     "'Moddable Two (2) Case', 'Needing Documentation ', ['print']"
-//   })
+test("link(rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; White-space and character 160 Comments Feed' href='https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/')",  {
+  name: 'link',
+  type: 'tag',
+  attrs: [
+    { name: 'rel', val: "'alternate'" },
+    { name: 'type', val: "'application/rss+xml'" },
+    {
+      name: 'title',
+      val: "'Adam Koch &raquo; White-space and character 160 Comments Feed'"
+    },
+    {
+      name: 'href',
+      val: "'https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/'"
+    }
+  ]
+})
 
-// test('code(class="language-scss").', { name: 'code', type: 'tag', classes: [ 'language-scss' ], state: 'TEXT_START' })
+test('pre.', {
+  name: 'pre',
+  state: 'TEXT_START',
+  type: 'tag'
+})
 
-// test('p: a(href="https://www.thingiverse.com/thing:4578862") Thingiverse', {
-//   children: [
-//     {
-//       name: 'a',
-//       attrs: [{key: 'href', val: 'https://www.thingiverse.com/thing:4578862'}],
-//       type: 'tag',
-//       val: 'Thingiverse'
-//     }
-//   ],
-//   name: 'p',
-//   state: 'NESTED',
-//   type: 'tag'
-// })
+test('pre: code.', {
+  children: [
+    {
+      name: 'code',
+      state: 'TEXT_START',
+      type: 'tag'
+    }
+  ],
+  name: 'pre',
+  state: 'NESTED',
+  type: 'tag'
+})
 
-// test('.project(class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" "))', {
-//   classes: [ 'project' ],
-//   attrs: [
-//     {
-//       assignment: true,
-//       key: 'class',
-//       val: '(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'
-//     }
-//   ],
-//   type: 'tag'
-// })
+test('|. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
 
-// test('.status-wrapper Status:', { classes: [ 'status-wrapper' ], type: 'tag', val: 'Status:' })
+test('.rule: p.', {
+  children: [
+    {
+      name: 'p',
+      type: 'tag',
+      state: 'TEXT_START'
+    }
+  ],
+  classes: ['rule'],
+  state: 'NESTED',
+  type: 'tag'
+})
+test('.rule.unratified: p.', {
+  children: [
+    {
+      name: 'p',
+      type: 'tag',
+      state: 'TEXT_START'
+    }
+  ],
+  classes: ['rule', 'unratified'],
+  state: 'NESTED',
+  type: 'tag'
+})
 
-// test('+sensitive ', {
-//   name: 'sensitive',
-//   type: 'mixin_call'
-// })
+test("style(id='wp-block-library-inline-css' type='text/css'). ", {
+  name: 'style',
+  type: 'tag',
+  attrs: [
+    { name: 'id', val: "'wp-block-library-inline-css'" },
+    { name: 'type', val: "'text/css'" }
+  ],
+  state: 'TEXT_START'
+})
 
-// test('a(href=url)= url', {
-//   assignment: true,
-//   assignment_val: 'url',
-//   attrs: [
-//     { key: 'href', assignment: true, val: 'url' }
-//   ],
-//   name: 'a',
-//   type: 'tag'
-// })
+test('|', {
+  type: 'empty'
+})
+test('.', { state: 'TEXT_START' })
 
-// // I'm not supporting this right now
-// // test('a(href=\'/user/\' + id, class=\'button\')', {
-// //   attrs: [
-// //     "href='/user/' + id, class='button'"
-// //   ],
-// //   name: 'a',
-// //   type: 'tag'
-// // })
-
-// test('- function answer() { return 42; }', {
-//   state: 'CODE_START',
-//   type: 'code',
-//   val: 'function answer() { return 42; }'
-// })
-
-// // I'm not supporting this right now
-// // test('a(href=\'/user/\' + id, class=\'button\')', {
-// //   attrs: [
-// //     "href='/user/' + id, class='button'"
-// //   ],
-// //   name: 'a',
-// //   type: 'tag'
-// // })
-// // test('a(href  =  \'/user/\' + id, class  =  \'button\')', {
-// //   attrs: [
-// //     "href  =  '/user/' + id, class  =  'button'"
-// //   ],
-// //   name: 'a',
-// //   type: 'tag'
-// // })
-
-// test('a(class = [\'class1\', \'class2\'])', {
-//   attrs: [
-//     "class = ['class1', 'class2']"
-//   ],
-//   name: 'a',
-//   type: 'tag'
-// })
-// test('a.tag-class(class = [\'class1\', \'class2\'])', {
-//   attrs: [
-//     "class = ['class1', 'class2']"
-//   ],
-//   classes: [
-//     'tag-class'
-//   ],
-//   name: 'a',
-//   type: 'tag'
-// })
-// test('a(href=\'/user/\' + id class=\'button\')', {
-//   attrs: [
-//     "href='/user/' + id class='button'"
-//   ],
-//   name: 'a',
-//   type: 'tag'
-// })
-// test('a(href  =  \'/user/\' + id class  =  \'button\')', {
-//   attrs: [
-//     "href  =  '/user/' + id class  =  'button'"
-//   ],
-//   name: 'a',
-//   type: 'tag'
+try {
+  test("tag", { type: 'unknown', name: 'tag' })
+throw AssertionError('Expected exception')
+} catch (e) {}
 // }
-// )
-// test('meta(key=\'answer\' value=answer())', {
-//   attrs: [
-//     "key='answer' value=answer()"
-//   ],
-//   name: 'meta',
-//   type: 'tag'
-// })
-
-// test('div(id=id)&attributes({foo: \'bar\'})', {
-//   attrs: [
-//     "id=id)&attributes({foo: 'bar'}"
-//   ],
-//   name: 'div',
-//   type: 'tag'
-// })
-// test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
-//   attrs: [
-//     "foo=null bar=bar)&attributes({baz: 'baz'}"
-//   ],
-//   name: 'div',
-//   type: 'tag'
-// })
-
-// test('foo(abc', {type: 'tag_with_multiline_attrs', name: 'foo', attrs: ['abc'], state: 'MULTI_LINE_ATTRS'})
-// test('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_cont', attrs: [',def)'] })
-
-// test('span(', {type: 'tag_with_multiline_attrs', name: 'span', state: 'MULTI_LINE_ATTRS'})
-// test('<MULTI_LINE_ATTRS>v-for="item in items"', {
-//   type: 'attrs_cont',
-//   attrs: [
-//     'v-for="item in items"'
-//   ]
-// })
-// test('<MULTI_LINE_ATTRS>:key="item.id"', {
-//   type: 'attrs_cont',
-//   attrs: [
-//     ':key="item.id"'
-//   ]
-// })
-// test('<MULTI_LINE_ATTRS>:value="item.name"', {
-//   type: 'attrs_cont',
-//   attrs: [
-//     ':value="item.name"'
-//   ]
-// })
-// test('<MULTI_LINE_ATTRS>)', {type: 'multiline_attrs_end'})
-// test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
-//   type: 'attrs_cont',
-//   attrs: [
-//     ':link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more"'
-//   ],
-//   name: 'a',
-//   type: 'tag',
-//   val: 'Click Me!'
-// })
-
-// test('foo(data-user=user)', {
-//   attrs: [
-//     'data-user=user'
-//   ],
-//   name: 'foo',
-//   type: 'tag'
-// })
-// test('foo(data-items=[1,2,3])', {
-//   attrs: [
-//     'data-items=[1,2,3]'
-//   ],
-//   name: 'foo',
-//   type: 'tag'
-// })
-// test('foo(data-username=\'tobi\')', {
-//   attrs: [
-//     "data-username='tobi'"
-//   ],
-//   name: 'foo',
-//   type: 'tag'
-// })
-// test('foo(data-escaped={message: "Let\'s rock!"})', {
-//   attrs: [
-//     `data-escaped={message: "Let's rock!"}`
-//   ],
-//   name: 'foo',
-//   type: 'tag'
-// })
-// test('foo(data-ampersand={message: "a quote: &quot; this & that"})', {
-//   attrs: [
-//     'data-ampersand={message: "a quote: &quot; this & that"}'
-//   ],
-//   name: 'foo',
-//   type: 'tag'
-// })
-// test('foo(data-epoc=new Date(0))', {
-//   attrs: [
-//     'data-epoc=new Date(0)'
-//   ],
-//   name: 'foo',
-//   type: 'tag'
-// })
 
 
-// test('+sensitive', {
-//   name: 'sensitive',
-//   type: 'mixin_call'
-// })
-
-// test('html', { type: 'tag', name: 'html' })
-// test('html ', { type: 'tag', name: 'html' }, false)
-
-// // test("doctype html", { type: 'doctype', val: 'html' })
-// test('doctype html', { type: 'doctype', val: 'html' })
-
-// test("html(lang='en-US')", {"type":"tag","name":"html","attrs":["lang='en-US'"]})
-
-// // test("include something", { type: 'include_directive', params: 'something' })
-// test('include something', { type: 'include', val: 'something' })
-
-// // test("block here", { type: 'directive', name: 'block', params: 'here' })
-// test("block here", { type: 'block', val: 'here' })
-
-// test("head", { type: 'tag', name: 'head' })
-// test("meta(charset='UTF-8')", {"type":"tag","name":"meta","attrs":["charset='UTF-8'"]})
-// test("meta(name='viewport' content='width=device-width')", { type: 'tag', name: 'meta', attrs: ["name='viewport' content='width=device-width'"]})
-// test("title", {"type":"tag","name":"title"})
-// test("| White-space and character 160 | Adam Koch ", {"type":"text","val":"White-space and character 160 | Adam Koch "})
-// if (!TEXT_TAGS_ALLOW_SUB_TAGS)
-//   test("script(async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\")", {"type":"tag","name":"script","attrs":["async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\""], state: 'TEXT_START'})
-// test("script.  ", {"type":"tag","name":"script","state":"TEXT_START"})
-// test("<TEXT>window.dataLayer = window.dataLayer || [];   ", { type: 'text', val: 'window.dataLayer = window.dataLayer || [];   ' })
-// test("<TEXT>gtag('config', 'UA-452464-5');", {"type":"text","val":"gtag('config', 'UA-452464-5');"})
-// test("", "")
-// if (!TEXT_TAGS_ALLOW_SUB_TAGS)
-//   test("script test", {"type":"tag","name":"script","state":"TEXT_START","val":"test"})
-// test(".classname", { type: 'tag', classes: ['classname'] })
-
-// //test("// some text", { type: 'comment', state: 'TEXT_START' })
-// test("// some text", { type: 'comment', state: 'TEXT_START', val: ' some text' })
-
-// // test("// ", { type: 'comment', state: 'TEXT_START' })
-// test("// ", { type: 'comment', val: ' ', state: 'TEXT_START' })
-
-// test("//", { type: 'comment', state: 'TEXT_START' })
-
-
-// test('a.url.fn.n(href=\'https://wordpress.adamkoch.com/author/admin/\' title=\'View all posts by Adam\' rel=\'author\') Adam',  {
-//   type: 'tag',
-//   name: 'a',
-//   classes: [ 'url', 'fn', 'n' ],
-//   val: 'Adam',
-//   attrs: ["href='https://wordpress.adamkoch.com/author/admin/' title='View all posts by Adam' rel='author'"]
-// })
-// test('style(id=\'wp-block-library-inline-css\' type=\'text/css\').', {"type":"tag","name":"style","attrs":["id='wp-block-library-inline-css' type='text/css'"],"state":"TEXT_START"})
-// test('| #start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}', {"type":"text","val":"#start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}"})
-// test('body.post-template-default.single.single-post.postid-1620.single-format-standard.wp-embed-responsive.single-author.singular.two-column.right-sidebar', {"type":"tag","name":"body","classes":["post-template-default","single","single-post","postid-1620","single-format-standard","wp-embed-responsive","single-author","singular","two-column","right-sidebar"]})
-// test('#page.hfeed', {"type":"tag","id":"page","classes":["hfeed"]})
-// test('header#branding(role=\'banner\')', {"type":"tag","name":"header","id":"branding","attrs":["role='banner'"]})
-// test('h1#site-title', {type: 'tag', name: 'h1', id: 'site-title'})
-// test('a(href=\'https://www.adamkoch.com/\' rel=\'home\') Adam Koch', {type: 'tag', name: 'a', attrs: ['href=\'https://www.adamkoch.com/\' rel=\'home\''], val: 'Adam Koch'})
-// test('h2#site-description Software Developer and Clean Code Advocate', {type: 'tag', name: 'h2', id: 'site-description', val: 'Software Developer and Clean Code Advocate' })
-// test('h3.assistive-text Main menu', {type: 'tag', name: 'h3', classes: ['assistive-text'], val: 'Main menu' })
-// test('ul#menu-header.menu', {type: 'tag', name: 'ul', id: 'menu-header', classes: ['menu']})
-// test('a(href=\'https://wordpress.adamkoch.com/posts/\') Posts', {type: 'tag', name: 'a', attrs: ['href=\'https://wordpress.adamkoch.com/posts/\''], val: 'Posts'})
-// test('span.sep  by', {type:'tag', name: 'span', classes: ['sep'], val: ' by' })
-// test('style.', {"type":"tag","name":"style","state":"TEXT_START"})
-// test('p I came across a problem in Internet Explorer (it wasn\'t a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I\'ll just call the', {
-//   type: 'tag',
-//   name: 'p',
-//   val: "I came across a problem in Internet Explorer (it wasn't a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I'll just call the"
-// })
-// test('.sd-content', { type: 'tag', classes: [ 'sd-content' ] })
-// test('th  Browser', { type: 'tag', name: 'th', val: ' Browser' })
-// test('.sharedaddy.sd-sharing-enabled', {"type":"tag","classes":['sharedaddy', 'sd-sharing-enabled']})
-// test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', { type: 'tag', name: 'time', attrs: ['datetime=\'2009-07-28T01:24:04-06:00\''], val: '2009-07-28 at 1:24 AM'} )
-// test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'code', val: 'var title = \'Fade Out On MouseOver Demo\'', state: 'CODE_START' })
-// test('<TEXT>}).join(\' \')', { type: 'text', val: "}).join(' ')" })
-// test('  ', {
-//   type: 'empty'
-// })
-// test('#content(role=\'main\')', { type: 'tag', id: 'content', attrs: ['role=\'main\'']})
-// test('pre: code(class="language-scss").', { type: 'tag', name: 'pre', children: [ { type: 'tag', name: 'code', attrs: ['class="language-scss"'], state: 'TEXT_START'} ], state: 'NESTED'})
-
-// test('mixin sensitive()', { type: 'mixin', val: 'sensitive()' })
-// test('extends ../templates/blogpost', {
-//   type: 'extends',
-//   val: '../templates/blogpost'
-// })
-// test('append head', {
-//   type: 'append',
-//   val: 'head'
-// })
-// test('p Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.', {type: 'tag', name: 'p', val: 'Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.' })
-
-// test('+project(\'Images\', \'On going\')', {
-//   attrs: [
-//     "'Images', 'On going'"
-//   ],
-//   type: 'mixin_call',
-//   name: 'project'
-// })
-// test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", {
-//   attrs: [
-//     "'Moddable Two (2) Case', 'Needing Documentation ', ['print']"
-//   ],
-//   type: 'mixin_call',
-//   name: 'project'
-// })
-// test('| . The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
-// test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {"type":"text","val":"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;" })
-
-// // test('- ', { type: 'code', val: ' ', state: 'UNBUF_CODE_START' })
-// test('- ', { type: 'code', state: 'CODE_START' })
-
-// test('mixin project(title)', {
-//   type: 'mixin',
-//   val: 'project(title)'
-// })
-// test('+code(\'Pretty-print any JSON file\') jq \'.\' package.json',
-// {
-//   attrs: [
-//     "'Pretty-print any JSON file'"
-//   ],
-//   name: 'code',
-//   type: 'mixin_call',
-//   val: "jq '.' package.json"
-// } )
-// test('// comment', {
-//   state: 'TEXT_START',
-//   type: 'comment',
-//   val: ' comment'
-// })
-// test('meta(property=\'og:description\' content=\'I came across a problem in Internet Explorer (it wasn\\\'t a problem with Firefox) when I...\')',  {
-//   type: 'tag',
-//   name: 'meta',
-//   attrs: ["property=\'og:description' content='I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'"]
-// })
-
-// test('-', {
-//   type: 'code',
-//   state: 'CODE_START'
-// })
-
-// // test(' -', {
-// //   state: 'UNBUF_CODE_START',
-// //   type: 'code',
-// //   val: ''
-// // })
-
-// test('<UNBUF_CODE>var i', {
-//   type: 'code',
-//   val: 'var i'
-// })
-
-// test("link(rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; White-space and character 160 Comments Feed' href='https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/')", {
-//   attrs: [
-//     "rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; White-space and character 160 Comments Feed' href='https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/'"
-//   ],
-//   name: 'link',
-//   type: 'tag'
-// })
-
-// test('pre.', {
-//   name: 'pre',
-//   state: 'TEXT_START',
-//   type: 'tag'
-// })
-
-// test('pre: code.', {
-//   children: [
-//     {
-//       name: 'code',
-//       state: 'TEXT_START',
-//       type: 'tag'
-//     }
-//   ],
-//   name: 'pre',
-//   state: 'NESTED',
-//   type: 'tag'
-// })
-
-// test('|. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
-
-// test('.rule: p.', {
-//   children: [
-//     {
-//       name: 'p',
-//       type: 'tag',
-//       state: 'TEXT_START'
-//     }
-//   ],
-//   classes: ['rule'],
-//   state: 'NESTED',
-//   type: 'tag'
-// })
-// test('.rule.unratified: p.', {
-//   children: [
-//     {
-//       name: 'p',
-//       type: 'tag',
-//       state: 'TEXT_START'
-//     }
-//   ],
-//   classes: ['rule', 'unratified'],
-//   state: 'NESTED',
-//   type: 'tag'
-// })
-
-// test("style(id='wp-block-library-inline-css' type='text/css'). ", {
-//   attrs: [
-//     "id='wp-block-library-inline-css' type='text/css'"
-//   ],
-//   name: 'style',
-//   state: 'TEXT_START',
-//   type: 'tag'
-// })
-
-// test('|', {
-//   type: 'empty'
-// })
-// test('.', { state: 'TEXT_START' })
-
-// try {
-//   test("tag", { type: 'unknown', name: 'tag' })
-// throw AssertionError('Expected exception')
-// } catch (e) {}
-// }
+test('+code(\'Pretty-print any JSON file\') jq \'.\' package.json',
+{
+  type: 'mixin_call',
+  name: 'code',
+  params: "'Pretty-print any JSON file'",
+  val: "jq '.' package.json"
+} )
 
 };
 

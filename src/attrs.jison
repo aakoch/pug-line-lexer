@@ -11,6 +11,7 @@ space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200
 
 %x AFTER_NAME
 %x AFTER_EQ
+%x VARS
 
 %%
 
@@ -54,16 +55,90 @@ space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200
   this.popState()
                                           return 'VAL'
 %}
-<AFTER_EQ>[^,]+
+
+// content='I came across a problem in Internet Explorer (it wasn\'t a problem with Firefox) when I...'
+<AFTER_EQ>"'"([^']|\\\')+"'"\s*$
+%{
+  this.popState()
+  this.pushState('VARS')
+                                          return 'VAR'
+%}
+
+// Added for this test case: `content='width=device-width'`
+<AFTER_EQ>"'"([^']|\\\')+"'"
+%{
+  this.popState()
+  this.pushState('VARS')
+                                          return 'VAR'
+%}
+<AFTER_EQ>\w+'()'
 %{
   this.popState()
                                           return 'VAL'
 %}
-<AFTER_EQ>[^ ,]+
+
+// match '=' but not '=>' is handled by '='(?!'>')
+<AFTER_EQ>[^=]+'='(?!'>')
 %{
+  debug("<AFTER_EQ>[^=]+'='")
+
+  debug('1 yytext=', yytext)
+  const lastSepIndex = findLastSeparatorIndex(yytext)
+  debug('lastSepIndex=', lastSepIndex)
+  debug('yytext.length=', yytext.length)
+  const nextToken = yytext.substring(lastSepIndex)
+  debug('nextToken=', nextToken)
+  this.unput(nextToken)
+  yytext = yytext.substring(0, lastSepIndex)
+  yytext = yytext.removeFromEnd(' ')
+  yytext = yytext.removeFromEnd(',')
+  debug('2 yytext=' + yytext)
+  
+  // debug('this.matches=', this.matches)
+
+  // if (yytext.includes('=')) {
+  //   debug('"=" was found')
+  //   // oh, great
+  //   // TODO:
+  // }
+  // else {
+  //   debug('"=" NOT found')
+  // }
+    this.popState()
+    this.popState()
+                                          return 'VAL'
+%}
+<VARS>\s*'+'\s*\w+
+%{
+                                          return ['VAR', 'PLUS']
+%}
+<VARS>','\s*
+%{
+  this.popState()
+                                          return 'COMMA'
+%}
+<VARS>{space}
+%{
+  this.popState()
+                                          return 'SPACE'
+%}
+// class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")
+<AFTER_EQ>.+
+%{
+  // id=id
   this.popState()
                                           return 'VAL'
 %}
+// <AFTER_EQ>[^,]+
+// %{
+//   this.popState()
+//                                           return 'VAL'
+// %}
+// <AFTER_EQ>[^ ,]+
+// %{
+//   this.popState()
+//                                           return 'VAL'
+// %}
 
 /lex
 
@@ -90,14 +165,23 @@ attrs
   ;
 
 attr
-  : NAME EQ VAL
+  : NAME EQ val
   {
-    debug('attr: NAME EQ VAL: NAME=', $NAME, ', VAL=', $VAL)
-    $$ = { name: $NAME.trim(), val: $VAL }
+    debug('attr: NAME EQ val: NAME=', $NAME, ', val=', $val)
+    $$ = { name: $NAME.trim(), val: $val }
   } 
   | SPREAD
   {
     $$ = { name: $SPREAD, val: $SPREAD }
+  }
+  ;
+
+val
+  : VAL
+  | VAR
+  | val PLUS VAR
+  {
+    $$ = $val + $VAR
   }
   ;
 
@@ -114,6 +198,21 @@ var lparenOpen = false
 const keysToMergeText = ['therest']
 const quoteStack = []
 const parens = []
+
+function findLastSeparatorIndex(str) {
+  let notFound = true
+  let index = str.length - 2
+  while(notFound && index > -1) {
+    const c = str.charAt(index)
+    if (/\w/.test(c)) {
+      letterFoundIndex = index
+      notFound = false
+    }
+    index--
+  }
+  const substr = str.substring(0, letterFoundIndex)
+  return Math.max(substr.lastIndexOf(' '), substr.lastIndexOf(','))
+}
 
 function parseNumber(str) {
   try {
@@ -151,6 +250,15 @@ parser.main = function () {
 
     compareFunc.call({}, actual, expected)
   }
+
+
+test("name='viewport' content='width=device-width'", [{name: 'name', val: "'viewport'"}, {name: 'content', val: "'width=device-width'"}])
+test("content='I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'", [{ name: 'content', val: "'I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'" }])
+test("property='og:description' content='I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'", [{ name: 'property', val: "'og:description'" }, { name: 'content', val: "'I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'" }])
+test(`foo=null bar=bar`, [{ name: 'foo', val: 'null' }, { name: 'bar', val: 'bar' }])
+test(`data-epoc=new Date(0)`, [{ name: 'data-epoc', val: 'new Date(0)' }])
+test(`class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`, [{ name: 'class', val: '(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'}])
+test('id=id', [{ name: 'id', val: 'id'}])
 
 test(`class=['foo', 'bar', 'baz']`, [{ name: 'class', val: "['foo', 'bar', 'baz']" }])
 
@@ -205,13 +313,6 @@ test(`href='/user/' + id, class='button'`, [
     val: "'button'"
   }
 ])
-test(`href  =  '/user/' + id, class  =  'button'`, [ {
-    name: 'href',
-    val: "'/user/' + id"
-  },  {
-    name: 'class',
-    val: "'button'"
-  }])
 test(`key='answer', value=answer()`, [
   {
     name: 'key',
@@ -220,12 +321,6 @@ test(`key='answer', value=answer()`, [
   {
     name: 'value',
     val: 'answer()'
-  }
-])
-test(`class = ['class1', 'class2']`, [
-  {
-    name: 'class',
-    val: "['class1', 'class2']"
   }
 ])
 test(`class = ['class1', 'class2']`, [
@@ -248,13 +343,16 @@ test(`href  =  '/user/' + id class  =  'button'`, [ {
     name: 'class',
     val: "'button'"
   }])
-test(`key='answer' value=answer()`, [ {
-    name: 'href',
-    val: "'/user/' + id"
-  },  {
-    name: 'class',
-    val: "'button'"
-  }])
+test(`key='answer' value=answer()`, [
+  {
+    name: 'key',
+    val: "'answer'"
+  },
+  {
+    name: 'value',
+    val: 'answer()'
+  }
+])
 test(`class = ['class1', 'class2']`, [
   {
     name: 'class',
@@ -268,9 +366,9 @@ test(`class = ['class1', 'class2']`, [
   }
 ])
 
-// test(`id=id)&attributes({foo: 'bar'}`)
+// test(`id=id)&attributes({foo: 'bar'}`, {})
 // - var bar = null
-// test(`foo=null bar=bar)&attributes({baz: 'baz'})
+// test(`foo=null bar=bar)&attributes({baz: 'baz'}`. [])
 
 test(`...object`, [{name: '...object', val: '...object'}])
 test(`...object after="after"`, [{name: '...object', val: '...object'}, {name: 'after', val: '"after"'}])
