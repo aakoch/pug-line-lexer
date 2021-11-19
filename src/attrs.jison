@@ -29,7 +29,7 @@ space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200
 %{
                                           return 'SPACE'
 %}
-<INITIAL>\s*[^=]+
+<INITIAL>\s*[^= ,]+
 %{
   this.pushState('AFTER_NAME')
                                           return 'NAME'
@@ -140,6 +140,21 @@ space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200
 //                                           return 'VAL'
 // %}
 
+// for "foo, bar, baz"
+<AFTER_NAME>','{space}*
+%{
+  debug("<AFTER_NAME>','")
+  this.popState()
+                                            return 'COMMA'
+%}
+// for "foo, bar, baz"
+<AFTER_NAME>{space}
+%{
+  debug("<AFTER_NAME>{space}")
+  this.popState()
+                                            return 'SPACE'
+%}
+
 /lex
 
 %ebnf
@@ -174,6 +189,15 @@ attr
   {
     $$ = { name: $SPREAD, val: $SPREAD }
   }
+  // for "foo, bar, baz"
+  | NAME
+  {
+    debug('attr: NAME: $NAME=', $NAME)
+    // $$ = $1.map( function(id2) {
+    //   return { name: id2 }
+    // })
+    $$ = { name: $NAME }
+  } 
   ;
 
 val
@@ -250,6 +274,9 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
+test('foo, bar, baz', [{name: 'foo'}, {name: 'bar'}, {name: 'baz'}])
+test("value='foo' selected", [{name: 'value', val: "'foo'"}, {name: 'selected'}])
+test("selected value='bar'", [ { name: 'selected' }, { name: 'value', val: "'bar'" } ])
 
 test("name='viewport' content='width=device-width'", [{name: 'name', val: "'viewport'"}, {name: 'content', val: "'width=device-width'"}])
 test("content='I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'", [{ name: 'content', val: "'I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'" }])

@@ -160,7 +160,7 @@ else {
   this.pushState('TEXT');
                                            return 'SPACE'; // only because it is an empty object 
 %}
-<INITIAL,ATTRS_END>'&attributes('[^\)]+')'
+<INITIAL,AFTER_TAG_NAME,ATTRS_END>'&attributes('[^\)]+')'
 %{
   debug("'&attributes('[^\)]+')'")
                                           return 'AT_ATTRS'
@@ -631,14 +631,21 @@ line
   | line_start AT_ATTRS
   {
     debug('line: line_start AT_ATTRS: $AT_ATTRS=', $AT_ATTRS)
-    let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
-    let entries2 = Object.entries(func())
-    debug('entries2=', entries2)
-    let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
-      debug('key=', key, 'value=', value)
-      return { name: key, val: value }
-    })
-    $$ = merge($line_start, { type: 'tag', attrs: attrs2 })
+    if ($AT_ATTRS.includes('{') && $AT_ATTRS.includes('}')) {
+      let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
+      let entries2 = Object.entries(func())
+      debug('entries2=', entries2)
+      let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
+        debug('key=', key, 'value=', value)
+        return { name: key, val: value }
+      })
+      $$ = merge($line_start, { type: 'tag', attrs: attrs2 })
+    }
+    else {
+      $$ = merge($line_start, 
+        { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
+      )
+    }
   }
   ;
 
@@ -671,6 +678,11 @@ line_start
   {
     debug('line_start: first_token tag_part attrs')
     $$ = merge($first_token, [$tag_part, $attrs])
+  }
+  // Rule for the edgecase a(class='bar').baz
+  | first_token attrs CLASSNAME
+  {
+    $$ = merge($first_token, [$attrs, { classes: $CLASSNAME }])
   }
   // Rule for the edgecase a.foo(class='bar').baz
   | first_token tag_part attrs CLASSNAME
@@ -791,24 +803,28 @@ tag_part
 attrs
   : LPAREN ATTR_TEXT RPAREN
   {
-    debug('Calling parseAttrs with ', $2)
-    const attrs = parseAttrs.parse($2)
-    debug('attrs=', attrs)
+    debug('1 Calling parseAttrs with ', $2)
     $$ = {}
-    attrs.forEach(attr => {
-      // if (attr.hasOwnProperty('key') && attr.key == 'class' && !attr.assignment) {
-      //   $$ = merge($$, { classes: attr.val.split(' ') } )
-      //   delete attr.class
-      // }
-      // else if (attr.hasOwnProperty('id')) {
-      //   $$ = merge($$, { id: attr.id } )
-      //   delete attr.id
-      // }
-      // else 
-      if (!_.isEmpty(attr)) {
-        $$ = merge($$, { attrs: [attr] })
-      }
-    })
+    try {
+      const attrs = parseAttrs.parse($2.trim())
+      debug('attrs=', attrs)
+      attrs.forEach(attr => {
+        // if (attr.hasOwnProperty('key') && attr.key == 'class' && !attr.assignment) {
+        //   $$ = merge($$, { classes: attr.val.split(' ') } )
+        //   delete attr.class
+        // }
+        // else if (attr.hasOwnProperty('id')) {
+        //   $$ = merge($$, { id: attr.id } )
+        //   delete attr.id
+        // }
+        // else 
+        if (!_.isEmpty(attr)) {
+          $$ = merge($$, { attrs: [attr] })
+        }
+      })
+    } catch (e) {
+      console.error('Error parsing ' + $2, e)
+    }
   }
   | LPAREN CONDITION RPAREN
   {
@@ -1025,7 +1041,7 @@ test(`a.foo(class='bar').baz`, {
   name: 'a',
   type: 'tag'
 })
-
+// How is that ^ different than this?: a(href='/save').button save
 
 test(`a.foo-bar_baz`, {
   classes: [
@@ -1624,6 +1640,88 @@ test('+code(\'Pretty-print any JSON file\') jq \'.\' package.json',
   params: "'Pretty-print any JSON file'",
   val: "jq '.' package.json"
 } )
+
+test("a(href='/save').button save", {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'href', val: "'/save'" } ],
+  classes: 'button',
+  val: 'save'
+})
+
+test("meta( charset='utf8' )", {
+  name: 'meta',
+  type: 'tag',
+  attrs: [ { name: 'charset', val: "'utf8'" } ]
+})
+
+// test("input(pattern='\\\\S+')", {})
+test("a(href='/contact') contact", {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'href', val: "'/contact'" } ],
+  val: 'contact'
+})
+test("a(foo bar baz)", {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'foo' }, { name: 'bar' }, { name: 'baz' } ]
+})
+test("a(foo='foo, bar, baz' bar=1)", {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'foo', val: "'foo, bar, baz'" },
+    { name: 'bar', val: '1' }
+  ] 
+})
+test("a(foo='((foo))' bar= (1) ? 1 : 0 )", {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'foo', val: "'((foo))'" },
+    { name: 'bar', val: '(1) ? 1 : 0' }
+  ]
+})
+test("select", { name: 'select', type: 'tag' })
+test("option(value='foo' selected) Foo",{
+  name: 'option',
+  type: 'tag',
+  attrs: [ { name: 'value', val: "'foo'" }, { name: 'selected' } ],
+  val: 'Foo'
+})
+test("option(selected value='bar') Bar", {
+  name: 'option',
+  type: 'tag',
+  attrs: [ { name: 'selected' }, { name: 'value', val: "'bar'" } ],
+  val: 'Bar'
+})
+test('a(foo="class:")', { name: 'a', type: 'tag', attrs: [ { name: 'foo', val: '"class:"' } ] })
+// test("input(pattern='\\S+')", {})
+test('foo(terse="true")', {
+  name: 'foo',
+  type: 'tag',
+  attrs: [ { name: 'terse', val: '"true"' } ]
+})
+test("foo(date=new Date(0))", {
+  name: 'foo',
+  type: 'tag',
+  attrs: [ { name: 'date', val: 'new Date(0)' } ]
+})
+test("- var attrs = {foo: 'bar', bar: '<baz>'}",  {
+  type: 'code',
+  state: 'CODE_START',
+  val: "var attrs = {foo: 'bar', bar: '<baz>'}"
+})
+// test("a(foo='foo' \"bar\"=\"bar\")", {})
+
+try {
+  test("a(foo='foo' 'bar'='bar'))", {})
+  fail('expected exception')
+} catch (expected) {}
+
+// TODO:
+test("div&attributes(attrs)", { type: 'tag', name: 'div', attrs: [{val: 'attrs'}] })
 
 };
 
