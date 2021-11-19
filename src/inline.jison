@@ -8,96 +8,160 @@
 // ID          [A-Z-]+"?"?
 // NUM         ([1-9][0-9]+|[0-9])
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
-tag              (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
+tag_name              (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
-html_tag_end             \<\/\w+\>
-pug_tag_end             \]
-dot                     \.
+filter_name         (cdata)\b
+
+
+// short_tag_start           #\[
+// short_tag_end             \]
+// dot                       \.
 
 %x AFTER_TAG_START
 %x AFTER_TAG_START_END
+%x ASSIGNMENT_STARTED
 
 %%
 
-<INITIAL,AFTER_TAG_START_END>'<'\s*({tag})
+
+'\#'
 %{
-  // yytext = yytext.substring(1, yytext.length - 1)
-  debug('start tag: ' + this.matches[1])
-  this.pushState('AFTER_TAG_START')
-  tags.push(this.matches[1])
+                                            return 'TEXT'
+%}
+
+(?:'#['\s*){tag_name}
+%{
+  '])'
   yytext = this.matches[1]
-                                          return 'TAG_START';
+  this.pushState('TAG_STARTED')
+                                          return 'TAG_START'
 %}
 
-<AFTER_TAG_START>(?!\\)'>'
+(?:'#['\s*)':'{filter_name}
 %{
-  debug('TAG_START_END')
-  this.popState()
-  this.pushState('AFTER_TAG_START_END')
-                                          return 'TAG_START_END';
+  '])'
+  yytext = this.matches[1]
+  this.pushState('TAG_STARTED')
+                                          return 'FILTER_START'
 %}
 
-<AFTER_TAG_START_END>'</'\s*(\w+)\s*'>'
-%{
-  debug('30 this.matches=', this.matches)
-  debug('yytext = ' + yytext)
-  debug('tags = ' + tags)
-  const expectedTag = tags.pop();
-  if (this.matches[1] == expectedTag) {
-    debug('inside')
-    this.popState()
-                                          return 'TAG_END';
-  }
-  else {
-    //this.unput()
-    throw new Error(`Ending tag "${this.matches.input}" didn't match start "${expectedTag}"`)
-  }
-  // yytext = yytext.substring(1, yytext.length - 1)
-  // tags.push(yytext)
-%}
-// {html_tag_end}
-// %{
-//   actualTag = yytext.substring(2, yytext.length - 1)
-//   let expectedTag = tags.pop()
-//   if (expectedTag != actualTag) {
-//     throw new Error(`Ending tag "${actualTag}" didn't match start "${expectedTag}"`)
-//   }
-//                                           return 'TAG_END';
-// %}
-'#['{tag}{space}
-%{
-  this.pushState('AFTER_TAG_START_END');
-  yytext = yytext.substring(2, yytext.length - 1)
-                                          return ['TAG_START_END', 'TAG_START'];
-%}
-<AFTER_TAG_START_END>{pug_tag_end}
+<INITIAL>(\w|{space}|[^#])+               return 'TEXT'
+
+<TAG_STARTED>'='
 %{
   this.popState()
-                                          return 'TAG_END';
+  this.pushState('ASSIGNMENT_STARTED')
+                                          return 'EQ'
 %}
-<INITIAL,AFTER_TAG_START_END>{space}
+<ASSIGNMENT_STARTED>[ ']
 %{
-                                          return 'SPACE';
+                                          return 'ASSIGN_PART'
 %}
-<INITIAL>\w+
+<ASSIGNMENT_STARTED>'['
 %{
-                                          return 'WORD';
+  ']'
+  this.pushState('ASSIGNMENT_STARTED_BRACKET_ADDED')
+                                          return 'ASSIGN_PART'
 %}
-<INITIAL>{dot}
+<ASSIGNMENT_STARTED_BRACKET_ADDED>']'
 %{
-                                          return 'WORD';
+  this.popState()
+                                          return 'ASSIGN_PART'
 %}
-<AFTER_TAG_START_END>\w+
+<ASSIGNMENT_STARTED,ASSIGNMENT_STARTED_BRACKET_ADDED>\w+
 %{
-                                          return 'WORD';
+                                          return 'ASSIGN_PART'
 %}
-<AFTER_TAG_START_END>[,]+
+<ASSIGNMENT_STARTED>']'
 %{
-                                          return 'PUNC';
+  this.popState()
+                                          return 'TAG_END'
 %}
+
+<TAG_STARTED,BODY_STARTED>'['
+%{
+  '])'
+  this.pushState('BRACKET_ADDED')
+                                          return 'ATTR'
+%}
+
+
+<TAG_STARTED,BODY_STARTED>'['
+%{
+  '])'
+  this.pushState('BRACKET_ADDED')
+                                          return 'LBRACKET'
+%}
+<BRACKET_ADDED>']'
+%{
+  this.popState()
+                                          return 'RBRACKET'
+%}
+
+<ATTRS_STARTED>'('
+%{
+  '])'
+  this.pushState('PARENS_ADDED')
+                                          return 'LPAREN'
+%}
+<PARENS_ADDED>')'
+%{
+  this.popState()
+                                          return 'RPAREN'
+%}
+
+<TAG_STARTED>']'
+%{
+                                          return 'TAG_END'
+%}
+<TAG_STARTED>'('
+%{
+  ')'
+  this.popState()
+  this.pushState('ATTRS_STARTED')
+%}
+
+<TAG_STARTED>{space}
+%{
+  this.popState()
+  this.pushState('BODY_STARTED')
+%}
+
+<ATTRS_STARTED>\w+
+%{
+                                          return 'ATTR'
+%}
+<ATTRS_STARTED>{space}+
+%{
+                                          return 'ATTR'
+%}
+<ATTRS_STARTED>[^()\]]+
+%{
+                                          return 'ATTR'
+%}
+
+<ATTRS_STARTED>')'
+%{
+  this.popState()
+                                          return 'TAG_END'
+%}
+
+<BODY_STARTED,ATTRS_STARTED>\w+
+%{
+                                          return 'BODY'
+%}
+<BODY_STARTED,ATTRS_STARTED>{space}+
+%{
+                                          return 'BODY'
+%}
+<BODY_STARTED>']'
+%{
+  this.popState()
+                                          return 'TAG_END'
+%}
+
+
 <<EOF>>                                   return 'EOF';
-
-
 /lex
 
 %ebnf
@@ -105,134 +169,139 @@ dot                     \.
 
 %% 
 
-/* language grammar */
-
 start
-  : EOF
-  | line EOF
+  : line EOF
   ;
 
 line
   : line line_part
   {
-    // debug('line line_part: line=', $line, ', line_part=', $line_part)
-    // console.log($line_part)
-
-    // just to remove blank lines:
-    if (typeof $line_part === 'string' && $line_part.length == 0) {
+    debug('line: line line_part: $line=', $line, ', $line_part=', $line_part)
+    if (Array.isArray($line)) {
       $$ = $line
     }
     else {
-      $$ = [$line].flat()
-      $$.push($line_part)
+      $$ = [ $line ]
     }
+    $$.push($line_part)
   }
   | line_part
   {
-    $$ = [$line_part]
+    debug('line: line_part: $line_part=', $line_part)
+    if (Array.isArray($line_part)) {
+      $$ = $line_part
+    }
+    else {
+      $$ = [ $line_part ]
+    }
   }
   ;
 
 line_part
-  : words
+  : 
+  | TAG
   {
-    $$ = { type: 'text', val: $words.flat().join('') }
-  }
-  | tag
-  ;
-
-words
-  : words word
-  {
-    $words.push($word)
-    $$ = $words
-  }
-  | word
-  {
-    $$ = [$word]
-  }
-  // {
-  //   $$ = [{ type: 'text', val: $PUNC }]
-  // }
-  ;
-
-word
-  // : words words
-  // {
-  // //   debug('words SPACE WORD: words=', $words, ', WORD=', $WORD)
-  //   $$ = [$words1].flat()
-  //   $$.push($words2)
-  // }
-  // | words SPACE
-  // {
-  //   debug('words SPACE: words=', $words)
-  //   $$ = [$words].flat()
-  //   $$.push($SPACE)
-  // }
-  // | SPACE words
-  // {
-  //   debug('SPACE words: words=', $words)
-  //   $$ = [$SPACE].flat()
-  //   $$.push($words)
-  // }
-  : SPACE
-  {
-    debug('SPACE')
-    $$ = [$SPACE]
-  }
-  | WORD
-  {
-    debug('WORD: WORD=', $WORD)
-    $$ = [$WORD]
-  }
-  | PUNC
-  {
-    debug('PUNC: PUNC=', $PUNC)
-    $$ = [$PUNC]
-  }
-  ;
-
-line_parts
-  : line_parts line_part
-  | line_part 
-  ;
-
-tag
-  : opening_tag line_part TAG_END
-  {
-    debug('opening_tag line_part TAG_END: opening_tag=', $opening_tag, ', line_part=', $line_part)
-    if ($line_part.type === 'text') {
-      $$ = { type: 'tag', name: $opening_tag, children: [$line_part] }
+    let [tag_name, attrs, body] = $TAG
+    debug('$TAG=', $TAG)
+    debug('tag_name=', tag_name)
+    debug('attrs=', attrs)
+    debug('body=', body)
+    const obj1 = { type: 'tag', name: tag_name, attrs: attrs }
+    if (attrs == undefined) delete obj1.attrs
+    if (body == '') {
+      delete obj1.val
+    }
+    else if (body.includes('<') && body.includes('>')) {
+      debug('parsing ', body)
+      recursive++
+      let parsedBody = yy.parser.parse(body)
+      recursive--
+      debug('parsedBody=', parsedBody)
+      if (parsedBody.length == 1 && parsedBody[0].type == 'text' && !parsedBody[0].hasOwnProperty('children')) {
+        obj1.val = parsedBody[0].val
+      }
+      else {
+        obj1.children = obj1.hasOwnProperty('children') ? obj1.children.push(...parsedBody) : parsedBody
+      }
     }
     else {
-      $$ = { type: 'tag', name: $opening_tag, val: $line_part }
+      obj1.val = body
     }
+    $$ = obj1
   }
-  | opening_tag line_part line_parts TAG_END
+  | TEXT+
   {
-    debug('opening_tag line_part line_parts TAG_END: opening_tag=', $opening_tag, ', line_part=', $line_part, ', line_parts=', $line_parts)
-    // if ($line_part.type === 'text') {
-    //   $$ = { type: 'tag', name: $opening_tag, children: [$line_part] }
-    // }
-    // else {
-      $$ = { type: 'tag', name: $opening_tag, children: [$line_part, $line_parts] }
-    // }
+    $$ = { type: 'text', val: $1.join('') }
   }
-  | opening_tag TAG_END
+  | TAG_START TAG_END
   {
-    $$ = { type: 'tag', name: $opening_tag }
+    $$ = { type: 'tag', name: $TAG_START }
   }
-  | TAG_SELF_CLOSING
+  | TAG_START BODY+ TAG_END
   {
-    $$ = { type: 'tag', name: $TAG_SELF_CLOSING }
+    $$ = { type: 'tag', name: $TAG_START, val: $2.join('') }
   }
-  ;
+  | TAG_START BODY+ TAG_END
+  {
+    $$ = { type: 'tag', name: $TAG_START, val: $2.join('') }
+  }
+  | TAG_START ATTR+ TAG_END
+  {
+    $$ = { type: 'tag', name: $TAG_START, attrs: parseAttrs.parse($2.join('')) }
+  }
+  | TAG_START ATTR+ BODY+ TAG_END
+  {
+    $$ = { type: 'tag', name: $TAG_START, val: $3.join(''), attrs: parseAttrs.parse($2.join('')) }
+  }
+  | TAG_START ATTR+ BODY+ TAG_END
+  {
+    $$ = { type: 'tag', name: $TAG_START, val: $3.join(''), attrs: parseAttrs.parse($2.join('')) }
+  }
+  | FILTER_START TAG_END
+  {
+    $$ = { type: 'filter', name: $FILTER_START }
+  }
+  | FILTER_START BODY+ TAG_END
+  {
+    $$ = { type: 'filter', name: $FILTER_START, val: $2.join('') }
+  }
+  | FILTER_START BODY+ TAG_END
+  {
+    $$ = { type: 'filter', name: $FILTER_START, val: $2.join('') }
+  }
+  | FILTER_START ATTR+ TAG_END
+  {
+    $$ = { type: 'filter', name: $FILTER_START, attrs: parseAttrs.parse($2.join('')) }
+  }
+  | FILTER_START ATTR+ BODY+ TAG_END
+  {
+    $$ = { type: 'filter', name: $FILTER_START, val: $3.join(''), attrs: parseAttrs.parse($2.join('')) }
+  }
+  | FILTER_START ATTR+ BODY+ TAG_END
+  {
+    $$ = { type: 'filter', name: $FILTER_START, val: $3.join(''), attrs: parseAttrs.parse($2.join('')) }
+  }
 
-opening_tag
-  : TAG_START TAG_START_END
+  | TAG_START EQ ASSIGN_PART+ TAG_END
+  {
+    $$ = { type: 'tag', name: $TAG_START, assignment: $3.join('') }
+  }
+  | TAG_START EQ ASSIGN_PART+ ATTR+ TAG_END
+  {
+    $$ = { type: 'tag', name: $TAG_START, assignment: $3.join(''), attrs: parseAttrs.parse($5.join('')) }
+  }
+  | TAG_START EQ ASSIGN_PART+ BODY+ TAG_END
+  {
+    $$ = { type: 'tag', name: $TAG_START, assignment: $3.join(''), val: $5.join('') }
+  }
+  | TAG_START EQ ASSIGN_PART+ ATTR+ BODY+ TAG_END
+  {
+    $$ = { type: 'tag', name: $TAG_START, assignment: $3.join(''), val: $6.join(''), attrs: parseAttrs.parse($5.join('')) }
+  }
   ;
 
 %% 
+
 __module_imports__
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
@@ -246,6 +315,7 @@ const keysToMergeText = ['therest']
 const tags = []
 
 const adam = "div"
+var recursive = 1
 
 function rank(type1, type2) {
   if (type2 === 'text') {
@@ -323,122 +393,72 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
-
-test('<div></div>', [{ type: 'tag', name: 'div' }])
-test('<div></div>a', [
-  {
-    name: 'div',
-    type: 'tag'
-  },
+test('#[br]', [{ type: 'tag', name: 'br' }])
+test('#[strong mighty]', [{ type: 'tag', name: 'strong', val: 'mighty' }])
+test('A #[strong strongly worded phrase] that cannot be #[em ignored].', [
+  { type: 'text', val: 'A ' },
+  { type: 'tag', name: 'strong', val: 'strongly worded phrase' },
+  { type: 'text', val: ' that cannot be ' },
+  { type: 'tag', name: 'em', val: 'ignored' },
+  { type: 'text', val: '.' }
+])
+test('This is a very long and boring paragraph that spans multiple lines. Suddenly there is a #[strong strongly worded phrase] that cannot be #[em ignored].', [
   {
     type: 'text',
-    val: 'a'
-  }
-])
-
-test('A sentence with a <span><strong>strongly</strong> worded phrase</span> that cannot be <em>ignored</em>.', [
-    { type: 'text', val: 'A sentence with a ' },
-    { type: 'tag', name: 'span', children: [{ type: 'tag', name: 'strong', children: [{ type: 'text', val: 'strongly' }]}, 
-                                            { type: 'text', val: ' worded phrase' }] },
-    { type: 'text', val: ' that cannot be ' },
-    { type: 'tag', name: 'em', children: [{ type: 'text', val: 'ignored' }] },
-    { type: 'text', val: '.' }
-  ])
-test('1A sentence with a <span><strong>strongly </strong>worded phrase</span> that cannot be <em>ignored</em>.', [
-  {"type": "text", "val": "1A sentence with a "},
-  {"type": "tag", "name": "span", "children": [{"type": "tag", "name": "strong", "children": [{"type": "text", "val": "strongly "}]}, {"type": "text", "val": "worded phrase"}]},
-  {"type": "text", "val": " that cannot be "},
-  {"type": "tag", "name": "em", "children": [{"type": "text", "val": "ignored"}]},
-  {"type": "text", "val": "."}
-])
-test(
-  '2A sentence with a <span><strong>strongly, <em>italicized</em></strong>worded phrase</span> that cannot be <em>ignored</em>.',
-  [{
-      type: 'text',
-      val: '2A sentence with a '
-    }, {
-      type: 'tag',
-      name: 'span',
-      children: [{
-          type: 'tag',
-          name: 'strong',
-          children: [{
-              type: 'text',
-              val: 'strongly, '
-            }, {
-              type: 'tag',
-              name: 'em',
-              children: [{
-                  type: 'text',
-                  val: 'italicized'
-                }
-              ]
-            }
-          ]
-        }, {
-          type: 'text',
-          val: 'worded phrase'
-        }
-      ]
-    }, {
-      type: 'text',
-      val: ' that cannot be '
-    }, {
-      type: 'tag',
-      name: 'em',
-      children: [{
-          type: 'text',
-          val: 'ignored'
-        }
-      ]
-    }, {
-      type: 'text',
-      val: '.'
-    }
-  ])
-test('3A sentence with a <span><strong>strongly </strong>worded phrase</span> that cannot be <em>ignored</em>.', [
-  { type: "text", val: "3A sentence with a " },
-  {
-    type: "tag",
-    name: "span",
-    children: [
-      {
-        type: "tag",
-        name: "strong",
-        children: [ { type: "text", val: "strongly " } ]
-      },
-      { type: "text", val: "worded phrase" }
-    ]
+    val: 'This is a very long and boring paragraph that spans multiple lines. Suddenly there is a '
   },
-  { type: "text", val: " that cannot be " },
-  {
-    type: "tag",
-    name: "em",
-    children: [ { type: "text", val: "ignored" } ]
-  },
-  { type: "text", val: "." }
+  { type: 'tag', name: 'strong', val: 'strongly worded phrase' },
+  { type: 'text', val: ' that cannot be ' },
+  { type: 'tag', name: 'em', val: 'ignored' },
+  { type: 'text', val: '.' }
 ])
-test('A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', [
-    { type: 'text', val: 'A sentence with a ' },
-    { type: 'tag', name: 'strong', children: [{ type: 'text', val: 'strongly worded phrase' }] },
-    { type: 'text', val: ' that cannot be ' },
-    { type: 'tag', name: 'em', children: [{ type: 'text', val: 'ignored' }] },
-    { type: 'text', val: '.' }
-  ])
-test('A sentence with a <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>.', [
-    { type: 'text', val: 'A sentence with a ' },
-    { type: 'tag', name: 'strong', children: [{ type: 'text', val: 'strongly worded phrase' }] },
-    { type: 'text', val: ' that cannot be ' },
-    { type: 'tag', name: 'em', children: [{ type: 'text', val: 'ignored' }] },
-    { type: 'text', val: '.' }
-  ])
+test('And here\'s an example of an interpolated tag with an attribute: #[q(lang="es") ¡Hola Mundo!]', [
+  {
+    type: 'text',
+    val: "And here's an example of an interpolated tag with an attribute: "
+  },
+  { type: 'tag', name: 'q', attrs: [ { name: 'lang', val: '"es"' } ] },
+  { type: 'text', val: ' ¡Hola Mundo!]' }
+])
 
 try {
-  test('<div></span>')
-  assert.fail('Should have thrown an error')
-} catch (ignore) {
-  assert.equal(ignore.message, `Ending tag "</span>" didn't match start "div"`)
-}
+  test('#[strong a}', {})
+  fail('expected exception')
+} catch (expected) {}
+
+test('before #[:cdata inside] after', [
+  { type: 'text', val: 'before ' },
+  { type: 'filter', name: 'cdata', val: 'inside' },
+  { type: 'text', val: ' after' }
+])
+test('bing #[strong foo] bong', [
+  { type: 'text', val: 'bing ' },
+  { type: 'tag', name: 'strong', val: 'foo' },
+  { type: 'text', val: ' bong' }
+])
+
+test("bing #[strong foo] #[strong= '[foo]'] bong",  [
+  { type: 'text', val: 'bing ' },
+  { type: 'tag', name: 'strong', val: 'foo' },
+  { type: 'text', val: ' ' },
+  { type: 'tag', name: 'strong', assignment: " '[foo]'" },
+  { type: 'text', val: ' bong' }
+])
+
+// TODO:
+// test("bing #[- var foo = 'foo]'] bong", {})
+
+test('\\#[strong escaped]', [ { type: 'text', val: '\\#[strong escaped]' } ])
+test('\\#[#[strong escaped]', [
+  { type: 'text', val: '\\#[' },
+  { type: 'tag', name: 'strong', val: 'escaped' }
+])
+
+// TODO:
+// test("#[a.rho(href='#', class='rho--modifier') with inline link]", {})
+// test("Some text #[a.rho(href='#', class='rho--modifier')]", {})
+// test("Some text #[a.rho(href='#', class='rho--modifier') with inline link]", {})
+// test("This also works #[+linkit('http://www.bing.com')] so hurrah for Pug", {})
 
 };
 

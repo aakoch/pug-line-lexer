@@ -425,6 +425,10 @@ else {
                                                               return 'SPACE';
 %}
 <AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,ATTRS_END>'.'\s*<<EOF>>             return 'DOT_END';
+
+
+
+
 <AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE>.+
 %{
   // if (yytext.startsWith(' ') {
@@ -451,6 +455,7 @@ else {
   this.popState();
                                           return 'ASSIGNMENT_VALUE';
 %}
+
 <ATTRS_END>.+
 %{
   // yytext = yytext.substring(1)
@@ -588,6 +593,14 @@ line
   | line_start TEXT
   {
     debug('line: line_start TEXT: $line_start=', $line_start, ', $TEXT=', $TEXT)
+
+    if ($TEXT.includes('#[')) {
+      debug('Calling parseInline with ', $TEXT)
+      const possibleTags2 = parseInline.parse($TEXT)
+      debug('possibleTags2=', possibleTags2)
+    }
+    // $$ = { type: 'text', val: $TEXT }
+    
     $$ = merge($line_start, { type: 'text', val: $TEXT })
   }
   | line_start CODE
@@ -596,7 +609,16 @@ line
   }
   | line_start line_splitter line_end
   {
-    $$ = merge($line_start, [$line_splitter, $line_end])
+    debug('line: line_start line_splitter line_end: $line_start=', $line_start, ', $line_end=', $line_end)
+    if ($line_end == undefined) {
+      $$ = merge($line_start, $line_splitter)
+    }
+    else if ($line_end.hasOwnProperty('type') && $line_end.type == 'array') {
+      $$ = merge($line_start, [$line_splitter, { children: $line_end.val }])
+    }
+    else {
+      $$ = merge($line_start, [$line_splitter, $line_end])
+    }
   }
   | line_start NESTED_TAG_START line
   {
@@ -683,8 +705,14 @@ first_token
   {
     $$ = { type: 'tag', id: $TAG_ID }
   }
+  // TODO: Should separate JS and CSS from regular text
   | TEXT
   {
+    if ($TEXT.includes('#[')) {
+      debug('Calling parseInline with ', $TEXT)
+      const possibleTags = parseInline.parse($TEXT)
+      debug('possibleTags=', possibleTags)
+    }
     $$ = { type: 'text', val: $TEXT }
   }
   | COMMENT
@@ -817,7 +845,16 @@ line_end
   }
   | TEXT
   {
-    $$ = { type: 'text', val: $TEXT }
+    debug('line_end: TEXT: $TEXT=', $TEXT)
+    if ($TEXT.includes('#[')) {
+      debug('Calling parseInline with ', $TEXT)
+      const possibleTags3 = parseInline.parse($TEXT)
+      debug('possibleTags3=', possibleTags3)
+      $$ = { type: 'array', val: possibleTags3 }
+    }
+    else {
+      $$ = { type: 'text', val: $TEXT }
+    }
   }
   | CODE
   {
@@ -833,7 +870,7 @@ line_splitter
   : SPACE
   {
     debug('line_splitter: SPACE')
-    $$ = undefined
+    $$ = {}
   }
   | ASSIGNMENT
   {
@@ -844,7 +881,7 @@ line_splitter
     debug('line_splitter: DOT_END')
     $$ = { state: 'TEXT_START' }
   }
-  | RPAREN
+  // | RPAREN
   ;
 
 %% 
@@ -878,13 +915,29 @@ function rank(type1, type2) {
 } 
 
 function merge(obj, src) {
+
+  if (obj == undefined || _.isEmpty(obj)) {
+    debug('empty/undefined obj, returning src')
+    return src
+  }
+  else if (src == undefined || _.isEmpty(src)) {
+    debug('empty/undefined src, returning obj')
+    return obj
+  }
+
+  if (Array.isArray(src) && src.length > 0) {
+    src = src.reduce(merge)
+    debug('src reduced to=', src)
+  }
+
   debug('merging', obj, src)
 
-  if (Array.isArray(src) && src.length > 0)
-    src = src.reduce(merge)
+  // if (util.isDeepStrictEqual(src, [ { therest: '' } ]))
+  //    return obj
 
-  if (util.isDeepStrictEqual(src, [ { therest: '' } ]))
-     return obj
+  if (obj.type != 'text' && Object.keys(src).length == 1 && Object.keys(src)[0] == 'children' && src.children.length == 1 && src.children[0].hasOwnProperty('type') && src.children[0].type == 'text') {
+    return Object.assign(obj, { val: src.children[0].val })
+  }
 
   const ret = _.mergeWith(obj, src, function (objValue, srcValue, key, object, source, stack) {
     debug('merging', 'inside _mergeWith', key, objValue, srcValue)
@@ -1001,10 +1054,33 @@ test('span(v-for="item in items" :key="item.id" :value="item.name")', {
     { name: ':value', val: '"item.name"' }
   ]
 })
-// test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {})
-// test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {})
+test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {
+  name: 'p',
+  type: 'tag',
+  children: [
+    { type: 'text', val: 'A sentence with a ' },
+    { type: 'tag', name: 'strong', val: 'strongly worded phrase' },
+    { type: 'text', val: ' that cannot be ' },
+    { type: 'tag', name: 'em', val: 'ignored' },
+    { type: 'text', val: '.' }
+  ]
+})
 
+test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {
+  name: 'p',
+  type: 'tag',
+  val: '<strong>strongly worded phrase</strong> that cannot be <em>ignored</em>'
+})
+
+
+// Not sure about this...
 test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
+//  {
+//   name: 'span',
+//   type: 'tag',
+//   children: [ { type: 'text', val: '&boxv;' } ]
+// })
+
 test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it' })
 test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
 test("#{'foo'}(bar='baz') /", {

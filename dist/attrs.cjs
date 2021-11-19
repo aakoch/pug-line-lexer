@@ -3532,6 +3532,7 @@ var _ = require("lodash");
 var debugFunc = require('debug')
 const dyp = require('dyp');
 const parseAttrs = require('../dist/attrs.cjs')
+const parseInline = require('../dist/inline.cjs')
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
 
@@ -3545,13 +3546,12 @@ const quoteStack = []
 const parens = []
 
 function findLastSeparatorIndex(str) {
-  let notFound = true
   let index = str.length - 2
-  while(notFound && index > -1) {
+  let letterFoundIndex = -1
+  while(letterFoundIndex == -1 && index > -1) {
     const c = str.charAt(index)
     if (/\w/.test(c)) {
       letterFoundIndex = index
-      notFound = false
     }
     index--
   }

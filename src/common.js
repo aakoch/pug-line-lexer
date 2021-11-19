@@ -5,3 +5,4 @@ var _ = require("lodash");
 var debugFunc = require('debug')
 const dyp = require('dyp');
 const parseAttrs = require('../dist/attrs.cjs')
+const parseInline = require('../dist/inline.cjs')
