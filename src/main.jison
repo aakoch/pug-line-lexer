@@ -44,6 +44,11 @@ interpolation           #\{.+\}
 
 %%
 
+<INITIAL>'#['{tag}
+%{
+  ']'
+                                          return 'TAG'
+%}
 <INITIAL>{keyword}
 %{
   this.pushState('AFTER_KEYWORD');
@@ -94,6 +99,7 @@ else {
 %}
 <COND_START>'('
 %{
+  ')'
   this.pushState('COND_START');
                                           return 'LPAREN';
 %}
@@ -883,15 +889,31 @@ line_end
   | TEXT
   {
     debug('line_end: TEXT: $TEXT=', $TEXT)
-    // if ($TEXT.includes('#[')) {
-    //   debug('Calling parseInline with ', $TEXT)
-    //   const possibleTags3 = parseInline.parse($TEXT)
-    //   debug('possibleTags3=', possibleTags3)
-    //   $$ = { type: 'array', val: possibleTags3 }
-    // }
-    // else {
+    if ($TEXT.includes('#[')) {
+
+      const matches1 = $TEXT.matchAll(/#\[.*?\]/g)
+      debug('matches1', matches1)
+      let idx = 0
+      let elems = []
+      for (const match of matches1) {
+        if (idx != match.index) {
+          elems.push({ type: 'text', val: $TEXT.substring(idx, match.index) })
+          idx = match.index
+        }
+        elems.push(this.yy.parser.parse(match[0].slice(2, -1)))
+        idx += match[0].length
+        // debug('match', match)
+        // console.log(`Found ${match[0]} start=${match.index} end=${match.index + match[0].length}.`);
+      }
+      if (idx != $TEXT.length) {
+        elems.push({ type: 'text', val: $TEXT.substring(idx, $TEXT.index) })
+      }
+      debug('elems', elems)
+      $$ = { children: elems }
+    }
+    else {
       $$ = { type: 'text', val: $TEXT }
-    // }
+    }
   }
   | CODE
   {
@@ -1021,25 +1043,6 @@ parser.main = function () {
   }
 
 
-test(`p #[a.rho(href='#', class='rho--modifier') with inline link]`, {
-  attrs: [
-    {
-      name: 'href',
-      val: "'#'"
-    },
-    {
-      name: 'class',
-      val: "'rho--modifier'"
-    }
-  ],
-  classes: [
-    'rho'
-  ],
-  name: 'a',
-  type: 'tag'
-})
-
-
 test("a.rho(href='#', class='rho--modifier')", {
   attrs: [
     {
@@ -1122,17 +1125,6 @@ test('span(v-for="item in items" :key="item.id" :value="item.name")', {
     { name: 'v-for', val: '"item in items"' },
     { name: ':key', val: '"item.id"' },
     { name: ':value', val: '"item.name"' }
-  ]
-})
-test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {
-  name: 'p',
-  type: 'tag',
-  children: [
-    { type: 'text', val: 'A sentence with a ' },
-    { type: 'tag', name: 'strong', val: 'strongly worded phrase' },
-    { type: 'text', val: ' that cannot be ' },
-    { type: 'tag', name: 'em', val: 'ignored' },
-    { type: 'text', val: '.' }
   ]
 })
 
@@ -1337,7 +1329,7 @@ test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
 
 test('foo(abc', {type: 'tag', name: 'foo', attrs: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
 test('foo(abc,', {type: 'tag', name: 'foo', attrs: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>,def)', { type: 'attr_cont', val: ',def)' })
+test('<MULTI_LINE_ATTRS>,def)', { type: 'attr_end', val: ',def)' })
 
 test('span(', {type: 'tag', name: 'span', state: 'MULTI_LINE_ATTRS'})
 test('<MULTI_LINE_ATTRS>v-for="item in items"', { type: 'attr_cont', val: 'v-for="item in items"',
@@ -1352,7 +1344,7 @@ test('<MULTI_LINE_ATTRS>:value="item.name"', {
   val: ':value="item.name"',
   state: 'MULTI_LINE_ATTRS'
 })
-test('<MULTI_LINE_ATTRS>)', { type: 'attr_cont', val: ')' })
+test('<MULTI_LINE_ATTRS>)', { type: 'attr_end', val: ')' })
 test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
   name: 'a',
   type: 'tag',
@@ -1771,6 +1763,61 @@ try {
 
 // TODO:
 test("div&attributes(attrs)", { type: 'tag', name: 'div', attrs: [{val: 'attrs'}] })
+
+test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {
+  name: 'p',
+  type: 'tag',
+  children: [
+    { type: 'text', val: 'A sentence with a ' },
+    { type: 'tag', name: 'strong', val: 'strongly worded phrase' },
+    { type: 'text', val: ' that cannot be ' },
+    { type: 'tag', name: 'em', val: 'ignored' },
+    { type: 'text', val: '.' }
+  ]
+})
+
+test(`p Some text #[a.rho(href='#', class='rho--modifier') with inline link]`, {
+  name: 'p',
+  type: 'tag',
+  children: [
+    { type: 'text', val: 'Some text ' },
+    {
+      name: 'a',
+      type: 'tag',
+      classes: ['rho'],
+      attrs: [{
+          name: 'href',
+          val: "'#'"
+        },
+        {
+          name: 'class',
+          val: "'rho--modifier'"
+        }],
+      val: 'with inline link'
+    }
+  ]
+})
+
+test(`p #[a.rho(href='#', class='rho--modifier') with inline link]`, {
+  name: 'p',
+  type: 'tag',
+  children: [
+    {
+      name: 'a',
+      type: 'tag',
+      classes: ['rho'],
+      attrs: [{
+          name: 'href',
+          val: "'#'"
+        },
+        {
+          name: 'class',
+          val: "'rho--modifier'"
+        }],
+      val: 'with inline link'
+    }
+  ]
+})
 
 };
 
