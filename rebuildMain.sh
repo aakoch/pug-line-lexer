@@ -7,5 +7,5 @@ if [ src/main.jison -nt dist/main.cjs ]; then
 fi
 
 if [ $? -eq 0 ]; then
-  DEBUG='pug-line-lexer' node dist/main.cjs
+  DEBUG='*' node dist/main.cjs
 fi

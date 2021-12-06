@@ -611,43 +611,51 @@ options: {
 symbols_: {
   "$accept": 0,
   "$end": 1,
-  "ASSIGN_PART": 11,
-  "ATTR": 10,
-  "BODY": 9,
+  "ASSIGN_PART": 13,
+  "ATTR": 12,
+  "BODY": 11,
+  "CLASSNAME": 14,
+  "DOT": 10,
   "EOF": 1,
   "EQ": 7,
   "FILTER_START": 6,
+  "INTERPOLATION": 9,
   "TAG": 3,
   "TAG_END": 5,
   "TAG_START": 4,
   "TEXT": 8,
   "error": 2,
-  "line": 13,
-  "line_part": 14,
-  "line_part_repetition_plus": 15,
-  "line_part_repetition_plus10": 24,
-  "line_part_repetition_plus11": 25,
-  "line_part_repetition_plus12": 26,
-  "line_part_repetition_plus13": 27,
-  "line_part_repetition_plus14": 28,
-  "line_part_repetition_plus15": 29,
-  "line_part_repetition_plus16": 30,
-  "line_part_repetition_plus17": 31,
-  "line_part_repetition_plus18": 32,
-  "line_part_repetition_plus19": 33,
-  "line_part_repetition_plus2": 16,
-  "line_part_repetition_plus20": 34,
-  "line_part_repetition_plus21": 35,
-  "line_part_repetition_plus22": 36,
-  "line_part_repetition_plus23": 37,
-  "line_part_repetition_plus3": 17,
-  "line_part_repetition_plus4": 18,
-  "line_part_repetition_plus5": 19,
-  "line_part_repetition_plus6": 20,
-  "line_part_repetition_plus7": 21,
-  "line_part_repetition_plus8": 22,
-  "line_part_repetition_plus9": 23,
-  "start": 12
+  "line": 16,
+  "line_part": 17,
+  "line_part_repetition": 41,
+  "line_part_repetition2": 42,
+  "line_part_repetition3": 43,
+  "line_part_repetition4": 44,
+  "line_part_repetition5": 45,
+  "line_part_repetition_plus": 18,
+  "line_part_repetition_plus10": 27,
+  "line_part_repetition_plus11": 28,
+  "line_part_repetition_plus12": 29,
+  "line_part_repetition_plus13": 30,
+  "line_part_repetition_plus14": 31,
+  "line_part_repetition_plus15": 32,
+  "line_part_repetition_plus16": 33,
+  "line_part_repetition_plus17": 34,
+  "line_part_repetition_plus18": 35,
+  "line_part_repetition_plus19": 36,
+  "line_part_repetition_plus2": 19,
+  "line_part_repetition_plus20": 37,
+  "line_part_repetition_plus21": 38,
+  "line_part_repetition_plus22": 39,
+  "line_part_repetition_plus23": 40,
+  "line_part_repetition_plus3": 20,
+  "line_part_repetition_plus4": 21,
+  "line_part_repetition_plus5": 22,
+  "line_part_repetition_plus6": 23,
+  "line_part_repetition_plus7": 24,
+  "line_part_repetition_plus8": 25,
+  "line_part_repetition_plus9": 26,
+  "start": 15
 },
 terminals_: {
   1: "EOF",
@@ -658,9 +666,12 @@ terminals_: {
   6: "FILTER_START",
   7: "EQ",
   8: "TEXT",
-  9: "BODY",
-  10: "ATTR",
-  11: "ASSIGN_PART"
+  9: "INTERPOLATION",
+  10: "DOT",
+  11: "BODY",
+  12: "ATTR",
+  13: "ASSIGN_PART",
+  14: "CLASSNAME"
 },
 TERROR: 2,
     EOF: 1,
@@ -766,17 +777,11 @@ TERROR: 2,
     },
 productions_: bp({
   pop: u([
-  12,
-  13,
-  13,
+  15,
+  16,
+  16,
   s,
-  [14, 19],
-  15,
-  15,
-  16,
-  16,
-  17,
-  17,
+  [17, 22],
   18,
   18,
   19,
@@ -816,7 +821,23 @@ productions_: bp({
   36,
   36,
   37,
-  37
+  37,
+  38,
+  38,
+  39,
+  39,
+  40,
+  40,
+  41,
+  41,
+  42,
+  42,
+  43,
+  43,
+  44,
+  44,
+  45,
+  45
 ]),
   rule: u([
   2,
@@ -836,12 +857,20 @@ productions_: bp({
   5,
   5,
   6,
+  2,
+  6,
+  4,
   1,
   2,
   1,
   2,
   c,
-  [4, 42]
+  [4, 42],
+  0,
+  2,
+  0,
+  c,
+  [4, 7]
 ])
 }),
 performAction: function parser__PerformAction(yystate /* action[1] */, yysp, yyvstack) {
@@ -1024,104 +1053,166 @@ case 22:
     break;
 
 case 23:
-    /*! Production::    line_part_repetition_plus : TEXT */
+    /*! Production::    line_part : TEXT INTERPOLATION */
+
+    this.$ = [
+      { type: 'text', val: yyvstack[yysp - 1] },
+      // { type: 'interp', val: $INTERPOLATION.slice(2, -1) }
+      { type: 'interp', val: yyvstack[yysp] }
+    ]
+    break;
+
+case 24:
+    /*! Production::    line_part : TAG_START DOT line_part_repetition line_part_repetition2 line_part_repetition3 TAG_END */
+
+    this.$ = { type: 'tag', name: yyvstack[yysp - 5] }
+    if (yyvstack[yysp - 3]) {
+      this.$.classes = yyvstack[yysp - 3]
+    }
+    if (yyvstack[yysp - 2]) {
+      this.$.attrs = parseAttrs.parse(yyvstack[yysp - 2].join(''))
+    }
+    if (yyvstack[yysp - 1]) {
+      this.$.val = yyvstack[yysp - 1].join('')
+    }
+    break;
+
 case 25:
+    /*! Production::    line_part : TAG_START line_part_repetition4 line_part_repetition5 TAG_END */
+
+    debug('TAG_START ATTR* BODY* TAG_END')
+    this.$ = { type: 'tag', name: yyvstack[yysp - 3] }
+    if (yyvstack[yysp - 2]) {
+      this.$.attrs = parseAttrs.parse(yyvstack[yysp - 2].join(''))
+    }
+    if (yyvstack[yysp - 1]) {
+      this.$.val = yyvstack[yysp - 1].join('')
+    }
+    break;
+
+case 26:
+    /*! Production::    line_part_repetition_plus : TEXT */
+case 28:
     /*! Production::    line_part_repetition_plus2 : BODY */
-case 27:
+case 30:
     /*! Production::    line_part_repetition_plus3 : BODY */
-case 29:
+case 32:
     /*! Production::    line_part_repetition_plus4 : ATTR */
-case 31:
+case 34:
     /*! Production::    line_part_repetition_plus5 : ATTR */
-case 33:
+case 36:
     /*! Production::    line_part_repetition_plus6 : BODY */
-case 35:
+case 38:
     /*! Production::    line_part_repetition_plus7 : ATTR */
-case 37:
+case 40:
     /*! Production::    line_part_repetition_plus8 : BODY */
-case 39:
+case 42:
     /*! Production::    line_part_repetition_plus9 : BODY */
-case 41:
+case 44:
     /*! Production::    line_part_repetition_plus10 : BODY */
-case 43:
+case 46:
     /*! Production::    line_part_repetition_plus11 : ATTR */
-case 45:
+case 48:
     /*! Production::    line_part_repetition_plus12 : ATTR */
-case 47:
+case 50:
     /*! Production::    line_part_repetition_plus13 : BODY */
-case 49:
+case 52:
     /*! Production::    line_part_repetition_plus14 : ATTR */
-case 51:
+case 54:
     /*! Production::    line_part_repetition_plus15 : BODY */
-case 53:
+case 56:
     /*! Production::    line_part_repetition_plus16 : ASSIGN_PART */
-case 55:
+case 58:
     /*! Production::    line_part_repetition_plus17 : ASSIGN_PART */
-case 57:
+case 60:
     /*! Production::    line_part_repetition_plus18 : ATTR */
-case 59:
+case 62:
     /*! Production::    line_part_repetition_plus19 : ASSIGN_PART */
-case 61:
+case 64:
     /*! Production::    line_part_repetition_plus20 : BODY */
-case 63:
+case 66:
     /*! Production::    line_part_repetition_plus21 : ASSIGN_PART */
-case 65:
+case 68:
     /*! Production::    line_part_repetition_plus22 : ATTR */
-case 67:
+case 70:
     /*! Production::    line_part_repetition_plus23 : BODY */
 
     this.$ = [yyvstack[yysp]];
     break;
 
-case 24:
+case 27:
     /*! Production::    line_part_repetition_plus : line_part_repetition_plus TEXT */
-case 26:
+case 29:
     /*! Production::    line_part_repetition_plus2 : line_part_repetition_plus2 BODY */
-case 28:
+case 31:
     /*! Production::    line_part_repetition_plus3 : line_part_repetition_plus3 BODY */
-case 30:
+case 33:
     /*! Production::    line_part_repetition_plus4 : line_part_repetition_plus4 ATTR */
-case 32:
+case 35:
     /*! Production::    line_part_repetition_plus5 : line_part_repetition_plus5 ATTR */
-case 34:
+case 37:
     /*! Production::    line_part_repetition_plus6 : line_part_repetition_plus6 BODY */
-case 36:
+case 39:
     /*! Production::    line_part_repetition_plus7 : line_part_repetition_plus7 ATTR */
-case 38:
+case 41:
     /*! Production::    line_part_repetition_plus8 : line_part_repetition_plus8 BODY */
-case 40:
+case 43:
     /*! Production::    line_part_repetition_plus9 : line_part_repetition_plus9 BODY */
-case 42:
+case 45:
     /*! Production::    line_part_repetition_plus10 : line_part_repetition_plus10 BODY */
-case 44:
+case 47:
     /*! Production::    line_part_repetition_plus11 : line_part_repetition_plus11 ATTR */
-case 46:
+case 49:
     /*! Production::    line_part_repetition_plus12 : line_part_repetition_plus12 ATTR */
-case 48:
+case 51:
     /*! Production::    line_part_repetition_plus13 : line_part_repetition_plus13 BODY */
-case 50:
+case 53:
     /*! Production::    line_part_repetition_plus14 : line_part_repetition_plus14 ATTR */
-case 52:
+case 55:
     /*! Production::    line_part_repetition_plus15 : line_part_repetition_plus15 BODY */
-case 54:
+case 57:
     /*! Production::    line_part_repetition_plus16 : line_part_repetition_plus16 ASSIGN_PART */
-case 56:
+case 59:
     /*! Production::    line_part_repetition_plus17 : line_part_repetition_plus17 ASSIGN_PART */
-case 58:
+case 61:
     /*! Production::    line_part_repetition_plus18 : line_part_repetition_plus18 ATTR */
-case 60:
+case 63:
     /*! Production::    line_part_repetition_plus19 : line_part_repetition_plus19 ASSIGN_PART */
-case 62:
+case 65:
     /*! Production::    line_part_repetition_plus20 : line_part_repetition_plus20 BODY */
-case 64:
+case 67:
     /*! Production::    line_part_repetition_plus21 : line_part_repetition_plus21 ASSIGN_PART */
-case 66:
+case 69:
     /*! Production::    line_part_repetition_plus22 : line_part_repetition_plus22 ATTR */
-case 68:
+case 71:
     /*! Production::    line_part_repetition_plus23 : line_part_repetition_plus23 BODY */
+case 73:
+    /*! Production::    line_part_repetition : line_part_repetition CLASSNAME */
+case 75:
+    /*! Production::    line_part_repetition2 : line_part_repetition2 ATTR */
+case 77:
+    /*! Production::    line_part_repetition3 : line_part_repetition3 BODY */
+case 79:
+    /*! Production::    line_part_repetition4 : line_part_repetition4 ATTR */
+case 81:
+    /*! Production::    line_part_repetition5 : line_part_repetition5 BODY */
 
     yyvstack[yysp - 1].push(yyvstack[yysp]);
     this.$ = yyvstack[yysp - 1];
+    break;
+
+case 72:
+    /*! Production::    line_part_repetition : %epsilon */
+case 74:
+    /*! Production::    line_part_repetition2 : %epsilon */
+case 76:
+    /*! Production::    line_part_repetition3 : %epsilon */
+case 78:
+    /*! Production::    line_part_repetition4 : %epsilon */
+case 80:
+    /*! Production::    line_part_repetition5 : %epsilon */
+
+    this.$ = [];
     break;
 
 }
@@ -1134,38 +1225,46 @@ table: bt({
   0,
   0,
   5,
-  9,
+  11,
   8,
+  6,
   s,
-  [0, 5],
+  [0, 4],
   s,
   [2, 3],
   3,
   3,
   5,
+  1,
+  4,
   0,
   3,
   c,
-  [9, 6],
+  [11, 6],
   c,
   [8, 3],
-  c,
-  [22, 6],
+  s,
+  [0, 6],
+  2,
   c,
   [3, 6],
   s,
   [3, 3],
   4,
+  5,
   c,
-  [17, 12],
+  [9, 3],
+  c,
+  [20, 11],
   c,
   [12, 12],
   c,
-  [42, 7],
+  [46, 3],
+  4,
+  s,
+  [0, 11],
   c,
-  [17, 7],
-  0,
-  0
+  [33, 9]
 ]),
   symbol: u([
   1,
@@ -1174,7 +1273,7 @@ table: bt({
   6,
   8,
   s,
-  [12, 4, 1],
+  [15, 4, 1],
   1,
   c,
   [10, 5],
@@ -1184,66 +1283,84 @@ table: bt({
   [7, 4],
   5,
   7,
-  9,
   10,
-  s,
-  [16, 4, 1],
-  21,
-  5,
-  9,
-  10,
-  s,
-  [23, 4, 1],
-  28,
-  5,
-  9,
-  5,
-  9,
-  5,
-  10,
-  9,
-  10,
-  20,
-  9,
-  10,
-  22,
   11,
-  30,
+  12,
+  s,
+  [19, 4, 1],
+  24,
+  44,
+  5,
+  11,
+  12,
+  s,
+  [26, 4, 1],
   31,
-  33,
-  35,
   c,
-  [25, 3],
-  c,
-  [20, 8],
-  27,
+  [24, 5],
   9,
-  10,
-  29,
+  5,
+  11,
+  5,
+  11,
+  5,
+  12,
+  11,
+  12,
+  23,
+  11,
+  12,
+  25,
+  13,
+  33,
+  34,
+  36,
+  38,
+  41,
+  c,
+  [32, 3],
+  45,
+  c,
+  [4, 3],
+  c,
+  [25, 8],
+  30,
+  11,
+  12,
+  32,
   c,
   [15, 8],
+  13,
+  12,
+  13,
+  35,
   11,
-  10,
-  11,
-  32,
-  9,
-  11,
-  34,
-  10,
-  11,
-  36,
+  13,
+  37,
+  12,
+  13,
+  39,
   c,
   [18, 3],
-  11,
+  13,
   c,
-  [34, 6],
+  [4, 3],
+  14,
+  42,
+  c,
+  [24, 5],
+  c,
+  [41, 3],
   5,
-  9,
-  9,
-  10,
-  37,
-  5,
-  9
+  11,
+  11,
+  12,
+  40,
+  c,
+  [18, 3],
+  43,
+  c,
+  [15, 4]
 ]),
   type: u([
   s,
@@ -1254,25 +1371,30 @@ table: bt({
   c,
   [10, 7],
   s,
-  [2, 9],
+  [2, 10],
   s,
-  [0, 5],
+  [0, 6],
   c,
-  [8, 11],
+  [9, 8],
+  s,
+  [2, 14],
   c,
-  [21, 6],
+  [15, 3],
+  0,
   c,
-  [3, 4],
+  [24, 9],
   c,
-  [17, 12],
+  [28, 12],
   c,
-  [20, 8],
+  [25, 5],
   c,
   [15, 16],
   c,
-  [18, 12],
+  [18, 9],
   c,
-  [21, 6]
+  [70, 13],
+  c,
+  [59, 9]
 ]),
   state: u([
   1,
@@ -1283,18 +1405,21 @@ table: bt({
   5,
   s,
   [13, 5, 1],
+  20,
   s,
-  [22, 5, 1],
-  35,
+  [24, 5, 1],
   38,
+  41,
   s,
-  [41, 4, 1],
-  52,
-  55,
-  64,
-  67,
-  70,
-  81
+  [44, 4, 1],
+  49,
+  50,
+  58,
+  61,
+  s,
+  [70, 4, 3],
+  91,
+  94
 ]),
   mode: u([
   2,
@@ -1302,14 +1427,24 @@ table: bt({
   [1, 9],
   s,
   [2, 4],
+  c,
+  [13, 13],
+  c,
+  [14, 10],
+  c,
+  [17, 5],
+  c,
+  [20, 4],
+  c,
+  [16, 12],
+  c,
+  [31, 15],
+  c,
+  [50, 17],
+  c,
+  [51, 4],
   s,
-  [1, 19],
-  c,
-  [22, 13],
-  c,
-  [35, 15],
-  c,
-  [51, 16]
+  [1, 4]
 ]),
   goto: u([
   4,
@@ -1322,45 +1457,59 @@ table: bt({
   [6, 4],
   11,
   12,
+  18,
+  19,
+  21,
+  22,
+  23,
+  29,
+  30,
   s,
-  [18, 4, 1],
+  [26, 5],
   s,
-  [27, 8, 1],
-  37,
-  36,
+  [31, 7, 1],
   40,
   39,
-  45,
-  29,
-  31,
-  29,
-  s,
-  [46, 6, 1],
-  54,
-  53,
-  57,
-  56,
   43,
-  45,
-  43,
+  42,
+  48,
+  80,
+  80,
+  51,
+  32,
+  34,
+  32,
   s,
-  [58, 6, 1],
-  66,
-  65,
-  69,
-  68,
+  [52, 6, 1],
+  60,
+  59,
+  63,
+  62,
+  46,
+  48,
+  46,
+  s,
+  [64, 6, 1],
   72,
   71,
-  53,
-  59,
-  55,
-  53,
+  75,
+  74,
+  78,
+  77,
+  56,
+  62,
+  58,
+  56,
   s,
-  [73, 8, 1],
-  83,
-  82,
-  84,
-  85
+  [74, 3],
+  s,
+  [80, 11, 1],
+  93,
+  92,
+  76,
+  76,
+  s,
+  [95, 5, 1]
 ])
 }),
 defaultActions: bda({
@@ -1368,86 +1517,99 @@ defaultActions: bda({
   3,
   4,
   s,
-  [8, 5, 1],
+  [9, 4, 1],
   19,
   21,
-  27,
+  23,
+  29,
   s,
-  [29, 6, 1],
-  36,
-  37,
+  [31, 7, 1],
   39,
   40,
+  42,
+  43,
   s,
-  [46, 6, 1],
-  53,
-  54,
+  [51, 7, 1],
+  59,
+  60,
   s,
-  [56, 8, 1],
-  65,
-  66,
-  68,
-  69,
+  [62, 8, 1],
+  71,
+  72,
+  74,
+  75,
+  77,
+  78,
   s,
-  [71, 10, 1],
+  [80, 11, 1],
+  92,
+  93,
   s,
-  [82, 4, 1]
+  [95, 5, 1]
 ]),
   goto: u([
   3,
   5,
-  23,
   1,
   2,
-  24,
+  27,
   7,
-  25,
-  13,
-  39,
-  8,
-  26,
-  9,
+  72,
   28,
-  10,
-  30,
-  32,
-  33,
-  36,
-  37,
-  14,
-  40,
-  15,
+  13,
   42,
+  23,
+  8,
+  29,
+  9,
+  31,
+  10,
+  33,
+  35,
+  36,
+  39,
+  40,
+  79,
+  14,
+  43,
+  15,
+  45,
   16,
-  44,
-  46,
   47,
+  49,
   50,
-  51,
-  11,
-  34,
-  12,
-  38,
-  19,
+  53,
   54,
-  56,
+  11,
+  37,
+  12,
+  41,
+  19,
   57,
+  59,
   60,
-  61,
+  63,
   64,
-  65,
-  17,
-  48,
-  18,
-  52,
-  20,
-  58,
-  21,
-  62,
-  66,
   67,
+  68,
+  73,
+  25,
+  81,
+  17,
+  51,
+  18,
+  55,
+  20,
+  61,
+  21,
+  65,
+  69,
+  70,
+  75,
   22,
-  68
+  71,
+  24,
+  77
 ])
 }),
 parseError: function parseError(str, hash, ExceptionClass) {
@@ -1487,7 +1649,7 @@ parse: function parse(input) {
     var TERROR = this.TERROR;
     var EOF = this.EOF;
     var ERROR_RECOVERY_TOKEN_DISCARD_COUNT = (this.options.errorRecoveryTokenDiscardCount | 0) || 3;
-    var NO_ACTION = [0, 86 /* === table.length :: ensures that anyone using this new state will fail dramatically! */];
+    var NO_ACTION = [0, 100 /* === table.length :: ensures that anyone using this new state will fail dramatically! */];
 
     var lexer;
     if (this.__lexer__) {
@@ -3835,15 +3997,59 @@ EOF: 1,
       switch (yyrulenumber) {
       case 1:
         /*! Conditions:: INITIAL */
+        /*! Rule::       \\{interp} */
+        debug('matches', this.matches);
+
+        yy_.yytext = yy_.yytext.substring(2, yy_.yytext.length - 1);
+        return 'INTERPOLATION_WRONG';
+        break;
+
+      case 2:
+        /*! Conditions:: INITIAL */
+        /*! Rule::       {interp} */
+        debug('matches', this.matches);
+
+        yy_.yytext = yy_.yytext.substring(2, yy_.yytext.length - 1);
+        return 9;
+        break;
+
+      case 3:
+        /*! Conditions:: INITIAL */
+        /*! Rule::       {interp_start}\w+ */
+        this.pushState('INTERP_START');
+
+        break;
+
+      case 4:
+        /*! Conditions:: INTERP_START */
+        /*! Rule::       . */
+        if (yy_.yytext == '{') {
+          interpStack.push('}');
+          // this.unput('}')
+        } else if (yy_.yytext == '}') {
+          if (interpStack.length == 0) {
+            // return 9
+          } else if (interpStack.pop() == yy_.yytext) {
+            return 9;
+          } else {
+            throw new Error('Mismatching curly braces');
+          }
+        }
+
+        break;
+
+      case 9:
+        /*! Conditions:: INITIAL */
         /*! Rule::       (?:#\[\s*){tag_name} */
         '])';
 
+        debug('(?:\'#[\'s*){tag_name}');
         yy_.yytext = this.matches[1];
         this.pushState('TAG_STARTED');
         return 4;
         break;
 
-      case 2:
+      case 10:
         /*! Conditions:: INITIAL */
         /*! Rule::       (?:#\[\s*):{filter_name} */
         '])';
@@ -3853,7 +4059,15 @@ EOF: 1,
         return 6;
         break;
 
-      case 4:
+      case 12:
+        /*! Conditions:: TAG_STARTED */
+        /*! Rule::       \. */
+        this.pushState('CLASSNAME_STARTED');
+
+        return 10;
+        break;
+
+      case 13:
         /*! Conditions:: TAG_STARTED */
         /*! Rule::       = */
         this.popState();
@@ -3862,24 +4076,24 @@ EOF: 1,
         return 7;
         break;
 
-      case 6:
+      case 15:
         /*! Conditions:: ASSIGNMENT_STARTED */
         /*! Rule::       \[ */
         ']';
 
         this.pushState('ASSIGNMENT_STARTED_BRACKET_ADDED');
-        return 11;
+        return 13;
         break;
 
-      case 7:
+      case 16:
         /*! Conditions:: ASSIGNMENT_STARTED_BRACKET_ADDED */
         /*! Rule::       \] */
         this.popState();
 
-        return 11;
+        return 13;
         break;
 
-      case 9:
+      case 18:
         /*! Conditions:: ASSIGNMENT_STARTED */
         /*! Rule::       \] */
         this.popState();
@@ -3887,16 +4101,16 @@ EOF: 1,
         return 5;
         break;
 
-      case 10:
+      case 19:
         /*! Conditions:: TAG_STARTED BODY_STARTED */
         /*! Rule::       \[ */
         '])';
 
         this.pushState('BRACKET_ADDED');
-        return 10;
+        return 12;
         break;
 
-      case 11:
+      case 20:
         /*! Conditions:: TAG_STARTED BODY_STARTED */
         /*! Rule::       \[ */
         '])';
@@ -3905,7 +4119,7 @@ EOF: 1,
         return 'LBRACKET';
         break;
 
-      case 12:
+      case 21:
         /*! Conditions:: BRACKET_ADDED */
         /*! Rule::       \] */
         this.popState();
@@ -3913,7 +4127,7 @@ EOF: 1,
         return 'RBRACKET';
         break;
 
-      case 13:
+      case 22:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       \( */
         '])';
@@ -3922,7 +4136,7 @@ EOF: 1,
         return 'LPAREN';
         break;
 
-      case 14:
+      case 23:
         /*! Conditions:: PARENS_ADDED */
         /*! Rule::       \) */
         this.popState();
@@ -3930,7 +4144,7 @@ EOF: 1,
         return 'RPAREN';
         break;
 
-      case 16:
+      case 25:
         /*! Conditions:: TAG_STARTED */
         /*! Rule::       \( */
         ')';
@@ -3939,7 +4153,7 @@ EOF: 1,
         this.pushState('ATTRS_STARTED');
         break;
 
-      case 17:
+      case 26:
         /*! Conditions:: TAG_STARTED */
         /*! Rule::       {space} */
         this.popState();
@@ -3947,20 +4161,37 @@ EOF: 1,
         this.pushState('BODY_STARTED');
         break;
 
-      case 21:
+      case 27:
         /*! Conditions:: ATTRS_STARTED */
-        /*! Rule::       \) */
-        this.popState();
+        /*! Rule::       \w+ */
+        debug('<ATTRS_STARTED>\\w+');
 
-        return 5;
+        debug('yy_.yytext', yy_.yytext);
+        return 12;
         break;
 
-      case 24:
+      case 30:
+        /*! Conditions:: ATTRS_STARTED */
+        /*! Rule::       \) ? */
+        this.popState();
+
+        this.pushState('BODY_STARTED');
+        break;
+
+      case 33:
         /*! Conditions:: BODY_STARTED */
         /*! Rule::       \] */
         this.popState();
 
         return 5;
+        break;
+
+      case 35:
+        /*! Conditions:: CLASSNAME_STARTED */
+        /*! Rule::       {classname} */
+        this.popState();
+
+        return 14;
         break;
 
       default:
@@ -3970,77 +4201,109 @@ EOF: 1,
 
     simpleCaseActionClusters: {
       /*! Conditions:: INITIAL */
-      /*! Rule::       \\# */
-      0: 8,
+      /*! Rule::       \\#\{ */
+      0: 'BACKSLASH',
+
+      /*! Conditions:: INITIAL */
+      /*! Rule::       .+\\#\{.+\} */
+      5: 8,
+
+      /*! Conditions:: INITIAL */
+      /*! Rule::       #\{.+\} */
+      6: 9,
+
+      /*! Conditions:: INITIAL */
+      /*! Rule::       .*\\# */
+      7: 8,
+
+      /*! Conditions:: INITIAL */
+      /*! Rule::       {interp} */
+      8: 9,
 
       /*! Conditions:: INITIAL */
       /*! Rule::       (\w|{space}|[^#])+ */
-      3: 8,
+      11: 8,
 
       /*! Conditions:: ASSIGNMENT_STARTED */
       /*! Rule::       [ '] */
-      5: 11,
+      14: 13,
 
       /*! Conditions:: ASSIGNMENT_STARTED ASSIGNMENT_STARTED_BRACKET_ADDED */
       /*! Rule::       \w+ */
-      8: 11,
+      17: 13,
 
       /*! Conditions:: TAG_STARTED */
       /*! Rule::       \] */
-      15: 5,
-
-      /*! Conditions:: ATTRS_STARTED */
-      /*! Rule::       \w+ */
-      18: 10,
+      24: 5,
 
       /*! Conditions:: ATTRS_STARTED */
       /*! Rule::       {space}+ */
-      19: 10,
+      28: 12,
 
       /*! Conditions:: ATTRS_STARTED */
       /*! Rule::       [^()\]]+ */
-      20: 10,
+      29: 12,
 
       /*! Conditions:: BODY_STARTED ATTRS_STARTED */
       /*! Rule::       \w+ */
-      22: 9,
+      31: 11,
 
       /*! Conditions:: BODY_STARTED ATTRS_STARTED */
       /*! Rule::       {space}+ */
-      23: 9,
+      32: 11,
+
+      /*! Conditions:: BODY_STARTED */
+      /*! Rule::       .+ */
+      34: 11,
+
+      /*! Conditions:: INITIAL */
+      /*! Rule::       # */
+      36: 8,
 
       /*! Conditions:: INITIAL */
       /*! Rule::       $ */
-      25: 1
+      37: 1
     },
 
     rules: [
-      /*  0: */  /^(?:\\#)/i,
-      /*  1: */  /^(?:(?:#\[\s*)((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,
-      /*  2: */  /^(?:(?:#\[\s*):((cdata)\b))/i,
-      /*  3: */  /^(?:(\w|([   -​\u2028\u2029　])|[^#])+)/i,
-      /*  4: */  /^(?:=)/i,
-      /*  5: */  /^(?:[ '])/i,
-      /*  6: */  /^(?:\[)/i,
-      /*  7: */  /^(?:\])/i,
-      /*  8: */  /^(?:\w+)/i,
-      /*  9: */  /^(?:\])/i,
-      /* 10: */  /^(?:\[)/i,
-      /* 11: */  /^(?:\[)/i,
-      /* 12: */  /^(?:\])/i,
-      /* 13: */  /^(?:\()/i,
-      /* 14: */  /^(?:\))/i,
-      /* 15: */  /^(?:\])/i,
-      /* 16: */  /^(?:\()/i,
-      /* 17: */  /^(?:([   -​\u2028\u2029　]))/i,
-      /* 18: */  /^(?:\w+)/i,
-      /* 19: */  /^(?:([   -​\u2028\u2029　])+)/i,
-      /* 20: */  /^(?:[^()\]]+)/i,
-      /* 21: */  /^(?:\))/i,
-      /* 22: */  /^(?:\w+)/i,
-      /* 23: */  /^(?:([   -​\u2028\u2029　])+)/i,
+      /*  0: */  /^(?:\\#\{)/i,
+      /*  1: */  /^(?:\\(#\{(.+)\}))/i,
+      /*  2: */  /^(?:(#\{(.+)\}))/i,
+      /*  3: */  /^(?:(#\{)\w+)/i,
+      /*  4: */  /^(?:.)/i,
+      /*  5: */  /^(?:.+\\#\{.+\})/i,
+      /*  6: */  /^(?:#\{.+\})/i,
+      /*  7: */  /^(?:.*\\#)/i,
+      /*  8: */  /^(?:(#\{(.+)\}))/i,
+      /*  9: */  /^(?:(?:#\[\s*)((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,
+      /* 10: */  /^(?:(?:#\[\s*):((cdata)\b))/i,
+      /* 11: */  /^(?:(\w|([   -​\u2028\u2029　])|[^#])+)/i,
+      /* 12: */  /^(?:\.)/i,
+      /* 13: */  /^(?:=)/i,
+      /* 14: */  /^(?:[ '])/i,
+      /* 15: */  /^(?:\[)/i,
+      /* 16: */  /^(?:\])/i,
+      /* 17: */  /^(?:\w+)/i,
+      /* 18: */  /^(?:\])/i,
+      /* 19: */  /^(?:\[)/i,
+      /* 20: */  /^(?:\[)/i,
+      /* 21: */  /^(?:\])/i,
+      /* 22: */  /^(?:\()/i,
+      /* 23: */  /^(?:\))/i,
       /* 24: */  /^(?:\])/i,
-      /* 25: */  /^(?:$)/i
+      /* 25: */  /^(?:\()/i,
+      /* 26: */  /^(?:([   -​\u2028\u2029　]))/i,
+      /* 27: */  /^(?:\w+)/i,
+      /* 28: */  /^(?:([   -​\u2028\u2029　])+)/i,
+      /* 29: */  /^(?:[^()\]]+)/i,
+      /* 30: */  /^(?:\) ?)/i,
+      /* 31: */  /^(?:\w+)/i,
+      /* 32: */  /^(?:([   -​\u2028\u2029　])+)/i,
+      /* 33: */  /^(?:\])/i,
+      /* 34: */  /^(?:.+)/i,
+      /* 35: */  /^(?:([^\W\d]+[\w\-]*))/i,
+      /* 36: */  /^(?:#)/i,
+      /* 37: */  /^(?:$)/i
     ],
 
     conditions: {
@@ -4055,42 +4318,52 @@ EOF: 1,
       },
 
       'ASSIGNMENT_STARTED': {
-        rules: [5, 6, 8, 9],
+        rules: [14, 15, 17, 18],
         inclusive: false
       },
 
       'INITIAL': {
-        rules: [0, 1, 2, 3, 25],
+        rules: [0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 36, 37],
         inclusive: true
       },
 
+      'INTERP_START': {
+        rules: [4],
+        inclusive: false
+      },
+
       'TAG_STARTED': {
-        rules: [4, 10, 11, 15, 16, 17],
+        rules: [12, 13, 19, 20, 24, 25, 26],
         inclusive: false
       },
 
       'ASSIGNMENT_STARTED_BRACKET_ADDED': {
-        rules: [7, 8],
+        rules: [16, 17],
         inclusive: false
       },
 
       'BODY_STARTED': {
-        rules: [10, 11, 22, 23, 24],
+        rules: [19, 20, 31, 32, 33, 34],
         inclusive: false
       },
 
       'BRACKET_ADDED': {
-        rules: [12],
+        rules: [21],
         inclusive: false
       },
 
       'ATTRS_STARTED': {
-        rules: [13, 18, 19, 20, 21, 22, 23],
+        rules: [22, 27, 28, 29, 30, 31, 32],
         inclusive: false
       },
 
       'PARENS_ADDED': {
-        rules: [14],
+        rules: [23],
+        inclusive: false
+      },
+
+      'CLASSNAME_STARTED': {
+        rules: [35],
         inclusive: false
       }
     }
@@ -4106,8 +4379,8 @@ var utils = require("@aakoch/utils");
 var _ = require("lodash");
 var debugFunc = require('debug')
 const dyp = require('dyp');
-const parseAttrs = require('../dist/attrs.cjs')
-const parseInline = require('../dist/inline.cjs')
+const parseAttrs = require('./attrs.cjs')
+const parseInline = require('./inline.cjs')
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
 
@@ -4118,6 +4391,7 @@ let obj
 var lparenOpen = false
 const keysToMergeText = ['therest']
 const tags = []
+const interpStack = []
 
 const adam = "div"
 var recursive = 1
@@ -4198,6 +4472,65 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
+
+// TODO:
+test("#[a.rho(href='#', class='rho--modifier') with inline link]", [
+  {
+    type: 'tag',
+    name: 'a',
+    classes: [ 'rho' ],
+    attrs: [
+      { name: 'href', val: "'#'" },
+      { name: 'class', val: "'rho--modifier'" }
+    ],
+    val: 'with inline link'
+  }
+])
+test("Some text #[a.rho(href='#', class='rho--modifier')]", [
+  { type: 'text', val: 'Some text ' },
+  {
+    type: 'tag',
+    name: 'a',
+    classes: [ 'rho' ],
+    attrs: [
+      { name: 'href', val: "'#'" },
+      { name: 'class', val: "'rho--modifier'" }
+    ],
+    val: ''
+  }
+])
+test("Some text #[a.rho(href='#', class='rho--modifier') with inline link]", [
+  { type: 'text', val: 'Some text ' },
+  {
+    type: 'tag',
+    name: 'a',
+    classes: [ 'rho' ],
+    attrs: [
+      { name: 'href', val: "'#'" },
+      { name: 'class', val: "'rho--modifier'" }
+    ],
+    val: 'with inline link'
+  }
+])
+
+
+
+test('Written with love by #{author}', [
+  { type: 'text', val: 'Written with love by ' },
+  { type: 'interp', val: 'author' }
+])
+test('This will be safe: #{theGreat}', [
+  { type: 'text', val: 'This will be safe: ' },
+  { type: 'interp', val: 'theGreat' }
+])
+test('No escaping for #{\'}\'}!', [
+  { type: 'text', val: 'No escaping for ' },
+  { type: 'interp', val: "'}'" },
+  { type: 'text', val: '!' }
+])
+test('Escaping works with \\#{interpolation}', [ { type: 'text', val: 'Escaping works with \\#{interpolation}' }])
+
+
 test('#[br]', [{ type: 'tag', name: 'br' }])
 test('#[strong mighty]', [{ type: 'tag', name: 'strong', val: 'mighty' }])
 test('A #[strong strongly worded phrase] that cannot be #[em ignored].', [
@@ -4217,14 +4550,14 @@ test('This is a very long and boring paragraph that spans multiple lines. Sudden
   { type: 'tag', name: 'em', val: 'ignored' },
   { type: 'text', val: '.' }
 ])
-test('And here\'s an example of an interpolated tag with an attribute: #[q(lang="es") ¡Hola Mundo!]', [
-  {
-    type: 'text',
-    val: "And here's an example of an interpolated tag with an attribute: "
-  },
-  { type: 'tag', name: 'q', attrs: [ { name: 'lang', val: '"es"' } ] },
-  { type: 'text', val: ' ¡Hola Mundo!]' }
-])
+// test('And here\'s an example of an interpolated tag with an attribute: #[q(lang="es") ¡Hola Mundo!]', [
+//   {
+//     type: 'text',
+//     val: "And here's an example of an interpolated tag with an attribute: "
+//   },
+//   { type: 'tag', name: 'q', attrs: [ { name: 'lang', val: '"es"' } ] },
+//   { type: 'text', val: ' ¡Hola Mundo!]' }
+// ])
 
 try {
   test('#[strong a}', {})
@@ -4259,11 +4592,10 @@ test('\\#[#[strong escaped]', [
   { type: 'tag', name: 'strong', val: 'escaped' }
 ])
 
-// TODO:
-// test("#[a.rho(href='#', class='rho--modifier') with inline link]", {})
-// test("Some text #[a.rho(href='#', class='rho--modifier')]", {})
-// test("Some text #[a.rho(href='#', class='rho--modifier') with inline link]", {})
+
+// TODO: 
 // test("This also works #[+linkit('http://www.bing.com')] so hurrah for Pug", {})
+
 
 };
 

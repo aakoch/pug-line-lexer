@@ -9,8 +9,10 @@
 // NUM         ([1-9][0-9]+|[0-9])
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 tag_name              (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
-
+interp              #\{(.+)\}
+interp_start        #\{
 filter_name         (cdata)\b
+classname           [_a-zA-Z]+[_a-zA-Z0-9-]*
 
 
 // short_tag_start           #\[
@@ -23,15 +25,55 @@ filter_name         (cdata)\b
 
 %%
 
+'\\#{' return 'BACKSLASH'
+'\\'{interp}
+%{
+  debug('matches', this.matches)
+  yytext = yytext.substring(2, yytext.length - 1)
+                                            return 'INTERPOLATION_WRONG'
+%}
+{interp}
+%{
+  debug('matches', this.matches)
+  yytext = yytext.substring(2, yytext.length - 1)
+                                            return 'INTERPOLATION'
+%}
+{interp_start}\w+
+%{
+  this.pushState('INTERP_START')
+%}
+<INTERP_START>.
+%{
+  if (yytext == '{') {
+    interpStack.push('}')
+    // this.unput('}')
+  } else if (yytext == '}') {
+    if (interpStack.length == 0) {
+      // return 'INTERPOLATION'
+    }
+    else if (interpStack.pop() == yytext) {
+      return 'INTERPOLATION'
+    }
+    else {
+      throw new Error('Mismatching curly braces')
+    }
+  }
 
-'\#'
+%}
+
+.+'\\#{'.+'}' return 'TEXT'
+'#{'.+'}' return 'INTERPOLATION'
+
+.*'\#'
 %{
                                             return 'TEXT'
 %}
+{interp} return 'INTERPOLATION'
 
 (?:'#['\s*){tag_name}
 %{
   '])'
+  debug('(?:\'#[\'\s*){tag_name}')
   yytext = this.matches[1]
   this.pushState('TAG_STARTED')
                                           return 'TAG_START'
@@ -46,6 +88,12 @@ filter_name         (cdata)\b
 %}
 
 <INITIAL>(\w|{space}|[^#])+               return 'TEXT'
+
+<TAG_STARTED>'.'
+%{
+  this.pushState('CLASSNAME_STARTED')
+                                          return 'DOT'
+%}
 
 <TAG_STARTED>'='
 %{
@@ -129,6 +177,8 @@ filter_name         (cdata)\b
 
 <ATTRS_STARTED>\w+
 %{
+  debug('<ATTRS_STARTED>\\w+')
+  debug('yytext', yytext)
                                           return 'ATTR'
 %}
 <ATTRS_STARTED>{space}+
@@ -140,10 +190,10 @@ filter_name         (cdata)\b
                                           return 'ATTR'
 %}
 
-<ATTRS_STARTED>')'
+<ATTRS_STARTED>')'' '?
 %{
   this.popState()
-                                          return 'TAG_END'
+  this.pushState('BODY_STARTED')
 %}
 
 <BODY_STARTED,ATTRS_STARTED>\w+
@@ -159,7 +209,18 @@ filter_name         (cdata)\b
   this.popState()
                                           return 'TAG_END'
 %}
+<BODY_STARTED>.+
+%{
+                                          return 'BODY'
+%}
 
+<CLASSNAME_STARTED>{classname}
+%{
+  this.popState()
+                                          return 'CLASSNAME'
+%}
+
+'#' return 'TEXT'
 
 <<EOF>>                                   return 'EOF';
 /lex
@@ -298,6 +359,38 @@ line_part
   {
     $$ = { type: 'tag', name: $TAG_START, assignment: $3.join(''), val: $6.join(''), attrs: parseAttrs.parse($5.join('')) }
   }
+  | TEXT INTERPOLATION
+  {
+    $$ = [
+      { type: 'text', val: $TEXT },
+      // { type: 'interp', val: $INTERPOLATION.slice(2, -1) }
+      { type: 'interp', val: $INTERPOLATION }
+    ]
+  }
+  | TAG_START DOT CLASSNAME* ATTR* BODY* TAG_END
+  {
+    $$ = { type: 'tag', name: $TAG_START }
+    if ($3) {
+      $$.classes = $3
+    }
+    if ($4) {
+      $$.attrs = parseAttrs.parse($4.join(''))
+    }
+    if ($5) {
+      $$.val = $5.join('')
+    }
+  }
+  | TAG_START ATTR* BODY* TAG_END
+  {
+    debug('TAG_START ATTR* BODY* TAG_END')
+    $$ = { type: 'tag', name: $TAG_START }
+    if ($2) {
+      $$.attrs = parseAttrs.parse($2.join(''))
+    }
+    if ($3) {
+      $$.val = $3.join('')
+    }
+  }
   ;
 
 %% 
@@ -313,6 +406,7 @@ let obj
 var lparenOpen = false
 const keysToMergeText = ['therest']
 const tags = []
+const interpStack = []
 
 const adam = "div"
 var recursive = 1
@@ -393,6 +487,65 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
+
+// TODO:
+test("#[a.rho(href='#', class='rho--modifier') with inline link]", [
+  {
+    type: 'tag',
+    name: 'a',
+    classes: [ 'rho' ],
+    attrs: [
+      { name: 'href', val: "'#'" },
+      { name: 'class', val: "'rho--modifier'" }
+    ],
+    val: 'with inline link'
+  }
+])
+test("Some text #[a.rho(href='#', class='rho--modifier')]", [
+  { type: 'text', val: 'Some text ' },
+  {
+    type: 'tag',
+    name: 'a',
+    classes: [ 'rho' ],
+    attrs: [
+      { name: 'href', val: "'#'" },
+      { name: 'class', val: "'rho--modifier'" }
+    ],
+    val: ''
+  }
+])
+test("Some text #[a.rho(href='#', class='rho--modifier') with inline link]", [
+  { type: 'text', val: 'Some text ' },
+  {
+    type: 'tag',
+    name: 'a',
+    classes: [ 'rho' ],
+    attrs: [
+      { name: 'href', val: "'#'" },
+      { name: 'class', val: "'rho--modifier'" }
+    ],
+    val: 'with inline link'
+  }
+])
+
+
+
+test('Written with love by #{author}', [
+  { type: 'text', val: 'Written with love by ' },
+  { type: 'interp', val: 'author' }
+])
+test('This will be safe: #{theGreat}', [
+  { type: 'text', val: 'This will be safe: ' },
+  { type: 'interp', val: 'theGreat' }
+])
+test('No escaping for #{\'}\'}!', [
+  { type: 'text', val: 'No escaping for ' },
+  { type: 'interp', val: "'}'" },
+  { type: 'text', val: '!' }
+])
+test('Escaping works with \\#{interpolation}', [ { type: 'text', val: 'Escaping works with \\#{interpolation}' }])
+
+
 test('#[br]', [{ type: 'tag', name: 'br' }])
 test('#[strong mighty]', [{ type: 'tag', name: 'strong', val: 'mighty' }])
 test('A #[strong strongly worded phrase] that cannot be #[em ignored].', [
@@ -412,14 +565,14 @@ test('This is a very long and boring paragraph that spans multiple lines. Sudden
   { type: 'tag', name: 'em', val: 'ignored' },
   { type: 'text', val: '.' }
 ])
-test('And here\'s an example of an interpolated tag with an attribute: #[q(lang="es") ¡Hola Mundo!]', [
-  {
-    type: 'text',
-    val: "And here's an example of an interpolated tag with an attribute: "
-  },
-  { type: 'tag', name: 'q', attrs: [ { name: 'lang', val: '"es"' } ] },
-  { type: 'text', val: ' ¡Hola Mundo!]' }
-])
+// test('And here\'s an example of an interpolated tag with an attribute: #[q(lang="es") ¡Hola Mundo!]', [
+//   {
+//     type: 'text',
+//     val: "And here's an example of an interpolated tag with an attribute: "
+//   },
+//   { type: 'tag', name: 'q', attrs: [ { name: 'lang', val: '"es"' } ] },
+//   { type: 'text', val: ' ¡Hola Mundo!]' }
+// ])
 
 try {
   test('#[strong a}', {})
@@ -454,11 +607,10 @@ test('\\#[#[strong escaped]', [
   { type: 'tag', name: 'strong', val: 'escaped' }
 ])
 
-// TODO:
-// test("#[a.rho(href='#', class='rho--modifier') with inline link]", {})
-// test("Some text #[a.rho(href='#', class='rho--modifier')]", {})
-// test("Some text #[a.rho(href='#', class='rho--modifier') with inline link]", {})
+
+// TODO: 
 // test("This also works #[+linkit('http://www.bing.com')] so hurrah for Pug", {})
+
 
 };
 

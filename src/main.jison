@@ -38,7 +38,7 @@ interpolation           #\{.+\}
 %x NO_MORE_SPACE
 %x ASSIGNMENT_VALUE
 %x COND_START
-%x MULTI_LINE_ATTRS_END
+// %x MULTI_LINE_ATTRS_END
 %x INTERPOLATION_START
 %x MIXIN_PARAMS_STARTED
 
@@ -104,13 +104,13 @@ else {
                                           return ['RPAREN', 'CONDITION'];
 %}
 
-// for lines that start with a )
-<MULTI_LINE_ATTRS_END>')'
-%{
-  debug('<MULTI_LINE_ATTRS_END>\')\'')
-  this.popState();
-                                          return 'MULTI_LINE_ATTRS_END';
-%}
+// // for lines that start with a )
+// <MULTI_LINE_ATTRS_END>')'
+// %{
+//   debug('<MULTI_LINE_ATTRS_END>\')\'')
+//   this.popState();
+//                                           return 'MULTI_LINE_ATTRS_END';
+// %}
 
 // <INITIAL>'-'{space}*(?:\w+)
 // %{
@@ -492,8 +492,19 @@ else {
                                           return 'TEXT';
 %}
 
-<MULTI_LINE_ATTRS>')'                     return 'ATTR_TEXT_END';
-<MULTI_LINE_ATTRS>.+                      return 'ATTR_TEXT';
+// <MULTI_LINE_ATTRS>','
+// %{
+//   // this.popState();
+//   // this.pushState('ATTRS_STARTED')
+//                                           // return 'COMMA';
+// %}
+// <MULTI_LINE_ATTRS>')'                     return 'ATTR_TEXT_END';
+<MULTI_LINE_ATTRS>.*')'
+%{
+  this.popState();
+                                          return 'ATTR_TEXT_END';
+%}
+<MULTI_LINE_ATTRS>.+                      return 'ATTR_TEXT_CONT';
 
 
 
@@ -581,10 +592,10 @@ else {
 start
   : EOF
   | line EOF
-  | MULTI_LINE_ATTRS_END EOF
-  {
-    $$ = { state: 'MULTI_LINE_ATTRS_END' }
-  }
+  // | MULTI_LINE_ATTRS_END EOF
+  // {
+  //   $$ = { state: 'MULTI_LINE_ATTRS_END' }
+  // }
   ;
 
 line
@@ -594,11 +605,11 @@ line
   {
     debug('line: line_start TEXT: $line_start=', $line_start, ', $TEXT=', $TEXT)
 
-    if ($TEXT.includes('#[')) {
-      debug('Calling parseInline with ', $TEXT)
-      const possibleTags2 = parseInline.parse($TEXT)
-      debug('possibleTags2=', possibleTags2)
-    }
+    // if ($TEXT.includes('#[')) {
+    //   debug('Calling parseInline with ', $TEXT)
+    //   const possibleTags2 = parseInline.parse($TEXT)
+    //   debug('possibleTags2=', possibleTags2)
+    // }
     // $$ = { type: 'text', val: $TEXT }
     
     $$ = merge($line_start, { type: 'text', val: $TEXT })
@@ -626,7 +637,11 @@ line
   }
   | ATTR_TEXT_END
   {
-    $$ = { type: 'multiline_attrs_end' }
+    $$ = { type: 'attr_end', val: $ATTR_TEXT_END }
+  }
+  | ATTR_TEXT_CONT
+  {
+    $$ = { type: 'attr_cont', val: $ATTR_TEXT_CONT, state: 'MULTI_LINE_ATTRS' }
   }
   | line_start AT_ATTRS
   {
@@ -664,9 +679,15 @@ line_start
   | first_token LPAREN ATTR_TEXT_CONT?
   {
     debug('line_start: first_token LPAREN ATTR_TEXT_CONT?')
-    $$ = merge($first_token, { type: 'tag_with_multiline_attrs', state: 'MULTI_LINE_ATTRS' })
+    $$ = merge($first_token, { state: 'MULTI_LINE_ATTRS' })
     if ($3) {
-      $$ = merge($first_token, { type: 'tag_with_multiline_attrs', attrs: [$3] })
+      debug('3 Calling parseAttrs with ', $3)
+      try {
+        $$ = merge($first_token, {  attrs: parseAttrs.parse($3) })
+      }
+      catch (e) {
+        console.error('Could not parse attributes=' +$3, e)
+      }
     }
   }
   | first_token tag_part LPAREN ATTR_TEXT_CONT
@@ -720,11 +741,11 @@ first_token
   // TODO: Should separate JS and CSS from regular text
   | TEXT
   {
-    if ($TEXT.includes('#[')) {
-      debug('Calling parseInline with ', $TEXT)
-      const possibleTags = parseInline.parse($TEXT)
-      debug('possibleTags=', possibleTags)
-    }
+    // if ($TEXT.includes('#[')) {
+    //   debug('Calling parseInline with ', $TEXT)
+    //   const possibleTags = parseInline.parse($TEXT)
+    //   debug('possibleTags=', possibleTags)
+    // }
     $$ = { type: 'text', val: $TEXT }
   }
   | COMMENT
@@ -862,15 +883,15 @@ line_end
   | TEXT
   {
     debug('line_end: TEXT: $TEXT=', $TEXT)
-    if ($TEXT.includes('#[')) {
-      debug('Calling parseInline with ', $TEXT)
-      const possibleTags3 = parseInline.parse($TEXT)
-      debug('possibleTags3=', possibleTags3)
-      $$ = { type: 'array', val: possibleTags3 }
-    }
-    else {
+    // if ($TEXT.includes('#[')) {
+    //   debug('Calling parseInline with ', $TEXT)
+    //   const possibleTags3 = parseInline.parse($TEXT)
+    //   debug('possibleTags3=', possibleTags3)
+    //   $$ = { type: 'array', val: possibleTags3 }
+    // }
+    // else {
       $$ = { type: 'text', val: $TEXT }
-    }
+    // }
   }
   | CODE
   {
@@ -919,12 +940,12 @@ function rank(type1, type2) {
   else if (type1 === type2) {
     return type1
   }
-  else if (type1 == 'tag' && type2 == 'tag_with_multiline_attrs') {
-    return type2
-  }
-  else if (type1 == 'tag_with_multiline_attrs' && type2 == 'tag') {
-    return type1
-  }
+  // else if (type1 == 'tag' && type2 == 'tag_with_multiline_attrs') {
+  //   return type2
+  // }
+  // else if (type1 == 'tag_with_multiline_attrs' && type2 == 'tag') {
+  //   return type1
+  // }
   else {
     return type1.concat(type2)
   }
@@ -966,13 +987,11 @@ function merge(obj, src) {
     if (srcValue == undefined) {
        return objValue
     }
-    if (objValue != undefined && srcValue != undefined) {
-      if (keysToMergeText.includes(key)) {
-         return objValue + srcValue
-      }
-      else {
-         return rank(objValue, srcValue)
-      }
+    if (keysToMergeText.includes(key)) {
+        return objValue + srcValue
+    }
+    else {
+        return rank(objValue, srcValue)
     }
   })
   debug('merging', ' returning', ret)
@@ -1002,7 +1021,42 @@ parser.main = function () {
   }
 
 
+test(`p #[a.rho(href='#', class='rho--modifier') with inline link]`, {
+  attrs: [
+    {
+      name: 'href',
+      val: "'#'"
+    },
+    {
+      name: 'class',
+      val: "'rho--modifier'"
+    }
+  ],
+  classes: [
+    'rho'
+  ],
+  name: 'a',
+  type: 'tag'
+})
 
+
+test("a.rho(href='#', class='rho--modifier')", {
+  attrs: [
+    {
+      name: 'href',
+      val: "'#'"
+    },
+    {
+      name: 'class',
+      val: "'rho--modifier'"
+    }
+  ],
+  classes: [
+    'rho'
+  ],
+  name: 'a',
+  type: 'tag'
+})
 test(`div(id=id)&attributes({foo: 'bar', fred: 'bart'})`, {
   type: 'tag',
   name: 'div',
@@ -1117,9 +1171,9 @@ test('li= item', {
   name: 'li',
   type: 'tag'
 })
-test('<MULTI_LINE_ATTRS_END>)', {
-  state: 'MULTI_LINE_ATTRS_END'
-})
+// test('<MULTI_LINE_ATTRS_END>)', {
+//   state: 'MULTI_LINE_ATTRS_END'
+// })
 // test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {})
 
 test('-var ajax = true', {type: 'code', val: 'var ajax = true', state: 'CODE_START' })
@@ -1281,29 +1335,24 @@ test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
   ]
 })
 
-test('foo(abc', {type: 'tag_with_multiline_attrs', name: 'foo', attrs: ['abc'], state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_cont', attrs: [',def)'] })
+test('foo(abc', {type: 'tag', name: 'foo', attrs: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
+test('foo(abc,', {type: 'tag', name: 'foo', attrs: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>,def)', { type: 'attr_cont', val: ',def)' })
 
-test('span(', {type: 'tag_with_multiline_attrs', name: 'span', state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>v-for="item in items"', {
-  type: 'attrs_cont',
-  attrs: [
-    'v-for="item in items"'
-  ]
-})
+test('span(', {type: 'tag', name: 'span', state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>v-for="item in items"', { type: 'attr_cont', val: 'v-for="item in items"',
+  state: 'MULTI_LINE_ATTRS' })
 test('<MULTI_LINE_ATTRS>:key="item.id"', {
-  type: 'attrs_cont',
-  attrs: [
-    ':key="item.id"'
-  ]
+  type: 'attr_cont',
+  val: ':key="item.id"',
+  state: 'MULTI_LINE_ATTRS'
 })
 test('<MULTI_LINE_ATTRS>:value="item.name"', {
-  type: 'attrs_cont',
-  attrs: [
-    ':value="item.name"'
-  ]
+  type: 'attr_cont',
+  val: ':value="item.name"',
+  state: 'MULTI_LINE_ATTRS'
 })
-test('<MULTI_LINE_ATTRS>)', {type: 'multiline_attrs_end'})
+test('<MULTI_LINE_ATTRS>)', { type: 'attr_cont', val: ')' })
 test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
   name: 'a',
   type: 'tag',

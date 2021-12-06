@@ -173,6 +173,10 @@ attrs
     $attrs.push($attr)
     $$ = $attrs
   }
+  | attrs (SPACE|COMMA)
+  {
+    $$ = $attrs
+  }
   | attr
   {
     $$ = [$attr]
@@ -274,6 +278,7 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
+test('abc,', [{name: 'abc'}])
 test('foo, bar, baz', [{name: 'foo'}, {name: 'bar'}, {name: 'baz'}])
 test("value='foo' selected", [{name: 'value', val: "'foo'"}, {name: 'selected'}])
 test("selected value='bar'", [ { name: 'selected' }, { name: 'value', val: "'bar'" } ])
