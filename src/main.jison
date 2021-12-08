@@ -8,7 +8,7 @@
 // ID          [A-Z-]+"?"?
 // NUM         ([1-9][0-9]+|[0-9])
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
-tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
+tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
 keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|unless|when|while)\b
 filter              \:[a-z0-9-]+\b
@@ -16,7 +16,7 @@ filter              \:[a-z0-9-]+\b
 // classname               \.[a-z0-9-]+
 classname               \.-?[_a-zA-Z]+[_a-zA-Z0-9-]*
 tag_id                  #[a-z0-9-]+
-mixin_call              \+[a-z]+\b
+mixin_call              \+\s*[a-z]+\b
 conditional             -?(if|else if|else)
 interpolation_start     #\{
 interpolation           #\{.+\}
@@ -41,6 +41,7 @@ interpolation           #\{.+\}
 // %x MULTI_LINE_ATTRS_END
 %x INTERPOLATION_START
 %x MIXIN_PARAMS_STARTED
+%x HTML_COMMENT_STARTED
 
 %%
 
@@ -149,7 +150,13 @@ else {
 %}
 <INITIAL>'<'[A-Z_]+'>'
 %{
-  this.pushState(yytext.substring(1, yytext.length - 1));
+  if (/<[A-Z_]+>/.test(yytext)) {
+    this.pushState(yytext.substring(1, yytext.length - 1));
+  }
+  else {
+    this.pushState('TEXT')
+                                          return 'TEXT';
+  }
 %}
 <INITIAL,TEXT>"| "
 %{
@@ -183,6 +190,12 @@ else {
   debug('{interpolation_start}')
   this.pushState('INTERPOLATION_START');
                                           return 'INTERPOLATION_START';
+%}
+
+<INITIAL>'</'.+
+%{
+  this.pushState('TEXT')
+                                          return 'TEXT';
 %}
 
 <AFTER_TAG_NAME>'= '
@@ -513,6 +526,14 @@ else {
 <MULTI_LINE_ATTRS>.+                      return 'ATTR_TEXT_CONT';
 
 
+// immediately closed - solely for `+list()`
+<MIXIN_PARAMS_STARTED>')'
+%{
+  this.popState()
+  this.pushState('MIXIN_PARAMS_END')
+  yytext = ''
+                                          return ['RPAREN', 'MIXIN_PARAMS'];
+%}
 
 <MIXIN_PARAMS_STARTED>(.+)(')')
 %{
@@ -585,6 +606,18 @@ else {
 //   debug('150 yytext=', yytext)
 //                                           return 'MIXIN_PARAMS_CONT';
 // %}
+
+<INITIAL>'<!--'.+'-->'
+%{
+  yytext = yytext.slice(4, -3)
+                                          return 'HTML_COMMENT'
+%}
+
+// <INITIAL>.+
+// %{
+//                                           return 'TEXT'
+// %}
+
 
 /lex
 
@@ -666,6 +699,17 @@ line
       $$ = merge($line_start, 
         { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
       )
+    }
+  }
+  | HTML_COMMENT
+  {
+    if ($HTML_COMMENT.includes('#')) {
+      let elemsReturned = createElems($HTML_COMMENT, this.yy.parser)
+      debug('elemsReturned', elemsReturned)
+      $$ = { type: 'html_comment', children: elemsReturned }
+    }
+    else {
+      $$ = { type: 'html_comment', val: $HTML_COMMENT }
     }
   }
   ;
@@ -770,7 +814,7 @@ first_token
   | MIXIN_CALL
   {
     debug('MIXIN_CALL=', $1)
-    $$ = { type: 'mixin_call', name: $1 }
+    $$ = { type: 'mixin_call', name: $1.trim() }
   }
   | KEYWORD
   {
@@ -889,27 +933,11 @@ line_end
   | TEXT
   {
     debug('line_end: TEXT: $TEXT=', $TEXT)
-    if ($TEXT.includes('#[')) {
+    if ($TEXT.includes('#')) {
 
-      const matches1 = $TEXT.matchAll(/#\[.*?\]/g)
-      debug('matches1', matches1)
-      let idx = 0
-      let elems = []
-      for (const match of matches1) {
-        if (idx != match.index) {
-          elems.push({ type: 'text', val: $TEXT.substring(idx, match.index) })
-          idx = match.index
-        }
-        elems.push(this.yy.parser.parse(match[0].slice(2, -1)))
-        idx += match[0].length
-        // debug('match', match)
-        // console.log(`Found ${match[0]} start=${match.index} end=${match.index + match[0].length}.`);
-      }
-      if (idx != $TEXT.length) {
-        elems.push({ type: 'text', val: $TEXT.substring(idx, $TEXT.index) })
-      }
-      debug('elems', elems)
-      $$ = { children: elems }
+      let elemsReturned = createElems($TEXT, this.yy.parser)
+      debug('elemsReturned', elemsReturned)
+      $$ = { children: elemsReturned }
     }
     else {
       $$ = { type: 'text', val: $TEXT }
@@ -1021,6 +1049,34 @@ function merge(obj, src) {
   //  return Object.assign(obj, src);
 }
 
+function createElems(text, parser) {
+  const matches1 = text.matchAll(/#[\[\{].*?[\]\}]/g)
+  debug('matches1', matches1)
+  let idx = 0
+  let elems = []
+  for (const match of matches1) {
+    if (idx != match.index) {
+      elems.push({ type: 'text', val: text.substring(idx, match.index) })
+      idx = match.index
+    }
+    if (match[0][1] == '[') {
+      elems.push(parser.parse(match[0].slice(2, -1)))
+    }
+    else {
+      elems.push(parser.parse(match[0]))
+      // elems.push({ type: 'interpolation', val: match[0].slice(2, -1)})
+    }
+    idx += match[0].length
+    // debug('match', match)
+    // console.log(`Found ${match[0]} start=${match.index} end=${match.index + match[0].length}.`);
+  }
+  if (idx != text.length) {
+    elems.push({ type: 'text', val: text.substring(idx, text.index) })
+  }
+
+  return elems;
+}
+
 parser.main = function () {
   
   tagAlreadyFound = false
@@ -1042,6 +1098,34 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
+
+test('<!--build:js /js/app.min.js?v=#{version}-->', {
+  type: 'html_comment',
+  children: [
+    { type: 'text', val: 'build:js /js/app.min.js?v=' },
+    { type: 'interpolation', name: '#{version}' }
+  ]
+})
+test(`<li>foo</li>`, { type: 'text', val: '<li>foo</li>' })
+test(`<ul>`, { type: 'text', val: '<ul>' })
+test(`</ul>`, { type: 'text', val: '</ul>' })
+
+// test(`p.bar&attributes(attributes) One`, {})
+// test(`p.baz.quux&attributes(attributes) Two`, {})
+// test(`p&attributes(attributes) Three`, {})
+// test(`p.bar&attributes(attributes)(class="baz") Four`, {})
+
+// TODO: 
+// The next bunch tests "Mixin Attributes"
+// Tests include: mixin.merge.pug
+// test(`+foo.hello`, {})
+// test(`+foo#world`, {})
+// test(`+foo.hello#world`, {})
+// test(`+foo.hello.world`, {})
+// test(`+foo(class="hello")`, {})
+// test(`+foo.hello(class="world")`, {})
+// test(`+foo`, {})
+// test(`+foo&attributes({class: "hello"})`, {})
 
 test("a.rho(href='#', class='rho--modifier')", {
   attrs: [
@@ -1817,6 +1901,18 @@ test(`p #[a.rho(href='#', class='rho--modifier') with inline link]`, {
       val: 'with inline link'
     }
   ]
+})
+
+test(`+list()`, {
+  type: 'mixin_call',
+  params: '',
+  name: 'list'
+})
+
+test(`+ list()`, {
+  type: 'mixin_call',
+  params: '',
+  name: 'list'
 })
 
 };
