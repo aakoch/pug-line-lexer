@@ -1025,13 +1025,14 @@ case 17:
 case 18:
     /*! Production::    line_start : first_token attrs CLASSNAME */
 
-    this.$ = merge(yyvstack[yysp - 2], [yyvstack[yysp - 1], { classes: yyvstack[yysp] }])
+    this.$ = merge(yyvstack[yysp - 2], [yyvstack[yysp - 1], { attrs: [ { name: 'class', val: quote(yyvstack[yysp]) } ] }])
     break;
 
 case 19:
     /*! Production::    line_start : first_token tag_part attrs CLASSNAME */
 
-    this.$ = merge(yyvstack[yysp - 3], [yyvstack[yysp - 2], yyvstack[yysp - 1], { classes: yyvstack[yysp] }])
+    debug('first_token tag_part attrs CLASSNAME: first_token=', yyvstack[yysp - 3], ', tag_part=', yyvstack[yysp - 2], ', attrs=', yyvstack[yysp - 1], ', CLASSNAME=', yyvstack[yysp])
+    this.$ = merge(yyvstack[yysp - 3], [yyvstack[yysp - 2], yyvstack[yysp - 1], { attrs: [ { name: 'class', val: quote(yyvstack[yysp]) } ] }])
     break;
 
 case 20:
@@ -1062,7 +1063,7 @@ case 23:
 case 24:
     /*! Production::    first_token : CLASSNAME */
 
-    this.$ = { type: 'tag', classes: [yyvstack[yysp]] }
+    this.$ = { type: 'tag', attrs: [ { name: 'class', val: quote(yyvstack[yysp]) } ] }
     break;
 
 case 25:
@@ -1220,7 +1221,10 @@ case 45:
 case 46:
     /*! Production::    classnames : classnames_repetition_plus */
 
-    this.$ = { type: 'tag', classes: yyvstack[yysp] }
+    let attrs1 = yyvstack[yysp].map(cn => {
+      return { name: 'class', val: quote(cn) } 
+    })
+    this.$ = { type: 'tag', attrs: attrs1 }
     break;
 
 case 47:
@@ -4159,13 +4163,32 @@ EOF: 1,
 
       case 12:
         /*! Conditions:: INITIAL */
+        /*! Rule::       {classname_relaxed} */
+        debug('<INITIAL>{classname_relaxed}');
+
+        if (this.yy.parser.options.allowDigitToStartClassName) {
+          // debug('<INITIAL>{classname}')
+          this.pushState('AFTER_TAG_NAME');
+
+          yy_.yytext = yy_.yytext.substring(1);
+          return 11;
+        } else {
+          throw new Error(
+            'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.'
+          );
+        }
+
+        break;
+
+      case 13:
+        /*! Conditions:: INITIAL */
         /*! Rule::       \/\/ */
         this.pushState('TEXT');
 
         return 18;
         break;
 
-      case 13:
+      case 14:
         /*! Conditions:: INITIAL */
         /*! Rule::       <[A-Z_]+> */
         if (/<[A-Z_]+>/.test(yy_.yytext)) {
@@ -4177,7 +4200,7 @@ EOF: 1,
 
         break;
 
-      case 14:
+      case 15:
         /*! Conditions:: INITIAL TEXT */
         /*! Rule::       \|  */
         this.pushState('TEXT');
@@ -4185,7 +4208,7 @@ EOF: 1,
         return 22;
         break;
 
-      case 15:
+      case 16:
         /*! Conditions:: INITIAL */
         /*! Rule::       \|\. */
         this.pushState('TEXT');
@@ -4193,7 +4216,7 @@ EOF: 1,
         this.unput('.');
         break;
 
-      case 16:
+      case 17:
         /*! Conditions:: INITIAL */
         /*! Rule::       \|$ */
         this.pushState('TEXT');
@@ -4201,7 +4224,7 @@ EOF: 1,
         return 25; // only because it is an empty object 
         break;
 
-      case 17:
+      case 18:
         /*! Conditions:: INITIAL AFTER_TAG_NAME ATTRS_END */
         /*! Rule::       &attributes\([^\)]+\) */
         debug('\'&attributes(\'[^)]+\')\'');
@@ -4209,7 +4232,7 @@ EOF: 1,
         return 8;
         break;
 
-      case 18:
+      case 19:
         /*! Conditions:: INITIAL */
         /*! Rule::       {interpolation} */
         debug('{interpolation}');
@@ -4218,7 +4241,7 @@ EOF: 1,
         return 27;
         break;
 
-      case 19:
+      case 20:
         /*! Conditions:: INITIAL */
         /*! Rule::       {interpolation_start} */
         debug('{interpolation_start}');
@@ -4227,7 +4250,7 @@ EOF: 1,
         return 28;
         break;
 
-      case 20:
+      case 21:
         /*! Conditions:: INITIAL */
         /*! Rule::       <\/.+ */
         this.pushState('TEXT');
@@ -4235,7 +4258,7 @@ EOF: 1,
         return 3;
         break;
 
-      case 21:
+      case 22:
         /*! Conditions:: AFTER_TAG_NAME */
         /*! Rule::       =  */
         this.popState();
@@ -4244,7 +4267,7 @@ EOF: 1,
         return 32;
         break;
 
-      case 22:
+      case 23:
         /*! Conditions:: AFTER_TAG_NAME AFTER_ATTRS */
         /*! Rule::       :  */
         this.popState();
@@ -4252,7 +4275,7 @@ EOF: 1,
         return 5;
         break;
 
-      case 23:
+      case 24:
         /*! Conditions:: AFTER_KEYWORD */
         /*! Rule::       {filter} */
         yy_.yytext = yy_.yytext.substring(1);
@@ -4260,7 +4283,7 @@ EOF: 1,
         return 29;
         break;
 
-      case 24:
+      case 25:
         /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME */
         /*! Rule::       \( */
         ')'; // hack for syntax
@@ -4270,7 +4293,7 @@ EOF: 1,
         return 10;
         break;
 
-      case 26:
+      case 27:
         /*! Conditions:: MIXIN_PARAMS_END */
         /*! Rule::       \) */
         // this.popState() // for inline blocks after mixin calls
@@ -4278,17 +4301,33 @@ EOF: 1,
 
         break;
 
-      case 27:
+      case 28:
         /*! Conditions:: INITIAL ATTRS_END */
         /*! Rule::       {classname} */
-        debug('<INITIAL>{classname}');
-
         this.pushState('AFTER_TAG_NAME');
+
         yy_.yytext = yy_.yytext.substring(1);
         return 11;
         break;
 
-      case 28:
+      case 29:
+        /*! Conditions:: INITIAL ATTRS_END */
+        /*! Rule::       {classname_relaxed} */
+        debug('<INITIAL,ATTRS_END>{classname_relaxed}');
+
+        if (this.yy.parser.options.allowDigitToStartClassName) {
+          this.pushState('AFTER_TAG_NAME');
+          yy_.yytext = yy_.yytext.substring(1);
+          return 11;
+        } else {
+          throw new Error(
+            'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.'
+          );
+        }
+
+        break;
+
+      case 30:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       (\(.+|.+\().+ */
         '))';
@@ -4337,7 +4376,7 @@ EOF: 1,
         return 12;
         break;
 
-      case 29:
+      case 31:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       ([^\)]+)(\))(?!\s*\..+\)) */
         this.popState();
@@ -4365,7 +4404,7 @@ EOF: 1,
         return 12;
         break;
 
-      case 30:
+      case 32:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       (.+)\)\s*$ */
         this.popState();
@@ -4387,7 +4426,7 @@ EOF: 1,
         return ['RPAREN', 'ATTR_TEXT'];
         break;
 
-      case 31:
+      case 33:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       (.+)\)\.?\s*(.+)$ */
         this.popState();
@@ -4401,7 +4440,7 @@ EOF: 1,
         return ['RPAREN', 'ATTR_TEXT'];
         break;
 
-      case 32:
+      case 34:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       (.+)\.?\s*$ */
         this.popState();
@@ -4422,7 +4461,7 @@ EOF: 1,
         return 7;
         break;
 
-      case 33:
+      case 35:
         /*! Conditions:: AFTER_TAG_NAME */
         /*! Rule::       {tag_id} */
         this.pushState('AFTER_TAG_NAME');
@@ -4431,16 +4470,36 @@ EOF: 1,
         return 17;
         break;
 
-      case 34:
+      case 36:
         /*! Conditions:: AFTER_TAG_NAME */
         /*! Rule::       {classname} */
-        yy_.yytext = this.matches[1].substring(1);
+        // yy_.yytext = this.matches[1].substring(1);
+        yy_.yytext = yy_.yytext.substring(1);
 
         debug('60 yy_.yytext=', yy_.yytext);
         return 11;
         break;
 
-      case 35:
+      case 37:
+        /*! Conditions:: AFTER_TAG_NAME */
+        /*! Rule::       {classname_relaxed} */
+        // debug('<AFTER_TAG_NAME>{classname_relaxed}')
+        // debug('Object.keys(this).length=', Object.keys(this).length)
+        // debug('Object.keys(this.yy).length=', Object.keys(this.yy).length)
+        // debug('Object.keys(this.yy.parser).length=', Object.keys(this.yy.parser).length)
+        // debug('this.yy.parser.options=', util.inspect(this.yy.parser.options, false, 10, true))
+        if (this.yy.parser.options.allowDigitToStartClassName) {
+          yy_.yytext = yy_.yytext.substring(1);
+          return 11;
+        } else {
+          throw new Error(
+            'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.'
+          );
+        }
+
+        break;
+
+      case 38:
         /*! Conditions:: INITIAL */
         /*! Rule::       {space}{2,} */
         debug('{space}{2,}');
@@ -4448,7 +4507,7 @@ EOF: 1,
         return 25;
         break;
 
-      case 36:
+      case 39:
         /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */
         /*! Rule::       {space}{space} */
         this.pushState('TEXT');
@@ -4458,7 +4517,7 @@ EOF: 1,
         return 25;
         break;
 
-      case 37:
+      case 40:
         /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */
         /*! Rule::       {space}{classname} */
         this.pushState('ATTRS_END');
@@ -4467,7 +4526,27 @@ EOF: 1,
         return 3;
         break;
 
-      case 38:
+      case 41:
+        /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */
+        /*! Rule::       {space}{classname_relaxed} */
+        debug(
+          '<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname_relaxed} this.parser.options=',
+          this.parser.options
+        );
+
+        if (this.yy.parser.options.allowDigitToStartClassName) {
+          this.pushState('ATTRS_END');
+          yy_.yytext = yy_.yytext.substring(1);
+          return 3;
+        } else {
+          throw new Error(
+            'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.'
+          );
+        }
+
+        break;
+
+      case 42:
         /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */
         /*! Rule::       {space} */
         this.pushState('ATTRS_END');
@@ -4476,7 +4555,7 @@ EOF: 1,
         return 25;
         break;
 
-      case 39:
+      case 43:
         /*! Conditions:: ATTRS_END MIXIN_PARAMS_END */
         /*! Rule::       {space} */
         this.pushState('TEXT');
@@ -4485,7 +4564,7 @@ EOF: 1,
         return 25;
         break;
 
-      case 41:
+      case 45:
         /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME NO_MORE_SPACE */
         /*! Rule::       .+ */
         // if (yy_.yytext.startsWith(' ') {
@@ -4496,7 +4575,7 @@ EOF: 1,
         return 3;
         break;
 
-      case 42:
+      case 46:
         /*! Conditions:: ATTRS_END */
         /*! Rule::       ={space} */
         this.popState();
@@ -4505,7 +4584,7 @@ EOF: 1,
         return 32;
         break;
 
-      case 43:
+      case 47:
         /*! Conditions:: INITIAL ATTRS_END */
         /*! Rule::       \.\s*$ */
         this.popState();
@@ -4513,7 +4592,7 @@ EOF: 1,
         return 24;
         break;
 
-      case 44:
+      case 48:
         /*! Conditions:: ASSIGNMENT_VALUE */
         /*! Rule::       .+ */
         this.popState();
@@ -4521,7 +4600,7 @@ EOF: 1,
         return 31;
         break;
 
-      case 45:
+      case 49:
         /*! Conditions:: ATTRS_END */
         /*! Rule::       .+ */
         // yy_.yytext = yy_.yytext.substring(1)
@@ -4530,7 +4609,7 @@ EOF: 1,
         return 3;
         break;
 
-      case 46:
+      case 50:
         /*! Conditions:: CODE_START UNBUF_CODE */
         /*! Rule::       {space} */
         debug('<CODE_START,UNBUF_CODE>{space}');
@@ -4538,7 +4617,7 @@ EOF: 1,
         return 25;
         break;
 
-      case 48:
+      case 52:
         /*! Conditions:: MIXIN_CALL_START */
         /*! Rule::       \( */
         ')';
@@ -4548,14 +4627,14 @@ EOF: 1,
         return 10;
         break;
 
-      case 49:
+      case 53:
         /*! Conditions:: MIXIN_CALL_START */
         /*! Rule::       {space}$ */
         this.popState();
 
         break;
 
-      case 50:
+      case 54:
         /*! Conditions:: TEXT */
         /*! Rule::       .+ */
         debug('80 yy_.yytext=', yy_.yytext);
@@ -4563,7 +4642,7 @@ EOF: 1,
         return 3;
         break;
 
-      case 51:
+      case 55:
         /*! Conditions:: MULTI_LINE_ATTRS */
         /*! Rule::       .*\) */
         this.popState();
@@ -4571,7 +4650,7 @@ EOF: 1,
         return 6;
         break;
 
-      case 53:
+      case 57:
         /*! Conditions:: MIXIN_PARAMS_STARTED */
         /*! Rule::       \) */
         this.popState();
@@ -4581,7 +4660,7 @@ EOF: 1,
         return ['RPAREN', 'MIXIN_PARAMS'];
         break;
 
-      case 54:
+      case 58:
         /*! Conditions:: MIXIN_PARAMS_STARTED */
         /*! Rule::       (.+)(\)) */
         this.popState();
@@ -4609,7 +4688,7 @@ EOF: 1,
         return 13;
         break;
 
-      case 55:
+      case 59:
         /*! Conditions:: INITIAL */
         /*! Rule::       <!--.+--> */
         yy_.yytext = yy_.yytext.slice(4, -3);
@@ -4625,19 +4704,19 @@ EOF: 1,
     simpleCaseActionClusters: {
       /*! Conditions:: ATTRS_END */
       /*! Rule::       \) */
-      25: 14,
+      26: 14,
 
       /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME ATTRS_END */
       /*! Rule::       \.\s*$ */
-      40: 24,
+      44: 24,
 
       /*! Conditions:: CODE_START UNBUF_CODE */
       /*! Rule::       .+ */
-      47: 4,
+      51: 4,
 
       /*! Conditions:: MULTI_LINE_ATTRS */
       /*! Rule::       .+ */
-      52: 7
+      56: 7
     },
 
     rules: [
@@ -4653,55 +4732,59 @@ EOF: 1,
       /*  9: */  /^(?:.+\))/i,
       /* 10: */  /^(?:-)/i,
       /* 11: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
-      /* 12: */  /^(?:\/\/)/i,
-      /* 13: */  /^(?:<[A-Z_]+>)/i,
-      /* 14: */  /^(?:\| )/i,
-      /* 15: */  /^(?:\|\.)/i,
-      /* 16: */  /^(?:\|$)/i,
-      /* 17: */  /^(?:&attributes\([^)]+\))/i,
-      /* 18: */  /^(?:(#\{.+\}))/i,
-      /* 19: */  /^(?:(#\{))/i,
-      /* 20: */  /^(?:<\/.+)/i,
-      /* 21: */  /^(?:= )/i,
-      /* 22: */  /^(?:: )/i,
-      /* 23: */  /^(?:(:[\d\-a-z]+\b))/i,
-      /* 24: */  /^(?:\()/i,
-      /* 25: */  /^(?:\))/i,
+      /* 12: */  /^(?:(\.-?\w+[\w\-]*))/i,
+      /* 13: */  /^(?:\/\/)/i,
+      /* 14: */  /^(?:<[A-Z_]+>)/i,
+      /* 15: */  /^(?:\| )/i,
+      /* 16: */  /^(?:\|\.)/i,
+      /* 17: */  /^(?:\|$)/i,
+      /* 18: */  /^(?:&attributes\([^)]+\))/i,
+      /* 19: */  /^(?:(#\{.+\}))/i,
+      /* 20: */  /^(?:(#\{))/i,
+      /* 21: */  /^(?:<\/.+)/i,
+      /* 22: */  /^(?:= )/i,
+      /* 23: */  /^(?:: )/i,
+      /* 24: */  /^(?:(:[\d\-a-z]+\b))/i,
+      /* 25: */  /^(?:\()/i,
       /* 26: */  /^(?:\))/i,
-      /* 27: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
-      /* 28: */  /^(?:(\(.+|.+\().+)/i,
-      /* 29: */  /^(?:([^)]+)(\))(?!\s*\..+\)))/i,
-      /* 30: */  /^(?:(.+)\)\s*$)/i,
-      /* 31: */  /^(?:(.+)\)\.?\s*(.+)$)/i,
-      /* 32: */  /^(?:(.+)\.?\s*$)/i,
-      /* 33: */  /^(?:(#[\d\-a-z]+))/i,
-      /* 34: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
-      /* 35: */  /^(?:([   -​\u2028\u2029　]){2,})/i,
-      /* 36: */  /^(?:([   -​\u2028\u2029　])([   -​\u2028\u2029　]))/i,
-      /* 37: */  /^(?:([   -​\u2028\u2029　])(\.-?[^\W\d]+[\w\-]*))/i,
-      /* 38: */  /^(?:([   -​\u2028\u2029　]))/i,
-      /* 39: */  /^(?:([   -​\u2028\u2029　]))/i,
-      /* 40: */  /^(?:\.\s*$)/i,
-      /* 41: */  /^(?:.+)/i,
-      /* 42: */  /^(?:=([   -​\u2028\u2029　]))/i,
-      /* 43: */  /^(?:\.\s*$)/i,
-      /* 44: */  /^(?:.+)/i,
+      /* 27: */  /^(?:\))/i,
+      /* 28: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+      /* 29: */  /^(?:(\.-?\w+[\w\-]*))/i,
+      /* 30: */  /^(?:(\(.+|.+\().+)/i,
+      /* 31: */  /^(?:([^)]+)(\))(?!\s*\..+\)))/i,
+      /* 32: */  /^(?:(.+)\)\s*$)/i,
+      /* 33: */  /^(?:(.+)\)\.?\s*(.+)$)/i,
+      /* 34: */  /^(?:(.+)\.?\s*$)/i,
+      /* 35: */  /^(?:(#[\d\-a-z]+))/i,
+      /* 36: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+      /* 37: */  /^(?:(\.-?\w+[\w\-]*))/i,
+      /* 38: */  /^(?:([   -​\u2028\u2029　]){2,})/i,
+      /* 39: */  /^(?:([   -​\u2028\u2029　])([   -​\u2028\u2029　]))/i,
+      /* 40: */  /^(?:([   -​\u2028\u2029　])(\.-?[^\W\d]+[\w\-]*))/i,
+      /* 41: */  /^(?:([   -​\u2028\u2029　])(\.-?\w+[\w\-]*))/i,
+      /* 42: */  /^(?:([   -​\u2028\u2029　]))/i,
+      /* 43: */  /^(?:([   -​\u2028\u2029　]))/i,
+      /* 44: */  /^(?:\.\s*$)/i,
       /* 45: */  /^(?:.+)/i,
-      /* 46: */  /^(?:([   -​\u2028\u2029　]))/i,
-      /* 47: */  /^(?:.+)/i,
-      /* 48: */  /^(?:\()/i,
-      /* 49: */  /^(?:([   -​\u2028\u2029　])$)/i,
-      /* 50: */  /^(?:.+)/i,
-      /* 51: */  /^(?:.*\))/i,
-      /* 52: */  /^(?:.+)/i,
-      /* 53: */  /^(?:\))/i,
-      /* 54: */  /^(?:(.+)(\)))/i,
-      /* 55: */  /^(?:<!--.+-->)/i
+      /* 46: */  /^(?:=([   -​\u2028\u2029　]))/i,
+      /* 47: */  /^(?:\.\s*$)/i,
+      /* 48: */  /^(?:.+)/i,
+      /* 49: */  /^(?:.+)/i,
+      /* 50: */  /^(?:([   -​\u2028\u2029　]))/i,
+      /* 51: */  /^(?:.+)/i,
+      /* 52: */  /^(?:\()/i,
+      /* 53: */  /^(?:([   -​\u2028\u2029　])$)/i,
+      /* 54: */  /^(?:.+)/i,
+      /* 55: */  /^(?:.*\))/i,
+      /* 56: */  /^(?:.+)/i,
+      /* 57: */  /^(?:\))/i,
+      /* 58: */  /^(?:(.+)(\)))/i,
+      /* 59: */  /^(?:<!--.+-->)/i
     ],
 
     conditions: {
       'TEXT': {
-        rules: [14, 50],
+        rules: [15, 54],
         inclusive: false
       },
 
@@ -4711,12 +4794,12 @@ EOF: 1,
       },
 
       'AFTER_TAG_NAME': {
-        rules: [17, 21, 22, 24, 33, 34, 36, 37, 38, 40, 41],
+        rules: [18, 22, 23, 25, 35, 36, 37, 39, 40, 41, 42, 44, 45],
         inclusive: false
       },
 
       'ATTRS_STARTED': {
-        rules: [28, 29, 30, 31, 32],
+        rules: [30, 31, 32, 33, 34],
         inclusive: false
       },
 
@@ -4726,27 +4809,27 @@ EOF: 1,
       },
 
       'MIXIN_CALL_START': {
-        rules: [48, 49],
+        rules: [52, 53],
         inclusive: false
       },
 
       'ATTRS_END': {
-        rules: [17, 25, 27, 39, 40, 42, 43, 45],
+        rules: [18, 26, 28, 29, 43, 44, 46, 47, 49],
         inclusive: true
       },
 
       'CODE_START': {
-        rules: [46, 47],
+        rules: [50, 51],
         inclusive: false
       },
 
       'UNBUF_CODE': {
-        rules: [46, 47],
+        rules: [50, 51],
         inclusive: false
       },
 
       'MULTI_LINE_ATTRS': {
-        rules: [51, 52],
+        rules: [55, 56],
         inclusive: false
       },
 
@@ -4756,27 +4839,27 @@ EOF: 1,
       },
 
       'AFTER_ATTRS': {
-        rules: [22],
+        rules: [23],
         inclusive: false
       },
 
       'AFTER_TEXT_TAG_NAME': {
-        rules: [24, 36, 37, 38, 40, 41],
+        rules: [25, 39, 40, 41, 42, 44, 45],
         inclusive: false
       },
 
       'AFTER_KEYWORD': {
-        rules: [23, 36, 37, 38, 41],
+        rules: [24, 39, 40, 41, 42, 45],
         inclusive: false
       },
 
       'NO_MORE_SPACE': {
-        rules: [41],
+        rules: [45],
         inclusive: false
       },
 
       'ASSIGNMENT_VALUE': {
-        rules: [44],
+        rules: [48],
         inclusive: false
       },
 
@@ -4791,7 +4874,7 @@ EOF: 1,
       },
 
       'MIXIN_PARAMS_STARTED': {
-        rules: [53, 54],
+        rules: [57, 58],
         inclusive: false
       },
 
@@ -4821,17 +4904,19 @@ EOF: 1,
           18,
           19,
           20,
-          27,
-          35,
-          43,
-          55
+          21,
+          28,
+          29,
+          38,
+          47,
+          59
         ],
 
         inclusive: true
       },
 
       'MIXIN_PARAMS_END': {
-        rules: [26, 39],
+        rules: [27, 43],
         inclusive: false
       }
     }
@@ -4856,7 +4941,7 @@ const debug = debugFunc('pug-line-lexer')
 let tagAlreadyFound = false
 let obj
 var lparenOpen = false
-const keysToMergeText = ['therest']
+// const keysToMergeText = ['therest']
 
 function rank(type1, type2) {
   if (type2 === 'text') {
@@ -4875,6 +4960,24 @@ function rank(type1, type2) {
     return type1.concat(type2)
   }
 } 
+
+function isQuoted(str) {
+  if (str.trim().slice(-1) === "'" && str.trim().slice(-1) === "'") {
+    return true
+  }
+  if (str.trim().slice(-1) === '"' && str.trim().slice(-1) === "'") {
+    return true
+  }
+  return false
+}
+
+function quote(str) {
+  return '"' + str + '"'
+}
+
+function unquote(str) {
+  return str.trim().slice(1, -1);
+}
 
 function merge(obj, src) {
 
@@ -4901,7 +5004,18 @@ function merge(obj, src) {
     return Object.assign(obj, { val: src.children[0].val })
   }
 
-  const ret = _.mergeWith(obj, src, function (objValue, srcValue, key, object, source, stack) {
+  // function convertClassAttr(key, obj) {
+  //   let ret
+  //   if (key === 'attrs' && obj.length == 1 && obj[0].name === 'class') {
+  //     ret = [{ classes: obj[0].val }]
+  //   }
+  //   else {
+  //     ret = obj
+  //   }
+  //   return ret
+  // }
+
+  let ret = _.mergeWith(obj, src, function (objValue, srcValue, key, object, source, stack) {
     debug('merging', 'inside _mergeWith', key, objValue, srcValue)
     if (objValue == undefined && srcValue == undefined) {
        return {}
@@ -4912,13 +5026,17 @@ function merge(obj, src) {
     if (srcValue == undefined) {
        return objValue
     }
-    if (keysToMergeText.includes(key)) {
-        return objValue + srcValue
-    }
-    else {
-        return rank(objValue, srcValue)
-    }
+    return rank(objValue, srcValue)
+    // }
   })
+
+  // if (ret.hasOwnProperty('attrs') && ret.attrs.length == 1 && Object.keys(ret.attrs[0]).length == 1 && Object.keys(ret.attrs[0])[0] == 'classes' && isQuoted(ret.attrs[0].classes)) {
+  //   debug('merging', ' found classes')
+  //   const classes = unquote(ret.attrs[0].classes)
+  //   delete ret.attrs
+  //   ret = merge(ret, { classes: classes })
+  // }
+
   debug('merging', ' returning', ret)
   return ret
   //  return Object.assign(obj, src);
@@ -4957,10 +5075,20 @@ parser.main = function () {
   tagAlreadyFound = false
   lparenOpen = false
 
-  function test(input, expected, strict = true ) {
+  function test(input, expected, strict = true, options) {
+
+    if (_.isEmpty(options)) {
+      debug(`\nTesting '${input}'...`)
+    }
+    else {
+      debug(`\nTesting '${input}' with ${JSON.stringify(options)}...`)
+      debug('parser.options before=', parser.options)
+      parser.options = Object.assign(parser.options, options)
+      debug('parser.options after=', parser.options)
+    }
+
     tagAlreadyFound = false
     lparenOpen = false
-    debug(`\nTesting '${input}'...`)
     var actual = parser.parse(input)
     debug(input + ' ==> ', util.inspect(actual))
     
@@ -4973,6 +5101,16 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
+try {
+  test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: false })
+//   fail('Should not allow for a class name to start with a digit')
+} catch (e) {
+  if (e.message != 'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.') {
+    throw e;
+  }
+}
+
+test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: true })
 
 test('<!--build:js /js/app.min.js?v=#{version}-->', {
   type: 'html_comment',
@@ -5003,21 +5141,13 @@ test(`</ul>`, { type: 'text', val: '</ul>' })
 // test(`+foo&attributes({class: "hello"})`, {})
 
 test("a.rho(href='#', class='rho--modifier')", {
-  attrs: [
-    {
-      name: 'href',
-      val: "'#'"
-    },
-    {
-      name: 'class',
-      val: "'rho--modifier'"
-    }
-  ],
-  classes: [
-    'rho'
-  ],
   name: 'a',
-  type: 'tag'
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"rho"' },
+    { name: 'href', val: "'#'" },
+    { name: 'class', val: "'rho--modifier'" }
+  ]
 })
 test(`div(id=id)&attributes({foo: 'bar', fred: 'bart'})`, {
   type: 'tag',
@@ -5034,38 +5164,30 @@ test(`div(id=id)&attributes({foo: 'bar', fred: 'bart'})`, {
   }]
 })
 
-// commenting this all out for now while I test pug-attr {
-test(`a(class=['foo', 'bar', 'baz'])`, { type: 'tag', name: 'a', attrs: [
-    {
-      name: 'class',
-      val: "['foo', 'bar', 'baz']"
-    }
-  ] })
+test(`a(class=['foo', 'bar', 'baz'])`, {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'class', val: "['foo', 'bar', 'baz']" } ]
+})
 
 // TODO: revisit
 test(`a.foo(class='bar').baz`, {
-  attrs: [
-    {
-      name: 'class',
-      val: "'bar'"
-    }
-  ],
-  classes: [
-    'foo',
-    'baz'
-  ],
   name: 'a',
-  type: 'tag'
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"foo"' },
+    { name: 'class', val: "'bar'" },
+    { key: 'class', val: '"baz"' }
+  ]
 })
 // How is that ^ different than this?: a(href='/save').button save
 
 test(`a.foo-bar_baz`, {
-  classes: [
-    'foo-bar_baz'
-  ],
   name: 'a',
-  type: 'tag'
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"foo-bar_baz"' } ]
 })
+
 test(`a(class={foo: true, bar: false, baz: true})`, {
   attrs: [
     {
@@ -5103,7 +5225,12 @@ test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
 // })
 
 test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it' })
-test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
+test('span.hljs-section )', {
+  name: 'span',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"hljs-section"' } ],
+  val: ')'
+})
 test("#{'foo'}(bar='baz') /", {
   attrs: [
     {
@@ -5130,12 +5257,24 @@ test('li= item', {
 test('-var ajax = true', {type: 'code', val: 'var ajax = true', state: 'CODE_START' })
 test('-if( ajax )', {type: 'conditional', name: 'if', condition: ' ajax '})
 test('span.font-monospace .htmlnanorc', {
-  type: 'tag', name: 'span', classes: ['font-monospace'], val: '.htmlnanorc'})
+  attrs: [
+    {
+      name: 'class',
+      val: '"font-monospace"'
+    }
+  ],
+  name: 'span',
+  type: 'tag',
+  val: '.htmlnanorc'
+})
 
 test('.container.post#post-20210905', {
   type: 'tag',
-  id: 'post-20210905',
-  classes: ['container', 'post']
+  attrs: [
+    { name: 'class', val: '"container"' },
+    { name: 'class', val: '"post"' }
+  ],
+  id: 'post-20210905'
 })
 
 test('<UNBUF_CODE>var i', {
@@ -5171,8 +5310,8 @@ test('p: a(href="https://www.thingiverse.com/thing:4578862") Thingiverse', {
 
 test('.project(class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" "))', {
   type: 'tag',
-  classes: [ 'project' ],
   attrs: [
+    { name: 'class', val: '"project"' },
     {
       name: 'class',
       val: '(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'
@@ -5180,7 +5319,11 @@ test('.project(class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join("
   ]
 })
 
-test('.status-wrapper Status:', { classes: [ 'status-wrapper' ], type: 'tag', val: 'Status:' })
+test('.status-wrapper Status:', {
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"status-wrapper"' } ],
+  val: 'Status:'
+})
 
 test('+sensitive ', {
   name: 'sensitive',
@@ -5234,17 +5377,12 @@ test('a(class = [\'class1\', \'class2\'])',  {
   attrs: [ { name: 'class', val: "['class1', 'class2']" } ]
 })
 test('a.tag-class(class = [\'class1\', \'class2\'])', {
-  attrs: [
-    {
-      name: 'class',
-      val: "['class1', 'class2']"
-    }
-  ],
-  classes: [
-    'tag-class'
-  ],
   name: 'a',
-  type: 'tag'
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"tag-class"' },
+    { name: 'class', val: "['class1', 'class2']" }
+  ]
 })
 test('a(href=\'/user/\' + id class=\'button\')',  {
   name: 'a',
@@ -5387,7 +5525,7 @@ test("<TEXT>gtag('config', 'UA-452464-5');", {"type":"text","val":"gtag('config'
 test("", "")
 if (!TEXT_TAGS_ALLOW_SUB_TAGS)
   test("script test", {"type":"tag","name":"script","state":"TEXT_START","val":"test"})
-test(".classname", { type: 'tag', classes: ['classname'] })
+test(".classname", { type: 'tag', attrs: [ { name: 'class', val: '"classname"' } ] })
 
 //test("// some text", { type: 'comment', state: 'TEXT_START' })
 test("// some text", { type: 'comment', state: 'TEXT_START', val: ' some text' })
@@ -5401,8 +5539,10 @@ test("//", { type: 'comment', state: 'TEXT_START' })
 test('a.url.fn.n(href=\'https://wordpress.adamkoch.com/author/admin/\' title=\'View all posts by Adam\' rel=\'author\') Adam',  {
   name: 'a',
   type: 'tag',
-  classes: [ 'url', 'fn', 'n' ],
   attrs: [
+    { name: 'class', val: '"url"' },
+    { name: 'class', val: '"fn"' },
+    { name: 'class', val: '"n"' },
     {
       name: 'href',
       val: "'https://wordpress.adamkoch.com/author/admin/'"
@@ -5422,8 +5562,23 @@ test('style(id=\'wp-block-library-inline-css\' type=\'text/css\').', {
   state: 'TEXT_START'
 })
 test('| #start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}', {"type":"text","val":"#start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}"})
-test('body.post-template-default.single.single-post.postid-1620.single-format-standard.wp-embed-responsive.single-author.singular.two-column.right-sidebar', {"type":"tag","name":"body","classes":["post-template-default","single","single-post","postid-1620","single-format-standard","wp-embed-responsive","single-author","singular","two-column","right-sidebar"]})
-test('#page.hfeed', {"type":"tag","id":"page","classes":["hfeed"]})
+test('body.post-template-default.single.single-post.postid-1620.single-format-standard.wp-embed-responsive.single-author.singular.two-column.right-sidebar', {
+  name: 'body',
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"post-template-default"' },
+    { name: 'class', val: '"single"' },
+    { name: 'class', val: '"single-post"' },
+    { name: 'class', val: '"postid-1620"' },
+    { name: 'class', val: '"single-format-standard"' },
+    { name: 'class', val: '"wp-embed-responsive"' },
+    { name: 'class', val: '"single-author"' },
+    { name: 'class', val: '"singular"' },
+    { name: 'class', val: '"two-column"' },
+    { name: 'class', val: '"right-sidebar"' }
+  ]
+})
+test('#page.hfeed', { type: 'tag', id: 'page', attrs: [ { name: 'class', val: '"hfeed"' } ] })
 test('header#branding(role=\'banner\')', {
   name: 'header',
   type: 'tag',
@@ -5441,24 +5596,45 @@ test('a(href=\'https://www.adamkoch.com/\' rel=\'home\') Adam Koch', {
   val: 'Adam Koch'
 })
 test('h2#site-description Software Developer and Clean Code Advocate', {type: 'tag', name: 'h2', id: 'site-description', val: 'Software Developer and Clean Code Advocate' })
-test('h3.assistive-text Main menu', {type: 'tag', name: 'h3', classes: ['assistive-text'], val: 'Main menu' })
-test('ul#menu-header.menu', {type: 'tag', name: 'ul', id: 'menu-header', classes: ['menu']})
+test('h3.assistive-text Main menu', {
+  name: 'h3',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"assistive-text"' } ],
+  val: 'Main menu'
+})
+test('ul#menu-header.menu', {
+  name: 'ul',
+  type: 'tag',
+  id: 'menu-header',
+  attrs: [ { name: 'class', val: '"menu"' } ]
+})
 test('a(href=\'https://wordpress.adamkoch.com/posts/\') Posts', {
   name: 'a',
   type: 'tag',
   attrs: [ { name: 'href', val: "'https://wordpress.adamkoch.com/posts/'" } ],
   val: 'Posts'
 })
-test('span.sep  by', {type:'tag', name: 'span', classes: ['sep'], val: ' by' })
+test('span.sep  by', {
+  name: 'span',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"sep"' } ],
+  val: ' by'
+})
 test('style.', {"type":"tag","name":"style","state":"TEXT_START"})
 test('p I came across a problem in Internet Explorer (it wasn\'t a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I\'ll just call the', {
   type: 'tag',
   name: 'p',
   val: "I came across a problem in Internet Explorer (it wasn't a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I'll just call the"
 })
-test('.sd-content', { type: 'tag', classes: [ 'sd-content' ] })
+test('.sd-content', { type: 'tag', attrs: [ { name: 'class', val: '"sd-content"' } ] })
 test('th  Browser', { type: 'tag', name: 'th', val: ' Browser' })
-test('.sharedaddy.sd-sharing-enabled', {"type":"tag","classes":['sharedaddy', 'sd-sharing-enabled']})
+test('.sharedaddy.sd-sharing-enabled', {
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"sharedaddy"' },
+    { name: 'class', val: '"sd-sharing-enabled"' }
+  ]
+})
 test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', {
   name: 'time',
   type: 'tag',
@@ -5587,28 +5763,19 @@ test('pre: code.', {
 test('|. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
 
 test('.rule: p.', {
-  children: [
-    {
-      name: 'p',
-      type: 'tag',
-      state: 'TEXT_START'
-    }
-  ],
-  classes: ['rule'],
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"rule"' } ],
   state: 'NESTED',
-  type: 'tag'
+  children: [ { name: 'p', type: 'tag', state: 'TEXT_START' } ]
 })
-test('.rule.unratified: p.', {
-  children: [
-    {
-      name: 'p',
-      type: 'tag',
-      state: 'TEXT_START'
-    }
+test('.rule.unratified: p.',  {
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"rule"' },
+    { name: 'class', val: '"unratified"' }
   ],
-  classes: ['rule', 'unratified'],
   state: 'NESTED',
-  type: 'tag'
+  children: [ { name: 'p', type: 'tag', state: 'TEXT_START' } ]
 })
 
 test("style(id='wp-block-library-inline-css' type='text/css'). ", {
@@ -5644,8 +5811,10 @@ test('+code(\'Pretty-print any JSON file\') jq \'.\' package.json',
 test("a(href='/save').button save", {
   name: 'a',
   type: 'tag',
-  attrs: [ { name: 'href', val: "'/save'" } ],
-  classes: 'button',
+  attrs: [
+    { name: 'href', val: "'/save'" },
+    { key: 'class', val: '"button"' }
+  ],
   val: 'save'
 })
 
@@ -5740,42 +5909,47 @@ test(`p Some text #[a.rho(href='#', class='rho--modifier') with inline link]`, {
   type: 'tag',
   children: [
     { type: 'text', val: 'Some text ' },
-    {
-      name: 'a',
-      type: 'tag',
-      classes: ['rho'],
-      attrs: [{
+    { name: 'a', type: 'tag', attrs: [
+        {
+          name: 'class',
+          val: '"rho"'
+        },
+        {
           name: 'href',
           val: "'#'"
         },
         {
           name: 'class',
           val: "'rho--modifier'"
-        }],
-      val: 'with inline link'
-    }
+        }
+      ], val: 'with inline link' }
   ]
 })
 
 test(`p #[a.rho(href='#', class='rho--modifier') with inline link]`, {
-  name: 'p',
-  type: 'tag',
   children: [
     {
-      name: 'a',
-      type: 'tag',
-      classes: ['rho'],
-      attrs: [{
+      attrs: [
+        {
+          name: 'class',
+          val: '"rho"'
+        },
+        {
           name: 'href',
           val: "'#'"
         },
         {
           name: 'class',
           val: "'rho--modifier'"
-        }],
+        }
+      ],
+      name: 'a',
+      type: 'tag',
       val: 'with inline link'
     }
-  ]
+  ],
+  name: 'p',
+  type: 'tag'
 })
 
 test(`+list()`, {

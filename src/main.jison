@@ -15,6 +15,7 @@ filter              \:[a-z0-9-]+\b
 
 // classname               \.[a-z0-9-]+
 classname               \.-?[_a-zA-Z]+[_a-zA-Z0-9-]*
+classname_relaxed       \.-?[_a-zA-Z0-9]+[_a-zA-Z0-9-]*
 tag_id                  #[a-z0-9-]+
 mixin_call              \+\s*[a-z]+\b
 conditional             -?(if|else if|else)
@@ -143,6 +144,19 @@ else {
   yytext = yytext.substring(1);
                                           return 'CLASSNAME';
 %}
+<INITIAL>{classname_relaxed}
+%{
+  debug('<INITIAL>{classname_relaxed}')
+  if (this.yy.parser.options.allowDigitToStartClassName) {
+    // debug('<INITIAL>{classname}')
+    this.pushState('AFTER_TAG_NAME');
+    yytext = yytext.substring(1);
+                                          return 'CLASSNAME';
+  }
+  else {
+    throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.')
+  }
+%}
 <INITIAL>"//"             
 %{
   this.pushState('TEXT');
@@ -234,10 +248,21 @@ else {
 // The addition of ATTRS_END is for the edge case of allowing a classname to immediately follow the attributes: a.class(some=attr).class
 <INITIAL,ATTRS_END>{classname}
 %{
-  debug('<INITIAL>{classname}')
   this.pushState('AFTER_TAG_NAME');
   yytext = yytext.substring(1);
                                           return 'CLASSNAME';
+%}
+<INITIAL,ATTRS_END>{classname_relaxed}
+%{
+  debug('<INITIAL,ATTRS_END>{classname_relaxed}')
+  if (this.yy.parser.options.allowDigitToStartClassName) {
+    this.pushState('AFTER_TAG_NAME');
+    yytext = yytext.substring(1);
+                                          return 'CLASSNAME';
+  }
+  else {
+    throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.')
+  }
 %}
 
 // <ATTRS_STARTED>')'
@@ -402,9 +427,25 @@ else {
 %}
 <AFTER_TAG_NAME>{classname}
 %{
-  yytext = this.matches[1].substring(1);
+  // yytext = this.matches[1].substring(1);
+  yytext = yytext.substring(1);
   debug('60 yytext=', yytext)
                                           return 'CLASSNAME';
+%}
+<AFTER_TAG_NAME>{classname_relaxed}
+%{
+  // debug('<AFTER_TAG_NAME>{classname_relaxed}')
+  // debug('Object.keys(this).length=', Object.keys(this).length)
+  // debug('Object.keys(this.yy).length=', Object.keys(this.yy).length)
+  // debug('Object.keys(this.yy.parser).length=', Object.keys(this.yy.parser).length)
+  // debug('this.yy.parser.options=', util.inspect(this.yy.parser.options, false, 10, true))
+  if (this.yy.parser.options.allowDigitToStartClassName) {
+    yytext = yytext.substring(1);
+                                          return 'CLASSNAME';
+  }
+  else {
+    throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.')
+  }
 %}
 <INITIAL>{space}{2,}
 %{
@@ -427,6 +468,18 @@ else {
   this.pushState('ATTRS_END');
   yytext = yytext.substring(1);
                                           return 'TEXT';
+%}
+<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname_relaxed}
+%{
+  debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname_relaxed} this.parser.options=', this.parser.options)
+  if (this.yy.parser.options.allowDigitToStartClassName) {
+    this.pushState('ATTRS_END');
+    yytext = yytext.substring(1);
+                                          return 'TEXT';
+  }
+  else {
+    throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.')
+  }
 %}
 
 <AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}
@@ -753,12 +806,13 @@ line_start
   // Rule for the edgecase a(class='bar').baz
   | first_token attrs CLASSNAME
   {
-    $$ = merge($first_token, [$attrs, { classes: $CLASSNAME }])
+    $$ = merge($first_token, [$attrs, { attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }])
   }
   // Rule for the edgecase a.foo(class='bar').baz
   | first_token tag_part attrs CLASSNAME
   {
-    $$ = merge($first_token, [$tag_part, $attrs, { classes: $CLASSNAME }])
+    debug('first_token tag_part attrs CLASSNAME: first_token=', $first_token, ', tag_part=', $tag_part, ', attrs=', $attrs, ', CLASSNAME=', $CLASSNAME)
+    $$ = merge($first_token, [$tag_part, $attrs, { attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }])
   }
   | ATTR_TEXT
   {
@@ -782,7 +836,7 @@ first_token
   }
   | CLASSNAME
   {
-    $$ = { type: 'tag', classes: [$1] }
+    $$ = { type: 'tag', attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }
   }
   | TAG_ID
   {
@@ -907,7 +961,10 @@ attrs
 classnames
   : CLASSNAME+
   {
-    $$ = { type: 'tag', classes: $1 }
+    let attrs1 = $1.map(cn => {
+      return { name: 'class', val: quote(cn) } 
+    })
+    $$ = { type: 'tag', attrs: attrs1 }
   }
   ;
 
@@ -981,7 +1038,7 @@ const debug = debugFunc('pug-line-lexer')
 let tagAlreadyFound = false
 let obj
 var lparenOpen = false
-const keysToMergeText = ['therest']
+// const keysToMergeText = ['therest']
 
 function rank(type1, type2) {
   if (type2 === 'text') {
@@ -1000,6 +1057,24 @@ function rank(type1, type2) {
     return type1.concat(type2)
   }
 } 
+
+function isQuoted(str) {
+  if (str.trim().slice(-1) === "'" && str.trim().slice(-1) === "'") {
+    return true
+  }
+  if (str.trim().slice(-1) === '"' && str.trim().slice(-1) === "'") {
+    return true
+  }
+  return false
+}
+
+function quote(str) {
+  return '"' + str + '"'
+}
+
+function unquote(str) {
+  return str.trim().slice(1, -1);
+}
 
 function merge(obj, src) {
 
@@ -1026,7 +1101,18 @@ function merge(obj, src) {
     return Object.assign(obj, { val: src.children[0].val })
   }
 
-  const ret = _.mergeWith(obj, src, function (objValue, srcValue, key, object, source, stack) {
+  // function convertClassAttr(key, obj) {
+  //   let ret
+  //   if (key === 'attrs' && obj.length == 1 && obj[0].name === 'class') {
+  //     ret = [{ classes: obj[0].val }]
+  //   }
+  //   else {
+  //     ret = obj
+  //   }
+  //   return ret
+  // }
+
+  let ret = _.mergeWith(obj, src, function (objValue, srcValue, key, object, source, stack) {
     debug('merging', 'inside _mergeWith', key, objValue, srcValue)
     if (objValue == undefined && srcValue == undefined) {
        return {}
@@ -1037,13 +1123,17 @@ function merge(obj, src) {
     if (srcValue == undefined) {
        return objValue
     }
-    if (keysToMergeText.includes(key)) {
-        return objValue + srcValue
-    }
-    else {
-        return rank(objValue, srcValue)
-    }
+    return rank(objValue, srcValue)
+    // }
   })
+
+  // if (ret.hasOwnProperty('attrs') && ret.attrs.length == 1 && Object.keys(ret.attrs[0]).length == 1 && Object.keys(ret.attrs[0])[0] == 'classes' && isQuoted(ret.attrs[0].classes)) {
+  //   debug('merging', ' found classes')
+  //   const classes = unquote(ret.attrs[0].classes)
+  //   delete ret.attrs
+  //   ret = merge(ret, { classes: classes })
+  // }
+
   debug('merging', ' returning', ret)
   return ret
   //  return Object.assign(obj, src);
@@ -1082,10 +1172,20 @@ parser.main = function () {
   tagAlreadyFound = false
   lparenOpen = false
 
-  function test(input, expected, strict = true ) {
+  function test(input, expected, strict = true, options) {
+
+    if (_.isEmpty(options)) {
+      debug(`\nTesting '${input}'...`)
+    }
+    else {
+      debug(`\nTesting '${input}' with ${JSON.stringify(options)}...`)
+      debug('parser.options before=', parser.options)
+      parser.options = Object.assign(parser.options, options)
+      debug('parser.options after=', parser.options)
+    }
+
     tagAlreadyFound = false
     lparenOpen = false
-    debug(`\nTesting '${input}'...`)
     var actual = parser.parse(input)
     debug(input + ' ==> ', util.inspect(actual))
     
@@ -1098,6 +1198,16 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
+try {
+  test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: false })
+//   fail('Should not allow for a class name to start with a digit')
+} catch (e) {
+  if (e.message != 'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.') {
+    throw e;
+  }
+}
+
+test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: true })
 
 test('<!--build:js /js/app.min.js?v=#{version}-->', {
   type: 'html_comment',
@@ -1128,21 +1238,13 @@ test(`</ul>`, { type: 'text', val: '</ul>' })
 // test(`+foo&attributes({class: "hello"})`, {})
 
 test("a.rho(href='#', class='rho--modifier')", {
-  attrs: [
-    {
-      name: 'href',
-      val: "'#'"
-    },
-    {
-      name: 'class',
-      val: "'rho--modifier'"
-    }
-  ],
-  classes: [
-    'rho'
-  ],
   name: 'a',
-  type: 'tag'
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"rho"' },
+    { name: 'href', val: "'#'" },
+    { name: 'class', val: "'rho--modifier'" }
+  ]
 })
 test(`div(id=id)&attributes({foo: 'bar', fred: 'bart'})`, {
   type: 'tag',
@@ -1159,38 +1261,30 @@ test(`div(id=id)&attributes({foo: 'bar', fred: 'bart'})`, {
   }]
 })
 
-// commenting this all out for now while I test pug-attr {
-test(`a(class=['foo', 'bar', 'baz'])`, { type: 'tag', name: 'a', attrs: [
-    {
-      name: 'class',
-      val: "['foo', 'bar', 'baz']"
-    }
-  ] })
+test(`a(class=['foo', 'bar', 'baz'])`, {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'class', val: "['foo', 'bar', 'baz']" } ]
+})
 
 // TODO: revisit
 test(`a.foo(class='bar').baz`, {
-  attrs: [
-    {
-      name: 'class',
-      val: "'bar'"
-    }
-  ],
-  classes: [
-    'foo',
-    'baz'
-  ],
   name: 'a',
-  type: 'tag'
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"foo"' },
+    { name: 'class', val: "'bar'" },
+    { key: 'class', val: '"baz"' }
+  ]
 })
 // How is that ^ different than this?: a(href='/save').button save
 
 test(`a.foo-bar_baz`, {
-  classes: [
-    'foo-bar_baz'
-  ],
   name: 'a',
-  type: 'tag'
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"foo-bar_baz"' } ]
 })
+
 test(`a(class={foo: true, bar: false, baz: true})`, {
   attrs: [
     {
@@ -1228,7 +1322,12 @@ test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
 // })
 
 test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it' })
-test('span.hljs-section )', { type: 'tag', name: 'span', classes: ['hljs-section'], val: ')'})
+test('span.hljs-section )', {
+  name: 'span',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"hljs-section"' } ],
+  val: ')'
+})
 test("#{'foo'}(bar='baz') /", {
   attrs: [
     {
@@ -1255,12 +1354,24 @@ test('li= item', {
 test('-var ajax = true', {type: 'code', val: 'var ajax = true', state: 'CODE_START' })
 test('-if( ajax )', {type: 'conditional', name: 'if', condition: ' ajax '})
 test('span.font-monospace .htmlnanorc', {
-  type: 'tag', name: 'span', classes: ['font-monospace'], val: '.htmlnanorc'})
+  attrs: [
+    {
+      name: 'class',
+      val: '"font-monospace"'
+    }
+  ],
+  name: 'span',
+  type: 'tag',
+  val: '.htmlnanorc'
+})
 
 test('.container.post#post-20210905', {
   type: 'tag',
-  id: 'post-20210905',
-  classes: ['container', 'post']
+  attrs: [
+    { name: 'class', val: '"container"' },
+    { name: 'class', val: '"post"' }
+  ],
+  id: 'post-20210905'
 })
 
 test('<UNBUF_CODE>var i', {
@@ -1296,8 +1407,8 @@ test('p: a(href="https://www.thingiverse.com/thing:4578862") Thingiverse', {
 
 test('.project(class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" "))', {
   type: 'tag',
-  classes: [ 'project' ],
   attrs: [
+    { name: 'class', val: '"project"' },
     {
       name: 'class',
       val: '(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'
@@ -1305,7 +1416,11 @@ test('.project(class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join("
   ]
 })
 
-test('.status-wrapper Status:', { classes: [ 'status-wrapper' ], type: 'tag', val: 'Status:' })
+test('.status-wrapper Status:', {
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"status-wrapper"' } ],
+  val: 'Status:'
+})
 
 test('+sensitive ', {
   name: 'sensitive',
@@ -1359,17 +1474,12 @@ test('a(class = [\'class1\', \'class2\'])',  {
   attrs: [ { name: 'class', val: "['class1', 'class2']" } ]
 })
 test('a.tag-class(class = [\'class1\', \'class2\'])', {
-  attrs: [
-    {
-      name: 'class',
-      val: "['class1', 'class2']"
-    }
-  ],
-  classes: [
-    'tag-class'
-  ],
   name: 'a',
-  type: 'tag'
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"tag-class"' },
+    { name: 'class', val: "['class1', 'class2']" }
+  ]
 })
 test('a(href=\'/user/\' + id class=\'button\')',  {
   name: 'a',
@@ -1512,7 +1622,7 @@ test("<TEXT>gtag('config', 'UA-452464-5');", {"type":"text","val":"gtag('config'
 test("", "")
 if (!TEXT_TAGS_ALLOW_SUB_TAGS)
   test("script test", {"type":"tag","name":"script","state":"TEXT_START","val":"test"})
-test(".classname", { type: 'tag', classes: ['classname'] })
+test(".classname", { type: 'tag', attrs: [ { name: 'class', val: '"classname"' } ] })
 
 //test("// some text", { type: 'comment', state: 'TEXT_START' })
 test("// some text", { type: 'comment', state: 'TEXT_START', val: ' some text' })
@@ -1526,8 +1636,10 @@ test("//", { type: 'comment', state: 'TEXT_START' })
 test('a.url.fn.n(href=\'https://wordpress.adamkoch.com/author/admin/\' title=\'View all posts by Adam\' rel=\'author\') Adam',  {
   name: 'a',
   type: 'tag',
-  classes: [ 'url', 'fn', 'n' ],
   attrs: [
+    { name: 'class', val: '"url"' },
+    { name: 'class', val: '"fn"' },
+    { name: 'class', val: '"n"' },
     {
       name: 'href',
       val: "'https://wordpress.adamkoch.com/author/admin/'"
@@ -1547,8 +1659,23 @@ test('style(id=\'wp-block-library-inline-css\' type=\'text/css\').', {
   state: 'TEXT_START'
 })
 test('| #start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}', {"type":"text","val":"#start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}"})
-test('body.post-template-default.single.single-post.postid-1620.single-format-standard.wp-embed-responsive.single-author.singular.two-column.right-sidebar', {"type":"tag","name":"body","classes":["post-template-default","single","single-post","postid-1620","single-format-standard","wp-embed-responsive","single-author","singular","two-column","right-sidebar"]})
-test('#page.hfeed', {"type":"tag","id":"page","classes":["hfeed"]})
+test('body.post-template-default.single.single-post.postid-1620.single-format-standard.wp-embed-responsive.single-author.singular.two-column.right-sidebar', {
+  name: 'body',
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"post-template-default"' },
+    { name: 'class', val: '"single"' },
+    { name: 'class', val: '"single-post"' },
+    { name: 'class', val: '"postid-1620"' },
+    { name: 'class', val: '"single-format-standard"' },
+    { name: 'class', val: '"wp-embed-responsive"' },
+    { name: 'class', val: '"single-author"' },
+    { name: 'class', val: '"singular"' },
+    { name: 'class', val: '"two-column"' },
+    { name: 'class', val: '"right-sidebar"' }
+  ]
+})
+test('#page.hfeed', { type: 'tag', id: 'page', attrs: [ { name: 'class', val: '"hfeed"' } ] })
 test('header#branding(role=\'banner\')', {
   name: 'header',
   type: 'tag',
@@ -1566,24 +1693,45 @@ test('a(href=\'https://www.adamkoch.com/\' rel=\'home\') Adam Koch', {
   val: 'Adam Koch'
 })
 test('h2#site-description Software Developer and Clean Code Advocate', {type: 'tag', name: 'h2', id: 'site-description', val: 'Software Developer and Clean Code Advocate' })
-test('h3.assistive-text Main menu', {type: 'tag', name: 'h3', classes: ['assistive-text'], val: 'Main menu' })
-test('ul#menu-header.menu', {type: 'tag', name: 'ul', id: 'menu-header', classes: ['menu']})
+test('h3.assistive-text Main menu', {
+  name: 'h3',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"assistive-text"' } ],
+  val: 'Main menu'
+})
+test('ul#menu-header.menu', {
+  name: 'ul',
+  type: 'tag',
+  id: 'menu-header',
+  attrs: [ { name: 'class', val: '"menu"' } ]
+})
 test('a(href=\'https://wordpress.adamkoch.com/posts/\') Posts', {
   name: 'a',
   type: 'tag',
   attrs: [ { name: 'href', val: "'https://wordpress.adamkoch.com/posts/'" } ],
   val: 'Posts'
 })
-test('span.sep  by', {type:'tag', name: 'span', classes: ['sep'], val: ' by' })
+test('span.sep  by', {
+  name: 'span',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"sep"' } ],
+  val: ' by'
+})
 test('style.', {"type":"tag","name":"style","state":"TEXT_START"})
 test('p I came across a problem in Internet Explorer (it wasn\'t a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I\'ll just call the', {
   type: 'tag',
   name: 'p',
   val: "I came across a problem in Internet Explorer (it wasn't a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I'll just call the"
 })
-test('.sd-content', { type: 'tag', classes: [ 'sd-content' ] })
+test('.sd-content', { type: 'tag', attrs: [ { name: 'class', val: '"sd-content"' } ] })
 test('th  Browser', { type: 'tag', name: 'th', val: ' Browser' })
-test('.sharedaddy.sd-sharing-enabled', {"type":"tag","classes":['sharedaddy', 'sd-sharing-enabled']})
+test('.sharedaddy.sd-sharing-enabled', {
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"sharedaddy"' },
+    { name: 'class', val: '"sd-sharing-enabled"' }
+  ]
+})
 test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', {
   name: 'time',
   type: 'tag',
@@ -1712,28 +1860,19 @@ test('pre: code.', {
 test('|. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
 
 test('.rule: p.', {
-  children: [
-    {
-      name: 'p',
-      type: 'tag',
-      state: 'TEXT_START'
-    }
-  ],
-  classes: ['rule'],
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"rule"' } ],
   state: 'NESTED',
-  type: 'tag'
+  children: [ { name: 'p', type: 'tag', state: 'TEXT_START' } ]
 })
-test('.rule.unratified: p.', {
-  children: [
-    {
-      name: 'p',
-      type: 'tag',
-      state: 'TEXT_START'
-    }
+test('.rule.unratified: p.',  {
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"rule"' },
+    { name: 'class', val: '"unratified"' }
   ],
-  classes: ['rule', 'unratified'],
   state: 'NESTED',
-  type: 'tag'
+  children: [ { name: 'p', type: 'tag', state: 'TEXT_START' } ]
 })
 
 test("style(id='wp-block-library-inline-css' type='text/css'). ", {
@@ -1769,8 +1908,10 @@ test('+code(\'Pretty-print any JSON file\') jq \'.\' package.json',
 test("a(href='/save').button save", {
   name: 'a',
   type: 'tag',
-  attrs: [ { name: 'href', val: "'/save'" } ],
-  classes: 'button',
+  attrs: [
+    { name: 'href', val: "'/save'" },
+    { key: 'class', val: '"button"' }
+  ],
   val: 'save'
 })
 
@@ -1865,42 +2006,47 @@ test(`p Some text #[a.rho(href='#', class='rho--modifier') with inline link]`, {
   type: 'tag',
   children: [
     { type: 'text', val: 'Some text ' },
-    {
-      name: 'a',
-      type: 'tag',
-      classes: ['rho'],
-      attrs: [{
+    { name: 'a', type: 'tag', attrs: [
+        {
+          name: 'class',
+          val: '"rho"'
+        },
+        {
           name: 'href',
           val: "'#'"
         },
         {
           name: 'class',
           val: "'rho--modifier'"
-        }],
-      val: 'with inline link'
-    }
+        }
+      ], val: 'with inline link' }
   ]
 })
 
 test(`p #[a.rho(href='#', class='rho--modifier') with inline link]`, {
-  name: 'p',
-  type: 'tag',
   children: [
     {
-      name: 'a',
-      type: 'tag',
-      classes: ['rho'],
-      attrs: [{
+      attrs: [
+        {
+          name: 'class',
+          val: '"rho"'
+        },
+        {
           name: 'href',
           val: "'#'"
         },
         {
           name: 'class',
           val: "'rho--modifier'"
-        }],
+        }
+      ],
+      name: 'a',
+      type: 'tag',
       val: 'with inline link'
     }
-  ]
+  ],
+  name: 'p',
+  type: 'tag'
 })
 
 test(`+list()`, {
