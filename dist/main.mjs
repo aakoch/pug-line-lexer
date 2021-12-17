@@ -610,17 +610,15 @@ options: {
 symbols_: {
   "$accept": 0,
   "$end": 1,
-  "ASSIGNMENT": 32,
-  "ASSIGNMENT_VALUE": 31,
-  "ATTR_TEXT": 12,
+  "ASSIGNMENT": 33,
+  "ASSIGNMENT_VALUE": 32,
+  "ATTR_TEXT": 30,
   "ATTR_TEXT_CONT": 7,
   "ATTR_TEXT_END": 6,
   "AT_ATTRS": 8,
-  "CLASSNAME": 11,
-  "CODE": 4,
-  "CODE_START": 19,
+  "CLASSNAME": 12,
   "COMMENT": 18,
-  "CONDITION": 30,
+  "CONDITION": 31,
   "CONDITIONAL": 26,
   "DOT_END": 24,
   "EOF": 1,
@@ -629,7 +627,7 @@ symbols_: {
   "INTERPOLATION": 27,
   "INTERPOLATION_START": 28,
   "KEYWORD": 21,
-  "LPAREN": 10,
+  "LPAREN": 11,
   "MIXIN_CALL": 20,
   "MIXIN_PARAMS": 13,
   "NESTED_TAG_START": 5,
@@ -641,39 +639,42 @@ symbols_: {
   "TAG_ID": 17,
   "TEXT": 3,
   "TEXT_TAG": 16,
-  "attrs": 38,
-  "classnames": 39,
-  "classnames_repetition_plus": 43,
+  "UNBUF_CODE": 4,
+  "UNBUF_CODE_BLOCK": 19,
+  "UNBUF_CODE_BLOCK_START": 10,
+  "attrs": 39,
+  "classnames": 40,
+  "classnames_repetition_plus": 44,
   "error": 2,
-  "first_token": 36,
-  "line": 34,
-  "line_end": 40,
-  "line_splitter": 41,
-  "line_start": 35,
-  "line_start_option": 42,
-  "start": 33,
-  "tag_part": 37
+  "first_token": 37,
+  "line": 35,
+  "line_end": 41,
+  "line_splitter": 42,
+  "line_start": 36,
+  "line_start_option": 43,
+  "start": 34,
+  "tag_part": 38
 },
 terminals_: {
   1: "EOF",
   2: "error",
   3: "TEXT",
-  4: "CODE",
+  4: "UNBUF_CODE",
   5: "NESTED_TAG_START",
   6: "ATTR_TEXT_END",
   7: "ATTR_TEXT_CONT",
   8: "AT_ATTRS",
   9: "HTML_COMMENT",
-  10: "LPAREN",
-  11: "CLASSNAME",
-  12: "ATTR_TEXT",
+  10: "UNBUF_CODE_BLOCK_START",
+  11: "LPAREN",
+  12: "CLASSNAME",
   13: "MIXIN_PARAMS",
   14: "RPAREN",
   15: "TAG",
   16: "TEXT_TAG",
   17: "TAG_ID",
   18: "COMMENT",
-  19: "CODE_START",
+  19: "UNBUF_CODE_BLOCK",
   20: "MIXIN_CALL",
   21: "KEYWORD",
   22: "PIPE",
@@ -684,9 +685,10 @@ terminals_: {
   27: "INTERPOLATION",
   28: "INTERPOLATION_START",
   29: "FILTER",
-  30: "CONDITION",
-  31: "ASSIGNMENT_VALUE",
-  32: "ASSIGNMENT"
+  30: "ATTR_TEXT",
+  31: "CONDITION",
+  32: "ASSIGNMENT_VALUE",
+  33: "ASSIGNMENT"
 },
 TERROR: 2,
     EOF: 1,
@@ -792,27 +794,27 @@ TERROR: 2,
     },
 productions_: bp({
   pop: u([
-  33,
-  33,
-  s,
-  [34, 9],
+  34,
+  34,
   s,
   [35, 10],
   s,
-  [36, 17],
+  [36, 9],
   s,
-  [37, 5],
-  38,
-  38,
+  [37, 17],
+  s,
+  [38, 5],
   39,
+  39,
+  40,
   s,
-  [40, 7],
+  [41, 6],
   s,
-  [41, 3],
-  42,
-  42,
+  [42, 3],
   43,
-  43
+  43,
+  44,
+  44
 ]),
   rule: u([
   1,
@@ -826,12 +828,13 @@ productions_: bp({
   c,
   [8, 3],
   c,
-  [9, 4],
+  [4, 3],
+  2,
+  3,
   4,
   3,
   3,
   4,
-  1,
   4,
   s,
   [1, 18],
@@ -842,9 +845,9 @@ productions_: bp({
   [38, 3],
   0,
   s,
-  [1, 9],
+  [1, 8],
   c,
-  [10, 3],
+  [9, 3],
   2
 ])
 }),
@@ -872,7 +875,7 @@ case 1:
     /*! Production::    start : EOF */
 case 3:
     /*! Production::    line : line_start */
-case 12:
+case 13:
     /*! Production::    line_start : first_token */
 case 41:
     /*! Production::    tag_part : classnames */
@@ -906,9 +909,9 @@ case 4:
     break;
 
 case 5:
-    /*! Production::    line : line_start CODE */
+    /*! Production::    line : line_start UNBUF_CODE */
 
-    this.$ = merge(yyvstack[yysp - 1], { type: 'code', val: yyvstack[yysp] })
+    this.$ = merge(yyvstack[yysp - 1], { type: 'unbuf_code', val: yyvstack[yysp], state: 'UNBUF_CODE' })
     break;
 
 case 6:
@@ -935,13 +938,13 @@ case 7:
 case 8:
     /*! Production::    line : ATTR_TEXT_END */
 
-    this.$ = { type: 'attr_end', val: yyvstack[yysp] }
+    this.$ = { type: 'attrs_end', val: parseAttrs.parse(yyvstack[yysp]) }
     break;
 
 case 9:
     /*! Production::    line : ATTR_TEXT_CONT */
 
-    this.$ = { type: 'attr_cont', val: yyvstack[yysp], state: 'MULTI_LINE_ATTRS' }
+    this.$ = { type: 'attrs_cont', val: parseAttrs.parse(yyvstack[yysp]), state: 'MULTI_LINE_ATTRS' }
     break;
 
 case 10:
@@ -953,7 +956,7 @@ case 10:
       let entries2 = Object.entries(func())
       debug('entries2=', entries2)
       let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
-        debug('key=', key, 'value=', value)
+        debug('name=', key, 'value=', value)
         return { name: key, val: value }
       })
       this.$ = merge(yyvstack[yysp - 1], { type: 'tag', attrs: attrs2 })
@@ -978,21 +981,27 @@ case 11:
     }
     break;
 
-case 13:
+case 12:
+    /*! Production::    line : UNBUF_CODE_BLOCK_START */
+
+    this.$ = { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' }
+    break;
+
+case 14:
     /*! Production::    line_start : first_token tag_part */
 
     debug('line_start: first_token tag_part')
     this.$ = merge(yyvstack[yysp - 1], yyvstack[yysp])
     break;
 
-case 14:
+case 15:
     /*! Production::    line_start : first_token attrs */
 
     debug('line_start: first_token attrs')
     this.$ = merge(yyvstack[yysp - 1], yyvstack[yysp])
     break;
 
-case 15:
+case 16:
     /*! Production::    line_start : first_token LPAREN line_start_option */
 
     debug('line_start: first_token LPAREN ATTR_TEXT_CONT?')
@@ -1000,7 +1009,7 @@ case 15:
     if (yyvstack[yysp]) {
       debug('3 Calling parseAttrs with ', yyvstack[yysp])
       try {
-        this.$ = merge(yyvstack[yysp - 2], {  attrs: parseAttrs.parse(yyvstack[yysp]) })
+        this.$ = merge(yyvstack[yysp - 2], {  attrs_start: parseAttrs.parse(yyvstack[yysp]) })
       }
       catch (e) {
         console.error('Could not parse attributes=' +yyvstack[yysp], e)
@@ -1008,38 +1017,31 @@ case 15:
     }
     break;
 
-case 16:
+case 17:
     /*! Production::    line_start : first_token tag_part LPAREN ATTR_TEXT_CONT */
 
     debug('line_start: first_token tag_part LPAREN ATTR_TEXT_CONT')
     this.$ = merge(yyvstack[yysp - 3], [yyvstack[yysp - 2], yyvstack[yysp]])
     break;
 
-case 17:
+case 18:
     /*! Production::    line_start : first_token tag_part attrs */
 
     debug('line_start: first_token tag_part attrs')
     this.$ = merge(yyvstack[yysp - 2], [yyvstack[yysp - 1], yyvstack[yysp]])
     break;
 
-case 18:
+case 19:
     /*! Production::    line_start : first_token attrs CLASSNAME */
 
     this.$ = merge(yyvstack[yysp - 2], [yyvstack[yysp - 1], { attrs: [ { name: 'class', val: quote(yyvstack[yysp]) } ] }])
     break;
 
-case 19:
+case 20:
     /*! Production::    line_start : first_token tag_part attrs CLASSNAME */
 
     debug('first_token tag_part attrs CLASSNAME: first_token=', yyvstack[yysp - 3], ', tag_part=', yyvstack[yysp - 2], ', attrs=', yyvstack[yysp - 1], ', CLASSNAME=', yyvstack[yysp])
     this.$ = merge(yyvstack[yysp - 3], [yyvstack[yysp - 2], yyvstack[yysp - 1], { attrs: [ { name: 'class', val: quote(yyvstack[yysp]) } ] }])
-    break;
-
-case 20:
-    /*! Production::    line_start : ATTR_TEXT */
-
-    debug('line_start: ATTR_TEXT')
-    this.$ = { type: 'attrs_cont', attrs: [yyvstack[yysp]] }
     break;
 
 case 21:
@@ -1090,18 +1092,17 @@ case 27:
     break;
 
 case 28:
-    /*! Production::    first_token : CODE_START */
+    /*! Production::    first_token : UNBUF_CODE */
+case 51:
+    /*! Production::    line_end : UNBUF_CODE */
 
-    debug('CODE_START')
-    this.$ = { type: 'code', state: 'CODE_START' }
+    this.$ = { type: 'unbuf_code', val: yyvstack[yysp], state: 'UNBUF_CODE' }
     break;
 
 case 29:
-    /*! Production::    first_token : CODE */
-case 52:
-    /*! Production::    line_end : CODE */
+    /*! Production::    first_token : UNBUF_CODE_BLOCK */
 
-    this.$ = { type: 'code', val: yyvstack[yysp] }
+    this.$ = { type: 'unbuf_code', val: yyvstack[yysp], state: 'UNBUF_CODE_BLOCK' }
     break;
 
 case 30:
@@ -1139,7 +1140,7 @@ case 34:
 case 35:
     /*! Production::    first_token : SPACE */
 
-    this.$ = { type: 'empty' }
+    this.$ = { }
     break;
 
 case 36:
@@ -1252,13 +1253,6 @@ case 49:
     break;
 
 case 50:
-    /*! Production::    line_end : ATTR_TEXT_CONT */
-
-    debug('line_end: ATTR_TEXT_CONT')
-    this.$ = { attrscont: [yyvstack[yysp]] }
-    break;
-
-case 51:
     /*! Production::    line_end : TEXT */
 
     debug('line_end: TEXT: $TEXT=', yyvstack[yysp])
@@ -1273,51 +1267,51 @@ case 51:
     }
     break;
 
-case 53:
+case 52:
     /*! Production::    line_end : RPAREN */
 
     this.$ = { type: 'text', val: yyvstack[yysp] }
     break;
 
-case 54:
+case 53:
     /*! Production::    line_splitter : SPACE */
 
     debug('line_splitter: SPACE')
     this.$ = {}
     break;
 
-case 55:
+case 54:
     /*! Production::    line_splitter : ASSIGNMENT */
 
     this.$ = { assignment: true }
     break;
 
-case 56:
+case 55:
     /*! Production::    line_splitter : DOT_END */
 
     debug('line_splitter: DOT_END')
     this.$ = { state: 'TEXT_START' }
     break;
 
-case 57:
+case 56:
     /*! Production::    line_start_option : %epsilon */
 
     this.$ = undefined;
     break;
 
-case 58:
+case 57:
     /*! Production::    line_start_option : ATTR_TEXT_CONT */
 
     this.$ = yyvstack[yysp];
     break;
 
-case 59:
+case 58:
     /*! Production::    classnames_repetition_plus : CLASSNAME */
 
     this.$ = [yyvstack[yysp]];
     break;
 
-case 60:
+case 59:
     /*! Production::    classnames_repetition_plus : classnames_repetition_plus CLASSNAME */
 
     yyvstack[yysp - 1].push(yyvstack[yysp]);
@@ -1334,11 +1328,11 @@ table: bt({
   1,
   9,
   s,
-  [0, 3],
+  [0, 4],
   16,
   s,
-  [0, 21],
-  8,
+  [0, 20],
+  7,
   24,
   s,
   [0, 4],
@@ -1350,10 +1344,10 @@ table: bt({
   0,
   11,
   s,
-  [0, 9],
+  [0, 8],
   3,
   c,
-  [49, 3],
+  [48, 3],
   s,
   [1, 3],
   s,
@@ -1366,12 +1360,12 @@ table: bt({
   6,
   7,
   9,
-  11,
+  10,
   12,
   s,
   [15, 14, 1],
   s,
-  [33, 4, 1],
+  [34, 4, 1],
   s,
   [1, 3],
   3,
@@ -1380,71 +1374,70 @@ table: bt({
   8,
   24,
   25,
-  32,
-  41,
+  33,
+  42,
   c,
   [9, 5],
-  10,
   11,
+  12,
   17,
   24,
   25,
   29,
-  32,
-  37,
+  33,
   38,
   39,
-  43,
+  40,
+  44,
   c,
   [16, 3],
-  7,
   14,
   24,
-  31,
-  40,
+  32,
+  41,
   c,
-  [60, 21],
+  [59, 21],
   c,
-  [59, 4],
+  [58, 4],
   c,
-  [48, 5],
+  [47, 5],
   c,
-  [58, 3],
-  38,
+  [57, 3],
+  39,
   c,
   [10, 5],
-  11,
+  12,
   c,
   [10, 3],
   c,
   [9, 4],
   7,
   8,
-  12,
   13,
   24,
   25,
   30,
-  32,
-  42,
+  31,
+  33,
+  43,
   c,
-  [80, 7],
+  [79, 7],
   c,
   [23, 3],
   c,
-  [76, 5],
+  [75, 5],
   c,
   [12, 3],
   c,
-  [91, 3],
+  [90, 3],
   c,
   [35, 5],
   c,
-  [102, 6],
-  32,
+  [101, 6],
+  33,
   7,
-  12,
   30,
+  31,
   c,
   [58, 9],
   s,
@@ -1461,11 +1454,11 @@ table: bt({
   c,
   [27, 16],
   c,
-  [24, 20],
+  [23, 19],
   c,
-  [33, 12],
+  [32, 12],
   c,
-  [58, 22],
+  [57, 22],
   c,
   [22, 20],
   c,
@@ -1477,19 +1470,19 @@ table: bt({
   1,
   3,
   4,
-  8,
+  9,
   30,
   36,
   37,
   40,
   42,
   44,
-  51,
+  50,
   4,
-  8,
-  53,
-  55,
-  60,
+  9,
+  52,
+  54,
+  59,
   42
 ]),
   mode: u([
@@ -1505,21 +1498,21 @@ table: bt({
   c,
   [3, 4],
   s,
-  [1, 26],
+  [1, 25],
   c,
-  [40, 6],
+  [39, 6],
   s,
   [2, 8],
   c,
   [9, 8],
   c,
-  [71, 4],
+  [70, 3],
   c,
-  [14, 12],
+  [53, 4],
   c,
-  [32, 16],
+  [22, 15],
   c,
-  [10, 7],
+  [10, 17],
   c,
   [64, 12],
   s,
@@ -1528,17 +1521,13 @@ table: bt({
   goto: u([
   2,
   14,
-  17,
-  5,
-  6,
-  7,
-  12,
-  9,
-  10,
-  11,
-  13,
-  15,
   16,
+  s,
+  [5, 4, 1],
+  12,
+  10,
+  s,
+  [11, 4, 2],
   s,
   [18, 10, 1],
   3,
@@ -1550,43 +1539,41 @@ table: bt({
   33,
   34,
   s,
-  [12, 5],
+  [13, 5],
   38,
   43,
   39,
-  12,
-  12,
+  13,
+  13,
   41,
-  12,
+  13,
+  47,
   47,
   48,
   49,
-  47,
-  50,
   45,
   46,
   c,
-  [49, 21],
-  s,
-  [13, 5],
-  52,
-  s,
-  [13, 3],
+  [48, 21],
   s,
   [14, 5],
-  54,
+  51,
   s,
   [14, 3],
   s,
-  [57, 4],
-  59,
-  57,
+  [15, 5],
+  53,
+  s,
+  [15, 3],
+  s,
+  [56, 4],
+  58,
+  56,
+  55,
+  s,
+  [56, 3],
   57,
   56,
-  57,
-  57,
-  58,
-  57,
   s,
   [39, 6],
   43,
@@ -1594,74 +1581,73 @@ table: bt({
   [39, 3],
   s,
   [41, 6],
-  61,
+  60,
   s,
   [41, 3],
   s,
   [46, 6],
-  62,
+  61,
   s,
   [46, 4],
-  63,
+  62,
+  56,
   57,
-  58,
   s,
-  [17, 5],
+  [18, 5],
+  63,
+  s,
+  [18, 3],
   64,
-  s,
-  [17, 3],
   65,
-  66,
-  67
+  66
 ])
 }),
 defaultActions: bda({
   idx: u([
   2,
-  5,
-  6,
-  7,
   s,
-  [9, 21, 1],
+  [5, 4, 1],
+  s,
+  [10, 20, 1],
   s,
   [32, 4, 1],
   41,
   s,
-  [43, 9, 1],
+  [43, 8, 1],
+  53,
   54,
-  55,
   s,
-  [59, 9, 1]
+  [58, 9, 1]
 ]),
   goto: u([
   1,
   8,
   9,
   11,
-  20,
+  12,
   s,
   [22, 17, 1],
   2,
   4,
   5,
   10,
+  53,
   54,
   55,
-  56,
   43,
-  59,
+  58,
   6,
   s,
-  [48, 6, 1],
+  [48, 5, 1],
   7,
-  18,
-  15,
-  58,
+  19,
+  16,
+  57,
   40,
   42,
-  60,
-  16,
-  19,
+  59,
+  17,
+  20,
   21,
   44,
   45
@@ -1704,7 +1690,7 @@ parse: function parse(input) {
     var TERROR = this.TERROR;
     var EOF = this.EOF;
     var ERROR_RECOVERY_TOKEN_DISCARD_COUNT = (this.options.errorRecoveryTokenDiscardCount | 0) || 3;
-    var NO_ACTION = [0, 68 /* === table.length :: ensures that anyone using this new state will fail dramatically! */];
+    var NO_ACTION = [0, 67 /* === table.length :: ensures that anyone using this new state will fail dramatically! */];
 
     var lexer;
     if (this.__lexer__) {
@@ -4131,7 +4117,7 @@ EOF: 1,
         ')';
 
         this.pushState('COND_START');
-        return 10;
+        return 11;
         break;
 
       case 9:
@@ -4143,25 +4129,24 @@ EOF: 1,
         return ['RPAREN', 'CONDITION'];
         break;
 
-      case 10:
-        /*! Conditions:: INITIAL */
+      case 11:
+        /*! Conditions:: INITIAL UNBUF_CODE */
         /*! Rule::       - */
-        this.pushState('CODE_START');
+        this.pushState('UNBUF_CODE_START');
 
-        return 19;
         break;
 
-      case 11:
+      case 12:
         /*! Conditions:: INITIAL */
         /*! Rule::       {classname} */
         // debug('<INITIAL>{classname}')
         this.pushState('AFTER_TAG_NAME');
 
         yy_.yytext = yy_.yytext.substring(1);
-        return 11;
+        return 12;
         break;
 
-      case 12:
+      case 13:
         /*! Conditions:: INITIAL */
         /*! Rule::       {classname_relaxed} */
         debug('<INITIAL>{classname_relaxed}');
@@ -4171,7 +4156,7 @@ EOF: 1,
           this.pushState('AFTER_TAG_NAME');
 
           yy_.yytext = yy_.yytext.substring(1);
-          return 11;
+          return 12;
         } else {
           throw new Error(
             'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.'
@@ -4180,7 +4165,7 @@ EOF: 1,
 
         break;
 
-      case 13:
+      case 14:
         /*! Conditions:: INITIAL */
         /*! Rule::       \/\/ */
         this.pushState('TEXT');
@@ -4188,7 +4173,7 @@ EOF: 1,
         return 18;
         break;
 
-      case 14:
+      case 15:
         /*! Conditions:: INITIAL */
         /*! Rule::       <[A-Z_]+> */
         if (/<[A-Z_]+>/.test(yy_.yytext)) {
@@ -4200,7 +4185,7 @@ EOF: 1,
 
         break;
 
-      case 15:
+      case 16:
         /*! Conditions:: INITIAL TEXT */
         /*! Rule::       \|  */
         this.pushState('TEXT');
@@ -4208,7 +4193,7 @@ EOF: 1,
         return 22;
         break;
 
-      case 16:
+      case 17:
         /*! Conditions:: INITIAL */
         /*! Rule::       \|\. */
         this.pushState('TEXT');
@@ -4216,15 +4201,16 @@ EOF: 1,
         this.unput('.');
         break;
 
-      case 17:
+      case 18:
         /*! Conditions:: INITIAL */
         /*! Rule::       \|$ */
         this.pushState('TEXT');
 
-        return 25; // only because it is an empty object 
+        yy_.yytext = '';
+        return 3; // only because it is an empty object 
         break;
 
-      case 18:
+      case 19:
         /*! Conditions:: INITIAL AFTER_TAG_NAME ATTRS_END */
         /*! Rule::       &attributes\([^\)]+\) */
         debug('\'&attributes(\'[^)]+\')\'');
@@ -4232,7 +4218,7 @@ EOF: 1,
         return 8;
         break;
 
-      case 19:
+      case 20:
         /*! Conditions:: INITIAL */
         /*! Rule::       {interpolation} */
         debug('{interpolation}');
@@ -4241,7 +4227,7 @@ EOF: 1,
         return 27;
         break;
 
-      case 20:
+      case 21:
         /*! Conditions:: INITIAL */
         /*! Rule::       {interpolation_start} */
         debug('{interpolation_start}');
@@ -4250,7 +4236,7 @@ EOF: 1,
         return 28;
         break;
 
-      case 21:
+      case 22:
         /*! Conditions:: INITIAL */
         /*! Rule::       <\/.+ */
         this.pushState('TEXT');
@@ -4258,16 +4244,16 @@ EOF: 1,
         return 3;
         break;
 
-      case 22:
+      case 23:
         /*! Conditions:: AFTER_TAG_NAME */
         /*! Rule::       =  */
         this.popState();
 
         this.pushState('ASSIGNMENT_VALUE');
-        return 32;
+        return 33;
         break;
 
-      case 23:
+      case 24:
         /*! Conditions:: AFTER_TAG_NAME AFTER_ATTRS */
         /*! Rule::       :  */
         this.popState();
@@ -4275,7 +4261,7 @@ EOF: 1,
         return 5;
         break;
 
-      case 24:
+      case 25:
         /*! Conditions:: AFTER_KEYWORD */
         /*! Rule::       {filter} */
         yy_.yytext = yy_.yytext.substring(1);
@@ -4283,17 +4269,17 @@ EOF: 1,
         return 29;
         break;
 
-      case 25:
+      case 26:
         /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME */
         /*! Rule::       \( */
         ')'; // hack for syntax
 
         debug(`<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('`);
         this.pushState('ATTRS_STARTED');
-        return 10;
+        return 11;
         break;
 
-      case 27:
+      case 28:
         /*! Conditions:: MIXIN_PARAMS_END */
         /*! Rule::       \) */
         // this.popState() // for inline blocks after mixin calls
@@ -4301,16 +4287,16 @@ EOF: 1,
 
         break;
 
-      case 28:
+      case 29:
         /*! Conditions:: INITIAL ATTRS_END */
         /*! Rule::       {classname} */
         this.pushState('AFTER_TAG_NAME');
 
         yy_.yytext = yy_.yytext.substring(1);
-        return 11;
+        return 12;
         break;
 
-      case 29:
+      case 30:
         /*! Conditions:: INITIAL ATTRS_END */
         /*! Rule::       {classname_relaxed} */
         debug('<INITIAL,ATTRS_END>{classname_relaxed}');
@@ -4318,7 +4304,7 @@ EOF: 1,
         if (this.yy.parser.options.allowDigitToStartClassName) {
           this.pushState('AFTER_TAG_NAME');
           yy_.yytext = yy_.yytext.substring(1);
-          return 11;
+          return 12;
         } else {
           throw new Error(
             'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.'
@@ -4327,7 +4313,7 @@ EOF: 1,
 
         break;
 
-      case 30:
+      case 31:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       (\(.+|.+\().+ */
         '))';
@@ -4373,10 +4359,10 @@ EOF: 1,
         debug('15 yy_.yytext=', yy_.yytext);
         this.popState();
         this.pushState('ATTRS_END');
-        return 12;
+        return 30;
         break;
 
-      case 31:
+      case 32:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       ([^\)]+)(\))(?!\s*\..+\)) */
         this.popState();
@@ -4401,10 +4387,10 @@ EOF: 1,
 
         lparenOpen = false;
         debug('20 yy_.yytext=', yy_.yytext);
-        return 12;
+        return 30;
         break;
 
-      case 32:
+      case 33:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       (.+)\)\s*$ */
         this.popState();
@@ -4426,7 +4412,7 @@ EOF: 1,
         return ['RPAREN', 'ATTR_TEXT'];
         break;
 
-      case 33:
+      case 34:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       (.+)\)\.?\s*(.+)$ */
         this.popState();
@@ -4440,7 +4426,7 @@ EOF: 1,
         return ['RPAREN', 'ATTR_TEXT'];
         break;
 
-      case 34:
+      case 35:
         /*! Conditions:: ATTRS_STARTED */
         /*! Rule::       (.+)\.?\s*$ */
         this.popState();
@@ -4461,7 +4447,7 @@ EOF: 1,
         return 7;
         break;
 
-      case 35:
+      case 36:
         /*! Conditions:: AFTER_TAG_NAME */
         /*! Rule::       {tag_id} */
         this.pushState('AFTER_TAG_NAME');
@@ -4470,17 +4456,17 @@ EOF: 1,
         return 17;
         break;
 
-      case 36:
+      case 37:
         /*! Conditions:: AFTER_TAG_NAME */
         /*! Rule::       {classname} */
         // yy_.yytext = this.matches[1].substring(1);
         yy_.yytext = yy_.yytext.substring(1);
 
         debug('60 yy_.yytext=', yy_.yytext);
-        return 11;
+        return 12;
         break;
 
-      case 37:
+      case 38:
         /*! Conditions:: AFTER_TAG_NAME */
         /*! Rule::       {classname_relaxed} */
         // debug('<AFTER_TAG_NAME>{classname_relaxed}')
@@ -4490,7 +4476,7 @@ EOF: 1,
         // debug('this.yy.parser.options=', util.inspect(this.yy.parser.options, false, 10, true))
         if (this.yy.parser.options.allowDigitToStartClassName) {
           yy_.yytext = yy_.yytext.substring(1);
-          return 11;
+          return 12;
         } else {
           throw new Error(
             'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.'
@@ -4499,7 +4485,7 @@ EOF: 1,
 
         break;
 
-      case 38:
+      case 39:
         /*! Conditions:: INITIAL */
         /*! Rule::       {space}{2,} */
         debug('{space}{2,}');
@@ -4507,7 +4493,7 @@ EOF: 1,
         return 25;
         break;
 
-      case 39:
+      case 40:
         /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */
         /*! Rule::       {space}{space} */
         this.pushState('TEXT');
@@ -4517,7 +4503,7 @@ EOF: 1,
         return 25;
         break;
 
-      case 40:
+      case 41:
         /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */
         /*! Rule::       {space}{classname} */
         this.pushState('ATTRS_END');
@@ -4526,7 +4512,7 @@ EOF: 1,
         return 3;
         break;
 
-      case 41:
+      case 42:
         /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */
         /*! Rule::       {space}{classname_relaxed} */
         debug(
@@ -4546,7 +4532,7 @@ EOF: 1,
 
         break;
 
-      case 42:
+      case 43:
         /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */
         /*! Rule::       {space} */
         this.pushState('ATTRS_END');
@@ -4555,7 +4541,7 @@ EOF: 1,
         return 25;
         break;
 
-      case 43:
+      case 44:
         /*! Conditions:: ATTRS_END MIXIN_PARAMS_END */
         /*! Rule::       {space} */
         this.pushState('TEXT');
@@ -4564,7 +4550,7 @@ EOF: 1,
         return 25;
         break;
 
-      case 45:
+      case 46:
         /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME NO_MORE_SPACE */
         /*! Rule::       .+ */
         // if (yy_.yytext.startsWith(' ') {
@@ -4575,16 +4561,16 @@ EOF: 1,
         return 3;
         break;
 
-      case 46:
+      case 47:
         /*! Conditions:: ATTRS_END */
         /*! Rule::       ={space} */
         this.popState();
 
         this.pushState('ASSIGNMENT_VALUE');
-        return 32;
+        return 33;
         break;
 
-      case 47:
+      case 48:
         /*! Conditions:: INITIAL ATTRS_END */
         /*! Rule::       \.\s*$ */
         this.popState();
@@ -4592,15 +4578,15 @@ EOF: 1,
         return 24;
         break;
 
-      case 48:
+      case 49:
         /*! Conditions:: ASSIGNMENT_VALUE */
         /*! Rule::       .+ */
         this.popState();
 
-        return 31;
+        return 32;
         break;
 
-      case 49:
+      case 50:
         /*! Conditions:: ATTRS_END */
         /*! Rule::       .+ */
         // yy_.yytext = yy_.yytext.substring(1)
@@ -4609,32 +4595,32 @@ EOF: 1,
         return 3;
         break;
 
-      case 50:
-        /*! Conditions:: CODE_START UNBUF_CODE */
+      case 51:
+        /*! Conditions:: UNBUF_CODE_START */
         /*! Rule::       {space} */
-        debug('<CODE_START,UNBUF_CODE>{space}');
+        debug('<UNBUF_CODE_START>{space}');
 
         return 25;
         break;
 
-      case 52:
+      case 53:
         /*! Conditions:: MIXIN_CALL_START */
         /*! Rule::       \( */
         ')';
 
         this.popState();
         this.pushState('MIXIN_PARAMS_STARTED');
-        return 10;
+        return 11;
         break;
 
-      case 53:
+      case 54:
         /*! Conditions:: MIXIN_CALL_START */
         /*! Rule::       {space}$ */
         this.popState();
 
         break;
 
-      case 54:
+      case 55:
         /*! Conditions:: TEXT */
         /*! Rule::       .+ */
         debug('80 yy_.yytext=', yy_.yytext);
@@ -4642,15 +4628,17 @@ EOF: 1,
         return 3;
         break;
 
-      case 55:
+      case 56:
         /*! Conditions:: MULTI_LINE_ATTRS */
-        /*! Rule::       .*\) */
-        this.popState();
+        /*! Rule::       ,?(.*)\) */
+        debug('110 this.matches=', this.matches);
 
+        this.popState();
+        yy_.yytext = this.matches[1];
         return 6;
         break;
 
-      case 57:
+      case 58:
         /*! Conditions:: MIXIN_PARAMS_STARTED */
         /*! Rule::       \) */
         this.popState();
@@ -4660,7 +4648,7 @@ EOF: 1,
         return ['RPAREN', 'MIXIN_PARAMS'];
         break;
 
-      case 58:
+      case 59:
         /*! Conditions:: MIXIN_PARAMS_STARTED */
         /*! Rule::       (.+)(\)) */
         this.popState();
@@ -4688,12 +4676,20 @@ EOF: 1,
         return 13;
         break;
 
-      case 59:
+      case 60:
         /*! Conditions:: INITIAL */
         /*! Rule::       <!--.+--> */
         yy_.yytext = yy_.yytext.slice(4, -3);
 
         return 9;
+        break;
+
+      case 61:
+        /*! Conditions:: UNBUF_CODE */
+        /*! Rule::       . */
+        this.popState();
+
+        this.unput(yy_.yytext);
         break;
 
       default:
@@ -4702,89 +4698,100 @@ EOF: 1,
     },
 
     simpleCaseActionClusters: {
+      /*! Conditions:: INITIAL */
+      /*! Rule::       -{space}*$ */
+      10: 10,
+
       /*! Conditions:: ATTRS_END */
       /*! Rule::       \) */
-      26: 14,
+      27: 14,
 
       /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME ATTRS_END */
       /*! Rule::       \.\s*$ */
-      44: 24,
+      45: 24,
 
-      /*! Conditions:: CODE_START UNBUF_CODE */
+      /*! Conditions:: UNBUF_CODE_START */
       /*! Rule::       .+ */
-      51: 4,
+      52: 4,
 
       /*! Conditions:: MULTI_LINE_ATTRS */
       /*! Rule::       .+ */
-      56: 7
+      57: 7,
+
+      /*! Conditions:: UNBUF_CODE_BLOCK */
+      /*! Rule::       .+ */
+      62: 19
     },
 
     rules: [
       /*  0: */  /^(?:#\[((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,
-      /*  1: */  /^(?:((append|block|case|default|doctype|each|else|extends|for|if|include|mixin|unless|when|while)\b))/i,
+      /*  1: */  /^(?:((append|block|case|default|doctype|each|else|extends|for|if|include|mixin|prepend|unless|when|while)\b))/i,
       /*  2: */  /^(?:((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,
       /*  3: */  /^(?:(script|style))/i,
       /*  4: */  /^(?:(#[\d\-a-z]+))/i,
       /*  5: */  /^(?:(\+\s*[a-z]+\b))/i,
       /*  6: */  /^(?:\})/i,
-      /*  7: */  /^(?:(-?(if|elseif|else)))/i,
+      /*  7: */  /^(?:{conditional})/i,
       /*  8: */  /^(?:\()/i,
       /*  9: */  /^(?:.+\))/i,
-      /* 10: */  /^(?:-)/i,
-      /* 11: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
-      /* 12: */  /^(?:(\.-?\w+[\w\-]*))/i,
-      /* 13: */  /^(?:\/\/)/i,
-      /* 14: */  /^(?:<[A-Z_]+>)/i,
-      /* 15: */  /^(?:\| )/i,
-      /* 16: */  /^(?:\|\.)/i,
-      /* 17: */  /^(?:\|$)/i,
-      /* 18: */  /^(?:&attributes\([^)]+\))/i,
-      /* 19: */  /^(?:(#\{.+\}))/i,
-      /* 20: */  /^(?:(#\{))/i,
-      /* 21: */  /^(?:<\/.+)/i,
-      /* 22: */  /^(?:= )/i,
-      /* 23: */  /^(?:: )/i,
-      /* 24: */  /^(?:(:[\d\-a-z]+\b))/i,
-      /* 25: */  /^(?:\()/i,
-      /* 26: */  /^(?:\))/i,
+      /* 10: */  /^(?:-([   -​\u2028\u2029　])*$)/i,
+      /* 11: */  /^(?:-)/i,
+      /* 12: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+      /* 13: */  /^(?:(\.-?\w+[\w\-]*))/i,
+      /* 14: */  /^(?:\/\/)/i,
+      /* 15: */  /^(?:<[A-Z_]+>)/i,
+      /* 16: */  /^(?:\| )/i,
+      /* 17: */  /^(?:\|\.)/i,
+      /* 18: */  /^(?:\|$)/i,
+      /* 19: */  /^(?:&attributes\([^)]+\))/i,
+      /* 20: */  /^(?:(#\{.+\}))/i,
+      /* 21: */  /^(?:(#\{))/i,
+      /* 22: */  /^(?:<\/.+)/i,
+      /* 23: */  /^(?:= )/i,
+      /* 24: */  /^(?:: )/i,
+      /* 25: */  /^(?:(:[\d\-a-z]+\b))/i,
+      /* 26: */  /^(?:\()/i,
       /* 27: */  /^(?:\))/i,
-      /* 28: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
-      /* 29: */  /^(?:(\.-?\w+[\w\-]*))/i,
-      /* 30: */  /^(?:(\(.+|.+\().+)/i,
-      /* 31: */  /^(?:([^)]+)(\))(?!\s*\..+\)))/i,
-      /* 32: */  /^(?:(.+)\)\s*$)/i,
-      /* 33: */  /^(?:(.+)\)\.?\s*(.+)$)/i,
-      /* 34: */  /^(?:(.+)\.?\s*$)/i,
-      /* 35: */  /^(?:(#[\d\-a-z]+))/i,
-      /* 36: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
-      /* 37: */  /^(?:(\.-?\w+[\w\-]*))/i,
-      /* 38: */  /^(?:([   -​\u2028\u2029　]){2,})/i,
-      /* 39: */  /^(?:([   -​\u2028\u2029　])([   -​\u2028\u2029　]))/i,
-      /* 40: */  /^(?:([   -​\u2028\u2029　])(\.-?[^\W\d]+[\w\-]*))/i,
-      /* 41: */  /^(?:([   -​\u2028\u2029　])(\.-?\w+[\w\-]*))/i,
-      /* 42: */  /^(?:([   -​\u2028\u2029　]))/i,
+      /* 28: */  /^(?:\))/i,
+      /* 29: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+      /* 30: */  /^(?:(\.-?\w+[\w\-]*))/i,
+      /* 31: */  /^(?:(\(.+|.+\().+)/i,
+      /* 32: */  /^(?:([^)]+)(\))(?!\s*\..+\)))/i,
+      /* 33: */  /^(?:(.+)\)\s*$)/i,
+      /* 34: */  /^(?:(.+)\)\.?\s*(.+)$)/i,
+      /* 35: */  /^(?:(.+)\.?\s*$)/i,
+      /* 36: */  /^(?:(#[\d\-a-z]+))/i,
+      /* 37: */  /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+      /* 38: */  /^(?:(\.-?\w+[\w\-]*))/i,
+      /* 39: */  /^(?:([   -​\u2028\u2029　]){2,})/i,
+      /* 40: */  /^(?:([   -​\u2028\u2029　])([   -​\u2028\u2029　]))/i,
+      /* 41: */  /^(?:([   -​\u2028\u2029　])(\.-?[^\W\d]+[\w\-]*))/i,
+      /* 42: */  /^(?:([   -​\u2028\u2029　])(\.-?\w+[\w\-]*))/i,
       /* 43: */  /^(?:([   -​\u2028\u2029　]))/i,
-      /* 44: */  /^(?:\.\s*$)/i,
-      /* 45: */  /^(?:.+)/i,
-      /* 46: */  /^(?:=([   -​\u2028\u2029　]))/i,
-      /* 47: */  /^(?:\.\s*$)/i,
-      /* 48: */  /^(?:.+)/i,
+      /* 44: */  /^(?:([   -​\u2028\u2029　]))/i,
+      /* 45: */  /^(?:\.\s*$)/i,
+      /* 46: */  /^(?:.+)/i,
+      /* 47: */  /^(?:=([   -​\u2028\u2029　]))/i,
+      /* 48: */  /^(?:\.\s*$)/i,
       /* 49: */  /^(?:.+)/i,
-      /* 50: */  /^(?:([   -​\u2028\u2029　]))/i,
-      /* 51: */  /^(?:.+)/i,
-      /* 52: */  /^(?:\()/i,
-      /* 53: */  /^(?:([   -​\u2028\u2029　])$)/i,
-      /* 54: */  /^(?:.+)/i,
-      /* 55: */  /^(?:.*\))/i,
-      /* 56: */  /^(?:.+)/i,
-      /* 57: */  /^(?:\))/i,
-      /* 58: */  /^(?:(.+)(\)))/i,
-      /* 59: */  /^(?:<!--.+-->)/i
+      /* 50: */  /^(?:.+)/i,
+      /* 51: */  /^(?:([   -​\u2028\u2029　]))/i,
+      /* 52: */  /^(?:.+)/i,
+      /* 53: */  /^(?:\()/i,
+      /* 54: */  /^(?:([   -​\u2028\u2029　])$)/i,
+      /* 55: */  /^(?:.+)/i,
+      /* 56: */  /^(?:,?(.*)\))/i,
+      /* 57: */  /^(?:.+)/i,
+      /* 58: */  /^(?:\))/i,
+      /* 59: */  /^(?:(.+)(\)))/i,
+      /* 60: */  /^(?:<!--.+-->)/i,
+      /* 61: */  /^(?:.)/i,
+      /* 62: */  /^(?:.+)/i
     ],
 
     conditions: {
       'TEXT': {
-        rules: [15, 54],
+        rules: [16, 55],
         inclusive: false
       },
 
@@ -4794,12 +4801,12 @@ EOF: 1,
       },
 
       'AFTER_TAG_NAME': {
-        rules: [18, 22, 23, 25, 35, 36, 37, 39, 40, 41, 42, 44, 45],
+        rules: [19, 23, 24, 26, 36, 37, 38, 40, 41, 42, 43, 45, 46],
         inclusive: false
       },
 
       'ATTRS_STARTED': {
-        rules: [30, 31, 32, 33, 34],
+        rules: [31, 32, 33, 34, 35],
         inclusive: false
       },
 
@@ -4809,27 +4816,27 @@ EOF: 1,
       },
 
       'MIXIN_CALL_START': {
-        rules: [52, 53],
+        rules: [53, 54],
         inclusive: false
       },
 
       'ATTRS_END': {
-        rules: [18, 26, 28, 29, 43, 44, 46, 47, 49],
+        rules: [19, 27, 29, 30, 44, 45, 47, 48, 50],
         inclusive: true
       },
 
       'CODE_START': {
-        rules: [50, 51],
+        rules: [],
         inclusive: false
       },
 
       'UNBUF_CODE': {
-        rules: [50, 51],
+        rules: [11, 61],
         inclusive: false
       },
 
       'MULTI_LINE_ATTRS': {
-        rules: [55, 56],
+        rules: [56, 57],
         inclusive: false
       },
 
@@ -4839,27 +4846,27 @@ EOF: 1,
       },
 
       'AFTER_ATTRS': {
-        rules: [23],
+        rules: [24],
         inclusive: false
       },
 
       'AFTER_TEXT_TAG_NAME': {
-        rules: [25, 39, 40, 41, 42, 44, 45],
+        rules: [26, 40, 41, 42, 43, 45, 46],
         inclusive: false
       },
 
       'AFTER_KEYWORD': {
-        rules: [24, 39, 40, 41, 42, 45],
+        rules: [25, 40, 41, 42, 43, 46],
         inclusive: false
       },
 
       'NO_MORE_SPACE': {
-        rules: [45],
+        rules: [46],
         inclusive: false
       },
 
       'ASSIGNMENT_VALUE': {
-        rules: [48],
+        rules: [49],
         inclusive: false
       },
 
@@ -4874,7 +4881,7 @@ EOF: 1,
       },
 
       'MIXIN_PARAMS_STARTED': {
-        rules: [57, 58],
+        rules: [58, 59],
         inclusive: false
       },
 
@@ -4905,18 +4912,29 @@ EOF: 1,
           19,
           20,
           21,
-          28,
+          22,
           29,
-          38,
-          47,
-          59
+          30,
+          39,
+          48,
+          60
         ],
 
         inclusive: true
       },
 
       'MIXIN_PARAMS_END': {
-        rules: [27, 43],
+        rules: [28, 44],
+        inclusive: false
+      },
+
+      'UNBUF_CODE_START': {
+        rules: [51, 52],
+        inclusive: false
+      },
+
+      'UNBUF_CODE_BLOCK': {
+        rules: [62],
         inclusive: false
       }
     }
@@ -5110,6 +5128,15 @@ try {
   }
 }
 
+test('prepend head', { type: 'prepend', val: 'head' })
+
+test('script(type="application/ld+json").', {
+  name: 'script',
+  type: 'tag',
+  attrs: [ { name: 'type', val: '"application/ld+json"' } ],
+  state: 'TEXT_START'
+})
+
 test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: true })
 
 test('<!--build:js /js/app.min.js?v=#{version}-->', {
@@ -5177,7 +5204,7 @@ test(`a.foo(class='bar').baz`, {
   attrs: [
     { name: 'class', val: '"foo"' },
     { name: 'class', val: "'bar'" },
-    { key: 'class', val: '"baz"' }
+    { name: 'class', val: '"baz"' }
   ]
 })
 // How is that ^ different than this?: a(href='/save').button save
@@ -5254,8 +5281,8 @@ test('li= item', {
 // })
 // test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {})
 
-test('-var ajax = true', {type: 'code', val: 'var ajax = true', state: 'CODE_START' })
-test('-if( ajax )', {type: 'conditional', name: 'if', condition: ' ajax '})
+test('-var ajax = true', {type: 'unbuf_code', val: 'var ajax = true', state: 'UNBUF_CODE'})
+test('-if( ajax )', {type: 'unbuf_code', val: 'if( ajax )', state: 'UNBUF_CODE'})
 test('span.font-monospace .htmlnanorc', {
   attrs: [
     {
@@ -5277,9 +5304,10 @@ test('.container.post#post-20210905', {
   id: 'post-20210905'
 })
 
-test('<UNBUF_CODE>var i', {
-  type: 'code',
-  val: 'var i'
+test('<UNBUF_CODE_BLOCK>var i', {
+  type: 'unbuf_code',
+  val: 'var i',
+  state: 'UNBUF_CODE_BLOCK'
 })
 
 test('} else {', {
@@ -5350,8 +5378,8 @@ test('a(href=url)= url', {
 // })
 
 test('- function answer() { return 42; }', {
-  state: 'CODE_START',
-  type: 'code',
+  state: 'UNBUF_CODE',
+  type: 'unbuf_code',
   val: 'function answer() { return 42; }'
 })
 
@@ -5424,24 +5452,28 @@ test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
   ]
 })
 
-test('foo(abc', {type: 'tag', name: 'foo', attrs: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
-test('foo(abc,', {type: 'tag', name: 'foo', attrs: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>,def)', { type: 'attr_end', val: ',def)' })
+test('foo(abc', {type: 'tag', name: 'foo', attrs_start: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
+test('foo(abc,', {type: 'tag', name: 'foo', attrs_start: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_end', val: [ { name: 'def' } ] })
+test('<MULTI_LINE_ATTRS>def)', { type: 'attrs_end', val: [ { name: 'def' } ] })
 
 test('span(', {type: 'tag', name: 'span', state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>v-for="item in items"', { type: 'attr_cont', val: 'v-for="item in items"',
-  state: 'MULTI_LINE_ATTRS' })
+test('<MULTI_LINE_ATTRS>v-for="item in items"', {
+  type: 'attrs_cont',
+  val: [ { name: 'v-for', val: '"item in items"' } ],
+  state: 'MULTI_LINE_ATTRS'
+})
 test('<MULTI_LINE_ATTRS>:key="item.id"', {
-  type: 'attr_cont',
-  val: ':key="item.id"',
+  type: 'attrs_cont',
+  val: [ { name: ':key', val: '"item.id"' } ],
   state: 'MULTI_LINE_ATTRS'
 })
 test('<MULTI_LINE_ATTRS>:value="item.name"', {
-  type: 'attr_cont',
-  val: ':value="item.name"',
+  type: 'attrs_cont',
+  val: [ { name: ':value', val: '"item.name"' } ],
   state: 'MULTI_LINE_ATTRS'
 })
-test('<MULTI_LINE_ATTRS>)', { type: 'attr_end', val: ')' })
+test('<MULTI_LINE_ATTRS>)', { type: 'attrs_end', val: '' })
 test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
   name: 'a',
   type: 'tag',
@@ -5641,11 +5673,9 @@ test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', {
   attrs: [ { name: 'datetime', val: "'2009-07-28T01:24:04-06:00'" } ],
   val: '2009-07-28 at 1:24 AM'
 } )
-test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'code', val: 'var title = \'Fade Out On MouseOver Demo\'', state: 'CODE_START' })
+test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'unbuf_code', val: 'var title = \'Fade Out On MouseOver Demo\'', state: 'UNBUF_CODE' })
 test('<TEXT>}).join(\' \')', { type: 'text', val: "}).join(' ')" })
-test('  ', {
-  type: 'empty'
-})
+test('  ', {})
 test('#content(role=\'main\')', {
   type: 'tag',
   id: 'content',
@@ -5684,8 +5714,8 @@ test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", {
 test('| . The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
 test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {"type":"text","val":"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;" })
 
-// test('- ', { type: 'code', val: ' ', state: 'UNBUF_CODE_START' })
-test('- ', { type: 'code', state: 'CODE_START' })
+test('-', { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' })
+test('- ', { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' })
 
 test('mixin project(title)', {
   type: 'mixin',
@@ -5708,21 +5738,14 @@ test('meta(property=\'og:description\' content=\'I came across a problem in Inte
   ]
 })
 
-test('-', {
-  type: 'code',
-  state: 'CODE_START'
-})
-
 // test(' -', {
 //   state: 'UNBUF_CODE_START',
 //   type: 'code',
 //   val: ''
 // })
 
-test('<UNBUF_CODE>var i', {
-  type: 'code',
-  val: 'var i'
-})
+// if we get the state UNBUF_CODE followed by something other than '-', we should parse it as if the state wasn't there 
+test('<UNBUF_CODE>var i', { name: 'var', type: 'tag', val: 'i' })
 
 test("link(rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; White-space and character 160 Comments Feed' href='https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/')",  {
   name: 'link',
@@ -5788,9 +5811,7 @@ test("style(id='wp-block-library-inline-css' type='text/css'). ", {
   state: 'TEXT_START'
 })
 
-test('|', {
-  type: 'empty'
-})
+test('|', { type: 'text', val: '' })
 test('.', { state: 'TEXT_START' })
 
 try {
@@ -5813,7 +5834,7 @@ test("a(href='/save').button save", {
   type: 'tag',
   attrs: [
     { name: 'href', val: "'/save'" },
-    { key: 'class', val: '"button"' }
+    { name: 'class', val: '"button"' }
   ],
   val: 'save'
 })
@@ -5878,8 +5899,8 @@ test("foo(date=new Date(0))", {
   attrs: [ { name: 'date', val: 'new Date(0)' } ]
 })
 test("- var attrs = {foo: 'bar', bar: '<baz>'}",  {
-  type: 'code',
-  state: 'CODE_START',
+  type: 'unbuf_code',
+  state: 'UNBUF_CODE',
   val: "var attrs = {foo: 'bar', bar: '<baz>'}"
 })
 // test("a(foo='foo' \"bar\"=\"bar\")", {})

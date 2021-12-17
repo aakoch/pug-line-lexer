@@ -10,7 +10,7 @@
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
-keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|unless|when|while)\b
+keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|prepend|unless|when|while)\b
 filter              \:[a-z0-9-]+\b
 
 // classname               \.[a-z0-9-]+
@@ -18,7 +18,7 @@ classname               \.-?[_a-zA-Z]+[_a-zA-Z0-9-]*
 classname_relaxed       \.-?[_a-zA-Z0-9]+[_a-zA-Z0-9-]*
 tag_id                  #[a-z0-9-]+
 mixin_call              \+\s*[a-z]+\b
-conditional             -?(if|else if|else)
+// conditional             -?(if|else if|else)
 interpolation_start     #\{
 interpolation           #\{.+\}
 
@@ -43,7 +43,6 @@ interpolation           #\{.+\}
 %x INTERPOLATION_START
 %x MIXIN_PARAMS_STARTED
 %x HTML_COMMENT_STARTED
-
 %%
 
 <INITIAL>'#['{tag}
@@ -132,10 +131,13 @@ else {
 //   }
 //                                           return 'CODE';
 // %}
-<INITIAL>'-'
+<INITIAL>'-'{space}*<<EOF>>
 %{
-  this.pushState('CODE_START');
-                                          return 'CODE_START';
+                                          return 'UNBUF_CODE_BLOCK_START'
+%}
+<INITIAL,UNBUF_CODE>'-'
+%{
+  this.pushState('UNBUF_CODE_START');
 %}
 <INITIAL>{classname}
 %{
@@ -185,7 +187,8 @@ else {
 <INITIAL>'|'<<EOF>>
 %{
   this.pushState('TEXT');
-                                           return 'SPACE'; // only because it is an empty object 
+  yytext = ''
+                                           return 'TEXT'; // only because it is an empty object 
 %}
 <INITIAL,AFTER_TAG_NAME,ATTRS_END>'&attributes('[^\)]+')'
 %{
@@ -535,14 +538,14 @@ else {
                                           return 'TEXT';
 %}
 
-<CODE_START,UNBUF_CODE>{space}
+<UNBUF_CODE_START>{space}
 %{
-  debug('<CODE_START,UNBUF_CODE>{space}');
+  debug('<UNBUF_CODE_START>{space}');
                                           return 'SPACE';
 %}
-<CODE_START,UNBUF_CODE>.+
+<UNBUF_CODE_START>.+
 %{
-                                          return 'CODE';
+                                          return 'UNBUF_CODE';
 %}
 
 <MIXIN_CALL_START>'('             
@@ -571,9 +574,11 @@ else {
 //                                           // return 'COMMA';
 // %}
 // <MULTI_LINE_ATTRS>')'                     return 'ATTR_TEXT_END';
-<MULTI_LINE_ATTRS>.*')'
+<MULTI_LINE_ATTRS>','?(.*)')'
 %{
+  debug('110 this.matches=', this.matches)
   this.popState();
+  yytext = this.matches[1]
                                           return 'ATTR_TEXT_END';
 %}
 <MULTI_LINE_ATTRS>.+                      return 'ATTR_TEXT_CONT';
@@ -666,6 +671,16 @@ else {
                                           return 'HTML_COMMENT'
 %}
 
+<UNBUF_CODE>.
+%{
+  this.popState()
+  this.unput(yytext)
+%}
+<UNBUF_CODE_BLOCK>.+
+%{
+                                          return 'UNBUF_CODE_BLOCK';
+%}
+
 // <INITIAL>.+
 // %{
 //                                           return 'TEXT'
@@ -706,10 +721,14 @@ line
     
     $$ = merge($line_start, { type: 'text', val: $TEXT })
   }
-  | line_start CODE
+  | line_start UNBUF_CODE
   {
-    $$ = merge($line_start, { type: 'code', val: $CODE })
+    $$ = merge($line_start, { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE' })
   }
+  // | line_start UNBUF_CODE_BLOCK
+  // {
+  //   $$ = merge($line_start, { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE' })
+  // }
   | line_start line_splitter line_end
   {
     debug('line: line_start line_splitter line_end: $line_start=', $line_start, ', $line_end=', $line_end)
@@ -729,11 +748,11 @@ line
   }
   | ATTR_TEXT_END
   {
-    $$ = { type: 'attr_end', val: $ATTR_TEXT_END }
+    $$ = { type: 'attrs_end', val: parseAttrs.parse($ATTR_TEXT_END) }
   }
   | ATTR_TEXT_CONT
   {
-    $$ = { type: 'attr_cont', val: $ATTR_TEXT_CONT, state: 'MULTI_LINE_ATTRS' }
+    $$ = { type: 'attrs_cont', val: parseAttrs.parse($ATTR_TEXT_CONT), state: 'MULTI_LINE_ATTRS' }
   }
   | line_start AT_ATTRS
   {
@@ -743,7 +762,7 @@ line
       let entries2 = Object.entries(func())
       debug('entries2=', entries2)
       let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
-        debug('key=', key, 'value=', value)
+        debug('name=', key, 'value=', value)
         return { name: key, val: value }
       })
       $$ = merge($line_start, { type: 'tag', attrs: attrs2 })
@@ -764,6 +783,10 @@ line
     else {
       $$ = { type: 'html_comment', val: $HTML_COMMENT }
     }
+  }
+  | UNBUF_CODE_BLOCK_START
+  {
+    $$ = { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' }
   }
   ;
 
@@ -786,7 +809,7 @@ line_start
     if ($3) {
       debug('3 Calling parseAttrs with ', $3)
       try {
-        $$ = merge($first_token, {  attrs: parseAttrs.parse($3) })
+        $$ = merge($first_token, {  attrs_start: parseAttrs.parse($3) })
       }
       catch (e) {
         console.error('Could not parse attributes=' +$3, e)
@@ -814,11 +837,11 @@ line_start
     debug('first_token tag_part attrs CLASSNAME: first_token=', $first_token, ', tag_part=', $tag_part, ', attrs=', $attrs, ', CLASSNAME=', $CLASSNAME)
     $$ = merge($first_token, [$tag_part, $attrs, { attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }])
   }
-  | ATTR_TEXT
-  {
-    debug('line_start: ATTR_TEXT')
-    $$ = { type: 'attrs_cont', attrs: [$ATTR_TEXT] }
-  }
+  // | ATTR_TEXT
+  // {
+  //   debug('line_start: ATTR_TEXT')
+  //   $$ = { type: 'attrs_cont', attrs_start: parseAttrs.parse($ATTR_TEXT) }
+  // }
   | first_token LPAREN MIXIN_PARAMS RPAREN
   {
     $$ = merge($first_token, { params: $MIXIN_PARAMS })
@@ -856,14 +879,18 @@ first_token
   {
     $$ = { type: 'comment', state: 'TEXT_START' }
   }
-  | CODE_START
+  // | UNBUF_CODE_START
+  // {
+  //   debug('CODE_START')
+  //   $$ = { type: 'code', state: 'CODE_START' }
+  // }
+  | UNBUF_CODE
   {
-    debug('CODE_START')
-    $$ = { type: 'code', state: 'CODE_START' }
+    $$ = { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE' }
   }
-  | CODE
+  | UNBUF_CODE_BLOCK
   {
-    $$ = { type: 'code', val: $CODE }
+    $$ = { type: 'unbuf_code', val: $UNBUF_CODE_BLOCK, state: 'UNBUF_CODE_BLOCK' }
   }
   | MIXIN_CALL
   {
@@ -889,7 +916,7 @@ first_token
   }
   | SPACE
   {
-    $$ = { type: 'empty' }
+    $$ = { }
   }
   | CONDITIONAL
   {
@@ -982,11 +1009,11 @@ line_end
   {
     $$ = { assignment_val: $ASSIGNMENT_VALUE }
   }
-  | ATTR_TEXT_CONT
-  {
-    debug('line_end: ATTR_TEXT_CONT')
-    $$ = { attrscont: [$1] }
-  }
+  // | ATTR_TEXT_CONT
+  // {
+  //   debug('line_end: ATTR_TEXT_CONT')
+  //   $$ = { attrscont: [$1] }
+  // }
   | TEXT
   {
     debug('line_end: TEXT: $TEXT=', $TEXT)
@@ -1000,9 +1027,9 @@ line_end
       $$ = { type: 'text', val: $TEXT }
     }
   }
-  | CODE
+  | UNBUF_CODE
   {
-    $$ = { type: 'code', val: $CODE }
+    $$ = { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE' }
   }
   | RPAREN
   {
@@ -1207,6 +1234,15 @@ try {
   }
 }
 
+test('prepend head', { type: 'prepend', val: 'head' })
+
+test('script(type="application/ld+json").', {
+  name: 'script',
+  type: 'tag',
+  attrs: [ { name: 'type', val: '"application/ld+json"' } ],
+  state: 'TEXT_START'
+})
+
 test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: true })
 
 test('<!--build:js /js/app.min.js?v=#{version}-->', {
@@ -1274,7 +1310,7 @@ test(`a.foo(class='bar').baz`, {
   attrs: [
     { name: 'class', val: '"foo"' },
     { name: 'class', val: "'bar'" },
-    { key: 'class', val: '"baz"' }
+    { name: 'class', val: '"baz"' }
   ]
 })
 // How is that ^ different than this?: a(href='/save').button save
@@ -1351,8 +1387,8 @@ test('li= item', {
 // })
 // test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {})
 
-test('-var ajax = true', {type: 'code', val: 'var ajax = true', state: 'CODE_START' })
-test('-if( ajax )', {type: 'conditional', name: 'if', condition: ' ajax '})
+test('-var ajax = true', {type: 'unbuf_code', val: 'var ajax = true', state: 'UNBUF_CODE'})
+test('-if( ajax )', {type: 'unbuf_code', val: 'if( ajax )', state: 'UNBUF_CODE'})
 test('span.font-monospace .htmlnanorc', {
   attrs: [
     {
@@ -1374,9 +1410,10 @@ test('.container.post#post-20210905', {
   id: 'post-20210905'
 })
 
-test('<UNBUF_CODE>var i', {
-  type: 'code',
-  val: 'var i'
+test('<UNBUF_CODE_BLOCK>var i', {
+  type: 'unbuf_code',
+  val: 'var i',
+  state: 'UNBUF_CODE_BLOCK'
 })
 
 test('} else {', {
@@ -1447,8 +1484,8 @@ test('a(href=url)= url', {
 // })
 
 test('- function answer() { return 42; }', {
-  state: 'CODE_START',
-  type: 'code',
+  state: 'UNBUF_CODE',
+  type: 'unbuf_code',
   val: 'function answer() { return 42; }'
 })
 
@@ -1521,24 +1558,28 @@ test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
   ]
 })
 
-test('foo(abc', {type: 'tag', name: 'foo', attrs: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
-test('foo(abc,', {type: 'tag', name: 'foo', attrs: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>,def)', { type: 'attr_end', val: ',def)' })
+test('foo(abc', {type: 'tag', name: 'foo', attrs_start: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
+test('foo(abc,', {type: 'tag', name: 'foo', attrs_start: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_end', val: [ { name: 'def' } ] })
+test('<MULTI_LINE_ATTRS>def)', { type: 'attrs_end', val: [ { name: 'def' } ] })
 
 test('span(', {type: 'tag', name: 'span', state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>v-for="item in items"', { type: 'attr_cont', val: 'v-for="item in items"',
-  state: 'MULTI_LINE_ATTRS' })
+test('<MULTI_LINE_ATTRS>v-for="item in items"', {
+  type: 'attrs_cont',
+  val: [ { name: 'v-for', val: '"item in items"' } ],
+  state: 'MULTI_LINE_ATTRS'
+})
 test('<MULTI_LINE_ATTRS>:key="item.id"', {
-  type: 'attr_cont',
-  val: ':key="item.id"',
+  type: 'attrs_cont',
+  val: [ { name: ':key', val: '"item.id"' } ],
   state: 'MULTI_LINE_ATTRS'
 })
 test('<MULTI_LINE_ATTRS>:value="item.name"', {
-  type: 'attr_cont',
-  val: ':value="item.name"',
+  type: 'attrs_cont',
+  val: [ { name: ':value', val: '"item.name"' } ],
   state: 'MULTI_LINE_ATTRS'
 })
-test('<MULTI_LINE_ATTRS>)', { type: 'attr_end', val: ')' })
+test('<MULTI_LINE_ATTRS>)', { type: 'attrs_end', val: '' })
 test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
   name: 'a',
   type: 'tag',
@@ -1738,11 +1779,9 @@ test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', {
   attrs: [ { name: 'datetime', val: "'2009-07-28T01:24:04-06:00'" } ],
   val: '2009-07-28 at 1:24 AM'
 } )
-test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'code', val: 'var title = \'Fade Out On MouseOver Demo\'', state: 'CODE_START' })
+test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'unbuf_code', val: 'var title = \'Fade Out On MouseOver Demo\'', state: 'UNBUF_CODE' })
 test('<TEXT>}).join(\' \')', { type: 'text', val: "}).join(' ')" })
-test('  ', {
-  type: 'empty'
-})
+test('  ', {})
 test('#content(role=\'main\')', {
   type: 'tag',
   id: 'content',
@@ -1781,8 +1820,8 @@ test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", {
 test('| . The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
 test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {"type":"text","val":"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;" })
 
-// test('- ', { type: 'code', val: ' ', state: 'UNBUF_CODE_START' })
-test('- ', { type: 'code', state: 'CODE_START' })
+test('-', { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' })
+test('- ', { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' })
 
 test('mixin project(title)', {
   type: 'mixin',
@@ -1805,21 +1844,14 @@ test('meta(property=\'og:description\' content=\'I came across a problem in Inte
   ]
 })
 
-test('-', {
-  type: 'code',
-  state: 'CODE_START'
-})
-
 // test(' -', {
 //   state: 'UNBUF_CODE_START',
 //   type: 'code',
 //   val: ''
 // })
 
-test('<UNBUF_CODE>var i', {
-  type: 'code',
-  val: 'var i'
-})
+// if we get the state UNBUF_CODE followed by something other than '-', we should parse it as if the state wasn't there 
+test('<UNBUF_CODE>var i', { name: 'var', type: 'tag', val: 'i' })
 
 test("link(rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; White-space and character 160 Comments Feed' href='https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/')",  {
   name: 'link',
@@ -1885,9 +1917,7 @@ test("style(id='wp-block-library-inline-css' type='text/css'). ", {
   state: 'TEXT_START'
 })
 
-test('|', {
-  type: 'empty'
-})
+test('|', { type: 'text', val: '' })
 test('.', { state: 'TEXT_START' })
 
 try {
@@ -1910,7 +1940,7 @@ test("a(href='/save').button save", {
   type: 'tag',
   attrs: [
     { name: 'href', val: "'/save'" },
-    { key: 'class', val: '"button"' }
+    { name: 'class', val: '"button"' }
   ],
   val: 'save'
 })
@@ -1975,8 +2005,8 @@ test("foo(date=new Date(0))", {
   attrs: [ { name: 'date', val: 'new Date(0)' } ]
 })
 test("- var attrs = {foo: 'bar', bar: '<baz>'}",  {
-  type: 'code',
-  state: 'CODE_START',
+  type: 'unbuf_code',
+  state: 'UNBUF_CODE',
   val: "var attrs = {foo: 'bar', bar: '<baz>'}"
 })
 // test("a(foo='foo' \"bar\"=\"bar\")", {})
