@@ -4,7 +4,7 @@
   "description": "Jison generated Pug parser",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
-  "author": "Adam Koch",
+  "author": "Adam Koch (aakoch)",
   "license": "MIT",
   "scripts": {
     "preinstall": "npx npm-force-resolutions",
@@ -15,8 +15,19 @@
     "build": "scripts/build.sh",
     "watch": "fswatch -0ou src/index.jison | xargs -t -0 -n1 /bin/zsh -c $PWD/rebuild.sh"
   },
+  "keywords": [
+    "stream",
+    "transformer",
+    "lexer",
+    "parser",
+    "pug",
+    "foo-dog",
+    "foodog",
+    "foo dog"
+  ],
   "dependencies": {
     "@aakoch/utils": "file:../utils",
+    "foo-dog-attrs": "file:../foo-dog-attrs",
     "@gerhobbelt/ast-util": "^0.6.1-4",
     "@gerhobbelt/recast": "^0.15.1-32",
     "@jaredpalmer/wrapline": "^2.0.2",

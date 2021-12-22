@@ -3604,6 +3604,7 @@ import debugFunc from 'debug'
 import dyp from 'dyp'
 import parseAttrs from './attrs.mjs'
 import parseInline from './inline.mjs'
+import { AttrResolver } from 'foo-dog-attrs'
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
 

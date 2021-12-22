@@ -198,13 +198,23 @@ else {
 <INITIAL>{interpolation}
 %{
   debug('{interpolation}')
+  debug('this.matches=', this.matches)
   this.pushState('AFTER_TAG_NAME');
-                                          return 'INTERPOLATION';
+                                          return ['INTERP_END', 'INTERP_VAL', 'INTERP_START'];
+%}
+<INTERPOLATION>.+
+%{
+  // debug('<INTERPOLATION>.+')
+  // debug('this.matches=', this.matches)
+  // this.pushState('INTERPOLATION');
+  
+                                          return 'INTERP_VAL';
 %}
 
 <INITIAL>{interpolation_start}
 %{
   debug('{interpolation_start}')
+  debug('this.matches=', this.matches)
   this.pushState('INTERPOLATION_START');
                                           return 'INTERPOLATION_START';
 %}
@@ -775,9 +785,10 @@ line
   }
   | HTML_COMMENT
   {
+    debug('$HTML_COMMENT=', $HTML_COMMENT)
     if ($HTML_COMMENT.includes('#')) {
       let elemsReturned = createElems($HTML_COMMENT, this.yy.parser)
-      debug('elemsReturned', elemsReturned)
+      debug('elemsReturned', JSON.stringify(elemsReturned))
       $$ = { type: 'html_comment', children: elemsReturned }
     }
     else {
@@ -922,13 +933,26 @@ first_token
   {
     $$ = { type: 'conditional', name: $CONDITIONAL }
   }
-  | INTERPOLATION
+  | INTERP_START INTERP_VAL INTERP_END
   {
-    $$ = { type: 'interpolation', name: $INTERPOLATION }
+    debug('line: INTERP_START INTERP_VAL INTERP_END: $INTERP_VAL=', $INTERP_VAL)
+    const resultInterpVal1 = attrResolver.resolve({ name: 'anonymous', val: $INTERP_VAL.slice(2, -1) })
+    $$ = { type: 'tag', name: resultInterpVal1.val }
+    // $$ = [{ type: 'interpolation', val: $INTERP_VAL.slice(2, -1) }]
   }
-  | INTERPOLATION_START
+  // | INTERPOLATION_START
+  // {
+  //   debug('line: INTERPOLATION_START')
+  //   $$ = { type: 'interpolation_start', state: 'INTERPOLATION_START' }
+  // }
+  | INTERP_VAL
   {
-    $$ = { type: 'interpolation_start', state: 'INTERPOLATION_START' }
+    debug('line: INTERP_VAL: $INTERP_VAL=', $INTERP_VAL)
+    debug('AttrResolver=', AttrResolver)
+    const resultInterpVal2 = attrResolver.resolve({ name: 'anonymous', val: $INTERP_VAL })
+    debug('AttrResolver returned=', resultInterpVal2)
+    $$ = { type: 'text', val: resultInterpVal2.val }
+    // parser.parse(result)
   }
   ;
 
@@ -1067,6 +1091,8 @@ let obj
 var lparenOpen = false
 // const keysToMergeText = ['therest']
 
+const attrResolver = new AttrResolver()
+
 function rank(type1, type2) {
   if (type2 === 'text') {
     return type1
@@ -1166,22 +1192,36 @@ function merge(obj, src) {
   //  return Object.assign(obj, src);
 }
 
+// creates nodes of text and/or interpolations
 function createElems(text, parser) {
+  const debug = debugFunc('pug-line-lexer:createElems')
   const matches1 = text.matchAll(/#[\[\{].*?[\]\}]/g)
-  debug('matches1', matches1)
   let idx = 0
   let elems = []
   for (const match of matches1) {
+    debug('match=', match)
     if (idx != match.index) {
-      elems.push({ type: 'text', val: text.substring(idx, match.index) })
+      const textToPush = text.substring(idx, match.index);
+      debug('pushing text onto element array:', textToPush)
+      elems.push({ type: 'text', val: textToPush })
       idx = match.index
     }
     if (match[0][1] == '[') {
-      elems.push(parser.parse(match[0].slice(2, -1)))
+      debug('found left bracked')
+      const toParse = match[0].slice(2, -1)
+      debug('sending to parser:', toParse)
+      const results = parser.parse(toParse)
+      debug('received from parser:', results)
+      elems.push(results)
     }
     else {
-      elems.push(parser.parse(match[0]))
-      // elems.push({ type: 'interpolation', val: match[0].slice(2, -1)})
+      // const toParse = match[0]
+      // debug('sending to parser:', toParse)
+      // const results = parser.parse(toParse)
+      // debug('received from parser:', results)
+      // elems.push(...results)
+      debug('pushing interpolation value to arr:', match[0].slice(2, -1))
+      elems.push({ type: 'interpolation', val: match[0].slice(2, -1)})
     }
     idx += match[0].length
     // debug('match', match)
@@ -1191,6 +1231,7 @@ function createElems(text, parser) {
     elems.push({ type: 'text', val: text.substring(idx, text.index) })
   }
 
+  debug('returning=', util.inspect(elems, false, 5))
   return elems;
 }
 
@@ -1225,6 +1266,12 @@ parser.main = function () {
     compareFunc.call({}, actual, expected)
   }
 
+
+
+// TODO:
+test("<INTERPOLATION>'foo'", { type: 'text', val: "foo" } )
+
+
 try {
   test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: false })
 //   fail('Should not allow for a class name to start with a digit')
@@ -1249,7 +1296,7 @@ test('<!--build:js /js/app.min.js?v=#{version}-->', {
   type: 'html_comment',
   children: [
     { type: 'text', val: 'build:js /js/app.min.js?v=' },
-    { type: 'interpolation', name: '#{version}' }
+    { type: 'interpolation', val: 'version' }
   ]
 })
 test(`<li>foo</li>`, { type: 'text', val: '<li>foo</li>' })
@@ -1371,8 +1418,8 @@ test("#{'foo'}(bar='baz') /", {
       val: "'baz'"
     }
   ],
-  name: "#{'foo'}",
-  type: 'interpolation',
+  name: "foo",
+  type: 'tag',
   val: '/'
 })
 
