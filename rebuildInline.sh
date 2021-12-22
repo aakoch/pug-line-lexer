@@ -1,6 +1,6 @@
 #! bash
 
-if [ src/inline.jison -nt dist/inline.cjs ]; then
+if  [ ! -f dist/inline.cjs ] || [ src/inline.jison -nt dist/inline.cjs ]; then
   node src/replace.js inline.jison common
 
   npx jison -o dist/inline.cjs --main build/inline.jison
