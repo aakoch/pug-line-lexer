@@ -4995,8 +4995,8 @@ var utils = require("@aakoch/utils");
 var _ = require("lodash");
 var debugFunc = require('debug')
 const dyp = require('dyp');
-const parseAttrs = require('./attrs.cjs')
-const parseInline = require('./inline.cjs')
+const parseAttrs = require('../dist/attrs.cjs')
+const parseInline = require('../dist/inline.cjs')
 const AttrResolver = require("foo-dog-attrs").AttrResolver
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
