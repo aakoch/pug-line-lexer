@@ -5,13 +5,13 @@ Parses one line at a time. To be used by pug-lexing-transformer.
 ## Incremental build / WIP
 
 ```shell
-./rebuild.sh
+npm test
 ```
 
 ## Test
 
 ```shell
-npm run test
+npm test
 ```
 
 ## Build for deployment
@@ -21,10 +21,10 @@ npm run build
 ```
 
 ## Roundtrip from Pug -> AST -> Pug (can't do include yet)
-npx jison -o build/indent.cjs --main src/indent.jison && node build/indent.cjs 404.pug -o temp.out
-node writer.js temp.out
-sdiff -s rewrite.pug 404.pug
+See "all" project.
 
+## CommonJS
+I was trying to publish all of my libraries as an ES module and as a CommonJS module but either I have "type=module" in my package.json so I can use imports and run tests or I have it removed so Parcel correctly handles publishing both types. For now I'm just exporting an ES module.
 
 ## TODO
 Clean up dependencies

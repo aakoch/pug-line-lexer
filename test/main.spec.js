@@ -1,0 +1,918 @@
+import assert from "assert"
+import util from "util"
+import _ from "lodash"
+import debugFunc from 'debug'
+const debug = debugFunc('pug-line-lexer:test')
+import dyp from 'dyp'
+import Parser from '../build/main.js'
+import { AttrResolver } from '@foo-dog/attrs'
+const parser = Parser.parser
+
+const TEXT_TAGS_ALLOW_SUB_TAGS = true
+
+let tagAlreadyFound = false
+var lparenOpen = false
+  
+  tagAlreadyFound = false
+  lparenOpen = false
+  
+  function test(input, expected, strict = true, options) {
+    
+    if (_.isEmpty(options)) {
+      debug(`\nTesting '${input}'...`)
+    }
+    else {
+      debug(`\nTesting '${input}' with ${JSON.stringify(options)}...`)
+      // debug('parser.options before=', parser.options)
+      parser.options = options
+      parser.options.allowDigitToStartClassName = true
+      // debug('parser.options after=', parser.options)
+    }
+
+    tagAlreadyFound = false
+    lparenOpen = false
+    var actual = parser.parse(input)
+    debug(input + ' ==> ', util.inspect(actual))
+    
+    let compareFunc
+    if (strict)
+      compareFunc = assert.deepEqual
+    else 
+      compareFunc = dyp
+
+    compareFunc.call({}, actual, expected)
+  }
+
+
+
+
+test("<INTERPOLATION>'foo'", { type: 'text', val: "foo" } )
+
+
+try {
+  test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: false })
+//   fail('Should not allow for a class name to start with a digit')
+} catch (e) {
+  if (e.message != 'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.') {
+    throw e;
+  }
+}
+
+test('prepend head', { type: 'prepend', val: 'head' })
+
+test('script(type="application/ld+json").', {
+  name: 'script',
+  type: 'tag',
+  attrs: [ { name: 'type', val: '"application/ld+json"' } ],
+  state: 'TEXT_START'
+})
+
+test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: true })
+
+test('<!--build:js /js/app.min.js?v=#{version}-->', {
+  type: 'html_comment',
+  children: [
+    { type: 'text', val: 'build:js /js/app.min.js?v=' },
+    { type: 'interpolation', val: 'version' }
+  ]
+})
+test(`<li>foo</li>`, { type: 'text', val: '<li>foo</li>' })
+test(`<ul>`, { type: 'text', val: '<ul>' })
+test(`</ul>`, { type: 'text', val: '</ul>' })
+
+// test(`p.bar&attributes(attributes) One`, {})
+// test(`p.baz.quux&attributes(attributes) Two`, {})
+// test(`p&attributes(attributes) Three`, {})
+// test(`p.bar&attributes(attributes)(class="baz") Four`, {})
+
+// TODO: 
+// The next bunch tests "- Attributes"
+// Tests include: mixin.merge.pug
+// test(`+foo.hello`, {})
+// test(`+foo#world`, {})
+// test(`+foo.hello#world`, {})
+// test(`+foo.hello.world`, {})
+// test(`+foo(class="hello")`, {})
+// test(`+foo.hello(class="world")`, {})
+// test(`+foo`, {})
+// test(`+foo&attributes({class: "hello"})`, {})
+
+test("a.rho(href='#', class='rho--modifier')", {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"rho"' },
+    { name: 'href', val: "'#'" },
+    { name: 'class', val: "'rho--modifier'" }
+  ]
+})
+test(`div(id=id)&attributes({foo: 'bar', fred: 'bart'})`, {
+  type: 'tag',
+  name: 'div',
+  attrs: [{
+    name: 'id',
+    val: 'id'
+  }, {
+    name: 'foo',
+    val: 'bar'
+  }, {
+    name: 'fred',
+    val: 'bart'
+  }]
+})
+
+test(`a(class=['foo', 'bar', 'baz'])`, {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'class', val: "['foo', 'bar', 'baz']" } ]
+})
+
+// TODO: revisit
+test(`a.foo(class='bar').baz`, {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"foo"' },
+    { name: 'class', val: "'bar'" },
+    { name: 'class', val: '"baz"' }
+  ]
+})
+// How is that ^ different than this?: a(href='/save').button save
+
+test(`a.foo-bar_baz`, {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"foo-bar_baz"' } ]
+})
+
+test(`a(class={foo: true, bar: false, baz: true})`, {
+  attrs: [
+    {
+      name: 'class',
+      val: '{foo: true, bar: false, baz: true}'
+    }
+  ],
+  name: 'a',
+  type: 'tag'
+})
+
+test('span(v-for="item in items" :key="item.id" :value="item.name")', {
+  name: 'span',
+  type: 'tag',
+  attrs: [
+    { name: 'v-for', val: '"item in items"' },
+    { name: ':key', val: '"item.id"' },
+    { name: ':value', val: '"item.name"' }
+  ]
+})
+
+test('p <strong>strongly worded phrase</strong> that cannot be <em>ignored</em>', {
+  name: 'p',
+  type: 'tag',
+  val: '<strong>strongly worded phrase</strong> that cannot be <em>ignored</em>'
+})
+
+
+// Not sure about this...
+test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
+//  {
+//   name: 'span',
+//   type: 'tag',
+//   children: [ { type: 'text', val: '&boxv;' } ]
+// })
+
+test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it' })
+test('span.hljs-section )', {
+  name: 'span',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"hljs-section"' } ],
+  val: ')'
+})
+test("#{'foo'}(bar='baz') /", {
+  attrs: [
+    {
+      name: 'bar',
+      val: "'baz'"
+    }
+  ],
+  name: "foo",
+  type: 'tag',
+  val: '/'
+})
+
+test('li= item', {
+  assignment: true,
+  assignment_val: 'item',
+  name: 'li',
+  type: 'tag'
+})
+// test('<MULTI_LINE_ATTRS_END>)', {
+//   state: 'MULTI_LINE_ATTRS_END'
+// })
+// test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {})
+
+test('-var ajax = true', {type: 'unbuf_code', val: 'var ajax = true', state: 'UNBUF_CODE'})
+test('-if( ajax )', {type: 'unbuf_code', val: 'if( ajax )', state: 'UNBUF_CODE'})
+test('span.font-monospace .htmlnanorc', {
+  attrs: [
+    {
+      name: 'class',
+      val: '"font-monospace"'
+    }
+  ],
+  name: 'span',
+  type: 'tag',
+  val: '.htmlnanorc'
+})
+
+test('.container.post#post-20210905', {
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"container"' },
+    { name: 'class', val: '"post"' }
+  ],
+  id: 'post-20210905'
+})
+
+test('<UNBUF_CODE_BLOCK>var i', {
+  type: 'unbuf_code',
+  val: 'var i',
+  state: 'UNBUF_CODE_BLOCK'
+})
+
+test('} else {', {
+  type: 'block_end',
+  val: 'else {'
+})
+
+test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", { type: 'mixin_call', name: 'project', params: 
+    "'Moddable Two (2) Case', 'Needing Documentation ', ['print']",
+  state: 'MIXIN_CALL'
+  })
+
+test('code(class="language-scss").', {
+  name: 'code',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"language-scss"' } ],
+  state: 'TEXT_START'
+})
+
+test('p: a(href="https://www.thingiverse.com/thing:4578862") Thingiverse', {
+  name: 'p',
+  type: 'tag',
+  state: 'NESTED',
+  children: [ { name: 'a', type: 'tag', attrs: [{
+          name: 'href',
+          val: '"https://www.thingiverse.com/thing:4578862"'
+        }], val: 'Thingiverse' } ]
+})
+
+test('.project(class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" "))', {
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"project"' },
+    {
+      name: 'class',
+      val: '(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'
+    }
+  ]
+})
+
+test('.status-wrapper Status:', {
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"status-wrapper"' } ],
+  val: 'Status:'
+})
+
+test('+sensitive ', {
+  name: 'sensitive',
+  type: 'mixin_call',
+  state: 'MIXIN_CALL'
+})
+
+test('a(href=url)= url', {
+  assignment: true,
+  assignment_val: 'url',
+  attrs: [
+    { name: 'href', val: 'url' }
+  ],
+  name: 'a',
+  type: 'tag'
+})
+
+// I'm not supporting this right now
+// test('a(href=\'/user/\' + id, class=\'button\')', {
+//   attrs: [
+//     "href='/user/' + id, class='button'"
+//   ],
+//   name: 'a',
+//   type: 'tag'
+// })
+
+test('- function answer() { return 42; }', {
+  state: 'UNBUF_CODE',
+  type: 'unbuf_code',
+  val: 'function answer() { return 42; }'
+})
+
+// I'm not supporting this right now
+// test('a(href=\'/user/\' + id, class=\'button\')', {
+//   attrs: [
+//     "href='/user/' + id, class='button'"
+//   ],
+//   name: 'a',
+//   type: 'tag'
+// })
+// test('a(href  =  \'/user/\' + id, class  =  \'button\')', {
+//   attrs: [
+//     "href  =  '/user/' + id, class  =  'button'"
+//   ],
+//   name: 'a',
+//   type: 'tag'
+// })
+
+test('a(class = [\'class1\', \'class2\'])',  {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'class', val: "['class1', 'class2']" } ]
+})
+test('a.tag-class(class = [\'class1\', \'class2\'])', {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"tag-class"' },
+    { name: 'class', val: "['class1', 'class2']" }
+  ]
+})
+test('a(href=\'/user/\' + id class=\'button\')',  {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'href', val: "'/user/' + id" },
+    { name: 'class', val: "'button'" }
+  ]
+})
+test('a(href  =  \'/user/\' + id class  =  \'button\')', {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'href', val: "'/user/' + id" },
+    { name: 'class', val: "'button'" }
+  ]
+})
+test('meta(key=\'answer\' value=answer())', {
+  name: 'meta',
+  type: 'tag',
+  attrs: [
+    { name: 'key', val: "'answer'" },
+    { name: 'value', val: 'answer()' }
+  ]
+})
+
+test('div(id=id)&attributes({foo: \'bar\'})', {
+  name: 'div',
+  type: 'tag',
+  attrs: [ { name: 'id', val: 'id' }, { name: 'foo', val: 'bar' } ]
+})
+test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
+  name: 'div',
+  type: 'tag',
+  attrs: [
+    { name: 'foo', val: 'null' },
+    { name: 'bar', val: 'bar' },
+    { name: 'baz', val: 'baz' }
+  ]
+})
+
+test('foo(abc', {type: 'tag', name: 'foo', attrs_start: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
+test('foo(abc,', {type: 'tag', name: 'foo', attrs_start: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_end', val: [ { name: 'def' } ] })
+test('<MULTI_LINE_ATTRS>def)', { type: 'attrs_end', val: [ { name: 'def' } ] })
+
+test('span(', {type: 'tag', name: 'span', state: 'MULTI_LINE_ATTRS'})
+test('<MULTI_LINE_ATTRS>v-for="item in items"', {
+  type: 'attrs_cont',
+  val: [ { name: 'v-for', val: '"item in items"' } ],
+  state: 'MULTI_LINE_ATTRS'
+})
+test('<MULTI_LINE_ATTRS>:key="item.id"', {
+  type: 'attrs_cont',
+  val: [ { name: ':key', val: '"item.id"' } ],
+  state: 'MULTI_LINE_ATTRS'
+})
+test('<MULTI_LINE_ATTRS>:value="item.name"', {
+  type: 'attrs_cont',
+  val: [ { name: ':value', val: '"item.name"' } ],
+  state: 'MULTI_LINE_ATTRS'
+})
+test('<MULTI_LINE_ATTRS>)', { type: 'attrs_end', val: '' })
+test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: ':link', val: '"goHere"' },
+    { name: 'value', val: '"static"' },
+    { name: ':my-value', val: '"dynamic"' },
+    { name: '@click', val: '"onClick()"' },
+    { name: ':another', val: '"more"' }
+  ],
+  val: 'Click Me!'
+})
+
+test('foo(data-user=user)', {
+  name: 'foo',
+  type: 'tag',
+  attrs: [ { name: 'data-user', val: 'user' } ]
+})
+test('foo(data-items=[1,2,3])', {
+  name: 'foo',
+  type: 'tag',
+  attrs: [ { name: 'data-items', val: '[1,2,3]' } ]
+})
+test('foo(data-username=\'tobi\')', {
+  attrs: [ { name: 'data-username', val: "'tobi'" } ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-escaped={message: "Let\'s rock!"})', {
+  attrs: [
+    { name: 'data-escaped', val: '{message: "Let\'s rock!"}' }
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-ampersand={message: "a quote: &quot; this & that"})', {
+  attrs: [
+    { name: 'data-ampersand', val: '{message: "a quote: &quot; this & that"}' }
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+test('foo(data-epoc=new Date(0))', {
+  attrs: [
+    { name: 'data-epoc', val: 'new Date(0)' }
+  ],
+  name: 'foo',
+  type: 'tag'
+})
+
+test('html', { type: 'tag', name: 'html' })
+test('html ', { type: 'tag', name: 'html' }, false)
+
+// test("doctype html", { type: 'doctype', val: 'html' })
+test('doctype html', { type: 'doctype', val: 'html' })
+
+test("html(lang='en-US')", {"type":"tag","name":"html","attrs":[{name:"lang", val: "'en-US'"}]})
+
+// test("include something", { type: 'include_directive', params: 'something' })
+test('include something', { type: 'include', val: 'something' })
+
+// test("block here", { type: 'directive', name: 'block', params: 'here' })
+test("block here", { type: 'block', val: 'here' })
+
+test("head", { type: 'tag', name: 'head' })
+test("meta(charset='UTF-8')", {"type":"tag","name":"meta","attrs":[{name:"charset", val:"'UTF-8'"}]})
+test("meta(name='viewport' content='width=device-width')", { type: 'tag', name: 'meta', attrs: [{name: 'name', val: "'viewport'"}, {name: 'content', val: "'width=device-width'"}]})
+test("title", {"type":"tag","name":"title"})
+test("| White-space and character 160 | Adam Koch ", {"type":"text","val":"White-space and character 160 | Adam Koch "})
+if (!TEXT_TAGS_ALLOW_SUB_TAGS)
+  test("script(async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\")", {"type":"tag","name":"script","attrs":["async src=\"https://www.googletagmanager.com/gtag/js?id=UA-452464-5\""], state: 'TEXT_START'})
+test("script.  ", {"type":"tag","name":"script","state":"TEXT_START"})
+test("<TEXT>window.dataLayer = window.dataLayer || [];   ", { type: 'text', val: 'window.dataLayer = window.dataLayer || [];   ' })
+test("<TEXT>gtag('config', 'UA-452464-5');", {"type":"text","val":"gtag('config', 'UA-452464-5');"})
+test("", "")
+if (!TEXT_TAGS_ALLOW_SUB_TAGS)
+  test("script test", {"type":"tag","name":"script","state":"TEXT_START","val":"test"})
+test(".classname", { type: 'tag', attrs: [ { name: 'class', val: '"classname"' } ] })
+
+//test("// some text", { type: 'comment', state: 'TEXT_START' })
+test("// some text", { type: 'comment', state: 'TEXT_START', val: ' some text' })
+
+// test("// ", { type: 'comment', state: 'TEXT_START' })
+test("// ", { type: 'comment', val: ' ', state: 'TEXT_START' })
+
+test("//", { type: 'comment', state: 'TEXT_START' })
+
+
+test('a.url.fn.n(href=\'https://wordpress.adamkoch.com/author/admin/\' title=\'View all posts by Adam\' rel=\'author\') Adam',  {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"url"' },
+    { name: 'class', val: '"fn"' },
+    { name: 'class', val: '"n"' },
+    {
+      name: 'href',
+      val: "'https://wordpress.adamkoch.com/author/admin/'"
+    },
+    { name: 'title', val: "'View all posts by Adam'" },
+    { name: 'rel', val: "'author'" }
+  ],
+  val: 'Adam'
+})
+test('style(id=\'wp-block-library-inline-css\' type=\'text/css\').', {
+  name: 'style',
+  type: 'tag',
+  attrs: [
+    { name: 'id', val: "'wp-block-library-inline-css'" },
+    { name: 'type', val: "'text/css'" }
+  ],
+  state: 'TEXT_START'
+})
+test('| #start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}', {"type":"text","val":"#start-resizable-editor-section{figcaption{color:hsla(0,0%,100%,.65)}"})
+test('body.post-template-default.single.single-post.postid-1620.single-format-standard.wp-embed-responsive.single-author.singular.two-column.right-sidebar', {
+  name: 'body',
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"post-template-default"' },
+    { name: 'class', val: '"single"' },
+    { name: 'class', val: '"single-post"' },
+    { name: 'class', val: '"postid-1620"' },
+    { name: 'class', val: '"single-format-standard"' },
+    { name: 'class', val: '"wp-embed-responsive"' },
+    { name: 'class', val: '"single-author"' },
+    { name: 'class', val: '"singular"' },
+    { name: 'class', val: '"two-column"' },
+    { name: 'class', val: '"right-sidebar"' }
+  ]
+})
+test('#page.hfeed', { type: 'tag', id: 'page', attrs: [ { name: 'class', val: '"hfeed"' } ] })
+test('header#branding(role=\'banner\')', {
+  name: 'header',
+  type: 'tag',
+  id: 'branding',
+  attrs: [ { name: 'role', val: "'banner'" } ]
+})
+test('h1#site-title', {type: 'tag', name: 'h1', id: 'site-title'})
+test('a(href=\'https://www.adamkoch.com/\' rel=\'home\') Adam Koch', {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'href', val: "'https://www.adamkoch.com/'" },
+    { name: 'rel', val: "'home'" }
+  ],
+  val: 'Adam Koch'
+})
+test('h2#site-description Software Developer and Clean Code Advocate', {type: 'tag', name: 'h2', id: 'site-description', val: 'Software Developer and Clean Code Advocate' })
+test('h3.assistive-text Main menu', {
+  name: 'h3',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"assistive-text"' } ],
+  val: 'Main menu'
+})
+test('ul#menu-header.menu', {
+  name: 'ul',
+  type: 'tag',
+  id: 'menu-header',
+  attrs: [ { name: 'class', val: '"menu"' } ]
+})
+test('a(href=\'https://wordpress.adamkoch.com/posts/\') Posts', {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'href', val: "'https://wordpress.adamkoch.com/posts/'" } ],
+  val: 'Posts'
+})
+test('span.sep  by', {
+  name: 'span',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"sep"' } ],
+  val: ' by'
+})
+test('style.', {"type":"tag","name":"style","state":"TEXT_START"})
+test('p I came across a problem in Internet Explorer (it wasn\'t a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I\'ll just call the', {
+  type: 'tag',
+  name: 'p',
+  val: "I came across a problem in Internet Explorer (it wasn't a problem with Firefox) when I was trying to compare two strings. To me, one string looked to have an extra space in the front. No problem, I'll just call the"
+})
+test('.sd-content', { type: 'tag', attrs: [ { name: 'class', val: '"sd-content"' } ] })
+test('th  Browser', { type: 'tag', name: 'th', val: ' Browser' })
+test('.sharedaddy.sd-sharing-enabled', {
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"sharedaddy"' },
+    { name: 'class', val: '"sd-sharing-enabled"' }
+  ]
+})
+test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', {
+  name: 'time',
+  type: 'tag',
+  attrs: [ { name: 'datetime', val: "'2009-07-28T01:24:04-06:00'" } ],
+  val: '2009-07-28 at 1:24 AM'
+} )
+test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'unbuf_code', val: 'var title = \'Fade Out On MouseOver Demo\'', state: 'UNBUF_CODE' })
+test('<TEXT>}).join(\' \')', { type: 'text', val: "}).join(' ')" })
+test('  ', {})
+test('#content(role=\'main\')', {
+  type: 'tag',
+  id: 'content',
+  attrs: [ { name: 'role', val: "'main'" } ]
+})
+test('pre: code(class="language-scss").', {
+  name: 'pre',
+  type: 'tag',
+  state: 'NESTED',
+  children: [
+    { name: 'code', type: 'tag', attrs: [
+        {
+          name: 'class',
+          val: '"language-scss"'
+        }], state: 'TEXT_START' }
+  ]
+})
+
+test('mixin sensitive()', { type: 'mixin', val: 'sensitive()' })
+test('extends ../templates/blogpost', {
+  type: 'extends',
+  val: '../templates/blogpost'
+})
+test('append head', {
+  type: 'append',
+  val: 'head'
+})
+test('p Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.', {type: 'tag', name: 'p', val: 'Maecenas sed lorem accumsan, luctus eros eu, tempor dolor. Vestibulum lorem est, bibendum vel vulputate eget, vehicula eu elit. Donec interdum cursus felis, vitae posuere libero. Cras et lobortis velit. Pellentesque in imperdiet justo. Suspendisse dolor mi, aliquet at luctus a, suscipit quis lectus. Etiam dapibus venenatis sem, quis aliquam nisl volutpat vel. Aenean scelerisque dapibus sodales. Vestibulum in pretium diam. Quisque et urna orci.' })
+
+test('+project(\'Images\', \'On going\')', { type: 'mixin_call', name: 'project', params: "'Images', 'On going'", state: 'MIXIN_CALL' })
+test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", {
+  type: 'mixin_call',
+  name: 'project',
+  params: "'Moddable Two (2) Case', 'Needing Documentation ', ['print']",
+  state: 'MIXIN_CALL'
+})
+test('| . The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
+test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {"type":"text","val":"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;" })
+
+test('-', { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' })
+test('- ', { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' })
+
+test('mixin project(title)', {
+  type: 'mixin',
+  val: 'project(title)'
+})
+test('// comment', {
+  state: 'TEXT_START',
+  type: 'comment',
+  val: ' comment'
+})
+test('meta(property=\'og:description\' content=\'I came across a problem in Internet Explorer (it wasn\\\'t a problem with Firefox) when I...\')',  {
+  name: 'meta',
+  type: 'tag',
+  attrs: [
+    { name: 'property', val: "'og:description'" },
+    {
+      name: 'content',
+      val: "'I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'"
+    }
+  ]
+})
+
+// test(' -', {
+//   state: 'UNBUF_CODE_START',
+//   type: 'code',
+//   val: ''
+// })
+
+// if we get the state UNBUF_CODE followed by something other than '-', we should parse it as if the state wasn't there 
+test('<UNBUF_CODE>var i', { name: 'var', type: 'tag', val: 'i' })
+
+test("link(rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; White-space and character 160 Comments Feed' href='https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/')",  {
+  name: 'link',
+  type: 'tag',
+  attrs: [
+    { name: 'rel', val: "'alternate'" },
+    { name: 'type', val: "'application/rss+xml'" },
+    {
+      name: 'title',
+      val: "'Adam Koch &raquo; White-space and character 160 Comments Feed'"
+    },
+    {
+      name: 'href',
+      val: "'https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/'"
+    }
+  ]
+})
+
+test('pre.', {
+  name: 'pre',
+  state: 'TEXT_START',
+  type: 'tag'
+})
+
+test('pre: code.', {
+  children: [
+    {
+      name: 'code',
+      state: 'TEXT_START',
+      type: 'tag'
+    }
+  ],
+  name: 'pre',
+  state: 'NESTED',
+  type: 'tag'
+})
+
+test('|. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
+
+test('.rule: p.', {
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"rule"' } ],
+  state: 'NESTED',
+  children: [ { name: 'p', type: 'tag', state: 'TEXT_START' } ]
+})
+test('.rule.unratified: p.',  {
+  type: 'tag',
+  attrs: [
+    { name: 'class', val: '"rule"' },
+    { name: 'class', val: '"unratified"' }
+  ],
+  state: 'NESTED',
+  children: [ { name: 'p', type: 'tag', state: 'TEXT_START' } ]
+})
+
+test("style(id='wp-block-library-inline-css' type='text/css'). ", {
+  name: 'style',
+  type: 'tag',
+  attrs: [
+    { name: 'id', val: "'wp-block-library-inline-css'" },
+    { name: 'type', val: "'text/css'" }
+  ],
+  state: 'TEXT_START'
+})
+
+test('|', { type: 'text', val: '' })
+test('.', { state: 'TEXT_START' })
+
+try {
+  test("tag", { type: 'unknown', name: 'tag' })
+throw AssertionError('Expected exception')
+} catch (e) {}
+// }
+
+
+test('+code(\'Pretty-print any JSON file\') jq \'.\' package.json',
+{
+  type: 'mixin_call',
+  name: 'code',
+  params: "'Pretty-print any JSON file'",
+  val: "jq '.' package.json",
+  state: 'MIXIN_CALL'
+} )
+
+test("a(href='/save').button save", {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'href', val: "'/save'" },
+    { name: 'class', val: '"button"' }
+  ],
+  val: 'save'
+})
+
+test("meta( charset='utf8' )", {
+  name: 'meta',
+  type: 'tag',
+  attrs: [ { name: 'charset', val: "'utf8'" } ]
+})
+
+// test("input(pattern='\\\\S+')", {})
+test("a(href='/contact') contact", {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'href', val: "'/contact'" } ],
+  val: 'contact'
+})
+test("a(foo bar baz)", {
+  name: 'a',
+  type: 'tag',
+  attrs: [ { name: 'foo' }, { name: 'bar' }, { name: 'baz' } ]
+})
+test("a(foo='foo, bar, baz' bar=1)", {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'foo', val: "'foo, bar, baz'" },
+    { name: 'bar', val: '1' }
+  ] 
+})
+test("a(foo='((foo))' bar= (1) ? 1 : 0 )", {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: 'foo', val: "'((foo))'" },
+    { name: 'bar', val: '(1) ? 1 : 0' }
+  ]
+})
+test("select", { name: 'select', type: 'tag' })
+test("option(value='foo' selected) Foo",{
+  name: 'option',
+  type: 'tag',
+  attrs: [ { name: 'value', val: "'foo'" }, { name: 'selected' } ],
+  val: 'Foo'
+})
+test("option(selected value='bar') Bar", {
+  name: 'option',
+  type: 'tag',
+  attrs: [ { name: 'selected' }, { name: 'value', val: "'bar'" } ],
+  val: 'Bar'
+})
+test('a(foo="class:")', { name: 'a', type: 'tag', attrs: [ { name: 'foo', val: '"class:"' } ] })
+// test("input(pattern='\\S+')", {})
+test('foo(terse="true")', {
+  name: 'foo',
+  type: 'tag',
+  attrs: [ { name: 'terse', val: '"true"' } ]
+})
+test("foo(date=new Date(0))", {
+  name: 'foo',
+  type: 'tag',
+  attrs: [ { name: 'date', val: 'new Date(0)' } ]
+})
+test("- var attrs = {foo: 'bar', bar: '<baz>'}",  {
+  type: 'unbuf_code',
+  state: 'UNBUF_CODE',
+  val: "var attrs = {foo: 'bar', bar: '<baz>'}"
+})
+// test("a(foo='foo' \"bar\"=\"bar\")", {})
+
+try {
+  test("a(foo='foo' 'bar'='bar'))", {})
+  fail('expected exception')
+} catch (expected) {}
+
+// TODO:
+test("div&attributes(attrs)", { type: 'tag', name: 'div', attrs: [{val: 'attrs'}] })
+
+test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {
+  name: 'p',
+  type: 'tag',
+  children: [
+    { type: 'text', val: 'A sentence with a ' },
+    { type: 'tag', name: 'strong', val: 'strongly worded phrase' },
+    { type: 'text', val: ' that cannot be ' },
+    { type: 'tag', name: 'em', val: 'ignored' },
+    { type: 'text', val: '.' }
+  ]
+})
+
+test(`p Some text #[a.rho(href='#', class='rho--modifier') with inline link]`, {
+  name: 'p',
+  type: 'tag',
+  children: [
+    { type: 'text', val: 'Some text ' },
+    { name: 'a', type: 'tag', attrs: [
+        {
+          name: 'class',
+          val: '"rho"'
+        },
+        {
+          name: 'href',
+          val: "'#'"
+        },
+        {
+          name: 'class',
+          val: "'rho--modifier'"
+        }
+      ], val: 'with inline link' }
+  ]
+})
+
+test(`p #[a.rho(href='#', class='rho--modifier') with inline link]`, {
+  children: [
+    {
+      attrs: [
+        {
+          name: 'class',
+          val: '"rho"'
+        },
+        {
+          name: 'href',
+          val: "'#'"
+        },
+        {
+          name: 'class',
+          val: "'rho--modifier'"
+        }
+      ],
+      name: 'a',
+      type: 'tag',
+      val: 'with inline link'
+    }
+  ],
+  name: 'p',
+  type: 'tag'
+})
+
+test(`+list()`, {
+  type: 'mixin_call',
+  params: '',
+  name: 'list',
+  state: 'MIXIN_CALL'
+})
+
+test(`+ list()`, {
+  type: 'mixin_call',
+  params: '',
+  name: 'list',
+  state: 'MIXIN_CALL'
+})
+
+test(`<MIXIN_CALL>`, {})
