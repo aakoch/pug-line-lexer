@@ -7,8 +7,9 @@
   "author": "Adam Koch (aakoch)",
   "license": "MIT",
   "scripts": {
+    "clean": "rm -rf build && rm -rf dist",
     "preinstall": "npx npm-force-resolutions",
-    "test": "scripts/preprocess.sh && DEBUG='*' node test/main.spec.js",
+    "test": "scripts/preprocess.sh && DEBUG='*' node test/main.spec.js && DEBUG='*' node test/code.spec.js",
     "build": "scripts/preprocess.sh && parcel build",
     "watch": "fswatch -0ou src/index.jison | xargs -t -0 -n1 /bin/zsh -c $PWD/rebuild.sh"
   },
@@ -54,7 +55,7 @@
   },
   "targets": {
     "module": {
-      "optimize": true,
+      "optimize": false,
       "isLibrary": true
     }
   },
