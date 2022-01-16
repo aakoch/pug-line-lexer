@@ -1,313 +1,11360 @@
-import t from"assert";import e from"util";import"@foo-dog/utils";import r from"lodash";import s from"debug";import{AttrResolver as i}from"@foo-dog/attrs";function n(t,e){var r;if(Object.defineProperty(this,"name",{enumerable:!1,writable:!1,value:"JisonParserError"}),null==t&&(t="???"),Object.defineProperty(this,"message",{enumerable:!1,writable:!0,value:t}),this.hash=e,e&&e.exception instanceof Error){var s=e.exception;this.message=s.message||t,r=s.stack}r||(Error.hasOwnProperty("captureStackTrace")?Error.captureStackTrace(this,this.constructor):r=new Error(t).stack),r&&Object.defineProperty(this,"stack",{enumerable:!1,writable:!1,value:r})}function a(t,e,r){r=r||0;for(var s=0;s<e;s++)this.push(t),t+=r}function o(t,e){for(e+=t=this.length-t;t<e;t++)this.push(this[t])}function l(t){for(var e=[],r=0,s=t.length;r<s;r++){var i=t[r];"function"==typeof i?(r++,i.apply(e,t[r])):e.push(i)}return e}"function"==typeof Object.setPrototypeOf?Object.setPrototypeOf(n.prototype,Error.prototype):n.prototype=Object.create(Error.prototype),n.prototype.constructor=n,n.prototype.name="JisonParserError";var h={trace:function(){},JisonParserError:n,yy:{},options:{type:"lalr",hasPartialLrUpgradeOnConflict:!0,errorRecoveryTokenDiscardCount:3,tokenStack:!0,ebnf:!0},symbols_:{$accept:0,$end:1,ASSIGN_PART:13,ATTR:12,BODY:11,CLASSNAME:14,DOT:10,EOF:1,EQ:7,FILTER_START:6,INTERPOLATION:9,TAG:3,TAG_END:5,TAG_START:4,TEXT:8,error:2,line:16,line_part:17,line_part_repetition:41,line_part_repetition2:42,line_part_repetition3:43,line_part_repetition4:44,line_part_repetition5:45,line_part_repetition_plus:18,line_part_repetition_plus10:27,line_part_repetition_plus11:28,line_part_repetition_plus12:29,line_part_repetition_plus13:30,line_part_repetition_plus14:31,line_part_repetition_plus15:32,line_part_repetition_plus16:33,line_part_repetition_plus17:34,line_part_repetition_plus18:35,line_part_repetition_plus19:36,line_part_repetition_plus2:19,line_part_repetition_plus20:37,line_part_repetition_plus21:38,line_part_repetition_plus22:39,line_part_repetition_plus23:40,line_part_repetition_plus3:20,line_part_repetition_plus4:21,line_part_repetition_plus5:22,line_part_repetition_plus6:23,line_part_repetition_plus7:24,line_part_repetition_plus8:25,line_part_repetition_plus9:26,start:15},terminals_:{1:"EOF",2:"error",3:"TAG",4:"TAG_START",5:"TAG_END",6:"FILTER_START",7:"EQ",8:"TEXT",9:"INTERPOLATION",10:"DOT",11:"BODY",12:"ATTR",13:"ASSIGN_PART",14:"CLASSNAME"},TERROR:2,EOF:1,originalQuoteName:null,originalParseError:null,cleanupAfterParse:null,constructParseErrorInfo:null,yyMergeLocationInfo:null,__reentrant_call_depth:0,__error_infos:[],__error_recovery_infos:[],quoteName:function(t){return'"'+t+'"'},getSymbolName:function(t){if(this.terminals_[t])return this.terminals_[t];var e=this.symbols_;for(var r in e)if(e[r]===t)return r;return null},describeSymbol:function(t){if(t!==this.EOF&&this.terminal_descriptions_&&this.terminal_descriptions_[t])return this.terminal_descriptions_[t];if(t===this.EOF)return"end of input";var e=this.getSymbolName(t);return e?this.quoteName(e):null},collect_expected_token_set:function(t,e){var r=this.TERROR,s=[],i={};if(!e&&this.state_descriptions_&&this.state_descriptions_[t])return[this.state_descriptions_[t]];for(var n in this.table[t])if((n=+n)!==r){var a=e?n:this.describeSymbol(n);a&&!i[a]&&(s.push(a),i[a]=!0)}return s},productions_:function(t){for(var e=[],r=t.pop,s=t.rule,i=0,n=r.length;i<n;i++)e.push([r[i],s[i]]);return e}({pop:l([15,16,16,a,[17,22],18,18,19,19,20,20,21,21,22,22,23,23,24,24,25,25,26,26,27,27,28,28,29,29,30,30,31,31,32,32,33,33,34,34,35,35,36,36,37,37,38,38,39,39,40,40,41,41,42,42,43,43,44,44,45,45]),rule:l([2,2,1,0,1,1,2,a,[3,3],4,4,o,[6,6],4,5,5,6,2,6,4,1,2,1,2,o,[4,42],0,2,0,o,[4,7]])}),performAction:function(t,e,r){var s=this.yy;s.parser,s.lexer;switch(t){case 0:case 1:
-/*! Production::    start : line EOF */
-this.$=r[e-1];break;case 2:
-/*! Production::    line : line line_part */u("line: line line_part: $line=",r[e-1],", $line_part=",r[e]),Array.isArray(r[e-1])?this.$=r[e-1]:this.$=[r[e-1]],this.$.push(r[e]);break;case 3:
-/*! Production::    line : line_part */u("line: line_part: $line_part=",r[e]),Array.isArray(r[e])?this.$=r[e]:this.$=[r[e]];break;case 4:
-/*! Production::    line_part : %epsilon */
-this.$=void 0;break;case 5:
-/*! Production::    line_part : TAG */let[t,i,n]=r[e];u("$TAG=",r[e]),u("tag_name=",t),u("attrs=",i),u("body=",n);const a={type:"tag",name:t,attrs:i};if(null==i&&delete a.attrs,""==n)delete a.val;else if(n.includes("<")&&n.includes(">")){u("parsing ",n);let t=s.parser.parse(n);u("parsedBody=",t),1!=t.length||"text"!=t[0].type||t[0].hasOwnProperty("children")?a.children=a.hasOwnProperty("children")?a.children.push(...t):t:a.val=t[0].val}else a.val=n;this.$=a;break;case 6:
-/*! Production::    line_part : line_part_repetition_plus */this.$={type:"text",val:r[e].join("")};break;case 7:
-/*! Production::    line_part : TAG_START TAG_END */this.$={type:"tag",name:r[e-1]};break;case 8:
-/*! Production::    line_part : TAG_START line_part_repetition_plus2 TAG_END */case 9:
-/*! Production::    line_part : TAG_START line_part_repetition_plus3 TAG_END */this.$={type:"tag",name:r[e-2],val:r[e-1].join("")};break;case 10:
-/*! Production::    line_part : TAG_START line_part_repetition_plus4 TAG_END */this.$={type:"tag",name:r[e-2],attrs:S.parse(r[e-1].join(""))};break;case 11:
-/*! Production::    line_part : TAG_START line_part_repetition_plus5 line_part_repetition_plus6 TAG_END */case 12:
-/*! Production::    line_part : TAG_START line_part_repetition_plus7 line_part_repetition_plus8 TAG_END */this.$={type:"tag",name:r[e-3],val:r[e-1].join(""),attrs:S.parse(r[e-2].join(""))};break;case 13:
-/*! Production::    line_part : FILTER_START TAG_END */this.$={type:"filter",name:r[e-1]};break;case 14:
-/*! Production::    line_part : FILTER_START line_part_repetition_plus9 TAG_END */case 15:
-/*! Production::    line_part : FILTER_START line_part_repetition_plus10 TAG_END */this.$={type:"filter",name:r[e-2],val:r[e-1].join("")};break;case 16:
-/*! Production::    line_part : FILTER_START line_part_repetition_plus11 TAG_END */this.$={type:"filter",name:r[e-2],attrs:S.parse(r[e-1].join(""))};break;case 17:
-/*! Production::    line_part : FILTER_START line_part_repetition_plus12 line_part_repetition_plus13 TAG_END */case 18:
-/*! Production::    line_part : FILTER_START line_part_repetition_plus14 line_part_repetition_plus15 TAG_END */this.$={type:"filter",name:r[e-3],val:r[e-1].join(""),attrs:S.parse(r[e-2].join(""))};break;case 19:
-/*! Production::    line_part : TAG_START EQ line_part_repetition_plus16 TAG_END */this.$={type:"tag",name:r[e-3],assignment:r[e-1].join("")};break;case 20:
-/*! Production::    line_part : TAG_START EQ line_part_repetition_plus17 line_part_repetition_plus18 TAG_END */this.$={type:"tag",name:r[e-4],assignment:r[e-2].join(""),attrs:S.parse(r[e].join(""))};break;case 21:
-/*! Production::    line_part : TAG_START EQ line_part_repetition_plus19 line_part_repetition_plus20 TAG_END */this.$={type:"tag",name:r[e-4],assignment:r[e-2].join(""),val:r[e].join("")};break;case 22:
-/*! Production::    line_part : TAG_START EQ line_part_repetition_plus21 line_part_repetition_plus22 line_part_repetition_plus23 TAG_END */this.$={type:"tag",name:r[e-5],assignment:r[e-3].join(""),val:r[e].join(""),attrs:S.parse(r[e-1].join(""))};break;case 23:
-/*! Production::    line_part : TEXT INTERPOLATION */this.$=[{type:"text",val:r[e-1]},{type:"interp",val:r[e]}];break;case 24:
-/*! Production::    line_part : TAG_START DOT line_part_repetition line_part_repetition2 line_part_repetition3 TAG_END */this.$={type:"tag",name:r[e-5]},r[e-3]&&(this.$.classes=r[e-3]),r[e-2]&&(this.$.attrs=S.parse(r[e-2].join(""))),r[e-1]&&(this.$.val=r[e-1].join(""));break;case 25:
-/*! Production::    line_part : TAG_START line_part_repetition4 line_part_repetition5 TAG_END */u("TAG_START ATTR* BODY* TAG_END"),this.$={type:"tag",name:r[e-3]},r[e-2]&&(this.$.attrs=S.parse(r[e-2].join(""))),r[e-1]&&(this.$.val=r[e-1].join(""));break;case 26:
-/*! Production::    line_part_repetition_plus : TEXT */case 28:
-/*! Production::    line_part_repetition_plus2 : BODY */case 30:
-/*! Production::    line_part_repetition_plus3 : BODY */case 32:
-/*! Production::    line_part_repetition_plus4 : ATTR */case 34:
-/*! Production::    line_part_repetition_plus5 : ATTR */case 36:
-/*! Production::    line_part_repetition_plus6 : BODY */case 38:
-/*! Production::    line_part_repetition_plus7 : ATTR */case 40:
-/*! Production::    line_part_repetition_plus8 : BODY */case 42:
-/*! Production::    line_part_repetition_plus9 : BODY */case 44:
-/*! Production::    line_part_repetition_plus10 : BODY */case 46:
-/*! Production::    line_part_repetition_plus11 : ATTR */case 48:
-/*! Production::    line_part_repetition_plus12 : ATTR */case 50:
-/*! Production::    line_part_repetition_plus13 : BODY */case 52:
-/*! Production::    line_part_repetition_plus14 : ATTR */case 54:
-/*! Production::    line_part_repetition_plus15 : BODY */case 56:
-/*! Production::    line_part_repetition_plus16 : ASSIGN_PART */case 58:
-/*! Production::    line_part_repetition_plus17 : ASSIGN_PART */case 60:
-/*! Production::    line_part_repetition_plus18 : ATTR */case 62:
-/*! Production::    line_part_repetition_plus19 : ASSIGN_PART */case 64:
-/*! Production::    line_part_repetition_plus20 : BODY */case 66:
-/*! Production::    line_part_repetition_plus21 : ASSIGN_PART */case 68:
-/*! Production::    line_part_repetition_plus22 : ATTR */case 70:
-/*! Production::    line_part_repetition_plus23 : BODY */this.$=[r[e]];break;case 27:
-/*! Production::    line_part_repetition_plus : line_part_repetition_plus TEXT */case 29:
-/*! Production::    line_part_repetition_plus2 : line_part_repetition_plus2 BODY */case 31:
-/*! Production::    line_part_repetition_plus3 : line_part_repetition_plus3 BODY */case 33:
-/*! Production::    line_part_repetition_plus4 : line_part_repetition_plus4 ATTR */case 35:
-/*! Production::    line_part_repetition_plus5 : line_part_repetition_plus5 ATTR */case 37:
-/*! Production::    line_part_repetition_plus6 : line_part_repetition_plus6 BODY */case 39:
-/*! Production::    line_part_repetition_plus7 : line_part_repetition_plus7 ATTR */case 41:
-/*! Production::    line_part_repetition_plus8 : line_part_repetition_plus8 BODY */case 43:
-/*! Production::    line_part_repetition_plus9 : line_part_repetition_plus9 BODY */case 45:
-/*! Production::    line_part_repetition_plus10 : line_part_repetition_plus10 BODY */case 47:
-/*! Production::    line_part_repetition_plus11 : line_part_repetition_plus11 ATTR */case 49:
-/*! Production::    line_part_repetition_plus12 : line_part_repetition_plus12 ATTR */case 51:
-/*! Production::    line_part_repetition_plus13 : line_part_repetition_plus13 BODY */case 53:
-/*! Production::    line_part_repetition_plus14 : line_part_repetition_plus14 ATTR */case 55:
-/*! Production::    line_part_repetition_plus15 : line_part_repetition_plus15 BODY */case 57:
-/*! Production::    line_part_repetition_plus16 : line_part_repetition_plus16 ASSIGN_PART */case 59:
-/*! Production::    line_part_repetition_plus17 : line_part_repetition_plus17 ASSIGN_PART */case 61:
-/*! Production::    line_part_repetition_plus18 : line_part_repetition_plus18 ATTR */case 63:
-/*! Production::    line_part_repetition_plus19 : line_part_repetition_plus19 ASSIGN_PART */case 65:
-/*! Production::    line_part_repetition_plus20 : line_part_repetition_plus20 BODY */case 67:
-/*! Production::    line_part_repetition_plus21 : line_part_repetition_plus21 ASSIGN_PART */case 69:
-/*! Production::    line_part_repetition_plus22 : line_part_repetition_plus22 ATTR */case 71:
-/*! Production::    line_part_repetition_plus23 : line_part_repetition_plus23 BODY */case 73:
-/*! Production::    line_part_repetition : line_part_repetition CLASSNAME */case 75:
-/*! Production::    line_part_repetition2 : line_part_repetition2 ATTR */case 77:
-/*! Production::    line_part_repetition3 : line_part_repetition3 BODY */case 79:
-/*! Production::    line_part_repetition4 : line_part_repetition4 ATTR */case 81:
-/*! Production::    line_part_repetition5 : line_part_repetition5 BODY */r[e-1].push(r[e]),this.$=r[e-1];break;case 72:
-/*! Production::    line_part_repetition : %epsilon */case 74:
-/*! Production::    line_part_repetition2 : %epsilon */case 76:
-/*! Production::    line_part_repetition3 : %epsilon */case 78:
-/*! Production::    line_part_repetition4 : %epsilon */case 80:
-/*! Production::    line_part_repetition5 : %epsilon */this.$=[]}},table:function(t){for(var e=[],r=t.len,s=t.symbol,i=t.type,n=t.state,a=t.mode,o=t.goto,l=0,h=r.length;l<h;l++){for(var c=r[l],u={},p=0;p<c;p++){var y=s.shift();switch(i.shift()){case 2:u[y]=[a.shift(),o.shift()];break;case 0:u[y]=n.shift();break;default:u[y]=[3]}}e.push(u)}return e}({len:l([9,1,7,0,0,5,11,8,6,a,[0,4],a,[2,3],3,3,5,1,4,0,3,o,[11,6],o,[8,3],a,[0,6],2,o,[3,6],a,[3,3],4,5,o,[9,3],o,[20,11],o,[12,12],o,[46,3],4,a,[0,11],o,[33,9]]),symbol:l([1,3,4,6,8,a,[15,4,1],1,o,[10,5],o,[8,3],o,[7,4],5,7,10,11,12,a,[19,4,1],24,44,5,11,12,a,[26,4,1],31,o,[24,5],9,5,11,5,11,5,12,11,12,23,11,12,25,13,33,34,36,38,41,o,[32,3],45,o,[4,3],o,[25,8],30,11,12,32,o,[15,8],13,12,13,35,11,13,37,12,13,39,o,[18,3],13,o,[4,3],14,42,o,[24,5],o,[41,3],5,11,11,12,40,o,[18,3],43,o,[15,4]]),type:l([a,[2,5],a,[0,4],1,o,[10,7],a,[2,10],a,[0,6],o,[9,8],a,[2,14],o,[15,3],0,o,[24,9],o,[28,12],o,[25,5],o,[15,16],o,[18,9],o,[70,13],o,[59,9]]),state:l([1,2,3,5,10,5,a,[13,5,1],20,a,[24,5,1],38,41,a,[44,4,1],49,50,58,61,a,[70,4,3],91,94]),mode:l([2,a,[1,9],a,[2,4],o,[13,13],o,[14,10],o,[17,5],o,[20,4],o,[16,12],o,[31,15],o,[50,17],o,[51,4],a,[1,4]]),goto:l([4,4,a,[6,4,1],o,[5,4],a,[6,4],11,12,18,19,21,22,23,29,30,a,[26,5],a,[31,7,1],40,39,43,42,48,80,80,51,32,34,32,a,[52,6,1],60,59,63,62,46,48,46,a,[64,6,1],72,71,75,74,78,77,56,62,58,56,a,[74,3],a,[80,11,1],93,92,76,76,a,[95,5,1]])}),defaultActions:function(t){for(var e={},r=t.idx,s=t.goto,i=0,n=r.length;i<n;i++){e[r[i]]=s[i]}return e}({idx:l([3,4,a,[9,4,1],19,21,23,29,a,[31,7,1],39,40,42,43,a,[51,7,1],59,60,a,[62,8,1],71,72,74,75,77,78,a,[80,11,1],92,93,a,[95,5,1]]),goto:l([3,5,1,2,27,7,72,28,13,42,23,8,29,9,31,10,33,35,36,39,40,79,14,43,15,45,16,47,49,50,53,54,11,37,12,41,19,57,59,60,63,64,67,68,73,25,81,17,51,18,55,20,61,21,65,69,70,75,22,71,24,77])}),parseError:function(t,e,r){if(!e.recoverable)throw"function"==typeof this.trace&&this.trace(t),r||(r=this.JisonParserError),new r(t,e);"function"==typeof this.trace&&this.trace(t),e.destroy()},parse:function(t){var e,r=this,s=new Array(128),i=new Array(128),n=[],a=new Array(128),o=this.table,l=0,h=0,c=(this.TERROR,this.EOF),u=(this.options.errorRecoveryTokenDiscardCount,[0,100]);e=this.__lexer__?this.__lexer__:this.__lexer__=Object.create(this.lexer);var p,y,_,f,m={parseError:void 0,quoteName:void 0,lexer:void 0,parser:void 0,pre_parse:void 0,post_parse:void 0,pre_lex:void 0,post_lex:void 0};function g(){var t;return"number"!=typeof(t=n.pop()||e.lex()||c)&&(t instanceof Array&&(t=(n=t).pop()),"number"!=typeof t&&(t=r.symbols_[t]||t)),t||c}this.yyGetSharedState=function(){return m},function(t,e){for(var r in e)void 0===t[r]&&Object.prototype.hasOwnProperty.call(e,r)&&(t[r]=e[r])}(m,this.yy),m.lexer=e,m.parser=this,"function"==typeof m.parseError?this.parseError=function(t,e,r){return r||(r=this.JisonParserError),m.parseError.call(this,t,e,r)}:this.parseError=this.originalParseError,"function"==typeof m.quoteName?this.quoteName=function(t){return m.quoteName.call(this,t)}:this.quoteName=this.originalQuoteName,this.cleanupAfterParse=function(t,r,n){var o,h;r&&((m.post_parse||this.post_parse)&&(h=this.constructParseErrorInfo(null,null,null,!1)),m.post_parse&&void 0!==(o=m.post_parse.call(this,m,t,h))&&(t=o),this.post_parse&&void 0!==(o=this.post_parse.call(this,m,t,h))&&(t=o),h&&h.destroy&&h.destroy());if(this.__reentrant_call_depth>1)return t;if(e.cleanupAfterLex&&e.cleanupAfterLex(n),m&&(m.lexer=void 0,m.parser=void 0,e.yy===m&&(e.yy=void 0)),m=void 0,this.parseError=this.originalParseError,this.quoteName=this.originalQuoteName,s.length=0,i.length=0,a.length=0,l=0,!n){for(var c=this.__error_infos.length-1;c>=0;c--){var u=this.__error_infos[c];u&&"function"==typeof u.destroy&&u.destroy()}this.__error_infos.length=0}return t},this.constructParseErrorInfo=function(t,r,n,o){var c={errStr:t,exception:r,text:e.match,value:e.yytext,token:this.describeSymbol(h)||h,token_id:h,line:e.yylineno,expected:n,recoverable:o,state:p,action:y,new_state:E,symbol_stack:s,state_stack:i,value_stack:a,stack_pointer:l,yy:m,lexer:e,parser:this,destroy:function(){var t=!!this.recoverable;for(var e in this)this.hasOwnProperty(e)&&"object"==typeof e&&(this[e]=void 0);this.recoverable=t}};return this.__error_infos.push(c),c};var d,v,b,E,x={$:!0,_$:void 0,yy:m},T=!1;try{if(this.__reentrant_call_depth++,e.setInput(t,m),"function"==typeof e.canIUse)e.canIUse().fastLex&&"function"==typeof fastLex&&(g=fastLex);for(a[l]=null,i[l]=0,s[l]=0,++l,this.pre_parse&&this.pre_parse.call(this,m),m.pre_parse&&m.pre_parse.call(this,m),E=i[l-1];;){if(p=E,this.defaultActions[p])y=2,E=this.defaultActions[p];else if(h||(h=g()),f=o[p]&&o[p][h]||u,E=f[1],!(y=f[0])){var A,S=this.describeSymbol(h)||h,k=this.collect_expected_token_set(p);A="number"==typeof e.yylineno?"Parse error on line "+(e.yylineno+1)+": ":"Parse error: ","function"==typeof e.showPosition&&(A+="\n"+e.showPosition(69,10)+"\n"),k.length?A+="Expecting "+k.join(", ")+", got unexpected "+S:A+="Unexpected "+S,d=this.constructParseErrorInfo(A,null,k,!1),void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_);break}switch(y){default:if(y instanceof Array){d=this.constructParseErrorInfo("Parse Error: multiple actions possible at state: "+p+", token: "+h,null,null,!1),void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_);break}d=this.constructParseErrorInfo("Parsing halted. No viable error recovery approach available due to internal system failure.",null,null,!1),void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_);break;case 1:s[l]=h,a[l]=e.yytext,i[l]=E,++l,h=0;continue;case 2:if(v=(b=this.productions_[E-1])[1],void 0!==(_=this.performAction.call(x,E,l-1,a))){T=_;break}l-=v;var R=b[0];s[l]=R,a[l]=x.$,E=o[i[l-1]][R],i[l]=E,++l;continue;case 3:-2!==l&&(T=!0,l--,void 0!==a[l]&&(T=a[l]))}break}}catch(t){if(t instanceof this.JisonParserError)throw t;if(e&&"function"==typeof e.JisonLexerError&&t instanceof e.JisonLexerError)throw t;d=this.constructParseErrorInfo("Parsing aborted due to exception.",t,null,!1),T=!1,void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_)}finally{T=this.cleanupAfterParse(T,!0,!0),this.__reentrant_call_depth--}return T}};h.originalParseError=h.parseError,h.originalQuoteName=h.quoteName;var c=function(){function t(t,e){var r;if(Object.defineProperty(this,"name",{enumerable:!1,writable:!1,value:"JisonLexerError"}),null==t&&(t="???"),Object.defineProperty(this,"message",{enumerable:!1,writable:!0,value:t}),this.hash=e,e&&e.exception instanceof Error){var s=e.exception;this.message=s.message||t,r=s.stack}r||(Error.hasOwnProperty("captureStackTrace")?Error.captureStackTrace(this,this.constructor):r=new Error(t).stack),r&&Object.defineProperty(this,"stack",{enumerable:!1,writable:!1,value:r})}"function"==typeof Object.setPrototypeOf?Object.setPrototypeOf(t.prototype,Error.prototype):t.prototype=Object.create(Error.prototype),t.prototype.constructor=t,t.prototype.name="JisonLexerError";var e={EOF:1,ERROR:2,__currentRuleSet__:null,__error_infos:[],__decompressed:!1,done:!1,_backtrack:!1,_input:"",_more:!1,_signaled_error_token:!1,conditionStack:[],match:"",matched:"",matches:!1,yytext:"",offset:0,yyleng:0,yylineno:0,yylloc:null,constructLexErrorInfo:function(t,e,r){if(t=""+t,null==r&&(r=!(t.indexOf("\n")>0&&t.indexOf("^")>0)),this.yylloc&&r)if("function"==typeof this.prettyPrintRange){this.prettyPrintRange(this.yylloc);/\n\s*$/.test(t)||(t+="\n"),t+="\n  Erroneous area:\n"+this.prettyPrintRange(this.yylloc)}else if("function"==typeof this.showPosition){var s=this.showPosition();s&&(t.length&&"\n"!==t[t.length-1]&&"\n"!==s[0]?t+="\n"+s:t+=s)}var i={errStr:t,recoverable:!!e,text:this.match,token:null,line:this.yylineno,loc:this.yylloc,yy:this.yy,lexer:this,destroy:function(){var t=!!this.recoverable;for(var e in this)this.hasOwnProperty(e)&&"object"==typeof e&&(this[e]=void 0);this.recoverable=t}};return this.__error_infos.push(i),i},parseError:function(t,e,r){if(r||(r=this.JisonLexerError),this.yy){if(this.yy.parser&&"function"==typeof this.yy.parser.parseError)return this.yy.parser.parseError.call(this,t,e,r)||this.ERROR;if("function"==typeof this.yy.parseError)return this.yy.parseError.call(this,t,e,r)||this.ERROR}throw new r(t,e)},yyerror:function(t){var e="";this.yylloc&&(e=" on line "+(this.yylineno+1));var r=this.constructLexErrorInfo("Lexical error"+e+": "+t,this.options.lexerErrorsAreRecoverable),s=Array.prototype.slice.call(arguments,1);return s.length&&(r.extra_error_attributes=s),this.parseError(r.errStr,r,this.JisonLexerError)||this.ERROR},cleanupAfterLex:function(t){if(this.setInput("",{}),!t){for(var e=this.__error_infos.length-1;e>=0;e--){var r=this.__error_infos[e];r&&"function"==typeof r.destroy&&r.destroy()}this.__error_infos.length=0}return this},clear:function(){this.yytext="",this.yyleng=0,this.match="",this.matches=!1,this._more=!1,this._backtrack=!1;var t=this.yylloc?this.yylloc.last_column:0;this.yylloc={first_line:this.yylineno+1,first_column:t,last_line:this.yylineno+1,last_column:t,range:[this.offset,this.offset]}},setInput:function(t,e){if(this.yy=e||this.yy||{},!this.__decompressed){for(var r=this.rules,s=0,i=r.length;s<i;s++){"number"==typeof(p=r[s])&&(r[s]=r[p])}var n=this.conditions;for(var a in n){var o=n[a],l=o.rules,h=(i=l.length,new Array(i+1)),c=new Array(i+1);for(s=0;s<i;s++){var u=l[s],p=r[u];h[s+1]=p,c[s+1]=u}o.rules=c,o.__rule_regexes=h,o.__rule_count=i}this.__decompressed=!0}return this._input=t||"",this.clear(),this._signaled_error_token=!1,this.done=!1,this.yylineno=0,this.matched="",this.conditionStack=["INITIAL"],this.__currentRuleSet__=null,this.yylloc={first_line:1,first_column:0,last_line:1,last_column:0,range:[0,0]},this.offset=0,this},editRemainingInput:function(t,e){var r=t.call(this,this._input,e);return"string"!=typeof r?r&&(this._input=""+r):this._input=r,this},input:function(){if(!this._input)return null;var t=this._input[0];this.yytext+=t,this.yyleng++,this.offset++,this.match+=t,this.matched+=t;var e=1,r=!1;if("\n"===t)r=!0;else if("\r"===t){r=!0;var s=this._input[1];"\n"===s&&(e++,t+=s,this.yytext+=s,this.yyleng++,this.offset++,this.match+=s,this.matched+=s,this.yylloc.range[1]++)}return r?(this.yylineno++,this.yylloc.last_line++,this.yylloc.last_column=0):this.yylloc.last_column++,this.yylloc.range[1]++,this._input=this._input.slice(e),t},unput:function(t){var e=t.length,r=t.split(/(?:\r\n?|\n)/g);if(this._input=t+this._input,this.yytext=this.yytext.substr(0,this.yytext.length-e),this.yyleng=this.yytext.length,this.offset-=e,this.match=this.match.substr(0,this.match.length-e),this.matched=this.matched.substr(0,this.matched.length-e),r.length>1){this.yylineno-=r.length-1,this.yylloc.last_line=this.yylineno+1;var s=this.match,i=s.split(/(?:\r\n?|\n)/g);1===i.length&&(i=(s=this.matched).split(/(?:\r\n?|\n)/g)),this.yylloc.last_column=i[i.length-1].length}else this.yylloc.last_column-=e;return this.yylloc.range[1]=this.yylloc.range[0]+this.yyleng,this.done=!1,this},more:function(){return this._more=!0,this},reject:function(){if(this.options.backtrack_lexer)this._backtrack=!0;else{var t="";this.yylloc&&(t=" on line "+(this.yylineno+1));var e=this.constructLexErrorInfo("Lexical error"+t+": You can only invoke reject() in the lexer when the lexer is of the backtracking persuasion (options.backtrack_lexer = true).",!1);this._signaled_error_token=this.parseError(e.errStr,e,this.JisonLexerError)||this.ERROR}return this},less:function(t){return this.unput(this.match.slice(t))},pastInput:function(t,e){var r=this.matched.substring(0,this.matched.length-this.match.length);t<0?t=r.length:t||(t=20),e<0?e=r.length:e||(e=1);var s=(r=r.substr(2*-t-2)).replace(/\r\n|\r/g,"\n").split("\n");return(r=(s=s.slice(-e)).join("\n")).length>t&&(r="..."+r.substr(-t)),r},upcomingInput:function(t,e){var r=this.match;t<0?t=r.length+this._input.length:t||(t=20),e<0?e=t:e||(e=1),r.length<2*t+2&&(r+=this._input.substring(0,2*t+2));var s=r.replace(/\r\n|\r/g,"\n").split("\n");return(r=(s=s.slice(0,e)).join("\n")).length>t&&(r=r.substring(0,t)+"..."),r},showPosition:function(t,e){var r=this.pastInput(t).replace(/\s/g," "),s=new Array(r.length+1).join("-");return r+this.upcomingInput(e).replace(/\s/g," ")+"\n"+s+"^"},deriveLocationInfo:function(t,e,r,s){var i={first_line:1,first_column:0,last_line:1,last_column:0,range:[0,0]};return t&&(i.first_line=0|t.first_line,i.last_line=0|t.last_line,i.first_column=0|t.first_column,i.last_column=0|t.last_column,t.range&&(i.range[0]=0|t.range[0],i.range[1]=0|t.range[1])),(i.first_line<=0||i.last_line<i.first_line)&&(i.first_line<=0&&e&&(i.first_line=0|e.last_line,i.first_column=0|e.last_column,e.range&&(i.range[0]=0|t.range[1])),(i.last_line<=0||i.last_line<i.first_line)&&r&&(i.last_line=0|r.first_line,i.last_column=0|r.first_column,r.range&&(i.range[1]=0|t.range[0])),i.first_line<=0&&s&&(i.last_line<=0||s.last_line<=i.last_line)&&(i.first_line=0|s.first_line,i.first_column=0|s.first_column,s.range&&(i.range[0]=0|s.range[0])),i.last_line<=0&&s&&(i.first_line<=0||s.first_line>=i.first_line)&&(i.last_line=0|s.last_line,i.last_column=0|s.last_column,s.range&&(i.range[1]=0|s.range[1]))),i.last_line<=0&&(i.first_line<=0?(i.first_line=this.yylloc.first_line,i.last_line=this.yylloc.last_line,i.first_column=this.yylloc.first_column,i.last_column=this.yylloc.last_column,i.range[0]=this.yylloc.range[0],i.range[1]=this.yylloc.range[1]):(i.last_line=this.yylloc.last_line,i.last_column=this.yylloc.last_column,i.range[1]=this.yylloc.range[1])),i.first_line<=0&&(i.first_line=i.last_line,i.first_column=0,i.range[1]=i.range[0]),i.first_column<0&&(i.first_column=0),i.last_column<0&&(i.last_column=i.first_column>0?i.first_column:80),i},prettyPrintRange:function(t,e,r){t=this.deriveLocationInfo(t,e,r);for(var s=(this.matched+this._input).split("\n"),i=Math.max(1,e?e.first_line:t.first_line-3),n=Math.max(1,r?r.last_line:t.last_line+1),a=1+Math.log10(1|n)|0,o=new Array(a).join(" "),l=[[],[],[]],h=s.slice(i-1,n+1).map((function(e,r){var s,n=r+i,h=(o+n).substr(-a)+": "+e,c=new Array(a+1).join("^"),u=3,p=0;(n===t.first_line?(u+=t.first_column,p=Math.max(2,(n===t.last_line?t.last_column:e.length)-t.first_column+1)):n===t.last_line?p=Math.max(2,t.last_column+1):n>t.first_line&&n<t.last_line&&(p=Math.max(2,e.length+1)),p)?(h+="\n"+c+new Array(u).join(".")+new Array(p).join("^"),s=1):n<t.first_line?s=0:n>t.last_line&&(s=2);return e.trim().length>0&&l[s].push(r),h=h.replace(/\t/g," ")})),c=0;c<=2;c++){var u=l[c];if(u.length>4){var p=u[1]+1,y=u[u.length-2]-1,_=new Array(a+1).join(" ")+"  (...continued...)";1===c&&(_+="\n"+new Array(a+1).join("-")+"  (---------------)"),h.splice(p,y-p+1,_)}}return h.join("\n")},describeYYLLOC:function(t,e){var r,s=t.first_line,i=t.last_line,n=t.first_column,a=t.last_column;if(0===i-s?(r="line "+s+", ",r+=a-n<=1?"column "+n:"columns "+n+" .. "+a):r="lines "+s+"(column "+n+") .. "+i+"(column "+a+")",t.range&&e){var o=t.range[0],l=t.range[1]-1;r+=l<=o?" {String Offset: "+o+"}":" {String Offset range: "+o+" .. "+l+"}"}return r},test_match:function(t,e){var r,s,i,n,a;if(this.options.backtrack_lexer&&(i={yylineno:this.yylineno,yylloc:{first_line:this.yylloc.first_line,last_line:this.yylloc.last_line,first_column:this.yylloc.first_column,last_column:this.yylloc.last_column,range:this.yylloc.range.slice(0)},yytext:this.yytext,match:this.match,matches:this.matches,matched:this.matched,yyleng:this.yyleng,offset:this.offset,_more:this._more,_input:this._input,yy:this.yy,conditionStack:this.conditionStack.slice(0),done:this.done}),a=(n=t[0]).length,(s=n.split(/(?:\r\n?|\n)/g)).length>1?(this.yylineno+=s.length-1,this.yylloc.last_line=this.yylineno+1,this.yylloc.last_column=s[s.length-1].length):this.yylloc.last_column+=a,this.yytext+=n,this.match+=n,this.matched+=n,this.matches=t,this.yyleng=this.yytext.length,this.yylloc.range[1]+=a,this.offset+=a,this._more=!1,this._backtrack=!1,this._input=this._input.slice(a),r=this.performAction.call(this,this.yy,e,this.conditionStack[this.conditionStack.length-1]),this.done&&this._input&&(this.done=!1),r)return r;if(this._backtrack){for(var o in i)this[o]=i[o];return this.__currentRuleSet__=null,!1}return!!this._signaled_error_token&&(r=this._signaled_error_token,this._signaled_error_token=!1,r)},next:function(){if(this.done)return this.clear(),this.EOF;var t,e,r,s;this._input||(this.done=!0),this._more||this.clear();var i=this.__currentRuleSet__;if(!(i||(i=this.__currentRuleSet__=this._currentRules())&&i.rules)){var n="";this.options.trackPosition&&(n=" on line "+(this.yylineno+1));var a=this.constructLexErrorInfo("Internal lexer engine error"+n+': The lex grammar programmer pushed a non-existing condition name "'+this.topState()+'"; this is a fatal error and should be reported to the application programmer team!',!1);return this.parseError(a.errStr,a,this.JisonLexerError)||this.ERROR}for(var o=i.rules,l=i.__rule_regexes,h=i.__rule_count,c=1;c<=h;c++)if((r=this._input.match(l[c]))&&(!e||r[0].length>e[0].length)){if(e=r,s=c,this.options.backtrack_lexer){if(!1!==(t=this.test_match(r,o[c])))return t;if(this._backtrack){e=void 0;continue}return!1}if(!this.options.flex)break}if(e)return!1!==(t=this.test_match(e,o[s]))&&t;if(this._input){n="";this.options.trackPosition&&(n=" on line "+(this.yylineno+1));a=this.constructLexErrorInfo("Lexical error"+n+": Unrecognized text.",this.options.lexerErrorsAreRecoverable);var u=this._input,p=this.topState(),y=this.conditionStack.length;return(t=this.parseError(a.errStr,a,this.JisonLexerError)||this.ERROR)===this.ERROR&&(this.matches||u!==this._input||p!==this.topState()||y!==this.conditionStack.length||this.input()),t}return this.done=!0,this.clear(),this.EOF},lex:function(){var t;for("function"==typeof this.pre_lex&&(t=this.pre_lex.call(this,0)),"function"==typeof this.options.pre_lex&&(t=this.options.pre_lex.call(this,t)||t),this.yy&&"function"==typeof this.yy.pre_lex&&(t=this.yy.pre_lex.call(this,t)||t);!t;)t=this.next();return this.yy&&"function"==typeof this.yy.post_lex&&(t=this.yy.post_lex.call(this,t)||t),"function"==typeof this.options.post_lex&&(t=this.options.post_lex.call(this,t)||t),"function"==typeof this.post_lex&&(t=this.post_lex.call(this,t)||t),t},fastLex:function(){for(var t;!t;)t=this.next();return t},canIUse:function(){return{fastLex:!("function"==typeof this.pre_lex||"function"==typeof this.options.pre_lex||this.yy&&"function"==typeof this.yy.pre_lex||this.yy&&"function"==typeof this.yy.post_lex||"function"==typeof this.options.post_lex||"function"==typeof this.post_lex)&&"function"==typeof this.fastLex}},begin:function(t){return this.pushState(t)},pushState:function(t){return this.conditionStack.push(t),this.__currentRuleSet__=null,this},popState:function(){return this.conditionStack.length-1>0?(this.__currentRuleSet__=null,this.conditionStack.pop()):this.conditionStack[0]},topState:function(t){return(t=this.conditionStack.length-1-Math.abs(t||0))>=0?this.conditionStack[t]:"INITIAL"},_currentRules:function(){return this.conditionStack.length&&this.conditionStack[this.conditionStack.length-1]?this.conditions[this.conditionStack[this.conditionStack.length-1]]:this.conditions.INITIAL},stateStackSize:function(){return this.conditionStack.length},options:{trackPosition:!0,caseInsensitive:!0},JisonLexerError:t,performAction:function(t,e,r){var s=this;switch(e){case 1:
-/*! Conditions:: INITIAL */ /*! Rule::       \\{interp} */
-return u("matches",this.matches),s.yytext=s.yytext.substring(2,s.yytext.length-1),"INTERPOLATION_WRONG";case 2:
-/*! Conditions:: INITIAL */ /*! Rule::       {interp} */
-return u("matches",this.matches),s.yytext=s.yytext.substring(2,s.yytext.length-1),9;case 3:
-/*! Conditions:: INITIAL */ /*! Rule::       {interp_start}\w+ */this.pushState("INTERP_START");break;case 4:
-/*! Conditions:: INTERP_START */ /*! Rule::       . */if("{"==s.yytext)y.push("}");else if("}"==s.yytext&&0!=y.length){if(y.pop()==s.yytext)return 9;throw new Error("Mismatching curly braces")}break;case 9:return u("(?:'#['s*){tag_name}"),s.yytext=this.matches[1],this.pushState("TAG_STARTED"),4;case 10:return s.yytext=this.matches[1],this.pushState("TAG_STARTED"),6;case 12:
-/*! Conditions:: TAG_STARTED */ /*! Rule::       \. */
-return this.pushState("CLASSNAME_STARTED"),10;case 13:
-/*! Conditions:: TAG_STARTED */ /*! Rule::       = */
-return this.popState(),this.pushState("ASSIGNMENT_STARTED"),7;case 15:return this.pushState("ASSIGNMENT_STARTED_BRACKET_ADDED"),13;case 16:
-/*! Conditions:: ASSIGNMENT_STARTED_BRACKET_ADDED */ /*! Rule::       \] */
-return this.popState(),13;case 18:case 33:
-/*! Conditions:: BODY_STARTED */ /*! Rule::       \] */
-return this.popState(),5;case 19:return this.pushState("BRACKET_ADDED"),12;case 20:return this.pushState("BRACKET_ADDED"),"LBRACKET";case 21:
-/*! Conditions:: BRACKET_ADDED */ /*! Rule::       \] */
-return this.popState(),"RBRACKET";case 22:return this.pushState("PARENS_ADDED"),"LPAREN";case 23:
-/*! Conditions:: PARENS_ADDED */ /*! Rule::       \) */
-return this.popState(),"RPAREN";case 25:this.popState(),this.pushState("ATTRS_STARTED");break;case 26:case 30:
-/*! Conditions:: ATTRS_STARTED */ /*! Rule::       \) ? */this.popState(),this.pushState("BODY_STARTED");break;case 27:
-/*! Conditions:: ATTRS_STARTED */ /*! Rule::       \w+ */
-return u("<ATTRS_STARTED>\\w+"),u("yy_.yytext",s.yytext),12;case 35:
-/*! Conditions:: CLASSNAME_STARTED */ /*! Rule::       {classname} */
-return this.popState(),14;default:return this.simpleCaseActionClusters[e]}},simpleCaseActionClusters:{
-/*! Conditions:: INITIAL */ /*! Rule::       \\#\{ */0:"BACKSLASH",
-/*! Conditions:: INITIAL */ /*! Rule::       .+\\#\{.+\} */5:8,
-/*! Conditions:: INITIAL */ /*! Rule::       #\{.+\} */6:9,
-/*! Conditions:: INITIAL */ /*! Rule::       .*\\# */7:8,
-/*! Conditions:: INITIAL */ /*! Rule::       {interp} */8:9,
-/*! Conditions:: INITIAL */ /*! Rule::       (\w|{space}|[^#])+ */11:8,
-/*! Conditions:: ASSIGNMENT_STARTED */ /*! Rule::       [ '] */14:13,
-/*! Conditions:: ASSIGNMENT_STARTED ASSIGNMENT_STARTED_BRACKET_ADDED */ /*! Rule::       \w+ */17:13,
-/*! Conditions:: TAG_STARTED */ /*! Rule::       \] */24:5,
-/*! Conditions:: ATTRS_STARTED */ /*! Rule::       {space}+ */28:12,
-/*! Conditions:: ATTRS_STARTED */ /*! Rule::       [^()\]]+ */29:12,
-/*! Conditions:: BODY_STARTED ATTRS_STARTED */ /*! Rule::       \w+ */31:11,
-/*! Conditions:: BODY_STARTED ATTRS_STARTED */ /*! Rule::       {space}+ */32:11,
-/*! Conditions:: BODY_STARTED */ /*! Rule::       .+ */34:11,
-/*! Conditions:: INITIAL */ /*! Rule::       # */36:8,
-/*! Conditions:: INITIAL */ /*! Rule::       $ */37:1},rules:[/^(?:\\#\{)/i,/^(?:\\(#\{(.+)\}))/i,/^(?:(#\{(.+)\}))/i,/^(?:(#\{)\w+)/i,/^(?:.)/i,/^(?:.+\\#\{.+\})/i,/^(?:#\{.+\})/i,/^(?:.*\\#)/i,/^(?:(#\{(.+)\}))/i,/^(?:(?:#\[\s*)((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,/^(?:(?:#\[\s*):((cdata)\b))/i,/^(?:(\w|([   -​\u2028\u2029　])|[^#])+)/i,/^(?:\.)/i,/^(?:=)/i,/^(?:[ '])/i,/^(?:\[)/i,/^(?:\])/i,/^(?:\w+)/i,/^(?:\])/i,/^(?:\[)/i,/^(?:\[)/i,/^(?:\])/i,/^(?:\()/i,/^(?:\))/i,/^(?:\])/i,/^(?:\()/i,/^(?:([   -​\u2028\u2029　]))/i,/^(?:\w+)/i,/^(?:([   -​\u2028\u2029　])+)/i,/^(?:[^()\]]+)/i,/^(?:\) ?)/i,/^(?:\w+)/i,/^(?:([   -​\u2028\u2029　])+)/i,/^(?:\])/i,/^(?:.+)/i,/^(?:([^\W\d]+[\w\-]*))/i,/^(?:#)/i,/^(?:$)/i],conditions:{AFTER_TAG_START:{rules:[],inclusive:!1},AFTER_TAG_START_END:{rules:[],inclusive:!1},ASSIGNMENT_STARTED:{rules:[14,15,17,18],inclusive:!1},INITIAL:{rules:[0,1,2,3,5,6,7,8,9,10,11,36,37],inclusive:!0},INTERP_START:{rules:[4],inclusive:!1},TAG_STARTED:{rules:[12,13,19,20,24,25,26],inclusive:!1},ASSIGNMENT_STARTED_BRACKET_ADDED:{rules:[16,17],inclusive:!1},BODY_STARTED:{rules:[19,20,31,32,33,34],inclusive:!1},BRACKET_ADDED:{rules:[21],inclusive:!1},ATTRS_STARTED:{rules:[22,27,28,29,30,31,32],inclusive:!1},PARENS_ADDED:{rules:[23],inclusive:!1},CLASSNAME_STARTED:{rules:[35],inclusive:!1}}};return e}();h.lexer=c;const u=s("pug-line-lexer:inline");let p=!1;const y=[];function _(){this.yy={}}h.main=function(){function r(r,s,i=!0){p=!1,!1,u(`\nTesting '${r}'...`);var n=h.parse(r);let a;u(r+" ==> ",e.inspect(n,!1,8)),a=i?t.deepEqual:dyp,a.call({},n,s)}p=!1,!1,r("#[a.rho(href='#', class='rho--modifier') with inline link]",[{type:"tag",name:"a",classes:["rho"],attrs:[{name:"href",val:"'#'"},{name:"class",val:"'rho--modifier'"}],val:"with inline link"}]),r("Some text #[a.rho(href='#', class='rho--modifier')]",[{type:"text",val:"Some text "},{type:"tag",name:"a",classes:["rho"],attrs:[{name:"href",val:"'#'"},{name:"class",val:"'rho--modifier'"}],val:""}]),r("Some text #[a.rho(href='#', class='rho--modifier') with inline link]",[{type:"text",val:"Some text "},{type:"tag",name:"a",classes:["rho"],attrs:[{name:"href",val:"'#'"},{name:"class",val:"'rho--modifier'"}],val:"with inline link"}]),r("Written with love by #{author}",[{type:"text",val:"Written with love by "},{type:"interp",val:"author"}]),r("This will be safe: #{theGreat}",[{type:"text",val:"This will be safe: "},{type:"interp",val:"theGreat"}]),r("No escaping for #{'}'}!",[{type:"text",val:"No escaping for "},{type:"interp",val:"'}'"},{type:"text",val:"!"}]),r("Escaping works with \\#{interpolation}",[{type:"text",val:"Escaping works with \\#{interpolation}"}]),r("#[br]",[{type:"tag",name:"br"}]),r("#[strong mighty]",[{type:"tag",name:"strong",val:"mighty"}]),r("A #[strong strongly worded phrase] that cannot be #[em ignored].",[{type:"text",val:"A "},{type:"tag",name:"strong",val:"strongly worded phrase"},{type:"text",val:" that cannot be "},{type:"tag",name:"em",val:"ignored"},{type:"text",val:"."}]),r("This is a very long and boring paragraph that spans multiple lines. Suddenly there is a #[strong strongly worded phrase] that cannot be #[em ignored].",[{type:"text",val:"This is a very long and boring paragraph that spans multiple lines. Suddenly there is a "},{type:"tag",name:"strong",val:"strongly worded phrase"},{type:"text",val:" that cannot be "},{type:"tag",name:"em",val:"ignored"},{type:"text",val:"."}]);try{r("#[strong a}",{}),fail("expected exception")}catch(t){}r("before #[:cdata inside] after",[{type:"text",val:"before "},{type:"filter",name:"cdata",val:"inside"},{type:"text",val:" after"}]),r("bing #[strong foo] bong",[{type:"text",val:"bing "},{type:"tag",name:"strong",val:"foo"},{type:"text",val:" bong"}]),r("bing #[strong foo] #[strong= '[foo]'] bong",[{type:"text",val:"bing "},{type:"tag",name:"strong",val:"foo"},{type:"text",val:" "},{type:"tag",name:"strong",assignment:" '[foo]'"},{type:"text",val:" bong"}]),r("\\#[strong escaped]",[{type:"text",val:"\\#[strong escaped]"}]),r("\\#[#[strong escaped]",[{type:"text",val:"\\#["},{type:"tag",name:"strong",val:"escaped"}])},_.prototype=h,h.Parser=_;var f={parser:h,Parser:_,parse:function(){return h.parse.apply(h,arguments)}};function m(t,e){var r;if(Object.defineProperty(this,"name",{enumerable:!1,writable:!1,value:"JisonParserError"}),null==t&&(t="???"),Object.defineProperty(this,"message",{enumerable:!1,writable:!0,value:t}),this.hash=e,e&&e.exception instanceof Error){var s=e.exception;this.message=s.message||t,r=s.stack}r||(Error.hasOwnProperty("captureStackTrace")?Error.captureStackTrace(this,this.constructor):r=new Error(t).stack),r&&Object.defineProperty(this,"stack",{enumerable:!1,writable:!1,value:r})}function g(t,e,r){r=r||0;for(var s=0;s<e;s++)this.push(t),t+=r}function d(t,e){for(e+=t=this.length-t;t<e;t++)this.push(this[t])}function v(t){for(var e=[],r=0,s=t.length;r<s;r++){var i=t[r];"function"==typeof i?(r++,i.apply(e,t[r])):e.push(i)}return e}"function"==typeof Object.setPrototypeOf?Object.setPrototypeOf(m.prototype,Error.prototype):m.prototype=Object.create(Error.prototype),m.prototype.constructor=m,m.prototype.name="JisonParserError";var b={trace:function(){},JisonParserError:m,yy:{},options:{type:"lalr",hasPartialLrUpgradeOnConflict:!0,errorRecoveryTokenDiscardCount:3,tokenStack:!0,ebnf:!0},symbols_:{$accept:0,$end:1,COMMA:10,EOF:1,EQ:4,NAME:3,PLUS:8,SPACE:9,SPREAD:5,VAL:6,VAR:7,attr:13,attrs:12,attrs_group:15,attrs_group2:16,error:2,start:11,val:14},terminals_:{1:"EOF",2:"error",3:"NAME",4:"EQ",5:"SPREAD",6:"VAL",7:"VAR",8:"PLUS",9:"SPACE",10:"COMMA"},TERROR:2,EOF:1,originalQuoteName:null,originalParseError:null,cleanupAfterParse:null,constructParseErrorInfo:null,yyMergeLocationInfo:null,__reentrant_call_depth:0,__error_infos:[],__error_recovery_infos:[],quoteName:function(t){return'"'+t+'"'},getSymbolName:function(t){if(this.terminals_[t])return this.terminals_[t];var e=this.symbols_;for(var r in e)if(e[r]===t)return r;return null},describeSymbol:function(t){if(t!==this.EOF&&this.terminal_descriptions_&&this.terminal_descriptions_[t])return this.terminal_descriptions_[t];if(t===this.EOF)return"end of input";var e=this.getSymbolName(t);return e?this.quoteName(e):null},collect_expected_token_set:function(t,e){var r=this.TERROR,s=[],i={};if(!e&&this.state_descriptions_&&this.state_descriptions_[t])return[this.state_descriptions_[t]];for(var n in this.table[t])if((n=+n)!==r){var a=e?n:this.describeSymbol(n);a&&!i[a]&&(s.push(a),i[a]=!0)}return s},productions_:function(t){for(var e=[],r=t.pop,s=t.rule,i=0,n=r.length;i<n;i++)e.push([r[i],s[i]]);return e}({pop:v([11,11,g,[12,3],g,[13,3],g,[14,3],15,15,16,16]),rule:v([1,2,3,2,1,3,g,[1,4],d,[5,5]])}),performAction:function(t,e,r){var s=this.yy;s.parser,s.lexer;switch(t){case 0:case 2:case 4:
-/*! Production::    attrs : attrs attrs_group2 */this.$=r[e-1];break;case 1:
-/*! Production::    start : EOF */case 9:
-/*! Production::    val : VAL */case 10:case 12:
-/*! Production::    attrs_group : SPACE */case 13:
-/*! Production::    attrs_group : COMMA */case 14:
-/*! Production::    attrs_group2 : SPACE */case 15:
-/*! Production::    attrs_group2 : COMMA */this.$=r[e];break;case 3:
-/*! Production::    attrs : attrs attrs_group attr */r[e-2].push(r[e]),this.$=r[e-2];break;case 5:
-/*! Production::    attrs : attr */this.$=[r[e]];break;case 6:
-/*! Production::    attr : NAME EQ val */x("attr: NAME EQ val: NAME=",r[e-2],", val=",r[e]),this.$={name:r[e-2].trim(),val:r[e]};break;case 7:
-/*! Production::    attr : SPREAD */this.$={name:r[e],val:r[e]};break;case 8:
-/*! Production::    attr : NAME */x("attr: NAME: $NAME=",r[e]),this.$={name:r[e]};break;case 11:
-/*! Production::    val : val PLUS VAR */this.$=r[e-2]+r[e]}},table:function(t){for(var e=[],r=t.len,s=t.symbol,i=t.type,n=t.state,a=t.mode,o=t.goto,l=0,h=r.length;l<h;l++){for(var c=r[l],u={},p=0;p<c;p++){var y=s.shift();switch(i.shift()){case 2:u[y]=[a.shift(),o.shift()];break;case 0:u[y]=n.shift();break;default:u[y]=[3]}}e.push(u)}return e}({len:v([6,1,0,5,0,4,0,0,3,0,5,5,3,d,[9,4],1,0]),symbol:v([1,3,5,11,12,13,1,1,9,10,15,16,1,4,9,10,3,5,13,d,[19,3],9,10,d,[5,5],6,7,14,1,8,9,10,7]),type:v([g,[2,3],g,[0,3],1,d,[7,5],g,[2,6],d,[7,7],d,[13,12]]),state:v([1,3,4,8,9,13,14]),mode:v([g,[1,6],2,1,2,2,d,[6,3],g,[2,9],d,[18,7]]),goto:v([2,5,6,7,10,11,8,12,8,8,5,6,14,12,12,14,14,15,13,13,g,[15,3],16,6,17,6,6,18])}),defaultActions:{2:1,4:5,6:7,7:2,9:4,13:3,15:9,16:10,18:11},parseError:function(t,e,r){if(!e.recoverable)throw"function"==typeof this.trace&&this.trace(t),r||(r=this.JisonParserError),new r(t,e);"function"==typeof this.trace&&this.trace(t),e.destroy()},parse:function(t){var e,r=this,s=new Array(128),i=new Array(128),n=[],a=new Array(128),o=this.table,l=0,h=0,c=(this.TERROR,this.EOF),u=(this.options.errorRecoveryTokenDiscardCount,[0,19]);e=this.__lexer__?this.__lexer__:this.__lexer__=Object.create(this.lexer);var p,y,_,f,m={parseError:void 0,quoteName:void 0,lexer:void 0,parser:void 0,pre_parse:void 0,post_parse:void 0,pre_lex:void 0,post_lex:void 0};function g(){var t;return"number"!=typeof(t=n.pop()||e.lex()||c)&&(t instanceof Array&&(t=(n=t).pop()),"number"!=typeof t&&(t=r.symbols_[t]||t)),t||c}this.yyGetSharedState=function(){return m},function(t,e){for(var r in e)void 0===t[r]&&Object.prototype.hasOwnProperty.call(e,r)&&(t[r]=e[r])}(m,this.yy),m.lexer=e,m.parser=this,"function"==typeof m.parseError?this.parseError=function(t,e,r){return r||(r=this.JisonParserError),m.parseError.call(this,t,e,r)}:this.parseError=this.originalParseError,"function"==typeof m.quoteName?this.quoteName=function(t){return m.quoteName.call(this,t)}:this.quoteName=this.originalQuoteName,this.cleanupAfterParse=function(t,r,n){var o,h;r&&((m.post_parse||this.post_parse)&&(h=this.constructParseErrorInfo(null,null,null,!1)),m.post_parse&&void 0!==(o=m.post_parse.call(this,m,t,h))&&(t=o),this.post_parse&&void 0!==(o=this.post_parse.call(this,m,t,h))&&(t=o),h&&h.destroy&&h.destroy());if(this.__reentrant_call_depth>1)return t;if(e.cleanupAfterLex&&e.cleanupAfterLex(n),m&&(m.lexer=void 0,m.parser=void 0,e.yy===m&&(e.yy=void 0)),m=void 0,this.parseError=this.originalParseError,this.quoteName=this.originalQuoteName,s.length=0,i.length=0,a.length=0,l=0,!n){for(var c=this.__error_infos.length-1;c>=0;c--){var u=this.__error_infos[c];u&&"function"==typeof u.destroy&&u.destroy()}this.__error_infos.length=0}return t},this.constructParseErrorInfo=function(t,r,n,o){var c={errStr:t,exception:r,text:e.match,value:e.yytext,token:this.describeSymbol(h)||h,token_id:h,line:e.yylineno,expected:n,recoverable:o,state:p,action:y,new_state:E,symbol_stack:s,state_stack:i,value_stack:a,stack_pointer:l,yy:m,lexer:e,parser:this,destroy:function(){var t=!!this.recoverable;for(var e in this)this.hasOwnProperty(e)&&"object"==typeof e&&(this[e]=void 0);this.recoverable=t}};return this.__error_infos.push(c),c};var d,v,b,E,x={$:!0,_$:void 0,yy:m},T=!1;try{if(this.__reentrant_call_depth++,e.setInput(t,m),"function"==typeof e.canIUse)e.canIUse().fastLex&&"function"==typeof fastLex&&(g=fastLex);for(a[l]=null,i[l]=0,s[l]=0,++l,this.pre_parse&&this.pre_parse.call(this,m),m.pre_parse&&m.pre_parse.call(this,m),E=i[l-1];;){if(p=E,this.defaultActions[p])y=2,E=this.defaultActions[p];else if(h||(h=g()),f=o[p]&&o[p][h]||u,E=f[1],!(y=f[0])){var A,S=this.describeSymbol(h)||h,k=this.collect_expected_token_set(p);A="number"==typeof e.yylineno?"Parse error on line "+(e.yylineno+1)+": ":"Parse error: ","function"==typeof e.showPosition&&(A+="\n"+e.showPosition(69,10)+"\n"),k.length?A+="Expecting "+k.join(", ")+", got unexpected "+S:A+="Unexpected "+S,d=this.constructParseErrorInfo(A,null,k,!1),void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_);break}switch(y){default:if(y instanceof Array){d=this.constructParseErrorInfo("Parse Error: multiple actions possible at state: "+p+", token: "+h,null,null,!1),void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_);break}d=this.constructParseErrorInfo("Parsing halted. No viable error recovery approach available due to internal system failure.",null,null,!1),void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_);break;case 1:s[l]=h,a[l]=e.yytext,i[l]=E,++l,h=0;continue;case 2:if(v=(b=this.productions_[E-1])[1],void 0!==(_=this.performAction.call(x,E,l-1,a))){T=_;break}l-=v;var R=b[0];s[l]=R,a[l]=x.$,E=o[i[l-1]][R],i[l]=E,++l;continue;case 3:-2!==l&&(T=!0,l--,void 0!==a[l]&&(T=a[l]))}break}}catch(t){if(t instanceof this.JisonParserError)throw t;if(e&&"function"==typeof e.JisonLexerError&&t instanceof e.JisonLexerError)throw t;d=this.constructParseErrorInfo("Parsing aborted due to exception.",t,null,!1),T=!1,void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_)}finally{T=this.cleanupAfterParse(T,!0,!0),this.__reentrant_call_depth--}return T}};b.originalParseError=b.parseError,b.originalQuoteName=b.quoteName;var E=function(){function t(t,e){var r;if(Object.defineProperty(this,"name",{enumerable:!1,writable:!1,value:"JisonLexerError"}),null==t&&(t="???"),Object.defineProperty(this,"message",{enumerable:!1,writable:!0,value:t}),this.hash=e,e&&e.exception instanceof Error){var s=e.exception;this.message=s.message||t,r=s.stack}r||(Error.hasOwnProperty("captureStackTrace")?Error.captureStackTrace(this,this.constructor):r=new Error(t).stack),r&&Object.defineProperty(this,"stack",{enumerable:!1,writable:!1,value:r})}"function"==typeof Object.setPrototypeOf?Object.setPrototypeOf(t.prototype,Error.prototype):t.prototype=Object.create(Error.prototype),t.prototype.constructor=t,t.prototype.name="JisonLexerError";var e={EOF:1,ERROR:2,__currentRuleSet__:null,__error_infos:[],__decompressed:!1,done:!1,_backtrack:!1,_input:"",_more:!1,_signaled_error_token:!1,conditionStack:[],match:"",matched:"",matches:!1,yytext:"",offset:0,yyleng:0,yylineno:0,yylloc:null,constructLexErrorInfo:function(t,e,r){if(t=""+t,null==r&&(r=!(t.indexOf("\n")>0&&t.indexOf("^")>0)),this.yylloc&&r)if("function"==typeof this.prettyPrintRange){this.prettyPrintRange(this.yylloc);/\n\s*$/.test(t)||(t+="\n"),t+="\n  Erroneous area:\n"+this.prettyPrintRange(this.yylloc)}else if("function"==typeof this.showPosition){var s=this.showPosition();s&&(t.length&&"\n"!==t[t.length-1]&&"\n"!==s[0]?t+="\n"+s:t+=s)}var i={errStr:t,recoverable:!!e,text:this.match,token:null,line:this.yylineno,loc:this.yylloc,yy:this.yy,lexer:this,destroy:function(){var t=!!this.recoverable;for(var e in this)this.hasOwnProperty(e)&&"object"==typeof e&&(this[e]=void 0);this.recoverable=t}};return this.__error_infos.push(i),i},parseError:function(t,e,r){if(r||(r=this.JisonLexerError),this.yy){if(this.yy.parser&&"function"==typeof this.yy.parser.parseError)return this.yy.parser.parseError.call(this,t,e,r)||this.ERROR;if("function"==typeof this.yy.parseError)return this.yy.parseError.call(this,t,e,r)||this.ERROR}throw new r(t,e)},yyerror:function(t){var e="";this.yylloc&&(e=" on line "+(this.yylineno+1));var r=this.constructLexErrorInfo("Lexical error"+e+": "+t,this.options.lexerErrorsAreRecoverable),s=Array.prototype.slice.call(arguments,1);return s.length&&(r.extra_error_attributes=s),this.parseError(r.errStr,r,this.JisonLexerError)||this.ERROR},cleanupAfterLex:function(t){if(this.setInput("",{}),!t){for(var e=this.__error_infos.length-1;e>=0;e--){var r=this.__error_infos[e];r&&"function"==typeof r.destroy&&r.destroy()}this.__error_infos.length=0}return this},clear:function(){this.yytext="",this.yyleng=0,this.match="",this.matches=!1,this._more=!1,this._backtrack=!1;var t=this.yylloc?this.yylloc.last_column:0;this.yylloc={first_line:this.yylineno+1,first_column:t,last_line:this.yylineno+1,last_column:t,range:[this.offset,this.offset]}},setInput:function(t,e){if(this.yy=e||this.yy||{},!this.__decompressed){for(var r=this.rules,s=0,i=r.length;s<i;s++){"number"==typeof(p=r[s])&&(r[s]=r[p])}var n=this.conditions;for(var a in n){var o=n[a],l=o.rules,h=(i=l.length,new Array(i+1)),c=new Array(i+1);for(s=0;s<i;s++){var u=l[s],p=r[u];h[s+1]=p,c[s+1]=u}o.rules=c,o.__rule_regexes=h,o.__rule_count=i}this.__decompressed=!0}return this._input=t||"",this.clear(),this._signaled_error_token=!1,this.done=!1,this.yylineno=0,this.matched="",this.conditionStack=["INITIAL"],this.__currentRuleSet__=null,this.yylloc={first_line:1,first_column:0,last_line:1,last_column:0,range:[0,0]},this.offset=0,this},editRemainingInput:function(t,e){var r=t.call(this,this._input,e);return"string"!=typeof r?r&&(this._input=""+r):this._input=r,this},input:function(){if(!this._input)return null;var t=this._input[0];this.yytext+=t,this.yyleng++,this.offset++,this.match+=t,this.matched+=t;var e=1,r=!1;if("\n"===t)r=!0;else if("\r"===t){r=!0;var s=this._input[1];"\n"===s&&(e++,t+=s,this.yytext+=s,this.yyleng++,this.offset++,this.match+=s,this.matched+=s,this.yylloc.range[1]++)}return r?(this.yylineno++,this.yylloc.last_line++,this.yylloc.last_column=0):this.yylloc.last_column++,this.yylloc.range[1]++,this._input=this._input.slice(e),t},unput:function(t){var e=t.length,r=t.split(/(?:\r\n?|\n)/g);if(this._input=t+this._input,this.yytext=this.yytext.substr(0,this.yytext.length-e),this.yyleng=this.yytext.length,this.offset-=e,this.match=this.match.substr(0,this.match.length-e),this.matched=this.matched.substr(0,this.matched.length-e),r.length>1){this.yylineno-=r.length-1,this.yylloc.last_line=this.yylineno+1;var s=this.match,i=s.split(/(?:\r\n?|\n)/g);1===i.length&&(i=(s=this.matched).split(/(?:\r\n?|\n)/g)),this.yylloc.last_column=i[i.length-1].length}else this.yylloc.last_column-=e;return this.yylloc.range[1]=this.yylloc.range[0]+this.yyleng,this.done=!1,this},more:function(){return this._more=!0,this},reject:function(){if(this.options.backtrack_lexer)this._backtrack=!0;else{var t="";this.yylloc&&(t=" on line "+(this.yylineno+1));var e=this.constructLexErrorInfo("Lexical error"+t+": You can only invoke reject() in the lexer when the lexer is of the backtracking persuasion (options.backtrack_lexer = true).",!1);this._signaled_error_token=this.parseError(e.errStr,e,this.JisonLexerError)||this.ERROR}return this},less:function(t){return this.unput(this.match.slice(t))},pastInput:function(t,e){var r=this.matched.substring(0,this.matched.length-this.match.length);t<0?t=r.length:t||(t=20),e<0?e=r.length:e||(e=1);var s=(r=r.substr(2*-t-2)).replace(/\r\n|\r/g,"\n").split("\n");return(r=(s=s.slice(-e)).join("\n")).length>t&&(r="..."+r.substr(-t)),r},upcomingInput:function(t,e){var r=this.match;t<0?t=r.length+this._input.length:t||(t=20),e<0?e=t:e||(e=1),r.length<2*t+2&&(r+=this._input.substring(0,2*t+2));var s=r.replace(/\r\n|\r/g,"\n").split("\n");return(r=(s=s.slice(0,e)).join("\n")).length>t&&(r=r.substring(0,t)+"..."),r},showPosition:function(t,e){var r=this.pastInput(t).replace(/\s/g," "),s=new Array(r.length+1).join("-");return r+this.upcomingInput(e).replace(/\s/g," ")+"\n"+s+"^"},deriveLocationInfo:function(t,e,r,s){var i={first_line:1,first_column:0,last_line:1,last_column:0,range:[0,0]};return t&&(i.first_line=0|t.first_line,i.last_line=0|t.last_line,i.first_column=0|t.first_column,i.last_column=0|t.last_column,t.range&&(i.range[0]=0|t.range[0],i.range[1]=0|t.range[1])),(i.first_line<=0||i.last_line<i.first_line)&&(i.first_line<=0&&e&&(i.first_line=0|e.last_line,i.first_column=0|e.last_column,e.range&&(i.range[0]=0|t.range[1])),(i.last_line<=0||i.last_line<i.first_line)&&r&&(i.last_line=0|r.first_line,i.last_column=0|r.first_column,r.range&&(i.range[1]=0|t.range[0])),i.first_line<=0&&s&&(i.last_line<=0||s.last_line<=i.last_line)&&(i.first_line=0|s.first_line,i.first_column=0|s.first_column,s.range&&(i.range[0]=0|s.range[0])),i.last_line<=0&&s&&(i.first_line<=0||s.first_line>=i.first_line)&&(i.last_line=0|s.last_line,i.last_column=0|s.last_column,s.range&&(i.range[1]=0|s.range[1]))),i.last_line<=0&&(i.first_line<=0?(i.first_line=this.yylloc.first_line,i.last_line=this.yylloc.last_line,i.first_column=this.yylloc.first_column,i.last_column=this.yylloc.last_column,i.range[0]=this.yylloc.range[0],i.range[1]=this.yylloc.range[1]):(i.last_line=this.yylloc.last_line,i.last_column=this.yylloc.last_column,i.range[1]=this.yylloc.range[1])),i.first_line<=0&&(i.first_line=i.last_line,i.first_column=0,i.range[1]=i.range[0]),i.first_column<0&&(i.first_column=0),i.last_column<0&&(i.last_column=i.first_column>0?i.first_column:80),i},prettyPrintRange:function(t,e,r){t=this.deriveLocationInfo(t,e,r);for(var s=(this.matched+this._input).split("\n"),i=Math.max(1,e?e.first_line:t.first_line-3),n=Math.max(1,r?r.last_line:t.last_line+1),a=1+Math.log10(1|n)|0,o=new Array(a).join(" "),l=[[],[],[]],h=s.slice(i-1,n+1).map((function(e,r){var s,n=r+i,h=(o+n).substr(-a)+": "+e,c=new Array(a+1).join("^"),u=3,p=0;(n===t.first_line?(u+=t.first_column,p=Math.max(2,(n===t.last_line?t.last_column:e.length)-t.first_column+1)):n===t.last_line?p=Math.max(2,t.last_column+1):n>t.first_line&&n<t.last_line&&(p=Math.max(2,e.length+1)),p)?(h+="\n"+c+new Array(u).join(".")+new Array(p).join("^"),s=1):n<t.first_line?s=0:n>t.last_line&&(s=2);return e.trim().length>0&&l[s].push(r),h=h.replace(/\t/g," ")})),c=0;c<=2;c++){var u=l[c];if(u.length>4){var p=u[1]+1,y=u[u.length-2]-1,_=new Array(a+1).join(" ")+"  (...continued...)";1===c&&(_+="\n"+new Array(a+1).join("-")+"  (---------------)"),h.splice(p,y-p+1,_)}}return h.join("\n")},describeYYLLOC:function(t,e){var r,s=t.first_line,i=t.last_line,n=t.first_column,a=t.last_column;if(0===i-s?(r="line "+s+", ",r+=a-n<=1?"column "+n:"columns "+n+" .. "+a):r="lines "+s+"(column "+n+") .. "+i+"(column "+a+")",t.range&&e){var o=t.range[0],l=t.range[1]-1;r+=l<=o?" {String Offset: "+o+"}":" {String Offset range: "+o+" .. "+l+"}"}return r},test_match:function(t,e){var r,s,i,n,a;if(this.options.backtrack_lexer&&(i={yylineno:this.yylineno,yylloc:{first_line:this.yylloc.first_line,last_line:this.yylloc.last_line,first_column:this.yylloc.first_column,last_column:this.yylloc.last_column,range:this.yylloc.range.slice(0)},yytext:this.yytext,match:this.match,matches:this.matches,matched:this.matched,yyleng:this.yyleng,offset:this.offset,_more:this._more,_input:this._input,yy:this.yy,conditionStack:this.conditionStack.slice(0),done:this.done}),a=(n=t[0]).length,(s=n.split(/(?:\r\n?|\n)/g)).length>1?(this.yylineno+=s.length-1,this.yylloc.last_line=this.yylineno+1,this.yylloc.last_column=s[s.length-1].length):this.yylloc.last_column+=a,this.yytext+=n,this.match+=n,this.matched+=n,this.matches=t,this.yyleng=this.yytext.length,this.yylloc.range[1]+=a,this.offset+=a,this._more=!1,this._backtrack=!1,this._input=this._input.slice(a),r=this.performAction.call(this,this.yy,e,this.conditionStack[this.conditionStack.length-1]),this.done&&this._input&&(this.done=!1),r)return r;if(this._backtrack){for(var o in i)this[o]=i[o];return this.__currentRuleSet__=null,!1}return!!this._signaled_error_token&&(r=this._signaled_error_token,this._signaled_error_token=!1,r)},next:function(){if(this.done)return this.clear(),this.EOF;var t,e,r,s;this._input||(this.done=!0),this._more||this.clear();var i=this.__currentRuleSet__;if(!(i||(i=this.__currentRuleSet__=this._currentRules())&&i.rules)){var n="";this.options.trackPosition&&(n=" on line "+(this.yylineno+1));var a=this.constructLexErrorInfo("Internal lexer engine error"+n+': The lex grammar programmer pushed a non-existing condition name "'+this.topState()+'"; this is a fatal error and should be reported to the application programmer team!',!1);return this.parseError(a.errStr,a,this.JisonLexerError)||this.ERROR}for(var o=i.rules,l=i.__rule_regexes,h=i.__rule_count,c=1;c<=h;c++)if((r=this._input.match(l[c]))&&(!e||r[0].length>e[0].length)){if(e=r,s=c,this.options.backtrack_lexer){if(!1!==(t=this.test_match(r,o[c])))return t;if(this._backtrack){e=void 0;continue}return!1}if(!this.options.flex)break}if(e)return!1!==(t=this.test_match(e,o[s]))&&t;if(this._input){n="";this.options.trackPosition&&(n=" on line "+(this.yylineno+1));a=this.constructLexErrorInfo("Lexical error"+n+": Unrecognized text.",this.options.lexerErrorsAreRecoverable);var u=this._input,p=this.topState(),y=this.conditionStack.length;return(t=this.parseError(a.errStr,a,this.JisonLexerError)||this.ERROR)===this.ERROR&&(this.matches||u!==this._input||p!==this.topState()||y!==this.conditionStack.length||this.input()),t}return this.done=!0,this.clear(),this.EOF},lex:function(){var t;for("function"==typeof this.pre_lex&&(t=this.pre_lex.call(this,0)),"function"==typeof this.options.pre_lex&&(t=this.options.pre_lex.call(this,t)||t),this.yy&&"function"==typeof this.yy.pre_lex&&(t=this.yy.pre_lex.call(this,t)||t);!t;)t=this.next();return this.yy&&"function"==typeof this.yy.post_lex&&(t=this.yy.post_lex.call(this,t)||t),"function"==typeof this.options.post_lex&&(t=this.options.post_lex.call(this,t)||t),"function"==typeof this.post_lex&&(t=this.post_lex.call(this,t)||t),t},fastLex:function(){for(var t;!t;)t=this.next();return t},canIUse:function(){return{fastLex:!("function"==typeof this.pre_lex||"function"==typeof this.options.pre_lex||this.yy&&"function"==typeof this.yy.pre_lex||this.yy&&"function"==typeof this.yy.post_lex||"function"==typeof this.options.post_lex||"function"==typeof this.post_lex)&&"function"==typeof this.fastLex}},begin:function(t){return this.pushState(t)},pushState:function(t){return this.conditionStack.push(t),this.__currentRuleSet__=null,this},popState:function(){return this.conditionStack.length-1>0?(this.__currentRuleSet__=null,this.conditionStack.pop()):this.conditionStack[0]},topState:function(t){return(t=this.conditionStack.length-1-Math.abs(t||0))>=0?this.conditionStack[t]:"INITIAL"},_currentRules:function(){return this.conditionStack.length&&this.conditionStack[this.conditionStack.length-1]?this.conditions[this.conditionStack[this.conditionStack.length-1]]:this.conditions.INITIAL},stateStackSize:function(){return this.conditionStack.length},options:{trackPosition:!0},JisonLexerError:t,performAction:function(t,e,r){var s=this;switch(e){case 1:
-/*! Conditions:: INITIAL */ /*! Rule::       \.\.\.\w+ */
-return x("spread"),5;case 3:
-/*! Conditions:: INITIAL */ /*! Rule::       \s*[^= ,]+ */
-return this.pushState("AFTER_NAME"),3;case 4:
-/*! Conditions:: AFTER_NAME */ /*! Rule::       \s*=\s* */
-return this.popState(),this.pushState("AFTER_EQ"),4;case 5:case 6:case 7:case 10:case 15:
-/*! Conditions:: AFTER_EQ */ /*! Rule::       .+ */
-return this.popState(),6;case 8:case 9:
-/*! Conditions:: AFTER_EQ */ /*! Rule::       '([^']|\\')+' */
-return this.popState(),this.pushState("VARS"),7;case 11:
-/*! Conditions:: AFTER_EQ */ /*! Rule::       [^=]+=(?!>) */x("<AFTER_EQ>[^=]+'='"),x("1 yy_.yytext=",s.yytext);const t=function(t){let e=t.length-2,r=-1;for(;-1==r&&e>-1;){const s=t.charAt(e);/\w/.test(s)&&(r=e),e--}const s=t.substring(0,r);return Math.max(s.lastIndexOf(" "),s.lastIndexOf(","))}(s.yytext);x("lastSepIndex=",t),x("yy_.yytext.length=",s.yytext.length);const r=s.yytext.substring(t);return x("nextToken=",r),this.unput(r),s.yytext=s.yytext.substring(0,t),s.yytext=s.yytext.removeFromEnd(" "),s.yytext=s.yytext.removeFromEnd(","),x("2 yy_.yytext="+s.yytext),this.popState(),this.popState(),6;case 12:
-/*! Conditions:: VARS */ /*! Rule::       \s*\+\s*\w+ */return["VAR","PLUS"];case 13:
-/*! Conditions:: VARS */ /*! Rule::       ,\s* */
-return this.popState(),10;case 14:
-/*! Conditions:: VARS */ /*! Rule::       {space} */
-return this.popState(),9;case 16:
-/*! Conditions:: AFTER_NAME */ /*! Rule::       ,{space}* */
-return x("<AFTER_NAME>','"),this.popState(),10;case 17:
-/*! Conditions:: AFTER_NAME */ /*! Rule::       {space} */
-return x("<AFTER_NAME>{space}"),this.popState(),9;default:return this.simpleCaseActionClusters[e]}},simpleCaseActionClusters:{
-/*! Conditions:: INITIAL */ /*! Rule::       ,\s* */0:10,
-/*! Conditions:: INITIAL */ /*! Rule::       {space} */2:9},rules:[/^(?:,\s*)/,/^(?:\.\.\.\w+)/,/^(?:([   -​\u2028\u2029　]))/,/^(?:\s*[^= ,]+)/,/^(?:\s*=\s*)/,/^(?:\[[^\]]+\])/,/^(?:\{[^}]+\})/,/^(?:"[^"]+")/,/^(?:'([^']|\\')+'\s*$)/,/^(?:'([^']|\\')+')/,/^(?:\w+\(\))/,/^(?:[^=]+=(?!>))/,/^(?:\s*\+\s*\w+)/,/^(?:,\s*)/,/^(?:([   -​\u2028\u2029　]))/,/^(?:.+)/,/^(?:,([   -​\u2028\u2029　])*)/,/^(?:([   -​\u2028\u2029　]))/],conditions:{AFTER_NAME:{rules:[4,16,17],inclusive:!1},AFTER_EQ:{rules:[5,6,7,8,9,10,11,15],inclusive:!1},VARS:{rules:[12,13,14],inclusive:!1},INITIAL:{rules:[0,1,2,3],inclusive:!0}}};return e}();b.lexer=E;const x=s("pug-line-lexer:attrs");let T=!1;function A(){this.yy={}}b.main=function(){function r(r,s,i=!0){T=!1,!1,x(`\nTesting '${r}'...`);var n=b.parse(r);let a;x(r+" ==> ",e.inspect(n)),a=i?t.deepEqual:dyp,a.call({},n,s)}T=!1,!1,r("abc,",[{name:"abc"}]),r("foo, bar, baz",[{name:"foo"},{name:"bar"},{name:"baz"}]),r("value='foo' selected",[{name:"value",val:"'foo'"},{name:"selected"}]),r("selected value='bar'",[{name:"selected"},{name:"value",val:"'bar'"}]),r("name='viewport' content='width=device-width'",[{name:"name",val:"'viewport'"},{name:"content",val:"'width=device-width'"}]),r("content='I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'",[{name:"content",val:"'I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'"}]),r("property='og:description' content='I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'",[{name:"property",val:"'og:description'"},{name:"content",val:"'I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'"}]),r("foo=null bar=bar",[{name:"foo",val:"null"},{name:"bar",val:"bar"}]),r("data-epoc=new Date(0)",[{name:"data-epoc",val:"new Date(0)"}]),r('class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")',[{name:"class",val:'(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'}]),r("id=id",[{name:"id",val:"id"}]),r("class=['foo', 'bar', 'baz']",[{name:"class",val:"['foo', 'bar', 'baz']"}]),r("class='bar'",[{name:"class",val:"'bar'"}]),r('data-escaped={message: "Let\'s rock!"}',[{name:"data-escaped",val:'{message: "Let\'s rock!"}'}]),r("data-items=[1,2,3]",[{name:"data-items",val:"[1,2,3]"}]),r("href  =  '/user/' + id, class  =  'button'",[{name:"href",val:"'/user/' + id"},{name:"class",val:"'button'"}]),r("href='/user/' + id, class='button'",[{name:"href",val:"'/user/' + id"},{name:"class",val:"'button'"}]),r("key='answer', value=answer()",[{name:"key",val:"'answer'"},{name:"value",val:"answer()"}]),r("class = ['class1', 'class2']",[{name:"class",val:"['class1', 'class2']"}]),r("href='/user/' + id class='button'",[{name:"href",val:"'/user/' + id"},{name:"class",val:"'button'"}]),r("href  =  '/user/' + id class  =  'button'",[{name:"href",val:"'/user/' + id"},{name:"class",val:"'button'"}]),r("key='answer' value=answer()",[{name:"key",val:"'answer'"},{name:"value",val:"answer()"}]),r("class = ['class1', 'class2']",[{name:"class",val:"['class1', 'class2']"}]),r("class = ['class1', 'class2']",[{name:"class",val:"['class1', 'class2']"}]),r("...object",[{name:"...object",val:"...object"}]),r('...object after="after"',[{name:"...object",val:"...object"},{name:"after",val:'"after"'}]),r('before="before" ...object',[{name:"before",val:'"before"'},{name:"...object",val:"...object"}]),r('before="before" ...object after="after"',[{name:"before",val:'"before"'},{name:"...object",val:"...object"},{name:"after",val:'"after"'}])},A.prototype=b,b.Parser=A;var S={parser:b,Parser:A,parse:function(){return b.parse.apply(b,arguments)}};function k(t,e){var r;if(Object.defineProperty(this,"name",{enumerable:!1,writable:!1,value:"JisonParserError"}),null==t&&(t="???"),Object.defineProperty(this,"message",{enumerable:!1,writable:!0,value:t}),this.hash=e,e&&e.exception instanceof Error){var s=e.exception;this.message=s.message||t,r=s.stack}r||(Error.hasOwnProperty("captureStackTrace")?Error.captureStackTrace(this,this.constructor):r=new Error(t).stack),r&&Object.defineProperty(this,"stack",{enumerable:!1,writable:!1,value:r})}function R(t,e,r){r=r||0;for(var s=0;s<e;s++)this.push(t),t+=r}function N(t,e){for(e+=t=this.length-t;t<e;t++)this.push(this[t])}function P(t){for(var e=[],r=0,s=t.length;r<s;r++){var i=t[r];"function"==typeof i?(r++,i.apply(e,t[r])):e.push(i)}return e}"function"==typeof Object.setPrototypeOf?Object.setPrototypeOf(k.prototype,Error.prototype):k.prototype=Object.create(Error.prototype),k.prototype.constructor=k,k.prototype.name="JisonParserError";var O={trace:function(){},JisonParserError:k,yy:{},options:{type:"lalr",hasPartialLrUpgradeOnConflict:!0,errorRecoveryTokenDiscardCount:3,tokenStack:!0,ebnf:!0},symbols_:{$accept:0,$end:1,ASSIGNMENT:34,ASSIGNMENT_VALUE:33,ATTR_TEXT:31,ATTR_TEXT_CONT:7,ATTR_TEXT_END:6,AT_ATTRS:8,CLASSNAME:12,COMMENT:18,CONDITION:32,CONDITIONAL:26,DOT_END:24,EOF:1,FILTER:30,HTML_COMMENT:9,INTERP_END:29,INTERP_START:27,INTERP_VAL:28,KEYWORD:21,LPAREN:11,MIXIN_CALL:20,MIXIN_PARAMS:13,NESTED_TAG_START:5,PIPE:22,RCURLY:23,RPAREN:14,SPACE:25,TAG:15,TAG_ID:17,TEXT:3,TEXT_TAG:16,UNBUF_CODE:4,UNBUF_CODE_BLOCK:19,UNBUF_CODE_BLOCK_START:10,attrs:40,classnames:41,classnames_repetition_plus:45,error:2,first_token:38,line:36,line_end:42,line_splitter:43,line_start:37,line_start_option:44,start:35,tag_part:39},terminals_:{1:"EOF",2:"error",3:"TEXT",4:"UNBUF_CODE",5:"NESTED_TAG_START",6:"ATTR_TEXT_END",7:"ATTR_TEXT_CONT",8:"AT_ATTRS",9:"HTML_COMMENT",10:"UNBUF_CODE_BLOCK_START",11:"LPAREN",12:"CLASSNAME",13:"MIXIN_PARAMS",14:"RPAREN",15:"TAG",16:"TEXT_TAG",17:"TAG_ID",18:"COMMENT",19:"UNBUF_CODE_BLOCK",20:"MIXIN_CALL",21:"KEYWORD",22:"PIPE",23:"RCURLY",24:"DOT_END",25:"SPACE",26:"CONDITIONAL",27:"INTERP_START",28:"INTERP_VAL",29:"INTERP_END",30:"FILTER",31:"ATTR_TEXT",32:"CONDITION",33:"ASSIGNMENT_VALUE",34:"ASSIGNMENT"},TERROR:2,EOF:1,originalQuoteName:null,originalParseError:null,cleanupAfterParse:null,constructParseErrorInfo:null,yyMergeLocationInfo:null,__reentrant_call_depth:0,__error_infos:[],__error_recovery_infos:[],quoteName:function(t){return'"'+t+'"'},getSymbolName:function(t){if(this.terminals_[t])return this.terminals_[t];var e=this.symbols_;for(var r in e)if(e[r]===t)return r;return null},describeSymbol:function(t){if(t!==this.EOF&&this.terminal_descriptions_&&this.terminal_descriptions_[t])return this.terminal_descriptions_[t];if(t===this.EOF)return"end of input";var e=this.getSymbolName(t);return e?this.quoteName(e):null},collect_expected_token_set:function(t,e){var r=this.TERROR,s=[],i={};if(!e&&this.state_descriptions_&&this.state_descriptions_[t])return[this.state_descriptions_[t]];for(var n in this.table[t])if((n=+n)!==r){var a=e?n:this.describeSymbol(n);a&&!i[a]&&(s.push(a),i[a]=!0)}return s},productions_:function(t){for(var e=[],r=t.pop,s=t.rule,i=0,n=r.length;i<n;i++)e.push([r[i],s[i]]);return e}({pop:P([35,35,R,[36,10],R,[37,9],R,[38,17],R,[39,5],40,40,41,R,[42,6],R,[43,3],44,44,45,45]),rule:P([1,2,1,2,2,3,3,1,N,[8,3],N,[4,3],2,3,4,3,3,4,4,R,[1,15],N,[30,5],2,1,N,[38,3],0,R,[1,8],N,[9,3],2])}),performAction:function(t,e,s){var n=this.yy;n.parser,n.lexer;switch(t){case 0:case 2:
-/*! Production::    start : line EOF */
-this.$=s[e-1];break;case 1:
-/*! Production::    start : EOF */case 3:
-/*! Production::    line : line_start */case 13:
-/*! Production::    line_start : first_token */case 41:case 57:
-/*! Production::    line_start_option : ATTR_TEXT_CONT */this.$=s[e];break;case 4:
-/*! Production::    line : line_start TEXT */L("line: line_start TEXT: $line_start=",s[e-1],", $TEXT=",s[e]),this.$=j(s[e-1],{type:"text",val:s[e]});break;case 5:
-/*! Production::    line : line_start UNBUF_CODE */this.$=j(s[e-1],{type:"unbuf_code",val:s[e],state:"UNBUF_CODE"});break;case 6:
-/*! Production::    line : line_start line_splitter line_end */L("line: line_start line_splitter line_end: $line_start=",s[e-2],", $line_end=",s[e]),null==s[e]?this.$=j(s[e-2],s[e-1]):s[e].hasOwnProperty("type")&&"array"==s[e].type?this.$=j(s[e-2],[s[e-1],{children:s[e].val}]):this.$=j(s[e-2],[s[e-1],s[e]]);break;case 7:
-/*! Production::    line : line_start NESTED_TAG_START line */this.$=j(s[e-2],{state:"NESTED",children:[s[e]]});break;case 8:
-/*! Production::    line : ATTR_TEXT_END */this.$={type:"attrs_end",val:S.parse(s[e])};break;case 9:
-/*! Production::    line : ATTR_TEXT_CONT */this.$={type:"attrs_cont",val:S.parse(s[e]),state:"MULTI_LINE_ATTRS"};break;case 10:if(
-/*! Production::    line : line_start AT_ATTRS */L("line: line_start AT_ATTRS: $AT_ATTRS=",s[e]),s[e].includes("{")&&s[e].includes("}")){let t=Function("return ("+s[e].substring(12,s[e].length-1)+")"),r=Object.entries(t());L("entries2=",r);let i=Object.entries(r).map((([t,[e,r]])=>(L("name=",e,"value=",r),{name:e,val:r})));this.$=j(s[e-1],{type:"tag",attrs:i})}else this.$=j(s[e-1],{type:"tag",attrs:[{val:s[e].substring(12,s[e].length-1)}]});break;case 11:if(
-/*! Production::    line : HTML_COMMENT */L("$HTML_COMMENT=",s[e]),s[e].includes("#")){let t=M(s[e],this.yy.parser);L("elemsReturned",JSON.stringify(t)),this.$={type:"html_comment",children:t}}else this.$={type:"html_comment",val:s[e]};break;case 12:
-/*! Production::    line : UNBUF_CODE_BLOCK_START */this.$={type:"unbuf_code_block",state:"UNBUF_CODE_BLOCK"};break;case 14:
-/*! Production::    line_start : first_token tag_part */L("line_start: first_token tag_part"),this.$=j(s[e-1],s[e]);break;case 15:
-/*! Production::    line_start : first_token attrs */L("line_start: first_token attrs"),this.$=j(s[e-1],s[e]);break;case 16:if(
-/*! Production::    line_start : first_token LPAREN line_start_option */L("line_start: first_token LPAREN ATTR_TEXT_CONT?"),this.$=j(s[e-2],{state:"MULTI_LINE_ATTRS"}),s[e]){L("3 Calling parseAttrs with ",s[e]);try{this.$=j(s[e-2],{attrs_start:S.parse(s[e])})}catch(t){console.error("Could not parse attributes="+s[e],t)}}break;case 17:
-/*! Production::    line_start : first_token tag_part LPAREN ATTR_TEXT_CONT */L("line_start: first_token tag_part LPAREN ATTR_TEXT_CONT"),this.$=j(s[e-3],[s[e-2],s[e]]);break;case 18:
-/*! Production::    line_start : first_token tag_part attrs */L("line_start: first_token tag_part attrs"),this.$=j(s[e-2],[s[e-1],s[e]]);break;case 19:
-/*! Production::    line_start : first_token attrs CLASSNAME */this.$=j(s[e-2],[s[e-1],{attrs:[{name:"class",val:D(s[e])}]}]);break;case 20:
-/*! Production::    line_start : first_token tag_part attrs CLASSNAME */L("first_token tag_part attrs CLASSNAME: first_token=",s[e-3],", tag_part=",s[e-2],", attrs=",s[e-1],", CLASSNAME=",s[e]),this.$=j(s[e-3],[s[e-2],s[e-1],{attrs:[{name:"class",val:D(s[e])}]}]);break;case 21:
-/*! Production::    line_start : first_token LPAREN MIXIN_PARAMS RPAREN */this.$=j(s[e-3],{params:s[e-1]});break;case 22:
-/*! Production::    first_token : TAG */this.$={name:s[e],type:"tag"};break;case 23:
-/*! Production::    first_token : TEXT_TAG */this.$={name:s[e],type:"tag",state:"TEXT_START"};break;case 24:
-/*! Production::    first_token : CLASSNAME */this.$={type:"tag",attrs:[{name:"class",val:D(s[e])}]};break;case 25:
-/*! Production::    first_token : TAG_ID */this.$={type:"tag",id:s[e]};break;case 26:case 52:
-/*! Production::    line_end : RPAREN */this.$={type:"text",val:s[e]};break;case 27:
-/*! Production::    first_token : COMMENT */this.$={type:"comment",state:"TEXT_START"};break;case 28:
-/*! Production::    first_token : UNBUF_CODE */case 51:
-/*! Production::    line_end : UNBUF_CODE */this.$={type:"unbuf_code",val:s[e],state:"UNBUF_CODE"};break;case 29:
-/*! Production::    first_token : UNBUF_CODE_BLOCK */this.$={type:"unbuf_code",val:s[e],state:"UNBUF_CODE_BLOCK"};break;case 30:
-/*! Production::    first_token : MIXIN_CALL */L("MIXIN_CALL=",s[e]),this.$={type:"mixin_call",name:s[e].trim(),state:"MIXIN_CALL"};break;case 31:
-/*! Production::    first_token : KEYWORD */this.$={type:s[e]};break;case 32:
-/*! Production::    first_token : PIPE */this.$={type:"text"};break;case 33:
-/*! Production::    first_token : RCURLY */this.$={type:"block_end"};break;case 34:
-/*! Production::    first_token : DOT_END */L("line: DOT_END"),this.$={state:"TEXT_START"};break;case 35:
-/*! Production::    first_token : SPACE */this.$={};break;case 36:
-/*! Production::    first_token : CONDITIONAL */this.$={type:"conditional",name:s[e]};break;case 37:
-/*! Production::    first_token : INTERP_START INTERP_VAL INTERP_END */L("line: INTERP_START INTERP_VAL INTERP_END: $INTERP_VAL=",s[e-1]);const t=$.resolve({name:"anonymous",val:s[e-1].slice(2,-1)});this.$={type:"tag",name:t.val};break;case 38:
-/*! Production::    first_token : INTERP_VAL */L("line: INTERP_VAL: $INTERP_VAL=",s[e]),L("AttrResolver=",i);const n=$.resolve({name:"anonymous",val:s[e]});L("AttrResolver returned=",n),this.$={type:"text",val:n.val};break;case 39:
-/*! Production::    tag_part : TAG_ID */this.$={id:s[e]};break;case 40:
-/*! Production::    tag_part : TAG_ID classnames */this.$=j({id:s[e-1]},s[e]);break;case 42:
-/*! Production::    tag_part : classnames TAG_ID */this.$=j({id:s[e]},s[e-1]);break;case 43:
-/*! Production::    tag_part : FILTER */this.$={filter:s[e]};break;case 44:
-/*! Production::    attrs : LPAREN ATTR_TEXT RPAREN */L("1 Calling parseAttrs with ",s[e-1]),this.$={};try{const t=S.parse(s[e-1].trim());L("attrs=",t),t.forEach((t=>{r.isEmpty(t)||(this.$=j(this.$,{attrs:[t]}))}))}catch(t){console.error("Error parsing "+s[e-1],t)}break;case 45:
-/*! Production::    attrs : LPAREN CONDITION RPAREN */L("attrs: LPAREN CONDITION RPAREN"),this.$={condition:s[e-1]};break;case 46:
-/*! Production::    classnames : classnames_repetition_plus */let a=s[e].map((t=>({name:"class",val:D(t)})));this.$={type:"tag",attrs:a};break;case 47:
-/*! Production::    line_end : %epsilon */
-this.$=void 0,L("line_end: <blank>");break;case 48:
-/*! Production::    line_end : DOT_END */L("line_end: DOT_END"),this.$={state:"TEXT_START"};break;case 49:
-/*! Production::    line_end : ASSIGNMENT_VALUE */this.$={assignment_val:s[e]};break;case 50:if(
-/*! Production::    line_end : TEXT */L("line_end: TEXT: $TEXT=",s[e]),s[e].includes("#")){let t=M(s[e],this.yy.parser);L("elemsReturned",t),this.$={children:t}}else this.$={type:"text",val:s[e]};break;case 53:
-/*! Production::    line_splitter : SPACE */L("line_splitter: SPACE"),this.$={};break;case 54:
-/*! Production::    line_splitter : ASSIGNMENT */this.$={assignment:!0};break;case 55:
-/*! Production::    line_splitter : DOT_END */L("line_splitter: DOT_END"),this.$={state:"TEXT_START"};break;case 56:
-/*! Production::    line_start_option : %epsilon */this.$=void 0;break;case 58:
-/*! Production::    classnames_repetition_plus : CLASSNAME */this.$=[s[e]];break;case 59:
-/*! Production::    classnames_repetition_plus : classnames_repetition_plus CLASSNAME */s[e-1].push(s[e]),this.$=s[e-1]}},table:function(t){for(var e=[],r=t.len,s=t.symbol,i=t.type,n=t.state,a=t.mode,o=t.goto,l=0,h=r.length;l<h;l++){for(var c=r[l],u={},p=0;p<c;p++){var y=s.shift();switch(i.shift()){case 2:u[y]=[a.shift(),o.shift()];break;case 0:u[y]=n.shift();break;default:u[y]=[3]}}e.push(u)}return e}({len:P([26,1,0,1,9,R,[0,4],16,R,[0,15],1,R,[0,4],7,24,R,[0,4],10,9,13,12,10,0,11,N,[19,6],R,[0,3],3,N,[49,3],R,[1,3],R,[0,10]]),symbol:P([1,3,4,6,7,9,10,12,R,[15,14,1],R,[35,4,1],R,[1,3],3,4,5,8,24,25,34,43,N,[9,5],11,12,17,24,25,30,34,39,40,41,45,28,N,[17,3],14,24,33,42,N,[60,21],N,[59,4],N,[48,5],N,[58,3],40,N,[10,5],12,N,[10,3],N,[9,4],7,8,13,24,25,31,32,34,44,N,[80,7],N,[23,3],41,45,N,[12,6],N,[91,3],N,[35,5],N,[102,6],34,29,7,31,32,N,[59,9],R,[14,3]]),type:P([R,[2,22],R,[0,4],1,N,[14,10],N,[27,16],N,[24,20],N,[33,12],N,[58,22],N,[22,20],N,[44,11],R,[2,28]]),state:P([1,3,4,9,30,36,37,40,42,45,51,4,9,53,55,60,42]),mode:P([R,[1,23],2,N,[8,8],R,[2,4],N,[8,5],N,[19,3],N,[21,8],N,[48,20],N,[40,5],R,[2,8],N,[9,8],N,[52,4],N,[53,3],N,[22,15],N,[10,17],N,[65,13],R,[1,3]]),goto:P([2,14,16,R,[5,4,1],12,10,R,[11,4,2],R,[18,10,1],3,28,29,31,32,35,33,34,R,[13,5],38,43,39,13,13,41,13,44,R,[47,4,1],46,47,N,[49,21],R,[14,5],52,R,[14,3],R,[15,5],54,R,[15,3],R,[56,4],59,R,[56,4],57,58,56,R,[39,6],43,R,[39,3],R,[41,6],61,R,[41,3],R,[46,6],62,R,[46,4],63,64,57,58,R,[18,5],65,R,[18,3],66,67,68])}),defaultActions:function(t){for(var e={},r=t.idx,s=t.goto,i=0,n=r.length;i<n;i++){e[r[i]]=s[i]}return e}({idx:P([2,R,[5,4,1],R,[10,15,1],R,[26,4,1],R,[32,4,1],41,43,R,[45,7,1],54,55,R,[59,10,1]]),goto:P([1,8,9,11,12,R,[22,15,1],38,2,4,5,10,53,54,55,43,58,6,R,[48,5,1],7,19,16,57,40,42,59,37,17,20,21,44,45])}),parseError:function(t,e,r){if(!e.recoverable)throw"function"==typeof this.trace&&this.trace(t),r||(r=this.JisonParserError),new r(t,e);"function"==typeof this.trace&&this.trace(t),e.destroy()},parse:function(t){var e,r=this,s=new Array(128),i=new Array(128),n=[],a=new Array(128),o=this.table,l=0,h=0,c=(this.TERROR,this.EOF),u=(this.options.errorRecoveryTokenDiscardCount,[0,69]);e=this.__lexer__?this.__lexer__:this.__lexer__=Object.create(this.lexer);var p,y,_,f,m={parseError:void 0,quoteName:void 0,lexer:void 0,parser:void 0,pre_parse:void 0,post_parse:void 0,pre_lex:void 0,post_lex:void 0};function g(){var t;return"number"!=typeof(t=n.pop()||e.lex()||c)&&(t instanceof Array&&(t=(n=t).pop()),"number"!=typeof t&&(t=r.symbols_[t]||t)),t||c}this.yyGetSharedState=function(){return m},function(t,e){for(var r in e)void 0===t[r]&&Object.prototype.hasOwnProperty.call(e,r)&&(t[r]=e[r])}(m,this.yy),m.lexer=e,m.parser=this,"function"==typeof m.parseError?this.parseError=function(t,e,r){return r||(r=this.JisonParserError),m.parseError.call(this,t,e,r)}:this.parseError=this.originalParseError,"function"==typeof m.quoteName?this.quoteName=function(t){return m.quoteName.call(this,t)}:this.quoteName=this.originalQuoteName,this.cleanupAfterParse=function(t,r,n){var o,h;r&&((m.post_parse||this.post_parse)&&(h=this.constructParseErrorInfo(null,null,null,!1)),m.post_parse&&void 0!==(o=m.post_parse.call(this,m,t,h))&&(t=o),this.post_parse&&void 0!==(o=this.post_parse.call(this,m,t,h))&&(t=o),h&&h.destroy&&h.destroy());if(this.__reentrant_call_depth>1)return t;if(e.cleanupAfterLex&&e.cleanupAfterLex(n),m&&(m.lexer=void 0,m.parser=void 0,e.yy===m&&(e.yy=void 0)),m=void 0,this.parseError=this.originalParseError,this.quoteName=this.originalQuoteName,s.length=0,i.length=0,a.length=0,l=0,!n){for(var c=this.__error_infos.length-1;c>=0;c--){var u=this.__error_infos[c];u&&"function"==typeof u.destroy&&u.destroy()}this.__error_infos.length=0}return t},this.constructParseErrorInfo=function(t,r,n,o){var c={errStr:t,exception:r,text:e.match,value:e.yytext,token:this.describeSymbol(h)||h,token_id:h,line:e.yylineno,expected:n,recoverable:o,state:p,action:y,new_state:E,symbol_stack:s,state_stack:i,value_stack:a,stack_pointer:l,yy:m,lexer:e,parser:this,destroy:function(){var t=!!this.recoverable;for(var e in this)this.hasOwnProperty(e)&&"object"==typeof e&&(this[e]=void 0);this.recoverable=t}};return this.__error_infos.push(c),c};var d,v,b,E,x={$:!0,_$:void 0,yy:m},T=!1;try{if(this.__reentrant_call_depth++,e.setInput(t,m),"function"==typeof e.canIUse)e.canIUse().fastLex&&"function"==typeof fastLex&&(g=fastLex);for(a[l]=null,i[l]=0,s[l]=0,++l,this.pre_parse&&this.pre_parse.call(this,m),m.pre_parse&&m.pre_parse.call(this,m),E=i[l-1];;){if(p=E,this.defaultActions[p])y=2,E=this.defaultActions[p];else if(h||(h=g()),f=o[p]&&o[p][h]||u,E=f[1],!(y=f[0])){var A,S=this.describeSymbol(h)||h,k=this.collect_expected_token_set(p);A="number"==typeof e.yylineno?"Parse error on line "+(e.yylineno+1)+": ":"Parse error: ","function"==typeof e.showPosition&&(A+="\n"+e.showPosition(69,10)+"\n"),k.length?A+="Expecting "+k.join(", ")+", got unexpected "+S:A+="Unexpected "+S,d=this.constructParseErrorInfo(A,null,k,!1),void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_);break}switch(y){default:if(y instanceof Array){d=this.constructParseErrorInfo("Parse Error: multiple actions possible at state: "+p+", token: "+h,null,null,!1),void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_);break}d=this.constructParseErrorInfo("Parsing halted. No viable error recovery approach available due to internal system failure.",null,null,!1),void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_);break;case 1:s[l]=h,a[l]=e.yytext,i[l]=E,++l,h=0;continue;case 2:if(v=(b=this.productions_[E-1])[1],void 0!==(_=this.performAction.call(x,E,l-1,a))){T=_;break}l-=v;var R=b[0];s[l]=R,a[l]=x.$,E=o[i[l-1]][R],i[l]=E,++l;continue;case 3:-2!==l&&(T=!0,l--,void 0!==a[l]&&(T=a[l]))}break}}catch(t){if(t instanceof this.JisonParserError)throw t;if(e&&"function"==typeof e.JisonLexerError&&t instanceof e.JisonLexerError)throw t;d=this.constructParseErrorInfo("Parsing aborted due to exception.",t,null,!1),T=!1,void 0!==(_=this.parseError(d.errStr,d,this.JisonParserError))&&(T=_)}finally{T=this.cleanupAfterParse(T,!0,!0),this.__reentrant_call_depth--}return T}};O.originalParseError=O.parseError,O.originalQuoteName=O.quoteName;var w=function(){function t(t,e){var r;if(Object.defineProperty(this,"name",{enumerable:!1,writable:!1,value:"JisonLexerError"}),null==t&&(t="???"),Object.defineProperty(this,"message",{enumerable:!1,writable:!0,value:t}),this.hash=e,e&&e.exception instanceof Error){var s=e.exception;this.message=s.message||t,r=s.stack}r||(Error.hasOwnProperty("captureStackTrace")?Error.captureStackTrace(this,this.constructor):r=new Error(t).stack),r&&Object.defineProperty(this,"stack",{enumerable:!1,writable:!1,value:r})}"function"==typeof Object.setPrototypeOf?Object.setPrototypeOf(t.prototype,Error.prototype):t.prototype=Object.create(Error.prototype),t.prototype.constructor=t,t.prototype.name="JisonLexerError";var e={EOF:1,ERROR:2,__currentRuleSet__:null,__error_infos:[],__decompressed:!1,done:!1,_backtrack:!1,_input:"",_more:!1,_signaled_error_token:!1,conditionStack:[],match:"",matched:"",matches:!1,yytext:"",offset:0,yyleng:0,yylineno:0,yylloc:null,constructLexErrorInfo:function(t,e,r){if(t=""+t,null==r&&(r=!(t.indexOf("\n")>0&&t.indexOf("^")>0)),this.yylloc&&r)if("function"==typeof this.prettyPrintRange){this.prettyPrintRange(this.yylloc);/\n\s*$/.test(t)||(t+="\n"),t+="\n  Erroneous area:\n"+this.prettyPrintRange(this.yylloc)}else if("function"==typeof this.showPosition){var s=this.showPosition();s&&(t.length&&"\n"!==t[t.length-1]&&"\n"!==s[0]?t+="\n"+s:t+=s)}var i={errStr:t,recoverable:!!e,text:this.match,token:null,line:this.yylineno,loc:this.yylloc,yy:this.yy,lexer:this,destroy:function(){var t=!!this.recoverable;for(var e in this)this.hasOwnProperty(e)&&"object"==typeof e&&(this[e]=void 0);this.recoverable=t}};return this.__error_infos.push(i),i},parseError:function(t,e,r){if(r||(r=this.JisonLexerError),this.yy){if(this.yy.parser&&"function"==typeof this.yy.parser.parseError)return this.yy.parser.parseError.call(this,t,e,r)||this.ERROR;if("function"==typeof this.yy.parseError)return this.yy.parseError.call(this,t,e,r)||this.ERROR}throw new r(t,e)},yyerror:function(t){var e="";this.yylloc&&(e=" on line "+(this.yylineno+1));var r=this.constructLexErrorInfo("Lexical error"+e+": "+t,this.options.lexerErrorsAreRecoverable),s=Array.prototype.slice.call(arguments,1);return s.length&&(r.extra_error_attributes=s),this.parseError(r.errStr,r,this.JisonLexerError)||this.ERROR},cleanupAfterLex:function(t){if(this.setInput("",{}),!t){for(var e=this.__error_infos.length-1;e>=0;e--){var r=this.__error_infos[e];r&&"function"==typeof r.destroy&&r.destroy()}this.__error_infos.length=0}return this},clear:function(){this.yytext="",this.yyleng=0,this.match="",this.matches=!1,this._more=!1,this._backtrack=!1;var t=this.yylloc?this.yylloc.last_column:0;this.yylloc={first_line:this.yylineno+1,first_column:t,last_line:this.yylineno+1,last_column:t,range:[this.offset,this.offset]}},setInput:function(t,e){if(this.yy=e||this.yy||{},!this.__decompressed){for(var r=this.rules,s=0,i=r.length;s<i;s++){"number"==typeof(p=r[s])&&(r[s]=r[p])}var n=this.conditions;for(var a in n){var o=n[a],l=o.rules,h=(i=l.length,new Array(i+1)),c=new Array(i+1);for(s=0;s<i;s++){var u=l[s],p=r[u];h[s+1]=p,c[s+1]=u}o.rules=c,o.__rule_regexes=h,o.__rule_count=i}this.__decompressed=!0}return this._input=t||"",this.clear(),this._signaled_error_token=!1,this.done=!1,this.yylineno=0,this.matched="",this.conditionStack=["INITIAL"],this.__currentRuleSet__=null,this.yylloc={first_line:1,first_column:0,last_line:1,last_column:0,range:[0,0]},this.offset=0,this},editRemainingInput:function(t,e){var r=t.call(this,this._input,e);return"string"!=typeof r?r&&(this._input=""+r):this._input=r,this},input:function(){if(!this._input)return null;var t=this._input[0];this.yytext+=t,this.yyleng++,this.offset++,this.match+=t,this.matched+=t;var e=1,r=!1;if("\n"===t)r=!0;else if("\r"===t){r=!0;var s=this._input[1];"\n"===s&&(e++,t+=s,this.yytext+=s,this.yyleng++,this.offset++,this.match+=s,this.matched+=s,this.yylloc.range[1]++)}return r?(this.yylineno++,this.yylloc.last_line++,this.yylloc.last_column=0):this.yylloc.last_column++,this.yylloc.range[1]++,this._input=this._input.slice(e),t},unput:function(t){var e=t.length,r=t.split(/(?:\r\n?|\n)/g);if(this._input=t+this._input,this.yytext=this.yytext.substr(0,this.yytext.length-e),this.yyleng=this.yytext.length,this.offset-=e,this.match=this.match.substr(0,this.match.length-e),this.matched=this.matched.substr(0,this.matched.length-e),r.length>1){this.yylineno-=r.length-1,this.yylloc.last_line=this.yylineno+1;var s=this.match,i=s.split(/(?:\r\n?|\n)/g);1===i.length&&(i=(s=this.matched).split(/(?:\r\n?|\n)/g)),this.yylloc.last_column=i[i.length-1].length}else this.yylloc.last_column-=e;return this.yylloc.range[1]=this.yylloc.range[0]+this.yyleng,this.done=!1,this},more:function(){return this._more=!0,this},reject:function(){if(this.options.backtrack_lexer)this._backtrack=!0;else{var t="";this.yylloc&&(t=" on line "+(this.yylineno+1));var e=this.constructLexErrorInfo("Lexical error"+t+": You can only invoke reject() in the lexer when the lexer is of the backtracking persuasion (options.backtrack_lexer = true).",!1);this._signaled_error_token=this.parseError(e.errStr,e,this.JisonLexerError)||this.ERROR}return this},less:function(t){return this.unput(this.match.slice(t))},pastInput:function(t,e){var r=this.matched.substring(0,this.matched.length-this.match.length);t<0?t=r.length:t||(t=20),e<0?e=r.length:e||(e=1);var s=(r=r.substr(2*-t-2)).replace(/\r\n|\r/g,"\n").split("\n");return(r=(s=s.slice(-e)).join("\n")).length>t&&(r="..."+r.substr(-t)),r},upcomingInput:function(t,e){var r=this.match;t<0?t=r.length+this._input.length:t||(t=20),e<0?e=t:e||(e=1),r.length<2*t+2&&(r+=this._input.substring(0,2*t+2));var s=r.replace(/\r\n|\r/g,"\n").split("\n");return(r=(s=s.slice(0,e)).join("\n")).length>t&&(r=r.substring(0,t)+"..."),r},showPosition:function(t,e){var r=this.pastInput(t).replace(/\s/g," "),s=new Array(r.length+1).join("-");return r+this.upcomingInput(e).replace(/\s/g," ")+"\n"+s+"^"},deriveLocationInfo:function(t,e,r,s){var i={first_line:1,first_column:0,last_line:1,last_column:0,range:[0,0]};return t&&(i.first_line=0|t.first_line,i.last_line=0|t.last_line,i.first_column=0|t.first_column,i.last_column=0|t.last_column,t.range&&(i.range[0]=0|t.range[0],i.range[1]=0|t.range[1])),(i.first_line<=0||i.last_line<i.first_line)&&(i.first_line<=0&&e&&(i.first_line=0|e.last_line,i.first_column=0|e.last_column,e.range&&(i.range[0]=0|t.range[1])),(i.last_line<=0||i.last_line<i.first_line)&&r&&(i.last_line=0|r.first_line,i.last_column=0|r.first_column,r.range&&(i.range[1]=0|t.range[0])),i.first_line<=0&&s&&(i.last_line<=0||s.last_line<=i.last_line)&&(i.first_line=0|s.first_line,i.first_column=0|s.first_column,s.range&&(i.range[0]=0|s.range[0])),i.last_line<=0&&s&&(i.first_line<=0||s.first_line>=i.first_line)&&(i.last_line=0|s.last_line,i.last_column=0|s.last_column,s.range&&(i.range[1]=0|s.range[1]))),i.last_line<=0&&(i.first_line<=0?(i.first_line=this.yylloc.first_line,i.last_line=this.yylloc.last_line,i.first_column=this.yylloc.first_column,i.last_column=this.yylloc.last_column,i.range[0]=this.yylloc.range[0],i.range[1]=this.yylloc.range[1]):(i.last_line=this.yylloc.last_line,i.last_column=this.yylloc.last_column,i.range[1]=this.yylloc.range[1])),i.first_line<=0&&(i.first_line=i.last_line,i.first_column=0,i.range[1]=i.range[0]),i.first_column<0&&(i.first_column=0),i.last_column<0&&(i.last_column=i.first_column>0?i.first_column:80),i},prettyPrintRange:function(t,e,r){t=this.deriveLocationInfo(t,e,r);for(var s=(this.matched+this._input).split("\n"),i=Math.max(1,e?e.first_line:t.first_line-3),n=Math.max(1,r?r.last_line:t.last_line+1),a=1+Math.log10(1|n)|0,o=new Array(a).join(" "),l=[[],[],[]],h=s.slice(i-1,n+1).map((function(e,r){var s,n=r+i,h=(o+n).substr(-a)+": "+e,c=new Array(a+1).join("^"),u=3,p=0;(n===t.first_line?(u+=t.first_column,p=Math.max(2,(n===t.last_line?t.last_column:e.length)-t.first_column+1)):n===t.last_line?p=Math.max(2,t.last_column+1):n>t.first_line&&n<t.last_line&&(p=Math.max(2,e.length+1)),p)?(h+="\n"+c+new Array(u).join(".")+new Array(p).join("^"),s=1):n<t.first_line?s=0:n>t.last_line&&(s=2);return e.trim().length>0&&l[s].push(r),h=h.replace(/\t/g," ")})),c=0;c<=2;c++){var u=l[c];if(u.length>4){var p=u[1]+1,y=u[u.length-2]-1,_=new Array(a+1).join(" ")+"  (...continued...)";1===c&&(_+="\n"+new Array(a+1).join("-")+"  (---------------)"),h.splice(p,y-p+1,_)}}return h.join("\n")},describeYYLLOC:function(t,e){var r,s=t.first_line,i=t.last_line,n=t.first_column,a=t.last_column;if(0===i-s?(r="line "+s+", ",r+=a-n<=1?"column "+n:"columns "+n+" .. "+a):r="lines "+s+"(column "+n+") .. "+i+"(column "+a+")",t.range&&e){var o=t.range[0],l=t.range[1]-1;r+=l<=o?" {String Offset: "+o+"}":" {String Offset range: "+o+" .. "+l+"}"}return r},test_match:function(t,e){var r,s,i,n,a;if(this.options.backtrack_lexer&&(i={yylineno:this.yylineno,yylloc:{first_line:this.yylloc.first_line,last_line:this.yylloc.last_line,first_column:this.yylloc.first_column,last_column:this.yylloc.last_column,range:this.yylloc.range.slice(0)},yytext:this.yytext,match:this.match,matches:this.matches,matched:this.matched,yyleng:this.yyleng,offset:this.offset,_more:this._more,_input:this._input,yy:this.yy,conditionStack:this.conditionStack.slice(0),done:this.done}),a=(n=t[0]).length,(s=n.split(/(?:\r\n?|\n)/g)).length>1?(this.yylineno+=s.length-1,this.yylloc.last_line=this.yylineno+1,this.yylloc.last_column=s[s.length-1].length):this.yylloc.last_column+=a,this.yytext+=n,this.match+=n,this.matched+=n,this.matches=t,this.yyleng=this.yytext.length,this.yylloc.range[1]+=a,this.offset+=a,this._more=!1,this._backtrack=!1,this._input=this._input.slice(a),r=this.performAction.call(this,this.yy,e,this.conditionStack[this.conditionStack.length-1]),this.done&&this._input&&(this.done=!1),r)return r;if(this._backtrack){for(var o in i)this[o]=i[o];return this.__currentRuleSet__=null,!1}return!!this._signaled_error_token&&(r=this._signaled_error_token,this._signaled_error_token=!1,r)},next:function(){if(this.done)return this.clear(),this.EOF;var t,e,r,s;this._input||(this.done=!0),this._more||this.clear();var i=this.__currentRuleSet__;if(!(i||(i=this.__currentRuleSet__=this._currentRules())&&i.rules)){var n="";this.options.trackPosition&&(n=" on line "+(this.yylineno+1));var a=this.constructLexErrorInfo("Internal lexer engine error"+n+': The lex grammar programmer pushed a non-existing condition name "'+this.topState()+'"; this is a fatal error and should be reported to the application programmer team!',!1);return this.parseError(a.errStr,a,this.JisonLexerError)||this.ERROR}for(var o=i.rules,l=i.__rule_regexes,h=i.__rule_count,c=1;c<=h;c++)if((r=this._input.match(l[c]))&&(!e||r[0].length>e[0].length)){if(e=r,s=c,this.options.backtrack_lexer){if(!1!==(t=this.test_match(r,o[c])))return t;if(this._backtrack){e=void 0;continue}return!1}if(!this.options.flex)break}if(e)return!1!==(t=this.test_match(e,o[s]))&&t;if(this._input){n="";this.options.trackPosition&&(n=" on line "+(this.yylineno+1));a=this.constructLexErrorInfo("Lexical error"+n+": Unrecognized text.",this.options.lexerErrorsAreRecoverable);var u=this._input,p=this.topState(),y=this.conditionStack.length;return(t=this.parseError(a.errStr,a,this.JisonLexerError)||this.ERROR)===this.ERROR&&(this.matches||u!==this._input||p!==this.topState()||y!==this.conditionStack.length||this.input()),t}return this.done=!0,this.clear(),this.EOF},lex:function(){var t;for("function"==typeof this.pre_lex&&(t=this.pre_lex.call(this,0)),"function"==typeof this.options.pre_lex&&(t=this.options.pre_lex.call(this,t)||t),this.yy&&"function"==typeof this.yy.pre_lex&&(t=this.yy.pre_lex.call(this,t)||t);!t;)t=this.next();return this.yy&&"function"==typeof this.yy.post_lex&&(t=this.yy.post_lex.call(this,t)||t),"function"==typeof this.options.post_lex&&(t=this.options.post_lex.call(this,t)||t),"function"==typeof this.post_lex&&(t=this.post_lex.call(this,t)||t),t},fastLex:function(){for(var t;!t;)t=this.next();return t},canIUse:function(){return{fastLex:!("function"==typeof this.pre_lex||"function"==typeof this.options.pre_lex||this.yy&&"function"==typeof this.yy.pre_lex||this.yy&&"function"==typeof this.yy.post_lex||"function"==typeof this.options.post_lex||"function"==typeof this.post_lex)&&"function"==typeof this.fastLex}},begin:function(t){return this.pushState(t)},pushState:function(t){return this.conditionStack.push(t),this.__currentRuleSet__=null,this},popState:function(){return this.conditionStack.length-1>0?(this.__currentRuleSet__=null,this.conditionStack.pop()):this.conditionStack[0]},topState:function(t){return(t=this.conditionStack.length-1-Math.abs(t||0))>=0?this.conditionStack[t]:"INITIAL"},_currentRules:function(){return this.conditionStack.length&&this.conditionStack[this.conditionStack.length-1]?this.conditions[this.conditionStack[this.conditionStack.length-1]]:this.conditions.INITIAL},stateStackSize:function(){return this.conditionStack.length},options:{trackPosition:!0,caseInsensitive:!0},JisonLexerError:t,performAction:function(t,e,r){var s=this;switch(e){case 0:return 15;case 1:
-/*! Conditions:: INITIAL */ /*! Rule::       {keyword} */
-return this.pushState("AFTER_KEYWORD"),21;case 2:
-/*! Conditions:: INITIAL */ /*! Rule::       {tag} */
-return this.pushState("AFTER_TAG_NAME"),15;case 3:
-/*! Conditions:: INITIAL */ /*! Rule::       (script|style) */return I?(this.pushState("AFTER_TAG_NAME"),15):(this.pushState("AFTER_TEXT_TAG_NAME"),16);case 4:
-/*! Conditions:: INITIAL */ /*! Rule::       {tag_id} */
-return this.pushState("AFTER_TAG_NAME"),s.yytext=s.yytext.substring(1),17;case 5:
-/*! Conditions:: INITIAL */ /*! Rule::       {mixin_call} */
-return s.yytext=s.yytext.substring(1),this.pushState("MIXIN_CALL_START"),20;case 6:
-/*! Conditions:: INITIAL */ /*! Rule::       \} */
-return this.pushState("AFTER_KEYWORD"),23;case 7:
-/*! Conditions:: INITIAL */ /*! Rule::       {conditional} */
-return this.pushState("COND_START"),s.yytext.startsWith("-")&&(s.yytext=s.yytext.substring(1)),26;case 8:return this.pushState("COND_START"),11;case 9:
-/*! Conditions:: COND_START */ /*! Rule::       .+\) */
-return this.popState(),s.yytext=s.yytext.substring(0,s.yytext.length-1),["RPAREN","CONDITION"];case 11:
-/*! Conditions:: INITIAL UNBUF_CODE */ /*! Rule::       - */this.pushState("UNBUF_CODE_START");break;case 12:case 30:
-/*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       {classname} */
-return this.pushState("AFTER_TAG_NAME"),s.yytext=s.yytext.substring(1),12;case 13:if(
-/*! Conditions:: INITIAL */ /*! Rule::       {classname_relaxed} */L("<INITIAL>{classname_relaxed}"),this.yy.parser.options.allowDigitToStartClassName)return this.pushState("AFTER_TAG_NAME"),s.yytext=s.yytext.substring(1),12;throw new Error("Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.");case 14:
-/*! Conditions:: INITIAL */ /*! Rule::       \/\/ */
-return this.pushState("TEXT"),18;case 15:
-/*! Conditions:: INITIAL */ /*! Rule::       <[A-Z_]+> */if(!/<[A-Z_]+>/.test(s.yytext))return this.pushState("TEXT"),3;this.pushState(s.yytext.substring(1,s.yytext.length-1));break;case 16:
-/*! Conditions:: INITIAL TEXT */ /*! Rule::       \|  */
-return this.pushState("TEXT"),22;case 17:
-/*! Conditions:: INITIAL */ /*! Rule::       \|\. */this.pushState("TEXT"),this.unput(".");break;case 18:
-/*! Conditions:: INITIAL */ /*! Rule::       \|$ */
-return this.pushState("TEXT"),s.yytext="",3;case 19:
-/*! Conditions:: INITIAL AFTER_TAG_NAME ATTRS_END */ /*! Rule::       &attributes\([^\)]+\) */
-return L("'&attributes('[^)]+')'"),8;case 20:
-/*! Conditions:: INITIAL */ /*! Rule::       {interpolation} */
-return L("{interpolation}"),L("this.matches=",this.matches),this.pushState("AFTER_TAG_NAME"),["INTERP_END","INTERP_VAL","INTERP_START"];case 21:
-/*! Conditions:: INTERPOLATION */ /*! Rule::       .+ */
-return 28;case 22:
-/*! Conditions:: INITIAL */ /*! Rule::       {interpolation_start} */
-return L("{interpolation_start}"),L("this.matches=",this.matches),this.pushState("INTERPOLATION_START"),"INTERPOLATION_START";case 23:
-/*! Conditions:: INITIAL */ /*! Rule::       <\/.+ */
-return this.pushState("TEXT"),3;case 24:case 48:
-/*! Conditions:: ATTRS_END */ /*! Rule::       ={space} */
-return this.popState(),this.pushState("ASSIGNMENT_VALUE"),34;case 25:
-/*! Conditions:: AFTER_TAG_NAME AFTER_ATTRS */ /*! Rule::       :  */
-return this.popState(),5;case 26:
-/*! Conditions:: AFTER_KEYWORD */ /*! Rule::       {filter} */
-return s.yytext=s.yytext.substring(1),30;case 27:return L("<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('"),this.pushState("ATTRS_STARTED"),11;case 29:
-/*! Conditions:: MIXIN_PARAMS_END */ /*! Rule::       \) */
-return 14;case 31:if(
-/*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       {classname_relaxed} */L("<INITIAL,ATTRS_END>{classname_relaxed}"),this.yy.parser.options.allowDigitToStartClassName)return this.pushState("AFTER_TAG_NAME"),s.yytext=s.yytext.substring(1),12;throw new Error("Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.");case 32:L("15 yy_.yytext=",s.yytext),L("15 this.matches=",this.matches);const t=[];let r=0;for(;r<s.yytext.length;r++)if(/[\)\]}]/.test(s.yytext[r])){if(L("match"),L("stack.peek()=",t.peek()),0==t.length||t.pop()!=s.yytext[r]){L("stack.length=",t.length);break}}else switch(s.yytext[r]){case"(":t.push(")");break;case"[":t.push("]");break;case"{":t.push("}")}return this.unput(s.yytext.substring(r)),s.yytext=s.yytext.substring(0,r),L("15 yy_.yytext=",s.yytext),this.popState(),this.pushState("ATTRS_END"),31;case 33:
-/*! Conditions:: ATTRS_STARTED */ /*! Rule::       ([^\)]+)(\))(?!\s*\..+\)) */this.popState(),this.pushState("ATTRS_END"),L("20 this.matches=",this.matches),L("20 this.matches.length=",this.matches.length),L("20 yy_.yytext=",s.yytext);try{this.unput(")"),this.matches.length>1&&(s.yytext=this.matches[1])}catch(t){console.error(t)}return!1,L("20 yy_.yytext=",s.yytext),31;case 34:
-/*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\)\s*$ */this.popState(),L("30 this.matches=",this.matches),L("30 this.matches.length=",this.matches.length),L("30 yy_.yytext=",s.yytext);try{this.matches.length>1&&(s.yytext=this.matches[1])}catch(t){console.error(t)}return!1,L("30 yy_.yytext=",s.yytext),["RPAREN","ATTR_TEXT"];case 35:
-/*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\)\.?\s*(.+)$ */
-return this.popState(),this.pushState("ATTRS_END"),L("40 this.matches=",this.matches),this.unput(this.matches[2]),s.yytext=s.yytext.substring(0,s.yytext.indexOf(this.matches[1])+this.matches[1].length),L("40 yy_.yytext=",s.yytext),!1,["RPAREN","ATTR_TEXT"];case 36:
-/*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\.?\s*$ */this.popState(),L("50 this.matches=",this.matches),L("50 this.matches.length=",this.matches.length),L("50 yy_.yytext=",s.yytext);try{this.matches.length>1&&(s.yytext=this.matches[1])}catch(t){console.error(t)}return L("50 yy_.yytext=",s.yytext),7;case 37:
-/*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {tag_id} */
-return this.pushState("AFTER_TAG_NAME"),s.yytext=this.matches[1].substring(1),17;case 38:
-/*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {classname} */
-return s.yytext=s.yytext.substring(1),L("60 yy_.yytext=",s.yytext),12;case 39:
-/*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {classname_relaxed} */
-if(this.yy.parser.options.allowDigitToStartClassName)return s.yytext=s.yytext.substring(1),12;throw new Error("Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.");case 40:
-/*! Conditions:: INITIAL */ /*! Rule::       {space}{2,} */
-return L("{space}{2,}"),25;case 41:
-/*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{space} */
-return this.pushState("TEXT"),L("space space"),this.unput(" "),25;case 42:
-/*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{classname} */
-return this.pushState("ATTRS_END"),s.yytext=s.yytext.substring(1),3;case 43:if(
-/*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{classname_relaxed} */L("<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname_relaxed} this.parser.options=",this.parser.options),this.yy.parser.options.allowDigitToStartClassName)return this.pushState("ATTRS_END"),s.yytext=s.yytext.substring(1),3;throw new Error("Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.");case 44:
-/*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space} */
-return this.pushState("ATTRS_END"),L("<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}"),25;case 45:
-/*! Conditions:: ATTRS_END MIXIN_PARAMS_END */ /*! Rule::       {space} */
-return this.pushState("TEXT"),L("<ATTRS_END>{space}"),25;case 47:
-/*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME NO_MORE_SPACE */ /*! Rule::       .+ */
-return L("70 yy_.yytext=",s.yytext),3;case 49:
-/*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       \.\s*$ */
-return this.popState(),24;case 50:
-/*! Conditions:: ASSIGNMENT_VALUE */ /*! Rule::       .+ */
-return this.popState(),33;case 51:
-/*! Conditions:: ATTRS_END */ /*! Rule::       .+ */
-return L("6 yy_.yytext=",s.yytext),3;case 52:
-/*! Conditions:: UNBUF_CODE_START */ /*! Rule::       {space} */
-return L("<UNBUF_CODE_START>{space}"),25;case 54:return this.popState(),this.pushState("MIXIN_PARAMS_STARTED"),11;case 55:
-/*! Conditions:: MIXIN_CALL_START */ /*! Rule::       {space}$ */this.popState();break;case 56:
-/*! Conditions:: TEXT */ /*! Rule::       .+ */
-return L("80 yy_.yytext=",s.yytext),3;case 57:
-/*! Conditions:: MULTI_LINE_ATTRS */ /*! Rule::       ,?(.*)\) */
-return L("110 this.matches=",this.matches),this.popState(),s.yytext=this.matches[1],6;case 59:
-/*! Conditions:: MIXIN_PARAMS_STARTED */ /*! Rule::       \) */
-return this.popState(),this.pushState("MIXIN_PARAMS_END"),s.yytext="",["RPAREN","MIXIN_PARAMS"];case 60:
-/*! Conditions:: MIXIN_PARAMS_STARTED */ /*! Rule::       (.+)(\)) */this.popState(),this.pushState("MIXIN_PARAMS_END"),L("120 this.matches=",this.matches),L("120 this.matches.length=",this.matches.length),L("120 yy_.yytext=",s.yytext);try{this.unput(")"),this.matches.length>1&&(s.yytext=this.matches[1])}catch(t){console.error(t)}return!1,L("120 yy_.yytext=",s.yytext),13;case 61:
-/*! Conditions:: INITIAL */ /*! Rule::       <!--.+--> */
-return s.yytext=s.yytext.slice(4,-3),9;case 62:
-/*! Conditions:: UNBUF_CODE */ /*! Rule::       . */this.popState(),this.unput(s.yytext);break;default:return this.simpleCaseActionClusters[e]}},simpleCaseActionClusters:{
-/*! Conditions:: INITIAL */ /*! Rule::       -{space}*$ */10:10,
-/*! Conditions:: ATTRS_END */ /*! Rule::       \) */28:14,
-/*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME ATTRS_END */ /*! Rule::       \.\s*$ */46:24,
-/*! Conditions:: UNBUF_CODE_START */ /*! Rule::       .+ */53:4,
-/*! Conditions:: MULTI_LINE_ATTRS */ /*! Rule::       .+ */58:7,
-/*! Conditions:: UNBUF_CODE_BLOCK */ /*! Rule::       .+ */63:19},rules:[/^(?:#\[((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,/^(?:((append|block|case|default|doctype|each|else|extends|for|if|include|mixin|prepend|unless|when|while)\b))/i,/^(?:((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,/^(?:(script|style))/i,/^(?:(#[\d\-a-z]+))/i,/^(?:(\+\s*[a-z]+\b))/i,/^(?:\})/i,/^(?:{conditional})/i,/^(?:\()/i,/^(?:.+\))/i,/^(?:-([   -​\u2028\u2029　])*$)/i,/^(?:-)/i,/^(?:(\.-?[^\W\d]+[\w\-]*))/i,/^(?:(\.-?\w+[\w\-]*))/i,/^(?:\/\/)/i,/^(?:<[A-Z_]+>)/i,/^(?:\| )/i,/^(?:\|\.)/i,/^(?:\|$)/i,/^(?:&attributes\([^)]+\))/i,/^(?:(#\{.+\}))/i,/^(?:.+)/i,/^(?:(#\{))/i,/^(?:<\/.+)/i,/^(?:= )/i,/^(?:: )/i,/^(?:(:[\d\-a-z]+\b))/i,/^(?:\()/i,/^(?:\))/i,/^(?:\))/i,/^(?:(\.-?[^\W\d]+[\w\-]*))/i,/^(?:(\.-?\w+[\w\-]*))/i,/^(?:(\(.+|.+\().+)/i,/^(?:([^)]+)(\))(?!\s*\..+\)))/i,/^(?:(.+)\)\s*$)/i,/^(?:(.+)\)\.?\s*(.+)$)/i,/^(?:(.+)\.?\s*$)/i,/^(?:(#[\d\-a-z]+))/i,/^(?:(\.-?[^\W\d]+[\w\-]*))/i,/^(?:(\.-?\w+[\w\-]*))/i,/^(?:([   -​\u2028\u2029　]){2,})/i,/^(?:([   -​\u2028\u2029　])([   -​\u2028\u2029　]))/i,/^(?:([   -​\u2028\u2029　])(\.-?[^\W\d]+[\w\-]*))/i,/^(?:([   -​\u2028\u2029　])(\.-?\w+[\w\-]*))/i,/^(?:([   -​\u2028\u2029　]))/i,/^(?:([   -​\u2028\u2029　]))/i,/^(?:\.\s*$)/i,/^(?:.+)/i,/^(?:=([   -​\u2028\u2029　]))/i,/^(?:\.\s*$)/i,/^(?:.+)/i,/^(?:.+)/i,/^(?:([   -​\u2028\u2029　]))/i,/^(?:.+)/i,/^(?:\()/i,/^(?:([   -​\u2028\u2029　])$)/i,/^(?:.+)/i,/^(?:,?(.*)\))/i,/^(?:.+)/i,/^(?:\))/i,/^(?:(.+)(\)))/i,/^(?:<!--.+-->)/i,/^(?:.)/i,/^(?:.+)/i],conditions:{TEXT:{rules:[16,56],inclusive:!1},TEXT_START:{rules:[],inclusive:!1},AFTER_TAG_NAME:{rules:[19,24,25,27,37,38,39,41,42,43,44,46,47],inclusive:!1},ATTRS_STARTED:{rules:[32,33,34,35,36],inclusive:!1},ATTR_TEXT:{rules:[],inclusive:!1},MIXIN_CALL_START:{rules:[54,55],inclusive:!1},ATTRS_END:{rules:[19,28,30,31,45,46,48,49,51],inclusive:!0},CODE_START:{rules:[],inclusive:!1},UNBUF_CODE:{rules:[11,62],inclusive:!1},MULTI_LINE_ATTRS:{rules:[57,58],inclusive:!1},COMMENT:{rules:[],inclusive:!1},AFTER_ATTRS:{rules:[25],inclusive:!1},AFTER_TEXT_TAG_NAME:{rules:[27,41,42,43,44,46,47],inclusive:!1},AFTER_KEYWORD:{rules:[26,41,42,43,44,47],inclusive:!1},NO_MORE_SPACE:{rules:[47],inclusive:!1},ASSIGNMENT_VALUE:{rules:[50],inclusive:!1},COND_START:{rules:[8,9],inclusive:!1},INTERPOLATION_START:{rules:[],inclusive:!1},MIXIN_PARAMS_STARTED:{rules:[59,60],inclusive:!1},HTML_COMMENT_STARTED:{rules:[],inclusive:!1},INITIAL:{rules:[0,1,2,3,4,5,6,7,10,11,12,13,14,15,16,17,18,19,20,22,23,30,31,40,49,61],inclusive:!0},INTERPOLATION:{rules:[21],inclusive:!1},MIXIN_PARAMS_END:{rules:[29,45],inclusive:!1},UNBUF_CODE_START:{rules:[52,53],inclusive:!1},UNBUF_CODE_BLOCK:{rules:[63],inclusive:!1}}};return e}();O.lexer=w;const I=!0,L=s("pug-line-lexer");const $=new i;function D(t){return'"'+t+'"'}function j(t,e){if(null==t||r.isEmpty(t))return L("empty/undefined obj, returning src"),e;if(null==e||r.isEmpty(e))return L("empty/undefined src, returning obj"),t;if(Array.isArray(e)&&e.length>0&&(e=e.reduce(j),L("src reduced to=",e)),L("merging",t,e),"text"!=t.type&&1==Object.keys(e).length&&"children"==Object.keys(e)[0]&&1==e.children.length&&e.children[0].hasOwnProperty("type")&&"text"==e.children[0].type)return Object.assign(t,{val:e.children[0].val});let s=r.mergeWith(t,e,(function(t,e,r,s,i,n){return L("merging","inside _mergeWith",r,t,e),null==t&&null==e?{}:null==t?e:null==e?t:(a=t,"text"===(o=e)||a===o?a:a.concat(o));var a,o}));return L("merging"," returning",s),s}function M(t,r){const i=s("pug-line-lexer:createElems"),n=t.matchAll(/#[\[\{].*?[\]\}]/g);let a=0,o=[];for(const e of n){if(i("match=",e),a!=e.index){const r=t.substring(a,e.index);i("pushing text onto element array:",r),o.push({type:"text",val:r}),a=e.index}if("["==e[0][1]){i("found left bracked");const t=e[0].slice(2,-1);i("sending to parser:",t);const s=r.parse(t);i("received from parser:",s),o.push(s)}else i("pushing interpolation value to arr:",e[0].slice(2,-1)),o.push({type:"interpolation",val:e[0].slice(2,-1)});a+=e[0].length}return a!=t.length&&o.push({type:"text",val:t.substring(a,t.index)}),i("returning=",e.inspect(o,!1,5)),o}function C(){this.yy={}}C.prototype=O,O.Parser=C;var F={parser:O,Parser:C,parse:function(){return O.parse.apply(O,arguments)}};export{F as Parser,f as InlineParser,S as AttrsParser};
+import $cjPlG$assert from "assert";
+import $cjPlG$util from "util";
+import "@foo-dog/utils";
+import $cjPlG$lodash from "lodash";
+import $cjPlG$debug from "debug";
+import {AttrResolver as $cjPlG$AttrResolver} from "@foo-dog/attrs";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* parser generated by jison 0.6.1-216 */ /*
+ * Returns a Parser object of the following structure:
+ *
+ *  Parser: {
+ *    yy: {}     The so-called "shared state" or rather the *source* of it;
+ *               the real "shared state" `yy` passed around to
+ *               the rule actions, etc. is a derivative/copy of this one,
+ *               not a direct reference!
+ *  }
+ *
+ *  Parser.prototype: {
+ *    yy: {},
+ *    EOF: 1,
+ *    TERROR: 2,
+ *
+ *    trace: function(errorMessage, ...),
+ *
+ *    JisonParserError: function(msg, hash),
+ *
+ *    quoteName: function(name),
+ *               Helper function which can be overridden by user code later on: put suitable
+ *               quotes around literal IDs in a description string.
+ *
+ *    originalQuoteName: function(name),
+ *               The basic quoteName handler provided by JISON.
+ *               `cleanupAfterParse()` will clean up and reset `quoteName()` to reference this function
+ *               at the end of the `parse()`.
+ *
+ *    describeSymbol: function(symbol),
+ *               Return a more-or-less human-readable description of the given symbol, when
+ *               available, or the symbol itself, serving as its own 'description' for lack
+ *               of something better to serve up.
+ *
+ *               Return NULL when the symbol is unknown to the parser.
+ *
+ *    symbols_: {associative list: name ==> number},
+ *    terminals_: {associative list: number ==> name},
+ *    nonterminals: {associative list: rule-name ==> {associative list: number ==> rule-alt}},
+ *    terminal_descriptions_: (if there are any) {associative list: number ==> description},
+ *    productions_: [...],
+ *
+ *    performAction: function parser__performAction(yytext, yyleng, yylineno, yyloc, yystate, yysp, yyvstack, yylstack, yystack, yysstack),
+ *
+ *               The function parameters and `this` have the following value/meaning:
+ *               - `this`    : reference to the `yyval` internal object, which has members (`$` and `_$`)
+ *                             to store/reference the rule value `$$` and location info `@$`.
+ *
+ *                 One important thing to note about `this` a.k.a. `yyval`: every *reduce* action gets
+ *                 to see the same object via the `this` reference, i.e. if you wish to carry custom
+ *                 data from one reduce action through to the next within a single parse run, then you
+ *                 may get nasty and use `yyval` a.k.a. `this` for storing you own semi-permanent data.
+ *
+ *                 `this.yy` is a direct reference to the `yy` shared state object.
+ *
+ *                 `%parse-param`-specified additional `parse()` arguments have been added to this `yy`
+ *                 object at `parse()` start and are therefore available to the action code via the
+ *                 same named `yy.xxxx` attributes (where `xxxx` represents a identifier name from
+ *                 the %parse-param` list.
+ *
+ *               - `yytext`  : reference to the lexer value which belongs to the last lexer token used
+ *                             to match this rule. This is *not* the look-ahead token, but the last token
+ *                             that's actually part of this rule.
+ *
+ *                 Formulated another way, `yytext` is the value of the token immediately preceeding
+ *                 the current look-ahead token.
+ *                 Caveats apply for rules which don't require look-ahead, such as epsilon rules.
+ *
+ *               - `yyleng`  : ditto as `yytext`, only now for the lexer.yyleng value.
+ *
+ *               - `yylineno`: ditto as `yytext`, only now for the lexer.yylineno value.
+ *
+ *               - `yyloc`   : ditto as `yytext`, only now for the lexer.yylloc lexer token location info.
+ *
+ *                               WARNING: since jison 0.4.18-186 this entry may be NULL/UNDEFINED instead
+ *                               of an empty object when no suitable location info can be provided.
+ *
+ *               - `yystate` : the current parser state number, used internally for dispatching and
+ *                               executing the action code chunk matching the rule currently being reduced.
+ *
+ *               - `yysp`    : the current state stack position (a.k.a. 'stack pointer')
+ *
+ *                 This one comes in handy when you are going to do advanced things to the parser
+ *                 stacks, all of which are accessible from your action code (see the next entries below).
+ *
+ *                 Also note that you can access this and other stack index values using the new double-hash
+ *                 syntax, i.e. `##$ === ##0 === yysp`, while `##1` is the stack index for all things
+ *                 related to the first rule term, just like you have `$1`, `@1` and `#1`.
+ *                 This is made available to write very advanced grammar action rules, e.g. when you want
+ *                 to investigate the parse state stack in your action code, which would, for example,
+ *                 be relevant when you wish to implement error diagnostics and reporting schemes similar
+ *                 to the work described here:
+ *
+ *                 + Pottier, F., 2016. Reachability and error diagnosis in LR(1) automata.
+ *                   In Journées Francophones des Languages Applicatifs.
+ *
+ *                 + Jeffery, C.L., 2003. Generating LR syntax error messages from examples.
+ *                   ACM Transactions on Programming Languages and Systems (TOPLAS), 25(5), pp.631–640.
+ *
+ *               - `yyrulelength`: the current rule's term count, i.e. the number of entries occupied on the stack.
+ *
+ *                 This one comes in handy when you are going to do advanced things to the parser
+ *                 stacks, all of which are accessible from your action code (see the next entries below).
+ *
+ *               - `yyvstack`: reference to the parser value stack. Also accessed via the `$1` etc.
+ *                             constructs.
+ *
+ *               - `yylstack`: reference to the parser token location stack. Also accessed via
+ *                             the `@1` etc. constructs.
+ *
+ *                             WARNING: since jison 0.4.18-186 this array MAY contain slots which are
+ *                             UNDEFINED rather than an empty (location) object, when the lexer/parser
+ *                             action code did not provide a suitable location info object when such a
+ *                             slot was filled!
+ *
+ *               - `yystack` : reference to the parser token id stack. Also accessed via the
+ *                             `#1` etc. constructs.
+ *
+ *                 Note: this is a bit of a **white lie** as we can statically decode any `#n` reference to
+ *                 its numeric token id value, hence that code wouldn't need the `yystack` but *you* might
+ *                 want access this array for your own purposes, such as error analysis as mentioned above!
+ *
+ *                 Note that this stack stores the current stack of *tokens*, that is the sequence of
+ *                 already parsed=reduced *nonterminals* (tokens representing rules) and *terminals*
+ *                 (lexer tokens *shifted* onto the stack until the rule they belong to is found and
+ *                 *reduced*.
+ *
+ *               - `yysstack`: reference to the parser state stack. This one carries the internal parser
+ *                             *states* such as the one in `yystate`, which are used to represent
+ *                             the parser state machine in the *parse table*. *Very* *internal* stuff,
+ *                             what can I say? If you access this one, you're clearly doing wicked things
+ *
+ *               - `...`     : the extra arguments you specified in the `%parse-param` statement in your
+ *                             grammar definition file.
+ *
+ *    table: [...],
+ *               State transition table
+ *               ----------------------
+ *
+ *               index levels are:
+ *               - `state`  --> hash table
+ *               - `symbol` --> action (number or array)
+ *
+ *                 If the `action` is an array, these are the elements' meaning:
+ *                 - index [0]: 1 = shift, 2 = reduce, 3 = accept
+ *                 - index [1]: GOTO `state`
+ *
+ *                 If the `action` is a number, it is the GOTO `state`
+ *
+ *    defaultActions: {...},
+ *
+ *    parseError: function(str, hash, ExceptionClass),
+ *    yyError: function(str, ...),
+ *    yyRecovering: function(),
+ *    yyErrOk: function(),
+ *    yyClearIn: function(),
+ *
+ *    constructParseErrorInfo: function(error_message, exception_object, expected_token_set, is_recoverable),
+ *               Helper function **which will be set up during the first invocation of the `parse()` method**.
+ *               Produces a new errorInfo 'hash object' which can be passed into `parseError()`.
+ *               See it's use in this parser kernel in many places; example usage:
+ *
+ *                   var infoObj = parser.constructParseErrorInfo('fail!', null,
+ *                                     parser.collect_expected_token_set(state), true);
+ *                   var retVal = parser.parseError(infoObj.errStr, infoObj, parser.JisonParserError);
+ *
+ *    originalParseError: function(str, hash, ExceptionClass),
+ *               The basic `parseError` handler provided by JISON.
+ *               `cleanupAfterParse()` will clean up and reset `parseError()` to reference this function
+ *               at the end of the `parse()`.
+ *
+ *    options: { ... parser %options ... },
+ *
+ *    parse: function(input[, args...]),
+ *               Parse the given `input` and return the parsed value (or `true` when none was provided by
+ *               the root action, in which case the parser is acting as a *matcher*).
+ *               You MAY use the additional `args...` parameters as per `%parse-param` spec of this grammar:
+ *               these extra `args...` are added verbatim to the `yy` object reference as member variables.
+ *
+ *               WARNING:
+ *               Parser's additional `args...` parameters (via `%parse-param`) MAY conflict with
+ *               any attributes already added to `yy` by the jison run-time;
+ *               when such a collision is detected an exception is thrown to prevent the generated run-time
+ *               from silently accepting this confusing and potentially hazardous situation!
+ *
+ *               The lexer MAY add its own set of additional parameters (via the `%parse-param` line in
+ *               the lexer section of the grammar spec): these will be inserted in the `yy` shared state
+ *               object and any collision with those will be reported by the lexer via a thrown exception.
+ *
+ *    cleanupAfterParse: function(resultValue, invoke_post_methods, do_not_nuke_errorinfos),
+ *               Helper function **which will be set up during the first invocation of the `parse()` method**.
+ *               This helper API is invoked at the end of the `parse()` call, unless an exception was thrown
+ *               and `%options no-try-catch` has been defined for this grammar: in that case this helper MAY
+ *               be invoked by calling user code to ensure the `post_parse` callbacks are invoked and
+ *               the internal parser gets properly garbage collected under these particular circumstances.
+ *
+ *    yyMergeLocationInfo: function(first_index, last_index, first_yylloc, last_yylloc, dont_look_back),
+ *               Helper function **which will be set up during the first invocation of the `parse()` method**.
+ *               This helper API can be invoked to calculate a spanning `yylloc` location info object.
+ *
+ *               Note: %epsilon rules MAY specify no `first_index` and `first_yylloc`, in which case
+ *               this function will attempt to obtain a suitable location marker by inspecting the location stack
+ *               backwards.
+ *
+ *               For more info see the documentation comment further below, immediately above this function's
+ *               implementation.
+ *
+ *    lexer: {
+ *        yy: {...},           A reference to the so-called "shared state" `yy` once
+ *                             received via a call to the `.setInput(input, yy)` lexer API.
+ *        EOF: 1,
+ *        ERROR: 2,
+ *        JisonLexerError: function(msg, hash),
+ *        parseError: function(str, hash, ExceptionClass),
+ *        setInput: function(input, [yy]),
+ *        input: function(),
+ *        unput: function(str),
+ *        more: function(),
+ *        reject: function(),
+ *        less: function(n),
+ *        pastInput: function(n),
+ *        upcomingInput: function(n),
+ *        showPosition: function(),
+ *        test_match: function(regex_match_array, rule_index, ...),
+ *        next: function(...),
+ *        lex: function(...),
+ *        begin: function(condition),
+ *        pushState: function(condition),
+ *        popState: function(),
+ *        topState: function(),
+ *        _currentRules: function(),
+ *        stateStackSize: function(),
+ *        cleanupAfterLex: function()
+ *
+ *        options: { ... lexer %options ... },
+ *
+ *        performAction: function(yy, yy_, $avoiding_name_collisions, YY_START, ...),
+ *        rules: [...],
+ *        conditions: {associative list: name ==> set},
+ *    }
+ *  }
+ *
+ *
+ *  token location info (@$, _$, etc.): {
+ *    first_line: n,
+ *    last_line: n,
+ *    first_column: n,
+ *    last_column: n,
+ *    range: [start_number, end_number]
+ *               (where the numbers are indexes into the input string, zero-based)
+ *  }
+ *
+ * ---
+ *
+ * The `parseError` function receives a 'hash' object with these members for lexer and
+ * parser errors:
+ *
+ *  {
+ *    text:        (matched text)
+ *    token:       (the produced terminal token, if any)
+ *    token_id:    (the produced terminal token numeric ID, if any)
+ *    line:        (yylineno)
+ *    loc:         (yylloc)
+ *  }
+ *
+ * parser (grammar) errors will also provide these additional members:
+ *
+ *  {
+ *    expected:    (array describing the set of expected tokens;
+ *                  may be UNDEFINED when we cannot easily produce such a set)
+ *    state:       (integer (or array when the table includes grammar collisions);
+ *                  represents the current internal state of the parser kernel.
+ *                  can, for example, be used to pass to the `collect_expected_token_set()`
+ *                  API to obtain the expected token set)
+ *    action:      (integer; represents the current internal action which will be executed)
+ *    new_state:   (integer; represents the next/planned internal state, once the current
+ *                  action has executed)
+ *    recoverable: (boolean: TRUE when the parser MAY have an error recovery rule
+ *                  available for this particular error)
+ *    state_stack: (array: the current parser LALR/LR internal state stack; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    value_stack: (array: the current parser LALR/LR internal `$$` value stack; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    location_stack: (array: the current parser LALR/LR internal location stack; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    yy:          (object: the current parser internal "shared state" `yy`
+ *                  as is also available in the rule actions; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    lexer:       (reference to the current lexer instance used by the parser)
+ *    parser:      (reference to the current parser instance)
+ *  }
+ *
+ * while `this` will reference the current parser instance.
+ *
+ * When `parseError` is invoked by the lexer, `this` will still reference the related *parser*
+ * instance, while these additional `hash` fields will also be provided:
+ *
+ *  {
+ *    lexer:       (reference to the current lexer instance which reported the error)
+ *  }
+ *
+ * When `parseError` is invoked by the parser due to a **JavaScript exception** being fired
+ * from either the parser or lexer, `this` will still reference the related *parser*
+ * instance, while these additional `hash` fields will also be provided:
+ *
+ *  {
+ *    exception:   (reference to the exception thrown)
+ *  }
+ *
+ * Please do note that in the latter situation, the `expected` field will be omitted as
+ * this type of failure is assumed not to be due to *parse errors* but rather due to user
+ * action code in either parser or lexer failing unexpectedly.
+ *
+ * ---
+ *
+ * You can specify parser options by setting / modifying the `.yy` object of your Parser instance.
+ * These options are available:
+ *
+ * ### options which are global for all parser instances
+ *
+ *  Parser.pre_parse: function(yy)
+ *                 optional: you can specify a pre_parse() function in the chunk following
+ *                 the grammar, i.e. after the last `%%`.
+ *  Parser.post_parse: function(yy, retval, parseInfo) { return retval; }
+ *                 optional: you can specify a post_parse() function in the chunk following
+ *                 the grammar, i.e. after the last `%%`. When it does not return any value,
+ *                 the parser will return the original `retval`.
+ *
+ * ### options which can be set up per parser instance
+ *
+ *  yy: {
+ *      pre_parse:  function(yy)
+ *                 optional: is invoked before the parse cycle starts (and before the first
+ *                 invocation of `lex()`) but immediately after the invocation of
+ *                 `parser.pre_parse()`).
+ *      post_parse: function(yy, retval, parseInfo) { return retval; }
+ *                 optional: is invoked when the parse terminates due to success ('accept')
+ *                 or failure (even when exceptions are thrown).
+ *                 `retval` contains the return value to be produced by `Parser.parse()`;
+ *                 this function can override the return value by returning another.
+ *                 When it does not return any value, the parser will return the original
+ *                 `retval`.
+ *                 This function is invoked immediately before `parser.post_parse()`.
+ *
+ *      parseError: function(str, hash, ExceptionClass)
+ *                 optional: overrides the default `parseError` function.
+ *      quoteName: function(name),
+ *                 optional: overrides the default `quoteName` function.
+ *  }
+ *
+ *  parser.lexer.options: {
+ *      pre_lex:  function()
+ *                 optional: is invoked before the lexer is invoked to produce another token.
+ *                 `this` refers to the Lexer object.
+ *      post_lex: function(token) { return token; }
+ *                 optional: is invoked when the lexer has produced a token `token`;
+ *                 this function can override the returned token value by returning another.
+ *                 When it does not return any (truthy) value, the lexer will return
+ *                 the original `token`.
+ *                 `this` refers to the Lexer object.
+ *
+ *      ranges: boolean
+ *                 optional: `true` ==> token location info will include a .range[] member.
+ *      flex: boolean
+ *                 optional: `true` ==> flex-like lexing behaviour where the rules are tested
+ *                 exhaustively to find the longest match.
+ *      backtrack_lexer: boolean
+ *                 optional: `true` ==> lexer regexes are tested in order and for invoked;
+ *                 the lexer terminates the scan when a token is returned by the action code.
+ *      xregexp: boolean
+ *                 optional: `true` ==> lexer rule regexes are "extended regex format" requiring the
+ *                 `XRegExp` library. When this `%option` has not been specified at compile time, all lexer
+ *                 rule regexes have been written as standard JavaScript RegExp expressions.
+ *  }
+ */ // See also:
+// http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
+// but we keep the prototype.constructor and prototype.name assignment lines too for compatibility
+// with userland code which might access the derived class in a 'classic' way.
+function $082ca48d6cb6a5f5$var$JisonParserError(msg, hash) {
+    Object.defineProperty(this, 'name', {
+        enumerable: false,
+        writable: false,
+        value: 'JisonParserError'
+    });
+    if (msg == null) msg = '???';
+    Object.defineProperty(this, 'message', {
+        enumerable: false,
+        writable: true,
+        value: msg
+    });
+    this.hash = hash;
+    var stacktrace;
+    if (hash && hash.exception instanceof Error) {
+        var ex2 = hash.exception;
+        this.message = ex2.message || msg;
+        stacktrace = ex2.stack;
+    }
+    if (!stacktrace) {
+        if (Error.hasOwnProperty('captureStackTrace')) Error.captureStackTrace(this, this.constructor);
+        else stacktrace = new Error(msg).stack;
+    }
+    if (stacktrace) Object.defineProperty(this, 'stack', {
+        enumerable: false,
+        writable: false,
+        value: stacktrace
+    });
+}
+if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf($082ca48d6cb6a5f5$var$JisonParserError.prototype, Error.prototype);
+else $082ca48d6cb6a5f5$var$JisonParserError.prototype = Object.create(Error.prototype);
+$082ca48d6cb6a5f5$var$JisonParserError.prototype.constructor = $082ca48d6cb6a5f5$var$JisonParserError;
+$082ca48d6cb6a5f5$var$JisonParserError.prototype.name = 'JisonParserError';
+// helper: reconstruct the productions[] table
+function $082ca48d6cb6a5f5$var$bp(s) {
+    var rv = [];
+    var p = s.pop;
+    var r = s.rule;
+    for(var i = 0, l = p.length; i < l; i++)rv.push([
+        p[i],
+        r[i]
+    ]);
+    return rv;
+}
+// helper: reconstruct the defaultActions[] table
+function $082ca48d6cb6a5f5$var$bda(s) {
+    var rv = {
+    };
+    var d = s.idx;
+    var g = s.goto;
+    for(var i = 0, l = d.length; i < l; i++){
+        var j = d[i];
+        rv[j] = g[i];
+    }
+    return rv;
+}
+// helper: reconstruct the 'goto' table
+function $082ca48d6cb6a5f5$var$bt(s) {
+    var rv = [];
+    var d = s.len;
+    var y = s.symbol;
+    var t = s.type;
+    var a = s.state;
+    var m = s.mode;
+    var g = s.goto;
+    for(var i = 0, l = d.length; i < l; i++){
+        var n = d[i];
+        var q = {
+        };
+        for(var j = 0; j < n; j++){
+            var z = y.shift();
+            switch(t.shift()){
+                case 2:
+                    q[z] = [
+                        m.shift(),
+                        g.shift()
+                    ];
+                    break;
+                case 0:
+                    q[z] = a.shift();
+                    break;
+                default:
+                    // type === 1: accept
+                    q[z] = [
+                        3
+                    ];
+            }
+        }
+        rv.push(q);
+    }
+    return rv;
+}
+// helper: runlength encoding with increment step: code, length: step (default step = 0)
+// `this` references an array
+function $082ca48d6cb6a5f5$var$s(c, l, a) {
+    a = a || 0;
+    for(var i = 0; i < l; i++){
+        this.push(c);
+        c += a;
+    }
+}
+// helper: duplicate sequence from *relative* offset and length.
+// `this` references an array
+function $082ca48d6cb6a5f5$var$c(i, l) {
+    i = this.length - i;
+    for(l += i; i < l; i++)this.push(this[i]);
+}
+// helper: unpack an array using helpers and data, all passed in an array argument 'a'.
+function $082ca48d6cb6a5f5$var$u(a) {
+    var rv = [];
+    for(var i = 0, l = a.length; i < l; i++){
+        var e = a[i];
+        // Is this entry a helper function?
+        if (typeof e === 'function') {
+            i++;
+            e.apply(rv, a[i]);
+        } else rv.push(e);
+    }
+    return rv;
+}
+var $082ca48d6cb6a5f5$var$parser = {
+    // Code Generator Information Report
+    // ---------------------------------
+    //
+    // Options:
+    //
+    //   default action mode: ............. ["classic","merge"]
+    //   test-compile action mode: ........ "parser:*,lexer:*"
+    //   try..catch: ...................... true
+    //   default resolve on conflict: ..... true
+    //   on-demand look-ahead: ............ false
+    //   error recovery token skip maximum: 3
+    //   yyerror in parse actions is: ..... NOT recoverable,
+    //   yyerror in lexer actions and other non-fatal lexer are:
+    //   .................................. NOT recoverable,
+    //   debug grammar/output: ............ false
+    //   has partial LR conflict upgrade:   true
+    //   rudimentary token-stack support:   true
+    //   parser table compression mode: ... 2
+    //   export debug tables: ............. false
+    //   export *all* tables: ............. false
+    //   module type: ..................... es
+    //   parser engine type: .............. lalr
+    //   output main() in the module: ..... true
+    //   has user-specified main(): ....... false
+    //   has user-specified require()/import modules for main():
+    //   .................................. false
+    //   number of expected conflicts: .... 0
+    //
+    //
+    // Parser Analysis flags:
+    //
+    //   no significant actions (parser is a language matcher only):
+    //   .................................. false
+    //   uses yyleng: ..................... false
+    //   uses yylineno: ................... false
+    //   uses yytext: ..................... false
+    //   uses yylloc: ..................... false
+    //   uses ParseError API: ............. false
+    //   uses YYERROR: .................... false
+    //   uses YYRECOVERING: ............... false
+    //   uses YYERROK: .................... false
+    //   uses YYCLEARIN: .................. false
+    //   tracks rule values: .............. true
+    //   assigns rule values: ............. true
+    //   uses location tracking: .......... false
+    //   assigns location: ................ false
+    //   uses yystack: .................... false
+    //   uses yysstack: ................... false
+    //   uses yysp: ....................... true
+    //   uses yyrulelength: ............... false
+    //   uses yyMergeLocationInfo API: .... false
+    //   has error recovery: .............. false
+    //   has error reporting: ............. false
+    //
+    // --------- END OF REPORT -----------
+    trace: function no_op_trace() {
+    },
+    JisonParserError: $082ca48d6cb6a5f5$var$JisonParserError,
+    yy: {
+    },
+    options: {
+        type: "lalr",
+        hasPartialLrUpgradeOnConflict: true,
+        errorRecoveryTokenDiscardCount: 3,
+        tokenStack: true,
+        ebnf: true
+    },
+    symbols_: {
+        "$accept": 0,
+        "$end": 1,
+        "ASSIGN_PART": 13,
+        "ATTR": 12,
+        "BODY": 11,
+        "CLASSNAME": 14,
+        "DOT": 10,
+        "EOF": 1,
+        "EQ": 7,
+        "FILTER_START": 6,
+        "INTERPOLATION": 9,
+        "TAG": 3,
+        "TAG_END": 5,
+        "TAG_START": 4,
+        "TEXT": 8,
+        "error": 2,
+        "line": 16,
+        "line_part": 17,
+        "line_part_repetition": 41,
+        "line_part_repetition2": 42,
+        "line_part_repetition3": 43,
+        "line_part_repetition4": 44,
+        "line_part_repetition5": 45,
+        "line_part_repetition_plus": 18,
+        "line_part_repetition_plus10": 27,
+        "line_part_repetition_plus11": 28,
+        "line_part_repetition_plus12": 29,
+        "line_part_repetition_plus13": 30,
+        "line_part_repetition_plus14": 31,
+        "line_part_repetition_plus15": 32,
+        "line_part_repetition_plus16": 33,
+        "line_part_repetition_plus17": 34,
+        "line_part_repetition_plus18": 35,
+        "line_part_repetition_plus19": 36,
+        "line_part_repetition_plus2": 19,
+        "line_part_repetition_plus20": 37,
+        "line_part_repetition_plus21": 38,
+        "line_part_repetition_plus22": 39,
+        "line_part_repetition_plus23": 40,
+        "line_part_repetition_plus3": 20,
+        "line_part_repetition_plus4": 21,
+        "line_part_repetition_plus5": 22,
+        "line_part_repetition_plus6": 23,
+        "line_part_repetition_plus7": 24,
+        "line_part_repetition_plus8": 25,
+        "line_part_repetition_plus9": 26,
+        "start": 15
+    },
+    terminals_: {
+        1: "EOF",
+        2: "error",
+        3: "TAG",
+        4: "TAG_START",
+        5: "TAG_END",
+        6: "FILTER_START",
+        7: "EQ",
+        8: "TEXT",
+        9: "INTERPOLATION",
+        10: "DOT",
+        11: "BODY",
+        12: "ATTR",
+        13: "ASSIGN_PART",
+        14: "CLASSNAME"
+    },
+    TERROR: 2,
+    EOF: 1,
+    // internals: defined here so the object *structure* doesn't get modified by parse() et al,
+    // thus helping JIT compilers like Chrome V8.
+    originalQuoteName: null,
+    originalParseError: null,
+    cleanupAfterParse: null,
+    constructParseErrorInfo: null,
+    yyMergeLocationInfo: null,
+    __reentrant_call_depth: 0,
+    __error_infos: [],
+    __error_recovery_infos: [],
+    // APIs which will be set up depending on user action code analysis:
+    //yyRecovering: 0,
+    //yyErrOk: 0,
+    //yyClearIn: 0,
+    // Helper APIs
+    // -----------
+    // Helper function which can be overridden by user code later on: put suitable quotes around
+    // literal IDs in a description string.
+    quoteName: function parser_quoteName(id_str) {
+        return '"' + id_str + '"';
+    },
+    // Return the name of the given symbol (terminal or non-terminal) as a string, when available.
+    //
+    // Return NULL when the symbol is unknown to the parser.
+    getSymbolName: function parser_getSymbolName(symbol) {
+        if (this.terminals_[symbol]) return this.terminals_[symbol];
+        // Otherwise... this might refer to a RULE token i.e. a non-terminal: see if we can dig that one up.
+        //
+        // An example of this may be where a rule's action code contains a call like this:
+        //
+        //      parser.getSymbolName(#$)
+        //
+        // to obtain a human-readable name of the current grammar rule.
+        var s = this.symbols_;
+        for(var key in s){
+            if (s[key] === symbol) return key;
+        }
+        return null;
+    },
+    // Return a more-or-less human-readable description of the given symbol, when available,
+    // or the symbol itself, serving as its own 'description' for lack of something better to serve up.
+    //
+    // Return NULL when the symbol is unknown to the parser.
+    describeSymbol: function parser_describeSymbol(symbol) {
+        if (symbol !== this.EOF && this.terminal_descriptions_ && this.terminal_descriptions_[symbol]) return this.terminal_descriptions_[symbol];
+        else if (symbol === this.EOF) return 'end of input';
+        var id = this.getSymbolName(symbol);
+        if (id) return this.quoteName(id);
+        return null;
+    },
+    // Produce a (more or less) human-readable list of expected tokens at the point of failure.
+    //
+    // The produced list may contain token or token set descriptions instead of the tokens
+    // themselves to help turning this output into something that easier to read by humans
+    // unless `do_not_describe` parameter is set, in which case a list of the raw, *numeric*,
+    // expected terminals and nonterminals is produced.
+    //
+    // The returned list (array) will not contain any duplicate entries.
+    collect_expected_token_set: function parser_collect_expected_token_set(state, do_not_describe) {
+        var TERROR = this.TERROR;
+        var tokenset = [];
+        var check = {
+        };
+        // Has this (error?) state been outfitted with a custom expectations description text for human consumption?
+        // If so, use that one instead of the less palatable token set.
+        if (!do_not_describe && this.state_descriptions_ && this.state_descriptions_[state]) return [
+            this.state_descriptions_[state]
+        ];
+        for(var p in this.table[state]){
+            p = +p;
+            if (p !== TERROR) {
+                var d = do_not_describe ? p : this.describeSymbol(p);
+                if (d && !check[d]) {
+                    tokenset.push(d);
+                    check[d] = true; // Mark this token description as already mentioned to prevent outputting duplicate entries.
+                }
+            }
+        }
+        return tokenset;
+    },
+    productions_: $082ca48d6cb6a5f5$var$bp({
+        pop: $082ca48d6cb6a5f5$var$u([
+            15,
+            16,
+            16,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                17,
+                22
+            ],
+            18,
+            18,
+            19,
+            19,
+            20,
+            20,
+            21,
+            21,
+            22,
+            22,
+            23,
+            23,
+            24,
+            24,
+            25,
+            25,
+            26,
+            26,
+            27,
+            27,
+            28,
+            28,
+            29,
+            29,
+            30,
+            30,
+            31,
+            31,
+            32,
+            32,
+            33,
+            33,
+            34,
+            34,
+            35,
+            35,
+            36,
+            36,
+            37,
+            37,
+            38,
+            38,
+            39,
+            39,
+            40,
+            40,
+            41,
+            41,
+            42,
+            42,
+            43,
+            43,
+            44,
+            44,
+            45,
+            45
+        ]),
+        rule: $082ca48d6cb6a5f5$var$u([
+            2,
+            2,
+            1,
+            0,
+            1,
+            1,
+            2,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                3,
+                3
+            ],
+            4,
+            4,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                6,
+                6
+            ],
+            4,
+            5,
+            5,
+            6,
+            2,
+            6,
+            4,
+            1,
+            2,
+            1,
+            2,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                4,
+                42
+            ],
+            0,
+            2,
+            0,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                4,
+                7
+            ]
+        ])
+    }),
+    performAction: function parser__PerformAction(yystate /* action[1] */ , yysp, yyvstack) {
+        /* this == yyval */ // the JS engine itself can go and remove these statements when `yy` turns out to be unused in any action code!
+        var yy = this.yy;
+        var yyparser = yy.parser;
+        var yylexer = yy.lexer;
+        switch(yystate){
+            case 0:
+                /*! Production::    $accept : start $end */ // default action (generated by JISON mode classic/merge :: 1,VT,VA,-,-,-,-,-,-):
+                this.$ = yyvstack[yysp - 1];
+                break;
+            case 1:
+                /*! Production::    start : line EOF */ // default action (generated by JISON mode classic/merge :: 2,VT,VA,-,-,-,-,-,-):
+                this.$ = yyvstack[yysp - 1];
+                break;
+            case 2:
+                /*! Production::    line : line line_part */ $082ca48d6cb6a5f5$var$debug('line: line line_part: $line=', yyvstack[yysp - 1], ', $line_part=', yyvstack[yysp]);
+                if (Array.isArray(yyvstack[yysp - 1])) this.$ = yyvstack[yysp - 1];
+                else this.$ = [
+                    yyvstack[yysp - 1]
+                ];
+                this.$.push(yyvstack[yysp]);
+                break;
+            case 3:
+                /*! Production::    line : line_part */ $082ca48d6cb6a5f5$var$debug('line: line_part: $line_part=', yyvstack[yysp]);
+                if (Array.isArray(yyvstack[yysp])) this.$ = yyvstack[yysp];
+                else this.$ = [
+                    yyvstack[yysp]
+                ];
+                break;
+            case 4:
+                /*! Production::    line_part : %epsilon */ // default action (generated by JISON mode classic/merge :: 0,VT,VA,-,-,-,-,-,-):
+                this.$ = undefined;
+                break;
+            case 5:
+                /*! Production::    line_part : TAG */ let [tag_name, attrs, body] = yyvstack[yysp];
+                $082ca48d6cb6a5f5$var$debug('$TAG=', yyvstack[yysp]);
+                $082ca48d6cb6a5f5$var$debug('tag_name=', tag_name);
+                $082ca48d6cb6a5f5$var$debug('attrs=', attrs);
+                $082ca48d6cb6a5f5$var$debug('body=', body);
+                const obj1 = {
+                    type: 'tag',
+                    name: tag_name,
+                    attrs: attrs
+                };
+                if (attrs == undefined) delete obj1.attrs;
+                if (body == '') delete obj1.val;
+                else if (body.includes('<') && body.includes('>')) {
+                    $082ca48d6cb6a5f5$var$debug('parsing ', body);
+                    $082ca48d6cb6a5f5$var$recursive++;
+                    let parsedBody = yy.parser.parse(body);
+                    $082ca48d6cb6a5f5$var$recursive--;
+                    $082ca48d6cb6a5f5$var$debug('parsedBody=', parsedBody);
+                    if (parsedBody.length == 1 && parsedBody[0].type == 'text' && !parsedBody[0].hasOwnProperty('children')) obj1.val = parsedBody[0].val;
+                    else obj1.children = obj1.hasOwnProperty('children') ? obj1.children.push(...parsedBody) : parsedBody;
+                } else obj1.val = body;
+                this.$ = obj1;
+                break;
+            case 6:
+                /*! Production::    line_part : line_part_repetition_plus */ this.$ = {
+                    type: 'text',
+                    val: yyvstack[yysp].join('')
+                };
+                break;
+            case 7:
+                /*! Production::    line_part : TAG_START TAG_END */ this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp - 1]
+                };
+                break;
+            case 8:
+            /*! Production::    line_part : TAG_START line_part_repetition_plus2 TAG_END */ case 9:
+                /*! Production::    line_part : TAG_START line_part_repetition_plus3 TAG_END */ this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp - 2],
+                    val: yyvstack[yysp - 1].join('')
+                };
+                break;
+            case 10:
+                /*! Production::    line_part : TAG_START line_part_repetition_plus4 TAG_END */ this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp - 2],
+                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].join(''))
+                };
+                break;
+            case 11:
+            /*! Production::    line_part : TAG_START line_part_repetition_plus5 line_part_repetition_plus6 TAG_END */ case 12:
+                /*! Production::    line_part : TAG_START line_part_repetition_plus7 line_part_repetition_plus8 TAG_END */ this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp - 3],
+                    val: yyvstack[yysp - 1].join(''),
+                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''))
+                };
+                break;
+            case 13:
+                /*! Production::    line_part : FILTER_START TAG_END */ this.$ = {
+                    type: 'filter',
+                    name: yyvstack[yysp - 1]
+                };
+                break;
+            case 14:
+            /*! Production::    line_part : FILTER_START line_part_repetition_plus9 TAG_END */ case 15:
+                /*! Production::    line_part : FILTER_START line_part_repetition_plus10 TAG_END */ this.$ = {
+                    type: 'filter',
+                    name: yyvstack[yysp - 2],
+                    val: yyvstack[yysp - 1].join('')
+                };
+                break;
+            case 16:
+                /*! Production::    line_part : FILTER_START line_part_repetition_plus11 TAG_END */ this.$ = {
+                    type: 'filter',
+                    name: yyvstack[yysp - 2],
+                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].join(''))
+                };
+                break;
+            case 17:
+            /*! Production::    line_part : FILTER_START line_part_repetition_plus12 line_part_repetition_plus13 TAG_END */ case 18:
+                /*! Production::    line_part : FILTER_START line_part_repetition_plus14 line_part_repetition_plus15 TAG_END */ this.$ = {
+                    type: 'filter',
+                    name: yyvstack[yysp - 3],
+                    val: yyvstack[yysp - 1].join(''),
+                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''))
+                };
+                break;
+            case 19:
+                /*! Production::    line_part : TAG_START EQ line_part_repetition_plus16 TAG_END */ this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp - 3],
+                    assignment: yyvstack[yysp - 1].join('')
+                };
+                break;
+            case 20:
+                /*! Production::    line_part : TAG_START EQ line_part_repetition_plus17 line_part_repetition_plus18 TAG_END */ this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp - 4],
+                    assignment: yyvstack[yysp - 2].join(''),
+                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp].join(''))
+                };
+                break;
+            case 21:
+                /*! Production::    line_part : TAG_START EQ line_part_repetition_plus19 line_part_repetition_plus20 TAG_END */ this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp - 4],
+                    assignment: yyvstack[yysp - 2].join(''),
+                    val: yyvstack[yysp].join('')
+                };
+                break;
+            case 22:
+                /*! Production::    line_part : TAG_START EQ line_part_repetition_plus21 line_part_repetition_plus22 line_part_repetition_plus23 TAG_END */ this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp - 5],
+                    assignment: yyvstack[yysp - 3].join(''),
+                    val: yyvstack[yysp].join(''),
+                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].join(''))
+                };
+                break;
+            case 23:
+                /*! Production::    line_part : TEXT INTERPOLATION */ this.$ = [
+                    {
+                        type: 'text',
+                        val: yyvstack[yysp - 1]
+                    },
+                    // { type: 'interp', val: $INTERPOLATION.slice(2, -1) }
+                    {
+                        type: 'interp',
+                        val: yyvstack[yysp]
+                    }
+                ];
+                break;
+            case 24:
+                /*! Production::    line_part : TAG_START DOT line_part_repetition line_part_repetition2 line_part_repetition3 TAG_END */ this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp - 5]
+                };
+                if (yyvstack[yysp - 3]) this.$.classes = yyvstack[yysp - 3];
+                if (yyvstack[yysp - 2]) this.$.attrs = $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''));
+                if (yyvstack[yysp - 1]) this.$.val = yyvstack[yysp - 1].join('');
+                break;
+            case 25:
+                /*! Production::    line_part : TAG_START line_part_repetition4 line_part_repetition5 TAG_END */ $082ca48d6cb6a5f5$var$debug('TAG_START ATTR* BODY* TAG_END');
+                this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp - 3]
+                };
+                if (yyvstack[yysp - 2]) this.$.attrs = $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''));
+                if (yyvstack[yysp - 1]) this.$.val = yyvstack[yysp - 1].join('');
+                break;
+            case 26:
+            /*! Production::    line_part_repetition_plus : TEXT */ case 28:
+            /*! Production::    line_part_repetition_plus2 : BODY */ case 30:
+            /*! Production::    line_part_repetition_plus3 : BODY */ case 32:
+            /*! Production::    line_part_repetition_plus4 : ATTR */ case 34:
+            /*! Production::    line_part_repetition_plus5 : ATTR */ case 36:
+            /*! Production::    line_part_repetition_plus6 : BODY */ case 38:
+            /*! Production::    line_part_repetition_plus7 : ATTR */ case 40:
+            /*! Production::    line_part_repetition_plus8 : BODY */ case 42:
+            /*! Production::    line_part_repetition_plus9 : BODY */ case 44:
+            /*! Production::    line_part_repetition_plus10 : BODY */ case 46:
+            /*! Production::    line_part_repetition_plus11 : ATTR */ case 48:
+            /*! Production::    line_part_repetition_plus12 : ATTR */ case 50:
+            /*! Production::    line_part_repetition_plus13 : BODY */ case 52:
+            /*! Production::    line_part_repetition_plus14 : ATTR */ case 54:
+            /*! Production::    line_part_repetition_plus15 : BODY */ case 56:
+            /*! Production::    line_part_repetition_plus16 : ASSIGN_PART */ case 58:
+            /*! Production::    line_part_repetition_plus17 : ASSIGN_PART */ case 60:
+            /*! Production::    line_part_repetition_plus18 : ATTR */ case 62:
+            /*! Production::    line_part_repetition_plus19 : ASSIGN_PART */ case 64:
+            /*! Production::    line_part_repetition_plus20 : BODY */ case 66:
+            /*! Production::    line_part_repetition_plus21 : ASSIGN_PART */ case 68:
+            /*! Production::    line_part_repetition_plus22 : ATTR */ case 70:
+                /*! Production::    line_part_repetition_plus23 : BODY */ this.$ = [
+                    yyvstack[yysp]
+                ];
+                break;
+            case 27:
+            /*! Production::    line_part_repetition_plus : line_part_repetition_plus TEXT */ case 29:
+            /*! Production::    line_part_repetition_plus2 : line_part_repetition_plus2 BODY */ case 31:
+            /*! Production::    line_part_repetition_plus3 : line_part_repetition_plus3 BODY */ case 33:
+            /*! Production::    line_part_repetition_plus4 : line_part_repetition_plus4 ATTR */ case 35:
+            /*! Production::    line_part_repetition_plus5 : line_part_repetition_plus5 ATTR */ case 37:
+            /*! Production::    line_part_repetition_plus6 : line_part_repetition_plus6 BODY */ case 39:
+            /*! Production::    line_part_repetition_plus7 : line_part_repetition_plus7 ATTR */ case 41:
+            /*! Production::    line_part_repetition_plus8 : line_part_repetition_plus8 BODY */ case 43:
+            /*! Production::    line_part_repetition_plus9 : line_part_repetition_plus9 BODY */ case 45:
+            /*! Production::    line_part_repetition_plus10 : line_part_repetition_plus10 BODY */ case 47:
+            /*! Production::    line_part_repetition_plus11 : line_part_repetition_plus11 ATTR */ case 49:
+            /*! Production::    line_part_repetition_plus12 : line_part_repetition_plus12 ATTR */ case 51:
+            /*! Production::    line_part_repetition_plus13 : line_part_repetition_plus13 BODY */ case 53:
+            /*! Production::    line_part_repetition_plus14 : line_part_repetition_plus14 ATTR */ case 55:
+            /*! Production::    line_part_repetition_plus15 : line_part_repetition_plus15 BODY */ case 57:
+            /*! Production::    line_part_repetition_plus16 : line_part_repetition_plus16 ASSIGN_PART */ case 59:
+            /*! Production::    line_part_repetition_plus17 : line_part_repetition_plus17 ASSIGN_PART */ case 61:
+            /*! Production::    line_part_repetition_plus18 : line_part_repetition_plus18 ATTR */ case 63:
+            /*! Production::    line_part_repetition_plus19 : line_part_repetition_plus19 ASSIGN_PART */ case 65:
+            /*! Production::    line_part_repetition_plus20 : line_part_repetition_plus20 BODY */ case 67:
+            /*! Production::    line_part_repetition_plus21 : line_part_repetition_plus21 ASSIGN_PART */ case 69:
+            /*! Production::    line_part_repetition_plus22 : line_part_repetition_plus22 ATTR */ case 71:
+            /*! Production::    line_part_repetition_plus23 : line_part_repetition_plus23 BODY */ case 73:
+            /*! Production::    line_part_repetition : line_part_repetition CLASSNAME */ case 75:
+            /*! Production::    line_part_repetition2 : line_part_repetition2 ATTR */ case 77:
+            /*! Production::    line_part_repetition3 : line_part_repetition3 BODY */ case 79:
+            /*! Production::    line_part_repetition4 : line_part_repetition4 ATTR */ case 81:
+                /*! Production::    line_part_repetition5 : line_part_repetition5 BODY */ yyvstack[yysp - 1].push(yyvstack[yysp]);
+                this.$ = yyvstack[yysp - 1];
+                break;
+            case 72:
+            /*! Production::    line_part_repetition : %epsilon */ case 74:
+            /*! Production::    line_part_repetition2 : %epsilon */ case 76:
+            /*! Production::    line_part_repetition3 : %epsilon */ case 78:
+            /*! Production::    line_part_repetition4 : %epsilon */ case 80:
+                /*! Production::    line_part_repetition5 : %epsilon */ this.$ = [];
+                break;
+        }
+    },
+    table: $082ca48d6cb6a5f5$var$bt({
+        len: $082ca48d6cb6a5f5$var$u([
+            9,
+            1,
+            7,
+            0,
+            0,
+            5,
+            11,
+            8,
+            6,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                0,
+                4
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                2,
+                3
+            ],
+            3,
+            3,
+            5,
+            1,
+            4,
+            0,
+            3,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                11,
+                6
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                8,
+                3
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                0,
+                6
+            ],
+            2,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                3,
+                6
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                3,
+                3
+            ],
+            4,
+            5,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                9,
+                3
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                20,
+                11
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                12,
+                12
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                46,
+                3
+            ],
+            4,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                0,
+                11
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                33,
+                9
+            ]
+        ]),
+        symbol: $082ca48d6cb6a5f5$var$u([
+            1,
+            3,
+            4,
+            6,
+            8,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                15,
+                4,
+                1
+            ],
+            1,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                10,
+                5
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                8,
+                3
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                7,
+                4
+            ],
+            5,
+            7,
+            10,
+            11,
+            12,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                19,
+                4,
+                1
+            ],
+            24,
+            44,
+            5,
+            11,
+            12,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                26,
+                4,
+                1
+            ],
+            31,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                24,
+                5
+            ],
+            9,
+            5,
+            11,
+            5,
+            11,
+            5,
+            12,
+            11,
+            12,
+            23,
+            11,
+            12,
+            25,
+            13,
+            33,
+            34,
+            36,
+            38,
+            41,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                32,
+                3
+            ],
+            45,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                4,
+                3
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                25,
+                8
+            ],
+            30,
+            11,
+            12,
+            32,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                15,
+                8
+            ],
+            13,
+            12,
+            13,
+            35,
+            11,
+            13,
+            37,
+            12,
+            13,
+            39,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                18,
+                3
+            ],
+            13,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                4,
+                3
+            ],
+            14,
+            42,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                24,
+                5
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                41,
+                3
+            ],
+            5,
+            11,
+            11,
+            12,
+            40,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                18,
+                3
+            ],
+            43,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                15,
+                4
+            ]
+        ]),
+        type: $082ca48d6cb6a5f5$var$u([
+            $082ca48d6cb6a5f5$var$s,
+            [
+                2,
+                5
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                0,
+                4
+            ],
+            1,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                10,
+                7
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                2,
+                10
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                0,
+                6
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                9,
+                8
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                2,
+                14
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                15,
+                3
+            ],
+            0,
+            $082ca48d6cb6a5f5$var$c,
+            [
+                24,
+                9
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                28,
+                12
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                25,
+                5
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                15,
+                16
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                18,
+                9
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                70,
+                13
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                59,
+                9
+            ]
+        ]),
+        state: $082ca48d6cb6a5f5$var$u([
+            1,
+            2,
+            3,
+            5,
+            10,
+            5,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                13,
+                5,
+                1
+            ],
+            20,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                24,
+                5,
+                1
+            ],
+            38,
+            41,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                44,
+                4,
+                1
+            ],
+            49,
+            50,
+            58,
+            61,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                70,
+                4,
+                3
+            ],
+            91,
+            94
+        ]),
+        mode: $082ca48d6cb6a5f5$var$u([
+            2,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                1,
+                9
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                2,
+                4
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                13,
+                13
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                14,
+                10
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                17,
+                5
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                20,
+                4
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                16,
+                12
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                31,
+                15
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                50,
+                17
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                51,
+                4
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                1,
+                4
+            ]
+        ]),
+        goto: $082ca48d6cb6a5f5$var$u([
+            4,
+            4,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                6,
+                4,
+                1
+            ],
+            $082ca48d6cb6a5f5$var$c,
+            [
+                5,
+                4
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                6,
+                4
+            ],
+            11,
+            12,
+            18,
+            19,
+            21,
+            22,
+            23,
+            29,
+            30,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                26,
+                5
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                31,
+                7,
+                1
+            ],
+            40,
+            39,
+            43,
+            42,
+            48,
+            80,
+            80,
+            51,
+            32,
+            34,
+            32,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                52,
+                6,
+                1
+            ],
+            60,
+            59,
+            63,
+            62,
+            46,
+            48,
+            46,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                64,
+                6,
+                1
+            ],
+            72,
+            71,
+            75,
+            74,
+            78,
+            77,
+            56,
+            62,
+            58,
+            56,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                74,
+                3
+            ],
+            $082ca48d6cb6a5f5$var$s,
+            [
+                80,
+                11,
+                1
+            ],
+            93,
+            92,
+            76,
+            76,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                95,
+                5,
+                1
+            ]
+        ])
+    }),
+    defaultActions: $082ca48d6cb6a5f5$var$bda({
+        idx: $082ca48d6cb6a5f5$var$u([
+            3,
+            4,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                9,
+                4,
+                1
+            ],
+            19,
+            21,
+            23,
+            29,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                31,
+                7,
+                1
+            ],
+            39,
+            40,
+            42,
+            43,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                51,
+                7,
+                1
+            ],
+            59,
+            60,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                62,
+                8,
+                1
+            ],
+            71,
+            72,
+            74,
+            75,
+            77,
+            78,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                80,
+                11,
+                1
+            ],
+            92,
+            93,
+            $082ca48d6cb6a5f5$var$s,
+            [
+                95,
+                5,
+                1
+            ]
+        ]),
+        goto: $082ca48d6cb6a5f5$var$u([
+            3,
+            5,
+            1,
+            2,
+            27,
+            7,
+            72,
+            28,
+            13,
+            42,
+            23,
+            8,
+            29,
+            9,
+            31,
+            10,
+            33,
+            35,
+            36,
+            39,
+            40,
+            79,
+            14,
+            43,
+            15,
+            45,
+            16,
+            47,
+            49,
+            50,
+            53,
+            54,
+            11,
+            37,
+            12,
+            41,
+            19,
+            57,
+            59,
+            60,
+            63,
+            64,
+            67,
+            68,
+            73,
+            25,
+            81,
+            17,
+            51,
+            18,
+            55,
+            20,
+            61,
+            21,
+            65,
+            69,
+            70,
+            75,
+            22,
+            71,
+            24,
+            77
+        ])
+    }),
+    parseError: function parseError(str, hash, ExceptionClass) {
+        if (hash.recoverable) {
+            if (typeof this.trace === 'function') this.trace(str);
+            hash.destroy(); // destroy... well, *almost*!
+        } else {
+            if (typeof this.trace === 'function') this.trace(str);
+            if (!ExceptionClass) ExceptionClass = this.JisonParserError;
+            throw new ExceptionClass(str, hash);
+        }
+    },
+    parse: function parse(input) {
+        var self = this;
+        var stack = new Array(128); // token stack: stores token which leads to state at the same index (column storage)
+        var sstack = new Array(128); // state stack: stores states (column storage)
+        var tstack = []; // token stack (only used when `%options token_stack` support has been enabled)
+        var vstack = new Array(128); // semantic value stack
+        var table = this.table;
+        var sp = 0; // 'stack pointer': index into the stacks
+        var symbol1 = 0;
+        var TERROR = this.TERROR;
+        var EOF = this.EOF;
+        var ERROR_RECOVERY_TOKEN_DISCARD_COUNT = this.options.errorRecoveryTokenDiscardCount | 0 || 3;
+        var NO_ACTION = [
+            0,
+            100 /* === table.length :: ensures that anyone using this new state will fail dramatically! */ 
+        ];
+        var lexer;
+        if (this.__lexer__) lexer = this.__lexer__;
+        else lexer = this.__lexer__ = Object.create(this.lexer);
+        var sharedState_yy = {
+            parseError: undefined,
+            quoteName: undefined,
+            lexer: undefined,
+            parser: undefined,
+            pre_parse: undefined,
+            post_parse: undefined,
+            pre_lex: undefined,
+            post_lex: undefined // WARNING: must be written this way for the code expanders to work correctly in both ES5 and ES6 modes!
+        };
+        var ASSERT;
+        if (typeof $cjPlG$assert !== 'function') ASSERT = function JisonAssert(cond, msg) {
+            if (!cond) throw new Error('assertion failed: ' + (msg || '***'));
+        };
+        else ASSERT = $cjPlG$assert;
+        this.yyGetSharedState = function yyGetSharedState() {
+            return sharedState_yy;
+        };
+        function shallow_copy_noclobber(dst, src) {
+            for(var k in src)if (typeof dst[k] === 'undefined' && Object.prototype.hasOwnProperty.call(src, k)) dst[k] = src[k];
+        }
+        // copy state
+        shallow_copy_noclobber(sharedState_yy, this.yy);
+        sharedState_yy.lexer = lexer;
+        sharedState_yy.parser = this;
+        // Does the shared state override the default `parseError` that already comes with this instance?
+        if (typeof sharedState_yy.parseError === 'function') this.parseError = function parseErrorAlt(str, hash, ExceptionClass) {
+            if (!ExceptionClass) ExceptionClass = this.JisonParserError;
+            return sharedState_yy.parseError.call(this, str, hash, ExceptionClass);
+        };
+        else this.parseError = this.originalParseError;
+        // Does the shared state override the default `quoteName` that already comes with this instance?
+        if (typeof sharedState_yy.quoteName === 'function') this.quoteName = function quoteNameAlt(id_str) {
+            return sharedState_yy.quoteName.call(this, id_str);
+        };
+        else this.quoteName = this.originalQuoteName;
+        // set up the cleanup function; make it an API so that external code can re-use this one in case of
+        // calamities or when the `%options no-try-catch` option has been specified for the grammar, in which
+        // case this parse() API method doesn't come with a `finally { ... }` block any more!
+        //
+        // NOTE: as this API uses parse() as a closure, it MUST be set again on every parse() invocation,
+        //       or else your `sharedState`, etc. references will be *wrong*!
+        this.cleanupAfterParse = function parser_cleanupAfterParse(resultValue, invoke_post_methods, do_not_nuke_errorinfos) {
+            var rv;
+            if (invoke_post_methods) {
+                var hash;
+                if (sharedState_yy.post_parse || this.post_parse) // create an error hash info instance: we re-use this API in a **non-error situation**
+                // as this one delivers all parser internals ready for access by userland code.
+                hash = this.constructParseErrorInfo(null, null, null, false);
+                if (sharedState_yy.post_parse) {
+                    rv = sharedState_yy.post_parse.call(this, sharedState_yy, resultValue, hash);
+                    if (typeof rv !== 'undefined') resultValue = rv;
+                }
+                if (this.post_parse) {
+                    rv = this.post_parse.call(this, sharedState_yy, resultValue, hash);
+                    if (typeof rv !== 'undefined') resultValue = rv;
+                }
+                // cleanup:
+                if (hash && hash.destroy) hash.destroy();
+            }
+            if (this.__reentrant_call_depth > 1) return resultValue; // do not (yet) kill the sharedState when this is a reentrant run.
+            // clean up the lingering lexer structures as well:
+            if (lexer.cleanupAfterLex) lexer.cleanupAfterLex(do_not_nuke_errorinfos);
+            // prevent lingering circular references from causing memory leaks:
+            if (sharedState_yy) {
+                sharedState_yy.lexer = undefined;
+                sharedState_yy.parser = undefined;
+                if (lexer.yy === sharedState_yy) lexer.yy = undefined;
+            }
+            sharedState_yy = undefined;
+            this.parseError = this.originalParseError;
+            this.quoteName = this.originalQuoteName;
+            // nuke the vstack[] array at least as that one will still reference obsoleted user values.
+            // To be safe, we nuke the other internal stack columns as well...
+            stack.length = 0; // fastest way to nuke an array without overly bothering the GC
+            sstack.length = 0;
+            vstack.length = 0;
+            sp = 0;
+            // nuke the error hash info instances created during this run.
+            // Userland code must COPY any data/references
+            // in the error hash instance(s) it is more permanently interested in.
+            if (!do_not_nuke_errorinfos) {
+                for(var i = this.__error_infos.length - 1; i >= 0; i--){
+                    var el = this.__error_infos[i];
+                    if (el && typeof el.destroy === 'function') el.destroy();
+                }
+                this.__error_infos.length = 0;
+            }
+            return resultValue;
+        };
+        // NOTE: as this API uses parse() as a closure, it MUST be set again on every parse() invocation,
+        //       or else your `lexer`, `sharedState`, etc. references will be *wrong*!
+        this.constructParseErrorInfo = function parser_constructParseErrorInfo(msg, ex, expected, recoverable) {
+            var pei = {
+                errStr: msg,
+                exception: ex,
+                text: lexer.match,
+                value: lexer.yytext,
+                token: this.describeSymbol(symbol1) || symbol1,
+                token_id: symbol1,
+                line: lexer.yylineno,
+                expected: expected,
+                recoverable: recoverable,
+                state: state,
+                action: action,
+                new_state: newState,
+                symbol_stack: stack,
+                state_stack: sstack,
+                value_stack: vstack,
+                stack_pointer: sp,
+                yy: sharedState_yy,
+                lexer: lexer,
+                parser: this,
+                // and make sure the error info doesn't stay due to potential
+                // ref cycle via userland code manipulations.
+                // These would otherwise all be memory leak opportunities!
+                //
+                // Note that only array and object references are nuked as those
+                // constitute the set of elements which can produce a cyclic ref.
+                // The rest of the members is kept intact as they are harmless.
+                destroy: function destructParseErrorInfo() {
+                    // remove cyclic references added to error info:
+                    // info.yy = null;
+                    // info.lexer = null;
+                    // info.value = null;
+                    // info.value_stack = null;
+                    // ...
+                    var rec = !!this.recoverable;
+                    for(var key in this)if (this.hasOwnProperty(key) && typeof key === 'object') this[key] = undefined;
+                    this.recoverable = rec;
+                }
+            };
+            // track this instance so we can `destroy()` it once we deem it superfluous and ready for garbage collection!
+            this.__error_infos.push(pei);
+            return pei;
+        };
+        function getNonTerminalFromCode(symbol) {
+            var tokenName = self.getSymbolName(symbol);
+            if (!tokenName) tokenName = symbol;
+            return tokenName;
+        }
+        // lex function that supports token stacks
+        function lex() {
+            var token;
+            token = tstack.pop() || lexer.lex() || EOF;
+            // if token isn't its numeric value, convert
+            if (typeof token !== 'number') {
+                if (token instanceof Array) {
+                    tstack = token;
+                    token = tstack.pop();
+                }
+                // if token isn't its numeric value, convert
+                if (typeof token !== 'number') token = self.symbols_[token] || token;
+            }
+            return token || EOF;
+        }
+        var state, action, r, t;
+        var yyval = {
+            $: true,
+            _$: undefined,
+            yy: sharedState_yy
+        };
+        var p;
+        var yyrulelen;
+        var this_production;
+        var newState;
+        var retval = false;
+        try {
+            this.__reentrant_call_depth++;
+            lexer.setInput(input, sharedState_yy);
+            // NOTE: we *assume* no lexer pre/post handlers are set up *after* 
+            // this initial `setInput()` call: hence we can now check and decide
+            // whether we'll go with the standard, slower, lex() API or the
+            // `fast_lex()` one:
+            if (typeof lexer.canIUse === 'function') {
+                var lexerInfo = lexer.canIUse();
+                if (lexerInfo.fastLex && typeof fastLex === 'function') lex = fastLex;
+            }
+            vstack[sp] = null;
+            sstack[sp] = 0;
+            stack[sp] = 0;
+            ++sp;
+            if (this.pre_parse) this.pre_parse.call(this, sharedState_yy);
+            if (sharedState_yy.pre_parse) sharedState_yy.pre_parse.call(this, sharedState_yy);
+            newState = sstack[sp - 1];
+            for(;;){
+                // retrieve state number from top of stack
+                state = newState; // sstack[sp - 1];
+                // use default actions if available
+                if (this.defaultActions[state]) {
+                    action = 2;
+                    newState = this.defaultActions[state];
+                } else {
+                    // The single `==` condition below covers both these `===` comparisons in a single
+                    // operation:
+                    //
+                    //     if (symbol === null || typeof symbol === 'undefined') ...
+                    if (!symbol1) symbol1 = lex();
+                    // read action for current state and first input
+                    t = table[state] && table[state][symbol1] || NO_ACTION;
+                    newState = t[1];
+                    action = t[0];
+                    // handle parse error
+                    if (!action) {
+                        var errStr;
+                        var errSymbolDescr = this.describeSymbol(symbol1) || symbol1;
+                        var expected1 = this.collect_expected_token_set(state);
+                        // Report error
+                        if (typeof lexer.yylineno === 'number') errStr = 'Parse error on line ' + (lexer.yylineno + 1) + ': ';
+                        else errStr = 'Parse error: ';
+                        if (typeof lexer.showPosition === 'function') errStr += '\n' + lexer.showPosition(69, 10) + '\n';
+                        if (expected1.length) errStr += 'Expecting ' + expected1.join(', ') + ', got unexpected ' + errSymbolDescr;
+                        else errStr += 'Unexpected ' + errSymbolDescr;
+                        // we cannot recover from the error!
+                        p = this.constructParseErrorInfo(errStr, null, expected1, false);
+                        r = this.parseError(p.errStr, p, this.JisonParserError);
+                        if (typeof r !== 'undefined') retval = r;
+                        break;
+                    }
+                }
+                switch(action){
+                    // catch misc. parse failures:
+                    default:
+                        // this shouldn't happen, unless resolve defaults are off
+                        if (action instanceof Array) {
+                            p = this.constructParseErrorInfo('Parse Error: multiple actions possible at state: ' + state + ', token: ' + symbol1, null, null, false);
+                            r = this.parseError(p.errStr, p, this.JisonParserError);
+                            if (typeof r !== 'undefined') retval = r;
+                            break;
+                        }
+                        // Another case of better safe than sorry: in case state transitions come out of another error recovery process
+                        // or a buggy LUT (LookUp Table):
+                        p = this.constructParseErrorInfo('Parsing halted. No viable error recovery approach available due to internal system failure.', null, null, false);
+                        r = this.parseError(p.errStr, p, this.JisonParserError);
+                        if (typeof r !== 'undefined') retval = r;
+                        break;
+                    // shift:
+                    case 1:
+                        stack[sp] = symbol1;
+                        vstack[sp] = lexer.yytext;
+                        sstack[sp] = newState; // push state
+                        ++sp;
+                        symbol1 = 0;
+                        continue;
+                    // reduce:
+                    case 2:
+                        this_production = this.productions_[newState - 1]; // `this.productions_[]` is zero-based indexed while states start from 1 upwards...
+                        yyrulelen = this_production[1];
+                        r = this.performAction.call(yyval, newState, sp - 1, vstack);
+                        if (typeof r !== 'undefined') {
+                            retval = r;
+                            break;
+                        }
+                        // pop off stack
+                        sp -= yyrulelen;
+                        // don't overwrite the `symbol` variable: use a local var to speed things up:
+                        var ntsymbol = this_production[0]; // push nonterminal (reduce)
+                        stack[sp] = ntsymbol;
+                        vstack[sp] = yyval.$;
+                        // goto new state = table[STATE][NONTERMINAL]
+                        newState = table[sstack[sp - 1]][ntsymbol];
+                        sstack[sp] = newState;
+                        ++sp;
+                        continue;
+                    // accept:
+                    case 3:
+                        if (sp !== -2) {
+                            retval = true;
+                            // Return the `$accept` rule's `$$` result, if available.
+                            //
+                            // Also note that JISON always adds this top-most `$accept` rule (with implicit,
+                            // default, action):
+                            //
+                            //     $accept: <startSymbol> $end
+                            //                  %{ $$ = $1; @$ = @1; %}
+                            //
+                            // which, combined with the parse kernel's `$accept` state behaviour coded below,
+                            // will produce the `$$` value output of the <startSymbol> rule as the parse result,
+                            // IFF that result is *not* `undefined`. (See also the parser kernel code.)
+                            //
+                            // In code:
+                            //
+                            //                  %{
+                            //                      @$ = @1;            // if location tracking support is included
+                            //                      if (typeof $1 !== 'undefined')
+                            //                          return $1;
+                            //                      else
+                            //                          return true;           // the default parse result if the rule actions don't produce anything
+                            //                  %}
+                            sp--;
+                            if (typeof vstack[sp] !== 'undefined') retval = vstack[sp];
+                        }
+                        break;
+                }
+                break;
+            }
+        } catch (ex) {
+            // report exceptions through the parseError callback too, but keep the exception intact
+            // if it is a known parser or lexer error which has been thrown by parseError() already:
+            if (ex instanceof this.JisonParserError) throw ex;
+            else if (lexer && typeof lexer.JisonLexerError === 'function' && ex instanceof lexer.JisonLexerError) throw ex;
+            p = this.constructParseErrorInfo('Parsing aborted due to exception.', ex, null, false);
+            retval = false;
+            r = this.parseError(p.errStr, p, this.JisonParserError);
+            if (typeof r !== 'undefined') retval = r;
+        } finally{
+            retval = this.cleanupAfterParse(retval, true, true);
+            this.__reentrant_call_depth--;
+        } // /finally
+        return retval;
+    }
+};
+$082ca48d6cb6a5f5$var$parser.originalParseError = $082ca48d6cb6a5f5$var$parser.parseError;
+$082ca48d6cb6a5f5$var$parser.originalQuoteName = $082ca48d6cb6a5f5$var$parser.quoteName;
+/* lexer generated by jison-lex 0.6.1-216 */ /*
+ * Returns a Lexer object of the following structure:
+ *
+ *  Lexer: {
+ *    yy: {}     The so-called "shared state" or rather the *source* of it;
+ *               the real "shared state" `yy` passed around to
+ *               the rule actions, etc. is a direct reference!
+ *
+ *               This "shared context" object was passed to the lexer by way of 
+ *               the `lexer.setInput(str, yy)` API before you may use it.
+ *
+ *               This "shared context" object is passed to the lexer action code in `performAction()`
+ *               so userland code in the lexer actions may communicate with the outside world 
+ *               and/or other lexer rules' actions in more or less complex ways.
+ *
+ *  }
+ *
+ *  Lexer.prototype: {
+ *    EOF: 1,
+ *    ERROR: 2,
+ *
+ *    yy:        The overall "shared context" object reference.
+ *
+ *    JisonLexerError: function(msg, hash),
+ *
+ *    performAction: function lexer__performAction(yy, yyrulenumber, YY_START),
+ *
+ *               The function parameters and `this` have the following value/meaning:
+ *               - `this`    : reference to the `lexer` instance. 
+ *                               `yy_` is an alias for `this` lexer instance reference used internally.
+ *
+ *               - `yy`      : a reference to the `yy` "shared state" object which was passed to the lexer
+ *                             by way of the `lexer.setInput(str, yy)` API before.
+ *
+ *                             Note:
+ *                             The extra arguments you specified in the `%parse-param` statement in your
+ *                             **parser** grammar definition file are passed to the lexer via this object
+ *                             reference as member variables.
+ *
+ *               - `yyrulenumber`   : index of the matched lexer rule (regex), used internally.
+ *
+ *               - `YY_START`: the current lexer "start condition" state.
+ *
+ *    parseError: function(str, hash, ExceptionClass),
+ *
+ *    constructLexErrorInfo: function(error_message, is_recoverable),
+ *               Helper function.
+ *               Produces a new errorInfo 'hash object' which can be passed into `parseError()`.
+ *               See it's use in this lexer kernel in many places; example usage:
+ *
+ *                   var infoObj = lexer.constructParseErrorInfo('fail!', true);
+ *                   var retVal = lexer.parseError(infoObj.errStr, infoObj, lexer.JisonLexerError);
+ *
+ *    options: { ... lexer %options ... },
+ *
+ *    lex: function(),
+ *               Produce one token of lexed input, which was passed in earlier via the `lexer.setInput()` API.
+ *               You MAY use the additional `args...` parameters as per `%parse-param` spec of the **lexer** grammar:
+ *               these extra `args...` are added verbatim to the `yy` object reference as member variables.
+ *
+ *               WARNING:
+ *               Lexer's additional `args...` parameters (via lexer's `%parse-param`) MAY conflict with
+ *               any attributes already added to `yy` by the **parser** or the jison run-time; 
+ *               when such a collision is detected an exception is thrown to prevent the generated run-time 
+ *               from silently accepting this confusing and potentially hazardous situation! 
+ *
+ *    cleanupAfterLex: function(do_not_nuke_errorinfos),
+ *               Helper function.
+ *
+ *               This helper API is invoked when the **parse process** has completed: it is the responsibility
+ *               of the **parser** (or the calling userland code) to invoke this method once cleanup is desired. 
+ *
+ *               This helper may be invoked by user code to ensure the internal lexer gets properly garbage collected.
+ *
+ *    setInput: function(input, [yy]),
+ *
+ *
+ *    input: function(),
+ *
+ *
+ *    unput: function(str),
+ *
+ *
+ *    more: function(),
+ *
+ *
+ *    reject: function(),
+ *
+ *
+ *    less: function(n),
+ *
+ *
+ *    pastInput: function(n),
+ *
+ *
+ *    upcomingInput: function(n),
+ *
+ *
+ *    showPosition: function(),
+ *
+ *
+ *    test_match: function(regex_match_array, rule_index),
+ *
+ *
+ *    next: function(),
+ *
+ *
+ *    begin: function(condition),
+ *
+ *
+ *    pushState: function(condition),
+ *
+ *
+ *    popState: function(),
+ *
+ *
+ *    topState: function(),
+ *
+ *
+ *    _currentRules: function(),
+ *
+ *
+ *    stateStackSize: function(),
+ *
+ *
+ *    performAction: function(yy, yy_, yyrulenumber, YY_START),
+ *
+ *
+ *    rules: [...],
+ *
+ *
+ *    conditions: {associative list: name ==> set},
+ *  }
+ *
+ *
+ *  token location info (`yylloc`): {
+ *    first_line: n,
+ *    last_line: n,
+ *    first_column: n,
+ *    last_column: n,
+ *    range: [start_number, end_number]
+ *               (where the numbers are indexes into the input string, zero-based)
+ *  }
+ *
+ * ---
+ *
+ * The `parseError` function receives a 'hash' object with these members for lexer errors:
+ *
+ *  {
+ *    text:        (matched text)
+ *    token:       (the produced terminal token, if any)
+ *    token_id:    (the produced terminal token numeric ID, if any)
+ *    line:        (yylineno)
+ *    loc:         (yylloc)
+ *    recoverable: (boolean: TRUE when the parser MAY have an error recovery rule
+ *                  available for this particular error)
+ *    yy:          (object: the current parser internal "shared state" `yy`
+ *                  as is also available in the rule actions; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    lexer:       (reference to the current lexer instance used by the parser)
+ *  }
+ *
+ * while `this` will reference the current lexer instance.
+ *
+ * When `parseError` is invoked by the lexer, the default implementation will
+ * attempt to invoke `yy.parser.parseError()`; when this callback is not provided
+ * it will try to invoke `yy.parseError()` instead. When that callback is also not
+ * provided, a `JisonLexerError` exception will be thrown containing the error
+ * message and `hash`, as constructed by the `constructLexErrorInfo()` API.
+ *
+ * Note that the lexer's `JisonLexerError` error class is passed via the
+ * `ExceptionClass` argument, which is invoked to construct the exception
+ * instance to be thrown, so technically `parseError` will throw the object
+ * produced by the `new ExceptionClass(str, hash)` JavaScript expression.
+ *
+ * ---
+ *
+ * You can specify lexer options by setting / modifying the `.options` object of your Lexer instance.
+ * These options are available:
+ *
+ * (Options are permanent.)
+ *  
+ *  yy: {
+ *      parseError: function(str, hash, ExceptionClass)
+ *                 optional: overrides the default `parseError` function.
+ *  }
+ *
+ *  lexer.options: {
+ *      pre_lex:  function()
+ *                 optional: is invoked before the lexer is invoked to produce another token.
+ *                 `this` refers to the Lexer object.
+ *      post_lex: function(token) { return token; }
+ *                 optional: is invoked when the lexer has produced a token `token`;
+ *                 this function can override the returned token value by returning another.
+ *                 When it does not return any (truthy) value, the lexer will return
+ *                 the original `token`.
+ *                 `this` refers to the Lexer object.
+ *
+ * WARNING: the next set of options are not meant to be changed. They echo the abilities of
+ * the lexer as per when it was compiled!
+ *
+ *      ranges: boolean
+ *                 optional: `true` ==> token location info will include a .range[] member.
+ *      flex: boolean
+ *                 optional: `true` ==> flex-like lexing behaviour where the rules are tested
+ *                 exhaustively to find the longest match.
+ *      backtrack_lexer: boolean
+ *                 optional: `true` ==> lexer regexes are tested in order and for invoked;
+ *                 the lexer terminates the scan when a token is returned by the action code.
+ *      xregexp: boolean
+ *                 optional: `true` ==> lexer rule regexes are "extended regex format" requiring the
+ *                 `XRegExp` library. When this %option has not been specified at compile time, all lexer
+ *                 rule regexes have been written as standard JavaScript RegExp expressions.
+ *  }
+ */ var $082ca48d6cb6a5f5$var$lexer = function() {
+    /**
+   * See also:
+   * http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
+   * but we keep the prototype.constructor and prototype.name assignment lines too for compatibility
+   * with userland code which might access the derived class in a 'classic' way.
+   *
+   * @public
+   * @constructor
+   * @nocollapse
+   */ function JisonLexerError(msg, hash) {
+        Object.defineProperty(this, 'name', {
+            enumerable: false,
+            writable: false,
+            value: 'JisonLexerError'
+        });
+        if (msg == null) msg = '???';
+        Object.defineProperty(this, 'message', {
+            enumerable: false,
+            writable: true,
+            value: msg
+        });
+        this.hash = hash;
+        var stacktrace;
+        if (hash && hash.exception instanceof Error) {
+            var ex2 = hash.exception;
+            this.message = ex2.message || msg;
+            stacktrace = ex2.stack;
+        }
+        if (!stacktrace) {
+            if (Error.hasOwnProperty('captureStackTrace')) // V8
+            Error.captureStackTrace(this, this.constructor);
+            else stacktrace = new Error(msg).stack;
+        }
+        if (stacktrace) Object.defineProperty(this, 'stack', {
+            enumerable: false,
+            writable: false,
+            value: stacktrace
+        });
+    }
+    if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf(JisonLexerError.prototype, Error.prototype);
+    else JisonLexerError.prototype = Object.create(Error.prototype);
+    JisonLexerError.prototype.constructor = JisonLexerError;
+    JisonLexerError.prototype.name = 'JisonLexerError';
+    var lexer = {
+        // Code Generator Information Report
+        // ---------------------------------
+        //
+        // Options:
+        //
+        //   backtracking: .................... false
+        //   location.ranges: ................. false
+        //   location line+column tracking: ... true
+        //
+        //
+        // Forwarded Parser Analysis flags:
+        //
+        //   uses yyleng: ..................... false
+        //   uses yylineno: ................... false
+        //   uses yytext: ..................... false
+        //   uses yylloc: ..................... false
+        //   uses lexer values: ............... true / true
+        //   location tracking: ............... false
+        //   location assignment: ............. false
+        //
+        //
+        // Lexer Analysis flags:
+        //
+        //   uses yyleng: ..................... ???
+        //   uses yylineno: ................... ???
+        //   uses yytext: ..................... ???
+        //   uses yylloc: ..................... ???
+        //   uses ParseError API: ............. ???
+        //   uses yyerror: .................... ???
+        //   uses location tracking & editing:  ???
+        //   uses more() API: ................. ???
+        //   uses unput() API: ................ ???
+        //   uses reject() API: ............... ???
+        //   uses less() API: ................. ???
+        //   uses display APIs pastInput(), upcomingInput(), showPosition():
+        //        ............................. ???
+        //   uses describeYYLLOC() API: ....... ???
+        //
+        // --------- END OF REPORT -----------
+        EOF: 1,
+        ERROR: 2,
+        // JisonLexerError: JisonLexerError,        /// <-- injected by the code generator
+        // options: {},                             /// <-- injected by the code generator
+        // yy: ...,                                 /// <-- injected by setInput()
+        /// INTERNAL USE ONLY: internal rule set cache for the current lexer state
+        __currentRuleSet__: null,
+        /// INTERNAL USE ONLY: the set of lexErrorInfo objects created since the last cleanup
+        __error_infos: [],
+        /// INTERNAL USE ONLY: mark whether the lexer instance has been 'unfolded' completely and is now ready for use
+        __decompressed: false,
+        /// INTERNAL USE ONLY
+        done: false,
+        /// INTERNAL USE ONLY
+        _backtrack: false,
+        /// INTERNAL USE ONLY
+        _input: '',
+        /// INTERNAL USE ONLY
+        _more: false,
+        /// INTERNAL USE ONLY
+        _signaled_error_token: false,
+        /// INTERNAL USE ONLY; managed via `pushState()`, `popState()`, `topState()` and `stateStackSize()`
+        conditionStack: [],
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks input which has been matched so far for the lexer token under construction. `match` is identical to `yytext` except that this one still contains the matched input string after `lexer.performAction()` has been invoked, where userland code MAY have changed/replaced the `yytext` value entirely!
+        match: '',
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks entire input which has been matched so far
+        matched: '',
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks RE match result for last (successful) match attempt
+        matches: false,
+        /// ADVANCED USE ONLY: tracks input which has been matched so far for the lexer token under construction; this value is transferred to the parser as the 'token value' when the parser consumes the lexer token produced through a call to the `lex()` API.
+        yytext: '',
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks the 'cursor position' in the input string, i.e. the number of characters matched so far
+        offset: 0,
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: length of matched input for the token under construction (`yytext`)
+        yyleng: 0,
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: 'line number' at which the token under construction is located
+        yylineno: 0,
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks location info (lines + columns) for the token under construction
+        yylloc: null,
+        /**
+     * INTERNAL USE: construct a suitable error info hash object instance for `parseError`.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ constructLexErrorInfo: function lexer_constructLexErrorInfo(msg, recoverable, show_input_position) {
+            msg = '' + msg;
+            // heuristic to determine if the error message already contains a (partial) source code dump
+            // as produced by either `showPosition()` or `prettyPrintRange()`:
+            if (show_input_position == undefined) show_input_position = !(msg.indexOf('\n') > 0 && msg.indexOf('^') > 0);
+            if (this.yylloc && show_input_position) {
+                if (typeof this.prettyPrintRange === 'function') {
+                    var pretty_src = this.prettyPrintRange(this.yylloc);
+                    if (!/\n\s*$/.test(msg)) msg += '\n';
+                    msg += '\n  Erroneous area:\n' + this.prettyPrintRange(this.yylloc);
+                } else if (typeof this.showPosition === 'function') {
+                    var pos_str = this.showPosition();
+                    if (pos_str) {
+                        if (msg.length && msg[msg.length - 1] !== '\n' && pos_str[0] !== '\n') msg += '\n' + pos_str;
+                        else msg += pos_str;
+                    }
+                }
+            }
+            /** @constructor */ var pei = {
+                errStr: msg,
+                recoverable: !!recoverable,
+                // This one MAY be empty; userland code should use the `upcomingInput` API to obtain more text which follows the 'lexer cursor position'...
+                text: this.match,
+                token: null,
+                line: this.yylineno,
+                loc: this.yylloc,
+                yy: this.yy,
+                lexer: this,
+                /**
+         * and make sure the error info doesn't stay due to potential
+         * ref cycle via userland code manipulations.
+         * These would otherwise all be memory leak opportunities!
+         * 
+         * Note that only array and object references are nuked as those
+         * constitute the set of elements which can produce a cyclic ref.
+         * The rest of the members is kept intact as they are harmless.
+         * 
+         * @public
+         * @this {LexErrorInfo}
+         */ destroy: function destructLexErrorInfo() {
+                    // remove cyclic references added to error info:
+                    // info.yy = null;
+                    // info.lexer = null;
+                    // ...
+                    var rec = !!this.recoverable;
+                    for(var key in this)if (this.hasOwnProperty(key) && typeof key === 'object') this[key] = undefined;
+                    this.recoverable = rec;
+                }
+            };
+            // track this instance so we can `destroy()` it once we deem it superfluous and ready for garbage collection!
+            this.__error_infos.push(pei);
+            return pei;
+        },
+        /**
+     * handler which is invoked when a lexer error occurs.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ parseError: function lexer_parseError(str, hash, ExceptionClass) {
+            if (!ExceptionClass) ExceptionClass = this.JisonLexerError;
+            if (this.yy) {
+                if (this.yy.parser && typeof this.yy.parser.parseError === 'function') return this.yy.parser.parseError.call(this, str, hash, ExceptionClass) || this.ERROR;
+                else if (typeof this.yy.parseError === 'function') return this.yy.parseError.call(this, str, hash, ExceptionClass) || this.ERROR;
+            }
+            throw new ExceptionClass(str, hash);
+        },
+        /**
+     * method which implements `yyerror(str, ...args)` functionality for use inside lexer actions.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ yyerror: function yyError(str /*, ...args */ ) {
+            var lineno_msg = '';
+            if (this.yylloc) lineno_msg = ' on line ' + (this.yylineno + 1);
+            var p = this.constructLexErrorInfo('Lexical error' + lineno_msg + ': ' + str, this.options.lexerErrorsAreRecoverable);
+            // Add any extra args to the hash under the name `extra_error_attributes`:
+            var args = Array.prototype.slice.call(arguments, 1);
+            if (args.length) p.extra_error_attributes = args;
+            return this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+        },
+        /**
+     * final cleanup function for when we have completed lexing the input;
+     * make it an API so that external code can use this one once userland
+     * code has decided it's time to destroy any lingering lexer error
+     * hash object instances and the like: this function helps to clean
+     * up these constructs, which *may* carry cyclic references which would
+     * otherwise prevent the instances from being properly and timely
+     * garbage-collected, i.e. this function helps prevent memory leaks!
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ cleanupAfterLex: function lexer_cleanupAfterLex(do_not_nuke_errorinfos) {
+            // prevent lingering circular references from causing memory leaks:
+            this.setInput('', {
+            });
+            // nuke the error hash info instances created during this run.
+            // Userland code must COPY any data/references
+            // in the error hash instance(s) it is more permanently interested in.
+            if (!do_not_nuke_errorinfos) {
+                for(var i = this.__error_infos.length - 1; i >= 0; i--){
+                    var el = this.__error_infos[i];
+                    if (el && typeof el.destroy === 'function') el.destroy();
+                }
+                this.__error_infos.length = 0;
+            }
+            return this;
+        },
+        /**
+     * clear the lexer token context; intended for internal use only
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ clear: function lexer_clear() {
+            this.yytext = '';
+            this.yyleng = 0;
+            this.match = '';
+            // - DO NOT reset `this.matched`
+            this.matches = false;
+            this._more = false;
+            this._backtrack = false;
+            var col = this.yylloc ? this.yylloc.last_column : 0;
+            this.yylloc = {
+                first_line: this.yylineno + 1,
+                first_column: col,
+                last_line: this.yylineno + 1,
+                last_column: col,
+                range: [
+                    this.offset,
+                    this.offset
+                ]
+            };
+        },
+        /**
+     * resets the lexer, sets new input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ setInput: function lexer_setInput(input, yy) {
+            this.yy = yy || this.yy || {
+            };
+            // also check if we've fully initialized the lexer instance,
+            // including expansion work to be done to go from a loaded
+            // lexer to a usable lexer:
+            if (!this.__decompressed) {
+                // step 1: decompress the regex list:
+                var rules = this.rules;
+                for(var i = 0, len = rules.length; i < len; i++){
+                    var rule_re = rules[i];
+                    // compression: is the RE an xref to another RE slot in the rules[] table?
+                    if (typeof rule_re === 'number') rules[i] = rules[rule_re];
+                }
+                // step 2: unfold the conditions[] set to make these ready for use:
+                var conditions = this.conditions;
+                for(var k in conditions){
+                    var spec = conditions[k];
+                    var rule_ids = spec.rules;
+                    var len = rule_ids.length;
+                    var rule_regexes = new Array(len + 1); // slot 0 is unused; we use a 1-based index approach here to keep the hottest code in `lexer_next()` fast and simple!
+                    var rule_new_ids = new Array(len + 1);
+                    for(var i = 0; i < len; i++){
+                        var idx = rule_ids[i];
+                        var rule_re = rules[idx];
+                        rule_regexes[i + 1] = rule_re;
+                        rule_new_ids[i + 1] = idx;
+                    }
+                    spec.rules = rule_new_ids;
+                    spec.__rule_regexes = rule_regexes;
+                    spec.__rule_count = len;
+                }
+                this.__decompressed = true;
+            }
+            this._input = input || '';
+            this.clear();
+            this._signaled_error_token = false;
+            this.done = false;
+            this.yylineno = 0;
+            this.matched = '';
+            this.conditionStack = [
+                'INITIAL'
+            ];
+            this.__currentRuleSet__ = null;
+            this.yylloc = {
+                first_line: 1,
+                first_column: 0,
+                last_line: 1,
+                last_column: 0,
+                range: [
+                    0,
+                    0
+                ]
+            };
+            this.offset = 0;
+            return this;
+        },
+        /**
+     * edit the remaining input via user-specified callback.
+     * This can be used to forward-adjust the input-to-parse, 
+     * e.g. inserting macro expansions and alike in the
+     * input which has yet to be lexed.
+     * The behaviour of this API contrasts the `unput()` et al
+     * APIs as those act on the *consumed* input, while this
+     * one allows one to manipulate the future, without impacting
+     * the current `yyloc` cursor location or any history. 
+     * 
+     * Use this API to help implement C-preprocessor-like
+     * `#include` statements, etc.
+     * 
+     * The provided callback must be synchronous and is
+     * expected to return the edited input (string).
+     *
+     * The `cpsArg` argument value is passed to the callback
+     * as-is.
+     *
+     * `callback` interface: 
+     * `function callback(input, cpsArg)`
+     * 
+     * - `input` will carry the remaining-input-to-lex string
+     *   from the lexer.
+     * - `cpsArg` is `cpsArg` passed into this API.
+     * 
+     * The `this` reference for the callback will be set to
+     * reference this lexer instance so that userland code
+     * in the callback can easily and quickly access any lexer
+     * API. 
+     *
+     * When the callback returns a non-string-type falsey value,
+     * we assume the callback did not edit the input and we
+     * will using the input as-is.
+     *
+     * When the callback returns a non-string-type value, it
+     * is converted to a string for lexing via the `"" + retval`
+     * operation. (See also why: http://2ality.com/2012/03/converting-to-string.html 
+     * -- that way any returned object's `toValue()` and `toString()`
+     * methods will be invoked in a proper/desirable order.)
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ editRemainingInput: function lexer_editRemainingInput(callback, cpsArg) {
+            var rv = callback.call(this, this._input, cpsArg);
+            if (typeof rv !== 'string') {
+                if (rv) this._input = '' + rv;
+            } else this._input = rv;
+            return this;
+        },
+        /**
+     * consumes and returns one char from the input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ input: function lexer_input() {
+            if (!this._input) //this.done = true;    -- don't set `done` as we want the lex()/next() API to be able to produce one custom EOF token match after this anyhow. (lexer can match special <<EOF>> tokens and perform user action code for a <<EOF>> match, but only does so *once*)
+            return null;
+            var ch = this._input[0];
+            this.yytext += ch;
+            this.yyleng++;
+            this.offset++;
+            this.match += ch;
+            this.matched += ch;
+            // Count the linenumber up when we hit the LF (or a stand-alone CR).
+            // On CRLF, the linenumber is incremented when you fetch the CR or the CRLF combo
+            // and we advance immediately past the LF as well, returning both together as if
+            // it was all a single 'character' only.
+            var slice_len = 1;
+            var lines = false;
+            if (ch === '\n') lines = true;
+            else if (ch === '\r') {
+                lines = true;
+                var ch2 = this._input[1];
+                if (ch2 === '\n') {
+                    slice_len++;
+                    ch += ch2;
+                    this.yytext += ch2;
+                    this.yyleng++;
+                    this.offset++;
+                    this.match += ch2;
+                    this.matched += ch2;
+                    this.yylloc.range[1]++;
+                }
+            }
+            if (lines) {
+                this.yylineno++;
+                this.yylloc.last_line++;
+                this.yylloc.last_column = 0;
+            } else this.yylloc.last_column++;
+            this.yylloc.range[1]++;
+            this._input = this._input.slice(slice_len);
+            return ch;
+        },
+        /**
+     * unshifts one char (or an entire string) into the input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ unput: function lexer_unput(ch) {
+            var len = ch.length;
+            var lines = ch.split(/(?:\r\n?|\n)/g);
+            this._input = ch + this._input;
+            this.yytext = this.yytext.substr(0, this.yytext.length - len);
+            this.yyleng = this.yytext.length;
+            this.offset -= len;
+            this.match = this.match.substr(0, this.match.length - len);
+            this.matched = this.matched.substr(0, this.matched.length - len);
+            if (lines.length > 1) {
+                this.yylineno -= lines.length - 1;
+                this.yylloc.last_line = this.yylineno + 1;
+                // Get last entirely matched line into the `pre_lines[]` array's
+                // last index slot; we don't mind when other previously 
+                // matched lines end up in the array too. 
+                var pre = this.match;
+                var pre_lines = pre.split(/(?:\r\n?|\n)/g);
+                if (pre_lines.length === 1) {
+                    pre = this.matched;
+                    pre_lines = pre.split(/(?:\r\n?|\n)/g);
+                }
+                this.yylloc.last_column = pre_lines[pre_lines.length - 1].length;
+            } else this.yylloc.last_column -= len;
+            this.yylloc.range[1] = this.yylloc.range[0] + this.yyleng;
+            this.done = false;
+            return this;
+        },
+        /**
+     * cache matched text and append it on next action
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ more: function lexer_more() {
+            this._more = true;
+            return this;
+        },
+        /**
+     * signal the lexer that this rule fails to match the input, so the
+     * next matching rule (regex) should be tested instead.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ reject: function lexer_reject() {
+            if (this.options.backtrack_lexer) this._backtrack = true;
+            else {
+                // when the `parseError()` call returns, we MUST ensure that the error is registered.
+                // We accomplish this by signaling an 'error' token to be produced for the current
+                // `.lex()` run.
+                var lineno_msg = '';
+                if (this.yylloc) lineno_msg = ' on line ' + (this.yylineno + 1);
+                var p = this.constructLexErrorInfo('Lexical error' + lineno_msg + ': You can only invoke reject() in the lexer when the lexer is of the backtracking persuasion (options.backtrack_lexer = true).', false);
+                this._signaled_error_token = this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+            }
+            return this;
+        },
+        /**
+     * retain first n characters of the match
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ less: function lexer_less(n) {
+            return this.unput(this.match.slice(n));
+        },
+        /**
+     * return (part of the) already matched input, i.e. for error
+     * messages.
+     * 
+     * Limit the returned string length to `maxSize` (default: 20).
+     * 
+     * Limit the returned string to the `maxLines` number of lines of
+     * input (default: 1).
+     * 
+     * Negative limit values equal *unlimited*.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ pastInput: function lexer_pastInput(maxSize, maxLines) {
+            var past = this.matched.substring(0, this.matched.length - this.match.length);
+            if (maxSize < 0) maxSize = past.length;
+            else if (!maxSize) maxSize = 20;
+            if (maxLines < 0) maxLines = past.length; // can't ever have more input lines than this!;
+            else if (!maxLines) maxLines = 1;
+            // `substr` anticipation: treat \r\n as a single character and take a little
+            // more than necessary so that we can still properly check against maxSize
+            // after we've transformed and limited the newLines in here:
+            past = past.substr(-maxSize * 2 - 2);
+            // now that we have a significantly reduced string to process, transform the newlines
+            // and chop them, then limit them:
+            var a = past.replace(/\r\n|\r/g, '\n').split('\n');
+            a = a.slice(-maxLines);
+            past = a.join('\n');
+            // When, after limiting to maxLines, we still have too much to return,
+            // do add an ellipsis prefix...
+            if (past.length > maxSize) past = '...' + past.substr(-maxSize);
+            return past;
+        },
+        /**
+     * return (part of the) upcoming input, i.e. for error messages.
+     * 
+     * Limit the returned string length to `maxSize` (default: 20).
+     * 
+     * Limit the returned string to the `maxLines` number of lines of input (default: 1).
+     * 
+     * Negative limit values equal *unlimited*.
+     *
+     * > ### NOTE ###
+     * >
+     * > *"upcoming input"* is defined as the whole of the both
+     * > the *currently lexed* input, together with any remaining input
+     * > following that. *"currently lexed"* input is the input 
+     * > already recognized by the lexer but not yet returned with
+     * > the lexer token. This happens when you are invoking this API
+     * > from inside any lexer rule action code block. 
+     * >
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ upcomingInput: function lexer_upcomingInput(maxSize, maxLines) {
+            var next = this.match;
+            if (maxSize < 0) maxSize = next.length + this._input.length;
+            else if (!maxSize) maxSize = 20;
+            if (maxLines < 0) maxLines = maxSize; // can't ever have more input lines than this!;
+            else if (!maxLines) maxLines = 1;
+            // `substring` anticipation: treat \r\n as a single character and take a little
+            // more than necessary so that we can still properly check against maxSize
+            // after we've transformed and limited the newLines in here:
+            if (next.length < maxSize * 2 + 2) next += this._input.substring(0, maxSize * 2 + 2); // substring is faster on Chrome/V8
+            // now that we have a significantly reduced string to process, transform the newlines
+            // and chop them, then limit them:
+            var a = next.replace(/\r\n|\r/g, '\n').split('\n');
+            a = a.slice(0, maxLines);
+            next = a.join('\n');
+            // When, after limiting to maxLines, we still have too much to return,
+            // do add an ellipsis postfix...
+            if (next.length > maxSize) next = next.substring(0, maxSize) + '...';
+            return next;
+        },
+        /**
+     * return a string which displays the character position where the
+     * lexing error occurred, i.e. for error messages
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ showPosition: function lexer_showPosition(maxPrefix, maxPostfix) {
+            var pre = this.pastInput(maxPrefix).replace(/\s/g, ' ');
+            var c = new Array(pre.length + 1).join('-');
+            return pre + this.upcomingInput(maxPostfix).replace(/\s/g, ' ') + '\n' + c + '^';
+        },
+        /**
+     * return an YYLLOC info object derived off the given context (actual, preceding, following, current).
+     * Use this method when the given `actual` location is not guaranteed to exist (i.e. when
+     * it MAY be NULL) and you MUST have a valid location info object anyway:
+     * then we take the given context of the `preceding` and `following` locations, IFF those are available,
+     * and reconstruct the `actual` location info from those.
+     * If this fails, the heuristic is to take the `current` location, IFF available.
+     * If this fails as well, we assume the sought location is at/around the current lexer position
+     * and then produce that one as a response. DO NOTE that these heuristic/derived location info
+     * values MAY be inaccurate!
+     *
+     * NOTE: `deriveLocationInfo()` ALWAYS produces a location info object *copy* of `actual`, not just
+     * a *reference* hence all input location objects can be assumed to be 'constant' (function has no side-effects).
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ deriveLocationInfo: function lexer_deriveYYLLOC(actual, preceding, following, current) {
+            var loc = {
+                first_line: 1,
+                first_column: 0,
+                last_line: 1,
+                last_column: 0,
+                range: [
+                    0,
+                    0
+                ]
+            };
+            if (actual) {
+                loc.first_line = actual.first_line | 0;
+                loc.last_line = actual.last_line | 0;
+                loc.first_column = actual.first_column | 0;
+                loc.last_column = actual.last_column | 0;
+                if (actual.range) {
+                    loc.range[0] = actual.range[0] | 0;
+                    loc.range[1] = actual.range[1] | 0;
+                }
+            }
+            if (loc.first_line <= 0 || loc.last_line < loc.first_line) {
+                // plan B: heuristic using preceding and following:
+                if (loc.first_line <= 0 && preceding) {
+                    loc.first_line = preceding.last_line | 0;
+                    loc.first_column = preceding.last_column | 0;
+                    if (preceding.range) loc.range[0] = actual.range[1] | 0;
+                }
+                if ((loc.last_line <= 0 || loc.last_line < loc.first_line) && following) {
+                    loc.last_line = following.first_line | 0;
+                    loc.last_column = following.first_column | 0;
+                    if (following.range) loc.range[1] = actual.range[0] | 0;
+                }
+                // plan C?: see if the 'current' location is useful/sane too:
+                if (loc.first_line <= 0 && current && (loc.last_line <= 0 || current.last_line <= loc.last_line)) {
+                    loc.first_line = current.first_line | 0;
+                    loc.first_column = current.first_column | 0;
+                    if (current.range) loc.range[0] = current.range[0] | 0;
+                }
+                if (loc.last_line <= 0 && current && (loc.first_line <= 0 || current.first_line >= loc.first_line)) {
+                    loc.last_line = current.last_line | 0;
+                    loc.last_column = current.last_column | 0;
+                    if (current.range) loc.range[1] = current.range[1] | 0;
+                }
+            }
+            // sanitize: fix last_line BEFORE we fix first_line as we use the 'raw' value of the latter
+            // or plan D heuristics to produce a 'sensible' last_line value:
+            if (loc.last_line <= 0) {
+                if (loc.first_line <= 0) {
+                    loc.first_line = this.yylloc.first_line;
+                    loc.last_line = this.yylloc.last_line;
+                    loc.first_column = this.yylloc.first_column;
+                    loc.last_column = this.yylloc.last_column;
+                    loc.range[0] = this.yylloc.range[0];
+                    loc.range[1] = this.yylloc.range[1];
+                } else {
+                    loc.last_line = this.yylloc.last_line;
+                    loc.last_column = this.yylloc.last_column;
+                    loc.range[1] = this.yylloc.range[1];
+                }
+            }
+            if (loc.first_line <= 0) {
+                loc.first_line = loc.last_line;
+                loc.first_column = 0; // loc.last_column;
+                loc.range[1] = loc.range[0];
+            }
+            if (loc.first_column < 0) loc.first_column = 0;
+            if (loc.last_column < 0) loc.last_column = loc.first_column > 0 ? loc.first_column : 80;
+            return loc;
+        },
+        /**
+     * return a string which displays the lines & columns of input which are referenced 
+     * by the given location info range, plus a few lines of context.
+     * 
+     * This function pretty-prints the indicated section of the input, with line numbers 
+     * and everything!
+     * 
+     * This function is very useful to provide highly readable error reports, while
+     * the location range may be specified in various flexible ways:
+     * 
+     * - `loc` is the location info object which references the area which should be
+     *   displayed and 'marked up': these lines & columns of text are marked up by `^`
+     *   characters below each character in the entire input range.
+     * 
+     * - `context_loc` is the *optional* location info object which instructs this
+     *   pretty-printer how much *leading* context should be displayed alongside
+     *   the area referenced by `loc`. This can help provide context for the displayed
+     *   error, etc.
+     * 
+     *   When this location info is not provided, a default context of 3 lines is
+     *   used.
+     * 
+     * - `context_loc2` is another *optional* location info object, which serves
+     *   a similar purpose to `context_loc`: it specifies the amount of *trailing*
+     *   context lines to display in the pretty-print output.
+     * 
+     *   When this location info is not provided, a default context of 1 line only is
+     *   used.
+     * 
+     * Special Notes:
+     * 
+     * - when the `loc`-indicated range is very large (about 5 lines or more), then
+     *   only the first and last few lines of this block are printed while a
+     *   `...continued...` message will be printed between them.
+     * 
+     *   This serves the purpose of not printing a huge amount of text when the `loc`
+     *   range happens to be huge: this way a manageable & readable output results
+     *   for arbitrary large ranges.
+     * 
+     * - this function can display lines of input which whave not yet been lexed.
+     *   `prettyPrintRange()` can access the entire input!
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ prettyPrintRange: function lexer_prettyPrintRange(loc, context_loc, context_loc2) {
+            loc = this.deriveLocationInfo(loc, context_loc, context_loc2);
+            const CONTEXT = 3;
+            const CONTEXT_TAIL = 1;
+            const MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT = 2;
+            var input = this.matched + this._input;
+            var lines = input.split('\n');
+            var l0 = Math.max(1, context_loc ? context_loc.first_line : loc.first_line - CONTEXT);
+            var l1 = Math.max(1, context_loc2 ? context_loc2.last_line : loc.last_line + CONTEXT_TAIL);
+            var lineno_display_width = 1 + Math.log10(l1 | 1) | 0;
+            var ws_prefix = new Array(lineno_display_width).join(' ');
+            var nonempty_line_indexes = [
+                [],
+                [],
+                []
+            ];
+            var rv1 = lines.slice(l0 - 1, l1 + 1).map(function injectLineNumber(line, index) {
+                var lno = index + l0;
+                var lno_pfx = (ws_prefix + lno).substr(-lineno_display_width);
+                var rv = lno_pfx + ': ' + line;
+                var errpfx = new Array(lineno_display_width + 1).join('^');
+                var offset = 3;
+                var len = 0;
+                if (lno === loc.first_line) {
+                    offset += loc.first_column;
+                    len = Math.max(2, (lno === loc.last_line ? loc.last_column : line.length) - loc.first_column + 1);
+                } else if (lno === loc.last_line) len = Math.max(2, loc.last_column + 1);
+                else if (lno > loc.first_line && lno < loc.last_line) len = Math.max(2, line.length + 1);
+                var nli;
+                if (len) {
+                    var lead = new Array(offset).join('.');
+                    var mark = new Array(len).join('^');
+                    rv += '\n' + errpfx + lead + mark;
+                    nli = 1;
+                } else if (lno < loc.first_line) nli = 0;
+                else if (lno > loc.last_line) nli = 2;
+                if (line.trim().length > 0) nonempty_line_indexes[nli].push(index);
+                rv = rv.replace(/\t/g, ' ');
+                return rv;
+            });
+            // now make sure we don't print an overly large amount of lead/error/tail area: limit it 
+            // to the top and bottom line count:
+            for(var i = 0; i <= 2; i++){
+                var line_arr = nonempty_line_indexes[i];
+                if (line_arr.length > 2 * MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT) {
+                    var clip_start = line_arr[MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT - 1] + 1;
+                    var clip_end = line_arr[line_arr.length - MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT] - 1;
+                    var intermediate_line = new Array(lineno_display_width + 1).join(' ') + '  (...continued...)';
+                    if (i === 1) intermediate_line += '\n' + new Array(lineno_display_width + 1).join('-') + '  (---------------)';
+                    rv1.splice(clip_start, clip_end - clip_start + 1, intermediate_line);
+                }
+            }
+            return rv1.join('\n');
+        },
+        /**
+     * helper function, used to produce a human readable description as a string, given
+     * the input `yylloc` location object.
+     * 
+     * Set `display_range_too` to TRUE to include the string character index position(s)
+     * in the description if the `yylloc.range` is available.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ describeYYLLOC: function lexer_describe_yylloc(yylloc, display_range_too) {
+            var l1 = yylloc.first_line;
+            var l2 = yylloc.last_line;
+            var c1 = yylloc.first_column;
+            var c2 = yylloc.last_column;
+            var dl = l2 - l1;
+            var dc = c2 - c1;
+            var rv;
+            if (dl === 0) {
+                rv = 'line ' + l1 + ', ';
+                if (dc <= 1) rv += 'column ' + c1;
+                else rv += 'columns ' + c1 + ' .. ' + c2;
+            } else rv = 'lines ' + l1 + '(column ' + c1 + ') .. ' + l2 + '(column ' + c2 + ')';
+            if (yylloc.range && display_range_too) {
+                var r1 = yylloc.range[0];
+                var r2 = yylloc.range[1] - 1;
+                if (r2 <= r1) rv += ' {String Offset: ' + r1 + '}';
+                else rv += ' {String Offset range: ' + r1 + ' .. ' + r2 + '}';
+            }
+            return rv;
+        },
+        /**
+     * test the lexed token: return FALSE when not a match, otherwise return token.
+     * 
+     * `match` is supposed to be an array coming out of a regex match, i.e. `match[0]`
+     * contains the actually matched text string.
+     * 
+     * Also move the input cursor forward and update the match collectors:
+     * 
+     * - `yytext`
+     * - `yyleng`
+     * - `match`
+     * - `matches`
+     * - `yylloc`
+     * - `offset`
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ test_match: function lexer_test_match(match, indexed_rule) {
+            var token, lines, backup, match_str, match_str_len;
+            if (this.options.backtrack_lexer) // save context
+            backup = {
+                yylineno: this.yylineno,
+                yylloc: {
+                    first_line: this.yylloc.first_line,
+                    last_line: this.yylloc.last_line,
+                    first_column: this.yylloc.first_column,
+                    last_column: this.yylloc.last_column,
+                    range: this.yylloc.range.slice(0)
+                },
+                yytext: this.yytext,
+                match: this.match,
+                matches: this.matches,
+                matched: this.matched,
+                yyleng: this.yyleng,
+                offset: this.offset,
+                _more: this._more,
+                _input: this._input,
+                //_signaled_error_token: this._signaled_error_token,
+                yy: this.yy,
+                conditionStack: this.conditionStack.slice(0),
+                done: this.done
+            };
+            match_str = match[0];
+            match_str_len = match_str.length;
+            // if (match_str.indexOf('\n') !== -1 || match_str.indexOf('\r') !== -1) {
+            lines = match_str.split(/(?:\r\n?|\n)/g);
+            if (lines.length > 1) {
+                this.yylineno += lines.length - 1;
+                this.yylloc.last_line = this.yylineno + 1;
+                this.yylloc.last_column = lines[lines.length - 1].length;
+            } else this.yylloc.last_column += match_str_len;
+            // }
+            this.yytext += match_str;
+            this.match += match_str;
+            this.matched += match_str;
+            this.matches = match;
+            this.yyleng = this.yytext.length;
+            this.yylloc.range[1] += match_str_len;
+            // previous lex rules MAY have invoked the `more()` API rather than producing a token:
+            // those rules will already have moved this `offset` forward matching their match lengths,
+            // hence we must only add our own match length now:
+            this.offset += match_str_len;
+            this._more = false;
+            this._backtrack = false;
+            this._input = this._input.slice(match_str_len);
+            // calling this method:
+            //
+            //   function lexer__performAction(yy, yyrulenumber, YY_START) {...}
+            token = this.performAction.call(this, this.yy, indexed_rule, this.conditionStack[this.conditionStack.length - 1]);
+            // otherwise, when the action codes are all simple return token statements:
+            //token = this.simpleCaseActionClusters[indexed_rule];
+            if (this.done && this._input) this.done = false;
+            if (token) return token;
+            else if (this._backtrack) {
+                // recover context
+                for(var k in backup)this[k] = backup[k];
+                this.__currentRuleSet__ = null;
+                return false; // rule action called reject() implying the next rule should be tested instead.
+            } else if (this._signaled_error_token) {
+                // produce one 'error' token as `.parseError()` in `reject()`
+                // did not guarantee a failure signal by throwing an exception!
+                token = this._signaled_error_token;
+                this._signaled_error_token = false;
+                return token;
+            }
+            return false;
+        },
+        /**
+     * return next match in input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ next: function lexer_next() {
+            if (this.done) {
+                this.clear();
+                return this.EOF;
+            }
+            if (!this._input) this.done = true;
+            var token, match, tempMatch, index;
+            if (!this._more) this.clear();
+            var spec = this.__currentRuleSet__;
+            if (!spec) {
+                // Update the ruleset cache as we apparently encountered a state change or just started lexing.
+                // The cache is set up for fast lookup -- we assume a lexer will switch states much less often than it will
+                // invoke the `lex()` token-producing API and related APIs, hence caching the set for direct access helps
+                // speed up those activities a tiny bit.
+                spec = this.__currentRuleSet__ = this._currentRules();
+                // Check whether a *sane* condition has been pushed before: this makes the lexer robust against
+                // user-programmer bugs such as https://github.com/zaach/jison-lex/issues/19
+                if (!spec || !spec.rules) {
+                    var lineno_msg = '';
+                    if (this.options.trackPosition) lineno_msg = ' on line ' + (this.yylineno + 1);
+                    var p = this.constructLexErrorInfo('Internal lexer engine error' + lineno_msg + ': The lex grammar programmer pushed a non-existing condition name "' + this.topState() + '"; this is a fatal error and should be reported to the application programmer team!', false);
+                    // produce one 'error' token until this situation has been resolved, most probably by parse termination!
+                    return this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+                }
+            }
+            var rule_ids = spec.rules;
+            var regexes = spec.__rule_regexes;
+            var len = spec.__rule_count;
+            // Note: the arrays are 1-based, while `len` itself is a valid index,
+            // hence the non-standard less-or-equal check in the next loop condition!
+            for(var i = 1; i <= len; i++){
+                tempMatch = this._input.match(regexes[i]);
+                if (tempMatch && (!match || tempMatch[0].length > match[0].length)) {
+                    match = tempMatch;
+                    index = i;
+                    if (this.options.backtrack_lexer) {
+                        token = this.test_match(tempMatch, rule_ids[i]);
+                        if (token !== false) return token;
+                        else if (this._backtrack) {
+                            match = undefined;
+                            continue; // rule action called reject() implying a rule MISmatch.
+                        } else // else: this is a lexer rule which consumes input without producing a token (e.g. whitespace)
+                        return false;
+                    } else if (!this.options.flex) break;
+                }
+            }
+            if (match) {
+                token = this.test_match(match, rule_ids[index]);
+                if (token !== false) return token;
+                // else: this is a lexer rule which consumes input without producing a token (e.g. whitespace)
+                return false;
+            }
+            if (!this._input) {
+                this.done = true;
+                this.clear();
+                return this.EOF;
+            } else {
+                var lineno_msg = '';
+                if (this.options.trackPosition) lineno_msg = ' on line ' + (this.yylineno + 1);
+                var p = this.constructLexErrorInfo('Lexical error' + lineno_msg + ': Unrecognized text.', this.options.lexerErrorsAreRecoverable);
+                var pendingInput = this._input;
+                var activeCondition = this.topState();
+                var conditionStackDepth = this.conditionStack.length;
+                token = this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+                if (token === this.ERROR) // we can try to recover from a lexer error that `parseError()` did not 'recover' for us
+                // by moving forward at least one character at a time IFF the (user-specified?) `parseError()`
+                // has not consumed/modified any pending input or changed state in the error handler:
+                {
+                    if (!this.matches && pendingInput === this._input && // to merit a non-consuming error handling action right now.
+                    activeCondition === this.topState() && conditionStackDepth === this.conditionStack.length) this.input();
+                }
+                return token;
+            }
+        },
+        /**
+     * return next match that has a token
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ lex: function lexer_lex() {
+            var r;
+            // allow the PRE/POST handlers set/modify the return token for maximum flexibility of the generated lexer:
+            if (typeof this.pre_lex === 'function') r = this.pre_lex.call(this, 0);
+            if (typeof this.options.pre_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.options.pre_lex.call(this, r) || r;
+            if (this.yy && typeof this.yy.pre_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.yy.pre_lex.call(this, r) || r;
+            while(!r)r = this.next();
+            if (this.yy && typeof this.yy.post_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.yy.post_lex.call(this, r) || r;
+            if (typeof this.options.post_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.options.post_lex.call(this, r) || r;
+            if (typeof this.post_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.post_lex.call(this, r) || r;
+            return r;
+        },
+        /**
+     * return next match that has a token. Identical to the `lex()` API but does not invoke any of the 
+     * `pre_lex()` nor any of the `post_lex()` callbacks.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ fastLex: function lexer_fastLex() {
+            var r;
+            while(!r)r = this.next();
+            return r;
+        },
+        /**
+     * return info about the lexer state that can help a parser or other lexer API user to use the
+     * most efficient means available. This API is provided to aid run-time performance for larger
+     * systems which employ this lexer.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ canIUse: function lexer_canIUse() {
+            var rv = {
+                fastLex: !(typeof this.pre_lex === 'function' || typeof this.options.pre_lex === 'function' || this.yy && typeof this.yy.pre_lex === 'function' || this.yy && typeof this.yy.post_lex === 'function' || typeof this.options.post_lex === 'function' || typeof this.post_lex === 'function') && typeof this.fastLex === 'function'
+            };
+            return rv;
+        },
+        /**
+     * backwards compatible alias for `pushState()`;
+     * the latter is symmetrical with `popState()` and we advise to use
+     * those APIs in any modern lexer code, rather than `begin()`.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ begin: function lexer_begin(condition) {
+            return this.pushState(condition);
+        },
+        /**
+     * activates a new lexer condition state (pushes the new lexer
+     * condition state onto the condition stack)
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ pushState: function lexer_pushState(condition) {
+            this.conditionStack.push(condition);
+            this.__currentRuleSet__ = null;
+            return this;
+        },
+        /**
+     * pop the previously active lexer condition state off the condition
+     * stack
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ popState: function lexer_popState() {
+            var n = this.conditionStack.length - 1;
+            if (n > 0) {
+                this.__currentRuleSet__ = null;
+                return this.conditionStack.pop();
+            } else return this.conditionStack[0];
+        },
+        /**
+     * return the currently active lexer condition state; when an index
+     * argument is provided it produces the N-th previous condition state,
+     * if available
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ topState: function lexer_topState(n) {
+            n = this.conditionStack.length - 1 - Math.abs(n || 0);
+            if (n >= 0) return this.conditionStack[n];
+            else return 'INITIAL';
+        },
+        /**
+     * (internal) determine the lexer rule set which is active for the
+     * currently active lexer condition state
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ _currentRules: function lexer__currentRules() {
+            if (this.conditionStack.length && this.conditionStack[this.conditionStack.length - 1]) return this.conditions[this.conditionStack[this.conditionStack.length - 1]];
+            else return this.conditions['INITIAL'];
+        },
+        /**
+     * return the number of states currently on the stack
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ stateStackSize: function lexer_stateStackSize() {
+            return this.conditionStack.length;
+        },
+        options: {
+            trackPosition: true,
+            caseInsensitive: true
+        },
+        JisonLexerError: JisonLexerError,
+        performAction: function lexer__performAction(yy, yyrulenumber, YY_START) {
+            var yy_ = this;
+            var YYSTATE = YY_START;
+            switch(yyrulenumber){
+                case 1:
+                    /*! Conditions:: INITIAL */ /*! Rule::       \\{interp} */ $082ca48d6cb6a5f5$var$debug('matches', this.matches);
+                    yy_.yytext = yy_.yytext.substring(2, yy_.yytext.length - 1);
+                    return 'INTERPOLATION_WRONG';
+                case 2:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {interp} */ $082ca48d6cb6a5f5$var$debug('matches', this.matches);
+                    yy_.yytext = yy_.yytext.substring(2, yy_.yytext.length - 1);
+                    return 9;
+                case 3:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {interp_start}\w+ */ this.pushState('INTERP_START');
+                    break;
+                case 4:
+                    /*! Conditions:: INTERP_START */ /*! Rule::       . */ if (yy_.yytext == '{') $082ca48d6cb6a5f5$var$interpStack.push('}');
+                    else if (yy_.yytext == '}') {
+                        if ($082ca48d6cb6a5f5$var$interpStack.length == 0) ;
+                        else if ($082ca48d6cb6a5f5$var$interpStack.pop() == yy_.yytext) return 9;
+                        else throw new Error('Mismatching curly braces');
+                    }
+                    break;
+                case 9:
+                    /*! Conditions:: INITIAL */ /*! Rule::       (?:#\[\s*){tag_name} */ '])';
+                    $082ca48d6cb6a5f5$var$debug('(?:\'#[\'s*){tag_name}');
+                    yy_.yytext = this.matches[1];
+                    this.pushState('TAG_STARTED');
+                    return 4;
+                case 10:
+                    /*! Conditions:: INITIAL */ /*! Rule::       (?:#\[\s*):{filter_name} */ '])';
+                    yy_.yytext = this.matches[1];
+                    this.pushState('TAG_STARTED');
+                    return 6;
+                case 12:
+                    /*! Conditions:: TAG_STARTED */ /*! Rule::       \. */ this.pushState('CLASSNAME_STARTED');
+                    return 10;
+                case 13:
+                    /*! Conditions:: TAG_STARTED */ /*! Rule::       = */ this.popState();
+                    this.pushState('ASSIGNMENT_STARTED');
+                    return 7;
+                case 15:
+                    /*! Conditions:: ASSIGNMENT_STARTED */ /*! Rule::       \[ */ ']';
+                    this.pushState('ASSIGNMENT_STARTED_BRACKET_ADDED');
+                    return 13;
+                case 16:
+                    /*! Conditions:: ASSIGNMENT_STARTED_BRACKET_ADDED */ /*! Rule::       \] */ this.popState();
+                    return 13;
+                case 18:
+                    /*! Conditions:: ASSIGNMENT_STARTED */ /*! Rule::       \] */ this.popState();
+                    return 5;
+                case 19:
+                    /*! Conditions:: TAG_STARTED BODY_STARTED */ /*! Rule::       \[ */ '])';
+                    this.pushState('BRACKET_ADDED');
+                    return 12;
+                case 20:
+                    /*! Conditions:: TAG_STARTED BODY_STARTED */ /*! Rule::       \[ */ '])';
+                    this.pushState('BRACKET_ADDED');
+                    return 'LBRACKET';
+                case 21:
+                    /*! Conditions:: BRACKET_ADDED */ /*! Rule::       \] */ this.popState();
+                    return 'RBRACKET';
+                case 22:
+                    /*! Conditions:: ATTRS_STARTED */ /*! Rule::       \( */ '])';
+                    this.pushState('PARENS_ADDED');
+                    return 'LPAREN';
+                case 23:
+                    /*! Conditions:: PARENS_ADDED */ /*! Rule::       \) */ this.popState();
+                    return 'RPAREN';
+                case 25:
+                    /*! Conditions:: TAG_STARTED */ /*! Rule::       \( */ ')';
+                    this.popState();
+                    this.pushState('ATTRS_STARTED');
+                    break;
+                case 26:
+                    /*! Conditions:: TAG_STARTED */ /*! Rule::       {space} */ this.popState();
+                    this.pushState('BODY_STARTED');
+                    break;
+                case 27:
+                    /*! Conditions:: ATTRS_STARTED */ /*! Rule::       \w+ */ $082ca48d6cb6a5f5$var$debug('<ATTRS_STARTED>\\w+');
+                    $082ca48d6cb6a5f5$var$debug('yy_.yytext', yy_.yytext);
+                    return 12;
+                case 30:
+                    /*! Conditions:: ATTRS_STARTED */ /*! Rule::       \) ? */ this.popState();
+                    this.pushState('BODY_STARTED');
+                    break;
+                case 33:
+                    /*! Conditions:: BODY_STARTED */ /*! Rule::       \] */ this.popState();
+                    return 5;
+                case 35:
+                    /*! Conditions:: CLASSNAME_STARTED */ /*! Rule::       {classname} */ this.popState();
+                    return 14;
+                default:
+                    return this.simpleCaseActionClusters[yyrulenumber];
+            }
+        },
+        simpleCaseActionClusters: {
+            /*! Conditions:: INITIAL */ /*! Rule::       \\#\{ */ 0: 'BACKSLASH',
+            /*! Conditions:: INITIAL */ /*! Rule::       .+\\#\{.+\} */ 5: 8,
+            /*! Conditions:: INITIAL */ /*! Rule::       #\{.+\} */ 6: 9,
+            /*! Conditions:: INITIAL */ /*! Rule::       .*\\# */ 7: 8,
+            /*! Conditions:: INITIAL */ /*! Rule::       {interp} */ 8: 9,
+            /*! Conditions:: INITIAL */ /*! Rule::       (\w|{space}|[^#])+ */ 11: 8,
+            /*! Conditions:: ASSIGNMENT_STARTED */ /*! Rule::       [ '] */ 14: 13,
+            /*! Conditions:: ASSIGNMENT_STARTED ASSIGNMENT_STARTED_BRACKET_ADDED */ /*! Rule::       \w+ */ 17: 13,
+            /*! Conditions:: TAG_STARTED */ /*! Rule::       \] */ 24: 5,
+            /*! Conditions:: ATTRS_STARTED */ /*! Rule::       {space}+ */ 28: 12,
+            /*! Conditions:: ATTRS_STARTED */ /*! Rule::       [^()\]]+ */ 29: 12,
+            /*! Conditions:: BODY_STARTED ATTRS_STARTED */ /*! Rule::       \w+ */ 31: 11,
+            /*! Conditions:: BODY_STARTED ATTRS_STARTED */ /*! Rule::       {space}+ */ 32: 11,
+            /*! Conditions:: BODY_STARTED */ /*! Rule::       .+ */ 34: 11,
+            /*! Conditions:: INITIAL */ /*! Rule::       # */ 36: 8,
+            /*! Conditions:: INITIAL */ /*! Rule::       $ */ 37: 1
+        },
+        rules: [
+            /*  0: */ /^(?:\\#\{)/i,
+            /*  1: */ /^(?:\\(#\{(.+)\}))/i,
+            /*  2: */ /^(?:(#\{(.+)\}))/i,
+            /*  3: */ /^(?:(#\{)\w+)/i,
+            /*  4: */ /^(?:.)/i,
+            /*  5: */ /^(?:.+\\#\{.+\})/i,
+            /*  6: */ /^(?:#\{.+\})/i,
+            /*  7: */ /^(?:.*\\#)/i,
+            /*  8: */ /^(?:(#\{(.+)\}))/i,
+            /*  9: */ /^(?:(?:#\[\s*)((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,
+            /* 10: */ /^(?:(?:#\[\s*):((cdata)\b))/i,
+            /* 11: */ /^(?:(\w|([   -​\u2028\u2029　])|[^#])+)/i,
+            /* 12: */ /^(?:\.)/i,
+            /* 13: */ /^(?:=)/i,
+            /* 14: */ /^(?:[ '])/i,
+            /* 15: */ /^(?:\[)/i,
+            /* 16: */ /^(?:\])/i,
+            /* 17: */ /^(?:\w+)/i,
+            /* 18: */ /^(?:\])/i,
+            /* 19: */ /^(?:\[)/i,
+            /* 20: */ /^(?:\[)/i,
+            /* 21: */ /^(?:\])/i,
+            /* 22: */ /^(?:\()/i,
+            /* 23: */ /^(?:\))/i,
+            /* 24: */ /^(?:\])/i,
+            /* 25: */ /^(?:\()/i,
+            /* 26: */ /^(?:([   -​\u2028\u2029　]))/i,
+            /* 27: */ /^(?:\w+)/i,
+            /* 28: */ /^(?:([   -​\u2028\u2029　])+)/i,
+            /* 29: */ /^(?:[^()\]]+)/i,
+            /* 30: */ /^(?:\) ?)/i,
+            /* 31: */ /^(?:\w+)/i,
+            /* 32: */ /^(?:([   -​\u2028\u2029　])+)/i,
+            /* 33: */ /^(?:\])/i,
+            /* 34: */ /^(?:.+)/i,
+            /* 35: */ /^(?:([^\W\d]+[\w\-]*))/i,
+            /* 36: */ /^(?:#)/i,
+            /* 37: */ /^(?:$)/i
+        ],
+        conditions: {
+            'AFTER_TAG_START': {
+                rules: [],
+                inclusive: false
+            },
+            'AFTER_TAG_START_END': {
+                rules: [],
+                inclusive: false
+            },
+            'ASSIGNMENT_STARTED': {
+                rules: [
+                    14,
+                    15,
+                    17,
+                    18
+                ],
+                inclusive: false
+            },
+            'INITIAL': {
+                rules: [
+                    0,
+                    1,
+                    2,
+                    3,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    36,
+                    37
+                ],
+                inclusive: true
+            },
+            'INTERP_START': {
+                rules: [
+                    4
+                ],
+                inclusive: false
+            },
+            'TAG_STARTED': {
+                rules: [
+                    12,
+                    13,
+                    19,
+                    20,
+                    24,
+                    25,
+                    26
+                ],
+                inclusive: false
+            },
+            'ASSIGNMENT_STARTED_BRACKET_ADDED': {
+                rules: [
+                    16,
+                    17
+                ],
+                inclusive: false
+            },
+            'BODY_STARTED': {
+                rules: [
+                    19,
+                    20,
+                    31,
+                    32,
+                    33,
+                    34
+                ],
+                inclusive: false
+            },
+            'BRACKET_ADDED': {
+                rules: [
+                    21
+                ],
+                inclusive: false
+            },
+            'ATTRS_STARTED': {
+                rules: [
+                    22,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32
+                ],
+                inclusive: false
+            },
+            'PARENS_ADDED': {
+                rules: [
+                    23
+                ],
+                inclusive: false
+            },
+            'CLASSNAME_STARTED': {
+                rules: [
+                    35
+                ],
+                inclusive: false
+            }
+        }
+    };
+    return lexer;
+}();
+$082ca48d6cb6a5f5$var$parser.lexer = $082ca48d6cb6a5f5$var$lexer;
+const $082ca48d6cb6a5f5$var$TEXT_TAGS_ALLOW_SUB_TAGS = true;
+const $082ca48d6cb6a5f5$var$debug = $cjPlG$debug('pug-line-lexer:inline');
+let $082ca48d6cb6a5f5$var$tagAlreadyFound = false;
+let $082ca48d6cb6a5f5$var$obj;
+var $082ca48d6cb6a5f5$var$lparenOpen = false;
+const $082ca48d6cb6a5f5$var$keysToMergeText = [
+    'therest'
+];
+const $082ca48d6cb6a5f5$var$tags = [];
+const $082ca48d6cb6a5f5$var$interpStack = [];
+const $082ca48d6cb6a5f5$var$adam = "div";
+var $082ca48d6cb6a5f5$var$recursive = 1;
+function $082ca48d6cb6a5f5$var$rank(type1, type2) {
+    if (type2 === 'text') return type1;
+    else if (type1 === type2) return type1;
+    else if (type1 == 'tag' && type2 == 'tag_with_multiline_attrs') return type2;
+    else if (type1 == 'tag_with_multiline_attrs' && type2 == 'tag') return type1;
+    else return type1.concat(type2);
+}
+function $082ca48d6cb6a5f5$var$merge(obj, src) {
+    $082ca48d6cb6a5f5$var$debug('merging', obj, src);
+    if (Array.isArray(src) && src.length > 0) src = src.reduce($082ca48d6cb6a5f5$var$merge);
+    if ($cjPlG$util.isDeepStrictEqual(src, [
+        {
+            therest: ''
+        }
+    ])) return obj;
+    const ret = $cjPlG$lodash.mergeWith(obj, src, function(objValue, srcValue, key, object, source, stack) {
+        $082ca48d6cb6a5f5$var$debug('merging', 'inside _mergeWith', key, objValue, srcValue);
+        if (objValue == undefined && srcValue == undefined) return {
+        };
+        if (objValue == undefined) return srcValue;
+        if (srcValue == undefined) return objValue;
+        if (objValue != undefined && srcValue != undefined) {
+            if ($082ca48d6cb6a5f5$var$keysToMergeText.includes(key)) return objValue + srcValue;
+            else return $082ca48d6cb6a5f5$var$rank(objValue, srcValue);
+        }
+    });
+    $082ca48d6cb6a5f5$var$debug('merging', ' returning', ret);
+    return ret;
+//  return Object.assign(obj, src);
+}
+$082ca48d6cb6a5f5$var$parser.main = function() {
+    $082ca48d6cb6a5f5$var$tagAlreadyFound = false;
+    $082ca48d6cb6a5f5$var$lparenOpen = false;
+    function test(input, expected, strict = true) {
+        $082ca48d6cb6a5f5$var$tagAlreadyFound = false;
+        $082ca48d6cb6a5f5$var$lparenOpen = false;
+        $082ca48d6cb6a5f5$var$debug(`\nTesting '${input}'...`);
+        var actual = $082ca48d6cb6a5f5$var$parser.parse(input);
+        $082ca48d6cb6a5f5$var$debug(input + ' ==> ', $cjPlG$util.inspect(actual, false, 8));
+        let compareFunc;
+        if (strict) compareFunc = $cjPlG$assert.deepEqual;
+        else compareFunc = dyp;
+        // fs.writeFileSync('actual.json', JSON.stringify(actual))
+        // fs.writeFileSync('expected.json', JSON.stringify(expected))
+        compareFunc.call({
+        }, actual, expected);
+    }
+    // TODO:
+    test("#[a.rho(href='#', class='rho--modifier') with inline link]", [
+        {
+            type: 'tag',
+            name: 'a',
+            classes: [
+                'rho'
+            ],
+            attrs: [
+                {
+                    name: 'href',
+                    val: "'#'"
+                },
+                {
+                    name: 'class',
+                    val: "'rho--modifier'"
+                }
+            ],
+            val: 'with inline link'
+        }
+    ]);
+    test("Some text #[a.rho(href='#', class='rho--modifier')]", [
+        {
+            type: 'text',
+            val: 'Some text '
+        },
+        {
+            type: 'tag',
+            name: 'a',
+            classes: [
+                'rho'
+            ],
+            attrs: [
+                {
+                    name: 'href',
+                    val: "'#'"
+                },
+                {
+                    name: 'class',
+                    val: "'rho--modifier'"
+                }
+            ],
+            val: ''
+        }
+    ]);
+    test("Some text #[a.rho(href='#', class='rho--modifier') with inline link]", [
+        {
+            type: 'text',
+            val: 'Some text '
+        },
+        {
+            type: 'tag',
+            name: 'a',
+            classes: [
+                'rho'
+            ],
+            attrs: [
+                {
+                    name: 'href',
+                    val: "'#'"
+                },
+                {
+                    name: 'class',
+                    val: "'rho--modifier'"
+                }
+            ],
+            val: 'with inline link'
+        }
+    ]);
+    test('Written with love by #{author}', [
+        {
+            type: 'text',
+            val: 'Written with love by '
+        },
+        {
+            type: 'interp',
+            val: 'author'
+        }
+    ]);
+    test('This will be safe: #{theGreat}', [
+        {
+            type: 'text',
+            val: 'This will be safe: '
+        },
+        {
+            type: 'interp',
+            val: 'theGreat'
+        }
+    ]);
+    test('No escaping for #{\'}\'}!', [
+        {
+            type: 'text',
+            val: 'No escaping for '
+        },
+        {
+            type: 'interp',
+            val: "'}'"
+        },
+        {
+            type: 'text',
+            val: '!'
+        }
+    ]);
+    test('Escaping works with \\#{interpolation}', [
+        {
+            type: 'text',
+            val: 'Escaping works with \\#{interpolation}'
+        }
+    ]);
+    test('#[br]', [
+        {
+            type: 'tag',
+            name: 'br'
+        }
+    ]);
+    test('#[strong mighty]', [
+        {
+            type: 'tag',
+            name: 'strong',
+            val: 'mighty'
+        }
+    ]);
+    test('A #[strong strongly worded phrase] that cannot be #[em ignored].', [
+        {
+            type: 'text',
+            val: 'A '
+        },
+        {
+            type: 'tag',
+            name: 'strong',
+            val: 'strongly worded phrase'
+        },
+        {
+            type: 'text',
+            val: ' that cannot be '
+        },
+        {
+            type: 'tag',
+            name: 'em',
+            val: 'ignored'
+        },
+        {
+            type: 'text',
+            val: '.'
+        }
+    ]);
+    test('This is a very long and boring paragraph that spans multiple lines. Suddenly there is a #[strong strongly worded phrase] that cannot be #[em ignored].', [
+        {
+            type: 'text',
+            val: 'This is a very long and boring paragraph that spans multiple lines. Suddenly there is a '
+        },
+        {
+            type: 'tag',
+            name: 'strong',
+            val: 'strongly worded phrase'
+        },
+        {
+            type: 'text',
+            val: ' that cannot be '
+        },
+        {
+            type: 'tag',
+            name: 'em',
+            val: 'ignored'
+        },
+        {
+            type: 'text',
+            val: '.'
+        }
+    ]);
+    // test('And here\'s an example of an interpolated tag with an attribute: #[q(lang="es") ¡Hola Mundo!]', [
+    //   {
+    //     type: 'text',
+    //     val: "And here's an example of an interpolated tag with an attribute: "
+    //   },
+    //   { type: 'tag', name: 'q', attrs: [ { name: 'lang', val: '"es"' } ] },
+    //   { type: 'text', val: ' ¡Hola Mundo!]' }
+    // ])
+    try {
+        test('#[strong a}', {
+        });
+        fail('expected exception');
+    } catch (expected) {
+    }
+    test('before #[:cdata inside] after', [
+        {
+            type: 'text',
+            val: 'before '
+        },
+        {
+            type: 'filter',
+            name: 'cdata',
+            val: 'inside'
+        },
+        {
+            type: 'text',
+            val: ' after'
+        }
+    ]);
+    test('bing #[strong foo] bong', [
+        {
+            type: 'text',
+            val: 'bing '
+        },
+        {
+            type: 'tag',
+            name: 'strong',
+            val: 'foo'
+        },
+        {
+            type: 'text',
+            val: ' bong'
+        }
+    ]);
+    test("bing #[strong foo] #[strong= '[foo]'] bong", [
+        {
+            type: 'text',
+            val: 'bing '
+        },
+        {
+            type: 'tag',
+            name: 'strong',
+            val: 'foo'
+        },
+        {
+            type: 'text',
+            val: ' '
+        },
+        {
+            type: 'tag',
+            name: 'strong',
+            assignment: " '[foo]'"
+        },
+        {
+            type: 'text',
+            val: ' bong'
+        }
+    ]);
+    // TODO:
+    // test("bing #[- var foo = 'foo]'] bong", {})
+    test('\\#[strong escaped]', [
+        {
+            type: 'text',
+            val: '\\#[strong escaped]'
+        }
+    ]);
+    test('\\#[#[strong escaped]', [
+        {
+            type: 'text',
+            val: '\\#['
+        },
+        {
+            type: 'tag',
+            name: 'strong',
+            val: 'escaped'
+        }
+    ]);
+// TODO: 
+// test("This also works #[+linkit('http://www.bing.com')] so hurrah for Pug", {})
+};
+function $082ca48d6cb6a5f5$var$Parser() {
+    this.yy = {
+    };
+}
+$082ca48d6cb6a5f5$var$Parser.prototype = $082ca48d6cb6a5f5$var$parser;
+$082ca48d6cb6a5f5$var$parser.Parser = $082ca48d6cb6a5f5$var$Parser;
+function $082ca48d6cb6a5f5$var$yyparse() {
+    return $082ca48d6cb6a5f5$var$parser.parse.apply($082ca48d6cb6a5f5$var$parser, arguments);
+}
+var $082ca48d6cb6a5f5$export$2e2bcd8739ae039 = {
+    parser: $082ca48d6cb6a5f5$var$parser,
+    Parser: $082ca48d6cb6a5f5$var$Parser,
+    parse: $082ca48d6cb6a5f5$var$yyparse
+};
+
+
+
+/* parser generated by jison 0.6.1-216 */ /*
+ * Returns a Parser object of the following structure:
+ *
+ *  Parser: {
+ *    yy: {}     The so-called "shared state" or rather the *source* of it;
+ *               the real "shared state" `yy` passed around to
+ *               the rule actions, etc. is a derivative/copy of this one,
+ *               not a direct reference!
+ *  }
+ *
+ *  Parser.prototype: {
+ *    yy: {},
+ *    EOF: 1,
+ *    TERROR: 2,
+ *
+ *    trace: function(errorMessage, ...),
+ *
+ *    JisonParserError: function(msg, hash),
+ *
+ *    quoteName: function(name),
+ *               Helper function which can be overridden by user code later on: put suitable
+ *               quotes around literal IDs in a description string.
+ *
+ *    originalQuoteName: function(name),
+ *               The basic quoteName handler provided by JISON.
+ *               `cleanupAfterParse()` will clean up and reset `quoteName()` to reference this function
+ *               at the end of the `parse()`.
+ *
+ *    describeSymbol: function(symbol),
+ *               Return a more-or-less human-readable description of the given symbol, when
+ *               available, or the symbol itself, serving as its own 'description' for lack
+ *               of something better to serve up.
+ *
+ *               Return NULL when the symbol is unknown to the parser.
+ *
+ *    symbols_: {associative list: name ==> number},
+ *    terminals_: {associative list: number ==> name},
+ *    nonterminals: {associative list: rule-name ==> {associative list: number ==> rule-alt}},
+ *    terminal_descriptions_: (if there are any) {associative list: number ==> description},
+ *    productions_: [...],
+ *
+ *    performAction: function parser__performAction(yytext, yyleng, yylineno, yyloc, yystate, yysp, yyvstack, yylstack, yystack, yysstack),
+ *
+ *               The function parameters and `this` have the following value/meaning:
+ *               - `this`    : reference to the `yyval` internal object, which has members (`$` and `_$`)
+ *                             to store/reference the rule value `$$` and location info `@$`.
+ *
+ *                 One important thing to note about `this` a.k.a. `yyval`: every *reduce* action gets
+ *                 to see the same object via the `this` reference, i.e. if you wish to carry custom
+ *                 data from one reduce action through to the next within a single parse run, then you
+ *                 may get nasty and use `yyval` a.k.a. `this` for storing you own semi-permanent data.
+ *
+ *                 `this.yy` is a direct reference to the `yy` shared state object.
+ *
+ *                 `%parse-param`-specified additional `parse()` arguments have been added to this `yy`
+ *                 object at `parse()` start and are therefore available to the action code via the
+ *                 same named `yy.xxxx` attributes (where `xxxx` represents a identifier name from
+ *                 the %parse-param` list.
+ *
+ *               - `yytext`  : reference to the lexer value which belongs to the last lexer token used
+ *                             to match this rule. This is *not* the look-ahead token, but the last token
+ *                             that's actually part of this rule.
+ *
+ *                 Formulated another way, `yytext` is the value of the token immediately preceeding
+ *                 the current look-ahead token.
+ *                 Caveats apply for rules which don't require look-ahead, such as epsilon rules.
+ *
+ *               - `yyleng`  : ditto as `yytext`, only now for the lexer.yyleng value.
+ *
+ *               - `yylineno`: ditto as `yytext`, only now for the lexer.yylineno value.
+ *
+ *               - `yyloc`   : ditto as `yytext`, only now for the lexer.yylloc lexer token location info.
+ *
+ *                               WARNING: since jison 0.4.18-186 this entry may be NULL/UNDEFINED instead
+ *                               of an empty object when no suitable location info can be provided.
+ *
+ *               - `yystate` : the current parser state number, used internally for dispatching and
+ *                               executing the action code chunk matching the rule currently being reduced.
+ *
+ *               - `yysp`    : the current state stack position (a.k.a. 'stack pointer')
+ *
+ *                 This one comes in handy when you are going to do advanced things to the parser
+ *                 stacks, all of which are accessible from your action code (see the next entries below).
+ *
+ *                 Also note that you can access this and other stack index values using the new double-hash
+ *                 syntax, i.e. `##$ === ##0 === yysp`, while `##1` is the stack index for all things
+ *                 related to the first rule term, just like you have `$1`, `@1` and `#1`.
+ *                 This is made available to write very advanced grammar action rules, e.g. when you want
+ *                 to investigate the parse state stack in your action code, which would, for example,
+ *                 be relevant when you wish to implement error diagnostics and reporting schemes similar
+ *                 to the work described here:
+ *
+ *                 + Pottier, F., 2016. Reachability and error diagnosis in LR(1) automata.
+ *                   In Journées Francophones des Languages Applicatifs.
+ *
+ *                 + Jeffery, C.L., 2003. Generating LR syntax error messages from examples.
+ *                   ACM Transactions on Programming Languages and Systems (TOPLAS), 25(5), pp.631–640.
+ *
+ *               - `yyrulelength`: the current rule's term count, i.e. the number of entries occupied on the stack.
+ *
+ *                 This one comes in handy when you are going to do advanced things to the parser
+ *                 stacks, all of which are accessible from your action code (see the next entries below).
+ *
+ *               - `yyvstack`: reference to the parser value stack. Also accessed via the `$1` etc.
+ *                             constructs.
+ *
+ *               - `yylstack`: reference to the parser token location stack. Also accessed via
+ *                             the `@1` etc. constructs.
+ *
+ *                             WARNING: since jison 0.4.18-186 this array MAY contain slots which are
+ *                             UNDEFINED rather than an empty (location) object, when the lexer/parser
+ *                             action code did not provide a suitable location info object when such a
+ *                             slot was filled!
+ *
+ *               - `yystack` : reference to the parser token id stack. Also accessed via the
+ *                             `#1` etc. constructs.
+ *
+ *                 Note: this is a bit of a **white lie** as we can statically decode any `#n` reference to
+ *                 its numeric token id value, hence that code wouldn't need the `yystack` but *you* might
+ *                 want access this array for your own purposes, such as error analysis as mentioned above!
+ *
+ *                 Note that this stack stores the current stack of *tokens*, that is the sequence of
+ *                 already parsed=reduced *nonterminals* (tokens representing rules) and *terminals*
+ *                 (lexer tokens *shifted* onto the stack until the rule they belong to is found and
+ *                 *reduced*.
+ *
+ *               - `yysstack`: reference to the parser state stack. This one carries the internal parser
+ *                             *states* such as the one in `yystate`, which are used to represent
+ *                             the parser state machine in the *parse table*. *Very* *internal* stuff,
+ *                             what can I say? If you access this one, you're clearly doing wicked things
+ *
+ *               - `...`     : the extra arguments you specified in the `%parse-param` statement in your
+ *                             grammar definition file.
+ *
+ *    table: [...],
+ *               State transition table
+ *               ----------------------
+ *
+ *               index levels are:
+ *               - `state`  --> hash table
+ *               - `symbol` --> action (number or array)
+ *
+ *                 If the `action` is an array, these are the elements' meaning:
+ *                 - index [0]: 1 = shift, 2 = reduce, 3 = accept
+ *                 - index [1]: GOTO `state`
+ *
+ *                 If the `action` is a number, it is the GOTO `state`
+ *
+ *    defaultActions: {...},
+ *
+ *    parseError: function(str, hash, ExceptionClass),
+ *    yyError: function(str, ...),
+ *    yyRecovering: function(),
+ *    yyErrOk: function(),
+ *    yyClearIn: function(),
+ *
+ *    constructParseErrorInfo: function(error_message, exception_object, expected_token_set, is_recoverable),
+ *               Helper function **which will be set up during the first invocation of the `parse()` method**.
+ *               Produces a new errorInfo 'hash object' which can be passed into `parseError()`.
+ *               See it's use in this parser kernel in many places; example usage:
+ *
+ *                   var infoObj = parser.constructParseErrorInfo('fail!', null,
+ *                                     parser.collect_expected_token_set(state), true);
+ *                   var retVal = parser.parseError(infoObj.errStr, infoObj, parser.JisonParserError);
+ *
+ *    originalParseError: function(str, hash, ExceptionClass),
+ *               The basic `parseError` handler provided by JISON.
+ *               `cleanupAfterParse()` will clean up and reset `parseError()` to reference this function
+ *               at the end of the `parse()`.
+ *
+ *    options: { ... parser %options ... },
+ *
+ *    parse: function(input[, args...]),
+ *               Parse the given `input` and return the parsed value (or `true` when none was provided by
+ *               the root action, in which case the parser is acting as a *matcher*).
+ *               You MAY use the additional `args...` parameters as per `%parse-param` spec of this grammar:
+ *               these extra `args...` are added verbatim to the `yy` object reference as member variables.
+ *
+ *               WARNING:
+ *               Parser's additional `args...` parameters (via `%parse-param`) MAY conflict with
+ *               any attributes already added to `yy` by the jison run-time;
+ *               when such a collision is detected an exception is thrown to prevent the generated run-time
+ *               from silently accepting this confusing and potentially hazardous situation!
+ *
+ *               The lexer MAY add its own set of additional parameters (via the `%parse-param` line in
+ *               the lexer section of the grammar spec): these will be inserted in the `yy` shared state
+ *               object and any collision with those will be reported by the lexer via a thrown exception.
+ *
+ *    cleanupAfterParse: function(resultValue, invoke_post_methods, do_not_nuke_errorinfos),
+ *               Helper function **which will be set up during the first invocation of the `parse()` method**.
+ *               This helper API is invoked at the end of the `parse()` call, unless an exception was thrown
+ *               and `%options no-try-catch` has been defined for this grammar: in that case this helper MAY
+ *               be invoked by calling user code to ensure the `post_parse` callbacks are invoked and
+ *               the internal parser gets properly garbage collected under these particular circumstances.
+ *
+ *    yyMergeLocationInfo: function(first_index, last_index, first_yylloc, last_yylloc, dont_look_back),
+ *               Helper function **which will be set up during the first invocation of the `parse()` method**.
+ *               This helper API can be invoked to calculate a spanning `yylloc` location info object.
+ *
+ *               Note: %epsilon rules MAY specify no `first_index` and `first_yylloc`, in which case
+ *               this function will attempt to obtain a suitable location marker by inspecting the location stack
+ *               backwards.
+ *
+ *               For more info see the documentation comment further below, immediately above this function's
+ *               implementation.
+ *
+ *    lexer: {
+ *        yy: {...},           A reference to the so-called "shared state" `yy` once
+ *                             received via a call to the `.setInput(input, yy)` lexer API.
+ *        EOF: 1,
+ *        ERROR: 2,
+ *        JisonLexerError: function(msg, hash),
+ *        parseError: function(str, hash, ExceptionClass),
+ *        setInput: function(input, [yy]),
+ *        input: function(),
+ *        unput: function(str),
+ *        more: function(),
+ *        reject: function(),
+ *        less: function(n),
+ *        pastInput: function(n),
+ *        upcomingInput: function(n),
+ *        showPosition: function(),
+ *        test_match: function(regex_match_array, rule_index, ...),
+ *        next: function(...),
+ *        lex: function(...),
+ *        begin: function(condition),
+ *        pushState: function(condition),
+ *        popState: function(),
+ *        topState: function(),
+ *        _currentRules: function(),
+ *        stateStackSize: function(),
+ *        cleanupAfterLex: function()
+ *
+ *        options: { ... lexer %options ... },
+ *
+ *        performAction: function(yy, yy_, $avoiding_name_collisions, YY_START, ...),
+ *        rules: [...],
+ *        conditions: {associative list: name ==> set},
+ *    }
+ *  }
+ *
+ *
+ *  token location info (@$, _$, etc.): {
+ *    first_line: n,
+ *    last_line: n,
+ *    first_column: n,
+ *    last_column: n,
+ *    range: [start_number, end_number]
+ *               (where the numbers are indexes into the input string, zero-based)
+ *  }
+ *
+ * ---
+ *
+ * The `parseError` function receives a 'hash' object with these members for lexer and
+ * parser errors:
+ *
+ *  {
+ *    text:        (matched text)
+ *    token:       (the produced terminal token, if any)
+ *    token_id:    (the produced terminal token numeric ID, if any)
+ *    line:        (yylineno)
+ *    loc:         (yylloc)
+ *  }
+ *
+ * parser (grammar) errors will also provide these additional members:
+ *
+ *  {
+ *    expected:    (array describing the set of expected tokens;
+ *                  may be UNDEFINED when we cannot easily produce such a set)
+ *    state:       (integer (or array when the table includes grammar collisions);
+ *                  represents the current internal state of the parser kernel.
+ *                  can, for example, be used to pass to the `collect_expected_token_set()`
+ *                  API to obtain the expected token set)
+ *    action:      (integer; represents the current internal action which will be executed)
+ *    new_state:   (integer; represents the next/planned internal state, once the current
+ *                  action has executed)
+ *    recoverable: (boolean: TRUE when the parser MAY have an error recovery rule
+ *                  available for this particular error)
+ *    state_stack: (array: the current parser LALR/LR internal state stack; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    value_stack: (array: the current parser LALR/LR internal `$$` value stack; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    location_stack: (array: the current parser LALR/LR internal location stack; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    yy:          (object: the current parser internal "shared state" `yy`
+ *                  as is also available in the rule actions; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    lexer:       (reference to the current lexer instance used by the parser)
+ *    parser:      (reference to the current parser instance)
+ *  }
+ *
+ * while `this` will reference the current parser instance.
+ *
+ * When `parseError` is invoked by the lexer, `this` will still reference the related *parser*
+ * instance, while these additional `hash` fields will also be provided:
+ *
+ *  {
+ *    lexer:       (reference to the current lexer instance which reported the error)
+ *  }
+ *
+ * When `parseError` is invoked by the parser due to a **JavaScript exception** being fired
+ * from either the parser or lexer, `this` will still reference the related *parser*
+ * instance, while these additional `hash` fields will also be provided:
+ *
+ *  {
+ *    exception:   (reference to the exception thrown)
+ *  }
+ *
+ * Please do note that in the latter situation, the `expected` field will be omitted as
+ * this type of failure is assumed not to be due to *parse errors* but rather due to user
+ * action code in either parser or lexer failing unexpectedly.
+ *
+ * ---
+ *
+ * You can specify parser options by setting / modifying the `.yy` object of your Parser instance.
+ * These options are available:
+ *
+ * ### options which are global for all parser instances
+ *
+ *  Parser.pre_parse: function(yy)
+ *                 optional: you can specify a pre_parse() function in the chunk following
+ *                 the grammar, i.e. after the last `%%`.
+ *  Parser.post_parse: function(yy, retval, parseInfo) { return retval; }
+ *                 optional: you can specify a post_parse() function in the chunk following
+ *                 the grammar, i.e. after the last `%%`. When it does not return any value,
+ *                 the parser will return the original `retval`.
+ *
+ * ### options which can be set up per parser instance
+ *
+ *  yy: {
+ *      pre_parse:  function(yy)
+ *                 optional: is invoked before the parse cycle starts (and before the first
+ *                 invocation of `lex()`) but immediately after the invocation of
+ *                 `parser.pre_parse()`).
+ *      post_parse: function(yy, retval, parseInfo) { return retval; }
+ *                 optional: is invoked when the parse terminates due to success ('accept')
+ *                 or failure (even when exceptions are thrown).
+ *                 `retval` contains the return value to be produced by `Parser.parse()`;
+ *                 this function can override the return value by returning another.
+ *                 When it does not return any value, the parser will return the original
+ *                 `retval`.
+ *                 This function is invoked immediately before `parser.post_parse()`.
+ *
+ *      parseError: function(str, hash, ExceptionClass)
+ *                 optional: overrides the default `parseError` function.
+ *      quoteName: function(name),
+ *                 optional: overrides the default `quoteName` function.
+ *  }
+ *
+ *  parser.lexer.options: {
+ *      pre_lex:  function()
+ *                 optional: is invoked before the lexer is invoked to produce another token.
+ *                 `this` refers to the Lexer object.
+ *      post_lex: function(token) { return token; }
+ *                 optional: is invoked when the lexer has produced a token `token`;
+ *                 this function can override the returned token value by returning another.
+ *                 When it does not return any (truthy) value, the lexer will return
+ *                 the original `token`.
+ *                 `this` refers to the Lexer object.
+ *
+ *      ranges: boolean
+ *                 optional: `true` ==> token location info will include a .range[] member.
+ *      flex: boolean
+ *                 optional: `true` ==> flex-like lexing behaviour where the rules are tested
+ *                 exhaustively to find the longest match.
+ *      backtrack_lexer: boolean
+ *                 optional: `true` ==> lexer regexes are tested in order and for invoked;
+ *                 the lexer terminates the scan when a token is returned by the action code.
+ *      xregexp: boolean
+ *                 optional: `true` ==> lexer rule regexes are "extended regex format" requiring the
+ *                 `XRegExp` library. When this `%option` has not been specified at compile time, all lexer
+ *                 rule regexes have been written as standard JavaScript RegExp expressions.
+ *  }
+ */ // See also:
+// http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
+// but we keep the prototype.constructor and prototype.name assignment lines too for compatibility
+// with userland code which might access the derived class in a 'classic' way.
+function $5355ad80bd576add$var$JisonParserError(msg, hash) {
+    Object.defineProperty(this, 'name', {
+        enumerable: false,
+        writable: false,
+        value: 'JisonParserError'
+    });
+    if (msg == null) msg = '???';
+    Object.defineProperty(this, 'message', {
+        enumerable: false,
+        writable: true,
+        value: msg
+    });
+    this.hash = hash;
+    var stacktrace;
+    if (hash && hash.exception instanceof Error) {
+        var ex2 = hash.exception;
+        this.message = ex2.message || msg;
+        stacktrace = ex2.stack;
+    }
+    if (!stacktrace) {
+        if (Error.hasOwnProperty('captureStackTrace')) Error.captureStackTrace(this, this.constructor);
+        else stacktrace = new Error(msg).stack;
+    }
+    if (stacktrace) Object.defineProperty(this, 'stack', {
+        enumerable: false,
+        writable: false,
+        value: stacktrace
+    });
+}
+if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf($5355ad80bd576add$var$JisonParserError.prototype, Error.prototype);
+else $5355ad80bd576add$var$JisonParserError.prototype = Object.create(Error.prototype);
+$5355ad80bd576add$var$JisonParserError.prototype.constructor = $5355ad80bd576add$var$JisonParserError;
+$5355ad80bd576add$var$JisonParserError.prototype.name = 'JisonParserError';
+// helper: reconstruct the productions[] table
+function $5355ad80bd576add$var$bp(s) {
+    var rv = [];
+    var p = s.pop;
+    var r = s.rule;
+    for(var i = 0, l = p.length; i < l; i++)rv.push([
+        p[i],
+        r[i]
+    ]);
+    return rv;
+}
+// helper: reconstruct the 'goto' table
+function $5355ad80bd576add$var$bt(s) {
+    var rv = [];
+    var d = s.len;
+    var y = s.symbol;
+    var t = s.type;
+    var a = s.state;
+    var m = s.mode;
+    var g = s.goto;
+    for(var i = 0, l = d.length; i < l; i++){
+        var n = d[i];
+        var q = {
+        };
+        for(var j = 0; j < n; j++){
+            var z = y.shift();
+            switch(t.shift()){
+                case 2:
+                    q[z] = [
+                        m.shift(),
+                        g.shift()
+                    ];
+                    break;
+                case 0:
+                    q[z] = a.shift();
+                    break;
+                default:
+                    // type === 1: accept
+                    q[z] = [
+                        3
+                    ];
+            }
+        }
+        rv.push(q);
+    }
+    return rv;
+}
+// helper: runlength encoding with increment step: code, length: step (default step = 0)
+// `this` references an array
+function $5355ad80bd576add$var$s(c, l, a) {
+    a = a || 0;
+    for(var i = 0; i < l; i++){
+        this.push(c);
+        c += a;
+    }
+}
+// helper: duplicate sequence from *relative* offset and length.
+// `this` references an array
+function $5355ad80bd576add$var$c(i, l) {
+    i = this.length - i;
+    for(l += i; i < l; i++)this.push(this[i]);
+}
+// helper: unpack an array using helpers and data, all passed in an array argument 'a'.
+function $5355ad80bd576add$var$u(a) {
+    var rv = [];
+    for(var i = 0, l = a.length; i < l; i++){
+        var e = a[i];
+        // Is this entry a helper function?
+        if (typeof e === 'function') {
+            i++;
+            e.apply(rv, a[i]);
+        } else rv.push(e);
+    }
+    return rv;
+}
+var $5355ad80bd576add$var$parser = {
+    // Code Generator Information Report
+    // ---------------------------------
+    //
+    // Options:
+    //
+    //   default action mode: ............. ["classic","merge"]
+    //   test-compile action mode: ........ "parser:*,lexer:*"
+    //   try..catch: ...................... true
+    //   default resolve on conflict: ..... true
+    //   on-demand look-ahead: ............ false
+    //   error recovery token skip maximum: 3
+    //   yyerror in parse actions is: ..... NOT recoverable,
+    //   yyerror in lexer actions and other non-fatal lexer are:
+    //   .................................. NOT recoverable,
+    //   debug grammar/output: ............ false
+    //   has partial LR conflict upgrade:   true
+    //   rudimentary token-stack support:   true
+    //   parser table compression mode: ... 2
+    //   export debug tables: ............. false
+    //   export *all* tables: ............. false
+    //   module type: ..................... es
+    //   parser engine type: .............. lalr
+    //   output main() in the module: ..... true
+    //   has user-specified main(): ....... false
+    //   has user-specified require()/import modules for main():
+    //   .................................. false
+    //   number of expected conflicts: .... 0
+    //
+    //
+    // Parser Analysis flags:
+    //
+    //   no significant actions (parser is a language matcher only):
+    //   .................................. false
+    //   uses yyleng: ..................... false
+    //   uses yylineno: ................... false
+    //   uses yytext: ..................... false
+    //   uses yylloc: ..................... false
+    //   uses ParseError API: ............. false
+    //   uses YYERROR: .................... false
+    //   uses YYRECOVERING: ............... false
+    //   uses YYERROK: .................... false
+    //   uses YYCLEARIN: .................. false
+    //   tracks rule values: .............. true
+    //   assigns rule values: ............. true
+    //   uses location tracking: .......... false
+    //   assigns location: ................ false
+    //   uses yystack: .................... false
+    //   uses yysstack: ................... false
+    //   uses yysp: ....................... true
+    //   uses yyrulelength: ............... false
+    //   uses yyMergeLocationInfo API: .... false
+    //   has error recovery: .............. false
+    //   has error reporting: ............. false
+    //
+    // --------- END OF REPORT -----------
+    trace: function no_op_trace() {
+    },
+    JisonParserError: $5355ad80bd576add$var$JisonParserError,
+    yy: {
+    },
+    options: {
+        type: "lalr",
+        hasPartialLrUpgradeOnConflict: true,
+        errorRecoveryTokenDiscardCount: 3,
+        tokenStack: true,
+        ebnf: true
+    },
+    symbols_: {
+        "$accept": 0,
+        "$end": 1,
+        "COMMA": 10,
+        "EOF": 1,
+        "EQ": 4,
+        "NAME": 3,
+        "PLUS": 8,
+        "SPACE": 9,
+        "SPREAD": 5,
+        "VAL": 6,
+        "VAR": 7,
+        "attr": 13,
+        "attrs": 12,
+        "attrs_group": 15,
+        "attrs_group2": 16,
+        "error": 2,
+        "start": 11,
+        "val": 14
+    },
+    terminals_: {
+        1: "EOF",
+        2: "error",
+        3: "NAME",
+        4: "EQ",
+        5: "SPREAD",
+        6: "VAL",
+        7: "VAR",
+        8: "PLUS",
+        9: "SPACE",
+        10: "COMMA"
+    },
+    TERROR: 2,
+    EOF: 1,
+    // internals: defined here so the object *structure* doesn't get modified by parse() et al,
+    // thus helping JIT compilers like Chrome V8.
+    originalQuoteName: null,
+    originalParseError: null,
+    cleanupAfterParse: null,
+    constructParseErrorInfo: null,
+    yyMergeLocationInfo: null,
+    __reentrant_call_depth: 0,
+    __error_infos: [],
+    __error_recovery_infos: [],
+    // APIs which will be set up depending on user action code analysis:
+    //yyRecovering: 0,
+    //yyErrOk: 0,
+    //yyClearIn: 0,
+    // Helper APIs
+    // -----------
+    // Helper function which can be overridden by user code later on: put suitable quotes around
+    // literal IDs in a description string.
+    quoteName: function parser_quoteName(id_str) {
+        return '"' + id_str + '"';
+    },
+    // Return the name of the given symbol (terminal or non-terminal) as a string, when available.
+    //
+    // Return NULL when the symbol is unknown to the parser.
+    getSymbolName: function parser_getSymbolName(symbol) {
+        if (this.terminals_[symbol]) return this.terminals_[symbol];
+        // Otherwise... this might refer to a RULE token i.e. a non-terminal: see if we can dig that one up.
+        //
+        // An example of this may be where a rule's action code contains a call like this:
+        //
+        //      parser.getSymbolName(#$)
+        //
+        // to obtain a human-readable name of the current grammar rule.
+        var s = this.symbols_;
+        for(var key in s){
+            if (s[key] === symbol) return key;
+        }
+        return null;
+    },
+    // Return a more-or-less human-readable description of the given symbol, when available,
+    // or the symbol itself, serving as its own 'description' for lack of something better to serve up.
+    //
+    // Return NULL when the symbol is unknown to the parser.
+    describeSymbol: function parser_describeSymbol(symbol) {
+        if (symbol !== this.EOF && this.terminal_descriptions_ && this.terminal_descriptions_[symbol]) return this.terminal_descriptions_[symbol];
+        else if (symbol === this.EOF) return 'end of input';
+        var id = this.getSymbolName(symbol);
+        if (id) return this.quoteName(id);
+        return null;
+    },
+    // Produce a (more or less) human-readable list of expected tokens at the point of failure.
+    //
+    // The produced list may contain token or token set descriptions instead of the tokens
+    // themselves to help turning this output into something that easier to read by humans
+    // unless `do_not_describe` parameter is set, in which case a list of the raw, *numeric*,
+    // expected terminals and nonterminals is produced.
+    //
+    // The returned list (array) will not contain any duplicate entries.
+    collect_expected_token_set: function parser_collect_expected_token_set(state, do_not_describe) {
+        var TERROR = this.TERROR;
+        var tokenset = [];
+        var check = {
+        };
+        // Has this (error?) state been outfitted with a custom expectations description text for human consumption?
+        // If so, use that one instead of the less palatable token set.
+        if (!do_not_describe && this.state_descriptions_ && this.state_descriptions_[state]) return [
+            this.state_descriptions_[state]
+        ];
+        for(var p in this.table[state]){
+            p = +p;
+            if (p !== TERROR) {
+                var d = do_not_describe ? p : this.describeSymbol(p);
+                if (d && !check[d]) {
+                    tokenset.push(d);
+                    check[d] = true; // Mark this token description as already mentioned to prevent outputting duplicate entries.
+                }
+            }
+        }
+        return tokenset;
+    },
+    productions_: $5355ad80bd576add$var$bp({
+        pop: $5355ad80bd576add$var$u([
+            11,
+            11,
+            $5355ad80bd576add$var$s,
+            [
+                12,
+                3
+            ],
+            $5355ad80bd576add$var$s,
+            [
+                13,
+                3
+            ],
+            $5355ad80bd576add$var$s,
+            [
+                14,
+                3
+            ],
+            15,
+            15,
+            16,
+            16
+        ]),
+        rule: $5355ad80bd576add$var$u([
+            1,
+            2,
+            3,
+            2,
+            1,
+            3,
+            $5355ad80bd576add$var$s,
+            [
+                1,
+                4
+            ],
+            $5355ad80bd576add$var$c,
+            [
+                5,
+                5
+            ]
+        ])
+    }),
+    performAction: function parser__PerformAction(yystate /* action[1] */ , yysp, yyvstack) {
+        /* this == yyval */ // the JS engine itself can go and remove these statements when `yy` turns out to be unused in any action code!
+        var yy = this.yy;
+        var yyparser = yy.parser;
+        var yylexer = yy.lexer;
+        switch(yystate){
+            case 0:
+                /*! Production::    $accept : start $end */ // default action (generated by JISON mode classic/merge :: 1,VT,VA,-,-,-,-,-,-):
+                this.$ = yyvstack[yysp - 1];
+                break;
+            case 1:
+            /*! Production::    start : EOF */ case 9:
+            /*! Production::    val : VAL */ case 10:
+                /*! Production::    val : VAR */ // default action (generated by JISON mode classic/merge :: 1,VT,VA,-,-,-,-,-,-):
+                this.$ = yyvstack[yysp];
+                break;
+            case 2:
+                /*! Production::    start : attrs EOF */ // default action (generated by JISON mode classic/merge :: 2,VT,VA,-,-,-,-,-,-):
+                this.$ = yyvstack[yysp - 1];
+                break;
+            case 3:
+                /*! Production::    attrs : attrs attrs_group attr */ yyvstack[yysp - 2].push(yyvstack[yysp]);
+                this.$ = yyvstack[yysp - 2];
+                break;
+            case 4:
+                /*! Production::    attrs : attrs attrs_group2 */ this.$ = yyvstack[yysp - 1];
+                break;
+            case 5:
+                /*! Production::    attrs : attr */ this.$ = [
+                    yyvstack[yysp]
+                ];
+                break;
+            case 6:
+                /*! Production::    attr : NAME EQ val */ $5355ad80bd576add$var$debug('attr: NAME EQ val: NAME=', yyvstack[yysp - 2], ', val=', yyvstack[yysp]);
+                this.$ = {
+                    name: yyvstack[yysp - 2].trim(),
+                    val: yyvstack[yysp]
+                };
+                break;
+            case 7:
+                /*! Production::    attr : SPREAD */ this.$ = {
+                    name: yyvstack[yysp],
+                    val: yyvstack[yysp]
+                };
+                break;
+            case 8:
+                /*! Production::    attr : NAME */ $5355ad80bd576add$var$debug('attr: NAME: $NAME=', yyvstack[yysp]);
+                // $$ = $1.map( function(id2) {
+                //   return { name: id2 }
+                // })
+                this.$ = {
+                    name: yyvstack[yysp]
+                };
+                break;
+            case 11:
+                /*! Production::    val : val PLUS VAR */ this.$ = yyvstack[yysp - 2] + yyvstack[yysp];
+                break;
+            case 12:
+            /*! Production::    attrs_group : SPACE */ case 13:
+            /*! Production::    attrs_group : COMMA */ case 14:
+            /*! Production::    attrs_group2 : SPACE */ case 15:
+                /*! Production::    attrs_group2 : COMMA */ this.$ = yyvstack[yysp];
+                break;
+        }
+    },
+    table: $5355ad80bd576add$var$bt({
+        len: $5355ad80bd576add$var$u([
+            6,
+            1,
+            0,
+            5,
+            0,
+            4,
+            0,
+            0,
+            3,
+            0,
+            5,
+            5,
+            3,
+            $5355ad80bd576add$var$c,
+            [
+                9,
+                4
+            ],
+            1,
+            0
+        ]),
+        symbol: $5355ad80bd576add$var$u([
+            1,
+            3,
+            5,
+            11,
+            12,
+            13,
+            1,
+            1,
+            9,
+            10,
+            15,
+            16,
+            1,
+            4,
+            9,
+            10,
+            3,
+            5,
+            13,
+            $5355ad80bd576add$var$c,
+            [
+                19,
+                3
+            ],
+            9,
+            10,
+            $5355ad80bd576add$var$c,
+            [
+                5,
+                5
+            ],
+            6,
+            7,
+            14,
+            1,
+            8,
+            9,
+            10,
+            7
+        ]),
+        type: $5355ad80bd576add$var$u([
+            $5355ad80bd576add$var$s,
+            [
+                2,
+                3
+            ],
+            $5355ad80bd576add$var$s,
+            [
+                0,
+                3
+            ],
+            1,
+            $5355ad80bd576add$var$c,
+            [
+                7,
+                5
+            ],
+            $5355ad80bd576add$var$s,
+            [
+                2,
+                6
+            ],
+            $5355ad80bd576add$var$c,
+            [
+                7,
+                7
+            ],
+            $5355ad80bd576add$var$c,
+            [
+                13,
+                12
+            ]
+        ]),
+        state: $5355ad80bd576add$var$u([
+            1,
+            3,
+            4,
+            8,
+            9,
+            13,
+            14
+        ]),
+        mode: $5355ad80bd576add$var$u([
+            $5355ad80bd576add$var$s,
+            [
+                1,
+                6
+            ],
+            2,
+            1,
+            2,
+            2,
+            $5355ad80bd576add$var$c,
+            [
+                6,
+                3
+            ],
+            $5355ad80bd576add$var$s,
+            [
+                2,
+                9
+            ],
+            $5355ad80bd576add$var$c,
+            [
+                18,
+                7
+            ]
+        ]),
+        goto: $5355ad80bd576add$var$u([
+            2,
+            5,
+            6,
+            7,
+            10,
+            11,
+            8,
+            12,
+            8,
+            8,
+            5,
+            6,
+            14,
+            12,
+            12,
+            14,
+            14,
+            15,
+            13,
+            13,
+            $5355ad80bd576add$var$s,
+            [
+                15,
+                3
+            ],
+            16,
+            6,
+            17,
+            6,
+            6,
+            18
+        ])
+    }),
+    defaultActions: {
+        2: 1,
+        4: 5,
+        6: 7,
+        7: 2,
+        9: 4,
+        13: 3,
+        15: 9,
+        16: 10,
+        18: 11
+    },
+    parseError: function parseError(str, hash, ExceptionClass) {
+        if (hash.recoverable) {
+            if (typeof this.trace === 'function') this.trace(str);
+            hash.destroy(); // destroy... well, *almost*!
+        } else {
+            if (typeof this.trace === 'function') this.trace(str);
+            if (!ExceptionClass) ExceptionClass = this.JisonParserError;
+            throw new ExceptionClass(str, hash);
+        }
+    },
+    parse: function parse(input) {
+        var self = this;
+        var stack = new Array(128); // token stack: stores token which leads to state at the same index (column storage)
+        var sstack = new Array(128); // state stack: stores states (column storage)
+        var tstack = []; // token stack (only used when `%options token_stack` support has been enabled)
+        var vstack = new Array(128); // semantic value stack
+        var table = this.table;
+        var sp = 0; // 'stack pointer': index into the stacks
+        var symbol1 = 0;
+        var TERROR = this.TERROR;
+        var EOF = this.EOF;
+        var ERROR_RECOVERY_TOKEN_DISCARD_COUNT = this.options.errorRecoveryTokenDiscardCount | 0 || 3;
+        var NO_ACTION = [
+            0,
+            19 /* === table.length :: ensures that anyone using this new state will fail dramatically! */ 
+        ];
+        var lexer;
+        if (this.__lexer__) lexer = this.__lexer__;
+        else lexer = this.__lexer__ = Object.create(this.lexer);
+        var sharedState_yy = {
+            parseError: undefined,
+            quoteName: undefined,
+            lexer: undefined,
+            parser: undefined,
+            pre_parse: undefined,
+            post_parse: undefined,
+            pre_lex: undefined,
+            post_lex: undefined // WARNING: must be written this way for the code expanders to work correctly in both ES5 and ES6 modes!
+        };
+        var ASSERT;
+        if (typeof $cjPlG$assert !== 'function') ASSERT = function JisonAssert(cond, msg) {
+            if (!cond) throw new Error('assertion failed: ' + (msg || '***'));
+        };
+        else ASSERT = $cjPlG$assert;
+        this.yyGetSharedState = function yyGetSharedState() {
+            return sharedState_yy;
+        };
+        function shallow_copy_noclobber(dst, src) {
+            for(var k in src)if (typeof dst[k] === 'undefined' && Object.prototype.hasOwnProperty.call(src, k)) dst[k] = src[k];
+        }
+        // copy state
+        shallow_copy_noclobber(sharedState_yy, this.yy);
+        sharedState_yy.lexer = lexer;
+        sharedState_yy.parser = this;
+        // Does the shared state override the default `parseError` that already comes with this instance?
+        if (typeof sharedState_yy.parseError === 'function') this.parseError = function parseErrorAlt(str, hash, ExceptionClass) {
+            if (!ExceptionClass) ExceptionClass = this.JisonParserError;
+            return sharedState_yy.parseError.call(this, str, hash, ExceptionClass);
+        };
+        else this.parseError = this.originalParseError;
+        // Does the shared state override the default `quoteName` that already comes with this instance?
+        if (typeof sharedState_yy.quoteName === 'function') this.quoteName = function quoteNameAlt(id_str) {
+            return sharedState_yy.quoteName.call(this, id_str);
+        };
+        else this.quoteName = this.originalQuoteName;
+        // set up the cleanup function; make it an API so that external code can re-use this one in case of
+        // calamities or when the `%options no-try-catch` option has been specified for the grammar, in which
+        // case this parse() API method doesn't come with a `finally { ... }` block any more!
+        //
+        // NOTE: as this API uses parse() as a closure, it MUST be set again on every parse() invocation,
+        //       or else your `sharedState`, etc. references will be *wrong*!
+        this.cleanupAfterParse = function parser_cleanupAfterParse(resultValue, invoke_post_methods, do_not_nuke_errorinfos) {
+            var rv;
+            if (invoke_post_methods) {
+                var hash;
+                if (sharedState_yy.post_parse || this.post_parse) // create an error hash info instance: we re-use this API in a **non-error situation**
+                // as this one delivers all parser internals ready for access by userland code.
+                hash = this.constructParseErrorInfo(null, null, null, false);
+                if (sharedState_yy.post_parse) {
+                    rv = sharedState_yy.post_parse.call(this, sharedState_yy, resultValue, hash);
+                    if (typeof rv !== 'undefined') resultValue = rv;
+                }
+                if (this.post_parse) {
+                    rv = this.post_parse.call(this, sharedState_yy, resultValue, hash);
+                    if (typeof rv !== 'undefined') resultValue = rv;
+                }
+                // cleanup:
+                if (hash && hash.destroy) hash.destroy();
+            }
+            if (this.__reentrant_call_depth > 1) return resultValue; // do not (yet) kill the sharedState when this is a reentrant run.
+            // clean up the lingering lexer structures as well:
+            if (lexer.cleanupAfterLex) lexer.cleanupAfterLex(do_not_nuke_errorinfos);
+            // prevent lingering circular references from causing memory leaks:
+            if (sharedState_yy) {
+                sharedState_yy.lexer = undefined;
+                sharedState_yy.parser = undefined;
+                if (lexer.yy === sharedState_yy) lexer.yy = undefined;
+            }
+            sharedState_yy = undefined;
+            this.parseError = this.originalParseError;
+            this.quoteName = this.originalQuoteName;
+            // nuke the vstack[] array at least as that one will still reference obsoleted user values.
+            // To be safe, we nuke the other internal stack columns as well...
+            stack.length = 0; // fastest way to nuke an array without overly bothering the GC
+            sstack.length = 0;
+            vstack.length = 0;
+            sp = 0;
+            // nuke the error hash info instances created during this run.
+            // Userland code must COPY any data/references
+            // in the error hash instance(s) it is more permanently interested in.
+            if (!do_not_nuke_errorinfos) {
+                for(var i = this.__error_infos.length - 1; i >= 0; i--){
+                    var el = this.__error_infos[i];
+                    if (el && typeof el.destroy === 'function') el.destroy();
+                }
+                this.__error_infos.length = 0;
+            }
+            return resultValue;
+        };
+        // NOTE: as this API uses parse() as a closure, it MUST be set again on every parse() invocation,
+        //       or else your `lexer`, `sharedState`, etc. references will be *wrong*!
+        this.constructParseErrorInfo = function parser_constructParseErrorInfo(msg, ex, expected, recoverable) {
+            var pei = {
+                errStr: msg,
+                exception: ex,
+                text: lexer.match,
+                value: lexer.yytext,
+                token: this.describeSymbol(symbol1) || symbol1,
+                token_id: symbol1,
+                line: lexer.yylineno,
+                expected: expected,
+                recoverable: recoverable,
+                state: state,
+                action: action,
+                new_state: newState,
+                symbol_stack: stack,
+                state_stack: sstack,
+                value_stack: vstack,
+                stack_pointer: sp,
+                yy: sharedState_yy,
+                lexer: lexer,
+                parser: this,
+                // and make sure the error info doesn't stay due to potential
+                // ref cycle via userland code manipulations.
+                // These would otherwise all be memory leak opportunities!
+                //
+                // Note that only array and object references are nuked as those
+                // constitute the set of elements which can produce a cyclic ref.
+                // The rest of the members is kept intact as they are harmless.
+                destroy: function destructParseErrorInfo() {
+                    // remove cyclic references added to error info:
+                    // info.yy = null;
+                    // info.lexer = null;
+                    // info.value = null;
+                    // info.value_stack = null;
+                    // ...
+                    var rec = !!this.recoverable;
+                    for(var key in this)if (this.hasOwnProperty(key) && typeof key === 'object') this[key] = undefined;
+                    this.recoverable = rec;
+                }
+            };
+            // track this instance so we can `destroy()` it once we deem it superfluous and ready for garbage collection!
+            this.__error_infos.push(pei);
+            return pei;
+        };
+        function getNonTerminalFromCode(symbol) {
+            var tokenName = self.getSymbolName(symbol);
+            if (!tokenName) tokenName = symbol;
+            return tokenName;
+        }
+        // lex function that supports token stacks
+        function lex() {
+            var token;
+            token = tstack.pop() || lexer.lex() || EOF;
+            // if token isn't its numeric value, convert
+            if (typeof token !== 'number') {
+                if (token instanceof Array) {
+                    tstack = token;
+                    token = tstack.pop();
+                }
+                // if token isn't its numeric value, convert
+                if (typeof token !== 'number') token = self.symbols_[token] || token;
+            }
+            return token || EOF;
+        }
+        var state, action, r, t;
+        var yyval = {
+            $: true,
+            _$: undefined,
+            yy: sharedState_yy
+        };
+        var p;
+        var yyrulelen;
+        var this_production;
+        var newState;
+        var retval = false;
+        try {
+            this.__reentrant_call_depth++;
+            lexer.setInput(input, sharedState_yy);
+            // NOTE: we *assume* no lexer pre/post handlers are set up *after* 
+            // this initial `setInput()` call: hence we can now check and decide
+            // whether we'll go with the standard, slower, lex() API or the
+            // `fast_lex()` one:
+            if (typeof lexer.canIUse === 'function') {
+                var lexerInfo = lexer.canIUse();
+                if (lexerInfo.fastLex && typeof fastLex === 'function') lex = fastLex;
+            }
+            vstack[sp] = null;
+            sstack[sp] = 0;
+            stack[sp] = 0;
+            ++sp;
+            if (this.pre_parse) this.pre_parse.call(this, sharedState_yy);
+            if (sharedState_yy.pre_parse) sharedState_yy.pre_parse.call(this, sharedState_yy);
+            newState = sstack[sp - 1];
+            for(;;){
+                // retrieve state number from top of stack
+                state = newState; // sstack[sp - 1];
+                // use default actions if available
+                if (this.defaultActions[state]) {
+                    action = 2;
+                    newState = this.defaultActions[state];
+                } else {
+                    // The single `==` condition below covers both these `===` comparisons in a single
+                    // operation:
+                    //
+                    //     if (symbol === null || typeof symbol === 'undefined') ...
+                    if (!symbol1) symbol1 = lex();
+                    // read action for current state and first input
+                    t = table[state] && table[state][symbol1] || NO_ACTION;
+                    newState = t[1];
+                    action = t[0];
+                    // handle parse error
+                    if (!action) {
+                        var errStr;
+                        var errSymbolDescr = this.describeSymbol(symbol1) || symbol1;
+                        var expected1 = this.collect_expected_token_set(state);
+                        // Report error
+                        if (typeof lexer.yylineno === 'number') errStr = 'Parse error on line ' + (lexer.yylineno + 1) + ': ';
+                        else errStr = 'Parse error: ';
+                        if (typeof lexer.showPosition === 'function') errStr += '\n' + lexer.showPosition(69, 10) + '\n';
+                        if (expected1.length) errStr += 'Expecting ' + expected1.join(', ') + ', got unexpected ' + errSymbolDescr;
+                        else errStr += 'Unexpected ' + errSymbolDescr;
+                        // we cannot recover from the error!
+                        p = this.constructParseErrorInfo(errStr, null, expected1, false);
+                        r = this.parseError(p.errStr, p, this.JisonParserError);
+                        if (typeof r !== 'undefined') retval = r;
+                        break;
+                    }
+                }
+                switch(action){
+                    // catch misc. parse failures:
+                    default:
+                        // this shouldn't happen, unless resolve defaults are off
+                        if (action instanceof Array) {
+                            p = this.constructParseErrorInfo('Parse Error: multiple actions possible at state: ' + state + ', token: ' + symbol1, null, null, false);
+                            r = this.parseError(p.errStr, p, this.JisonParserError);
+                            if (typeof r !== 'undefined') retval = r;
+                            break;
+                        }
+                        // Another case of better safe than sorry: in case state transitions come out of another error recovery process
+                        // or a buggy LUT (LookUp Table):
+                        p = this.constructParseErrorInfo('Parsing halted. No viable error recovery approach available due to internal system failure.', null, null, false);
+                        r = this.parseError(p.errStr, p, this.JisonParserError);
+                        if (typeof r !== 'undefined') retval = r;
+                        break;
+                    // shift:
+                    case 1:
+                        stack[sp] = symbol1;
+                        vstack[sp] = lexer.yytext;
+                        sstack[sp] = newState; // push state
+                        ++sp;
+                        symbol1 = 0;
+                        continue;
+                    // reduce:
+                    case 2:
+                        this_production = this.productions_[newState - 1]; // `this.productions_[]` is zero-based indexed while states start from 1 upwards...
+                        yyrulelen = this_production[1];
+                        r = this.performAction.call(yyval, newState, sp - 1, vstack);
+                        if (typeof r !== 'undefined') {
+                            retval = r;
+                            break;
+                        }
+                        // pop off stack
+                        sp -= yyrulelen;
+                        // don't overwrite the `symbol` variable: use a local var to speed things up:
+                        var ntsymbol = this_production[0]; // push nonterminal (reduce)
+                        stack[sp] = ntsymbol;
+                        vstack[sp] = yyval.$;
+                        // goto new state = table[STATE][NONTERMINAL]
+                        newState = table[sstack[sp - 1]][ntsymbol];
+                        sstack[sp] = newState;
+                        ++sp;
+                        continue;
+                    // accept:
+                    case 3:
+                        if (sp !== -2) {
+                            retval = true;
+                            // Return the `$accept` rule's `$$` result, if available.
+                            //
+                            // Also note that JISON always adds this top-most `$accept` rule (with implicit,
+                            // default, action):
+                            //
+                            //     $accept: <startSymbol> $end
+                            //                  %{ $$ = $1; @$ = @1; %}
+                            //
+                            // which, combined with the parse kernel's `$accept` state behaviour coded below,
+                            // will produce the `$$` value output of the <startSymbol> rule as the parse result,
+                            // IFF that result is *not* `undefined`. (See also the parser kernel code.)
+                            //
+                            // In code:
+                            //
+                            //                  %{
+                            //                      @$ = @1;            // if location tracking support is included
+                            //                      if (typeof $1 !== 'undefined')
+                            //                          return $1;
+                            //                      else
+                            //                          return true;           // the default parse result if the rule actions don't produce anything
+                            //                  %}
+                            sp--;
+                            if (typeof vstack[sp] !== 'undefined') retval = vstack[sp];
+                        }
+                        break;
+                }
+                break;
+            }
+        } catch (ex) {
+            // report exceptions through the parseError callback too, but keep the exception intact
+            // if it is a known parser or lexer error which has been thrown by parseError() already:
+            if (ex instanceof this.JisonParserError) throw ex;
+            else if (lexer && typeof lexer.JisonLexerError === 'function' && ex instanceof lexer.JisonLexerError) throw ex;
+            p = this.constructParseErrorInfo('Parsing aborted due to exception.', ex, null, false);
+            retval = false;
+            r = this.parseError(p.errStr, p, this.JisonParserError);
+            if (typeof r !== 'undefined') retval = r;
+        } finally{
+            retval = this.cleanupAfterParse(retval, true, true);
+            this.__reentrant_call_depth--;
+        } // /finally
+        return retval;
+    }
+};
+$5355ad80bd576add$var$parser.originalParseError = $5355ad80bd576add$var$parser.parseError;
+$5355ad80bd576add$var$parser.originalQuoteName = $5355ad80bd576add$var$parser.quoteName;
+/* lexer generated by jison-lex 0.6.1-216 */ /*
+ * Returns a Lexer object of the following structure:
+ *
+ *  Lexer: {
+ *    yy: {}     The so-called "shared state" or rather the *source* of it;
+ *               the real "shared state" `yy` passed around to
+ *               the rule actions, etc. is a direct reference!
+ *
+ *               This "shared context" object was passed to the lexer by way of 
+ *               the `lexer.setInput(str, yy)` API before you may use it.
+ *
+ *               This "shared context" object is passed to the lexer action code in `performAction()`
+ *               so userland code in the lexer actions may communicate with the outside world 
+ *               and/or other lexer rules' actions in more or less complex ways.
+ *
+ *  }
+ *
+ *  Lexer.prototype: {
+ *    EOF: 1,
+ *    ERROR: 2,
+ *
+ *    yy:        The overall "shared context" object reference.
+ *
+ *    JisonLexerError: function(msg, hash),
+ *
+ *    performAction: function lexer__performAction(yy, yyrulenumber, YY_START),
+ *
+ *               The function parameters and `this` have the following value/meaning:
+ *               - `this`    : reference to the `lexer` instance. 
+ *                               `yy_` is an alias for `this` lexer instance reference used internally.
+ *
+ *               - `yy`      : a reference to the `yy` "shared state" object which was passed to the lexer
+ *                             by way of the `lexer.setInput(str, yy)` API before.
+ *
+ *                             Note:
+ *                             The extra arguments you specified in the `%parse-param` statement in your
+ *                             **parser** grammar definition file are passed to the lexer via this object
+ *                             reference as member variables.
+ *
+ *               - `yyrulenumber`   : index of the matched lexer rule (regex), used internally.
+ *
+ *               - `YY_START`: the current lexer "start condition" state.
+ *
+ *    parseError: function(str, hash, ExceptionClass),
+ *
+ *    constructLexErrorInfo: function(error_message, is_recoverable),
+ *               Helper function.
+ *               Produces a new errorInfo 'hash object' which can be passed into `parseError()`.
+ *               See it's use in this lexer kernel in many places; example usage:
+ *
+ *                   var infoObj = lexer.constructParseErrorInfo('fail!', true);
+ *                   var retVal = lexer.parseError(infoObj.errStr, infoObj, lexer.JisonLexerError);
+ *
+ *    options: { ... lexer %options ... },
+ *
+ *    lex: function(),
+ *               Produce one token of lexed input, which was passed in earlier via the `lexer.setInput()` API.
+ *               You MAY use the additional `args...` parameters as per `%parse-param` spec of the **lexer** grammar:
+ *               these extra `args...` are added verbatim to the `yy` object reference as member variables.
+ *
+ *               WARNING:
+ *               Lexer's additional `args...` parameters (via lexer's `%parse-param`) MAY conflict with
+ *               any attributes already added to `yy` by the **parser** or the jison run-time; 
+ *               when such a collision is detected an exception is thrown to prevent the generated run-time 
+ *               from silently accepting this confusing and potentially hazardous situation! 
+ *
+ *    cleanupAfterLex: function(do_not_nuke_errorinfos),
+ *               Helper function.
+ *
+ *               This helper API is invoked when the **parse process** has completed: it is the responsibility
+ *               of the **parser** (or the calling userland code) to invoke this method once cleanup is desired. 
+ *
+ *               This helper may be invoked by user code to ensure the internal lexer gets properly garbage collected.
+ *
+ *    setInput: function(input, [yy]),
+ *
+ *
+ *    input: function(),
+ *
+ *
+ *    unput: function(str),
+ *
+ *
+ *    more: function(),
+ *
+ *
+ *    reject: function(),
+ *
+ *
+ *    less: function(n),
+ *
+ *
+ *    pastInput: function(n),
+ *
+ *
+ *    upcomingInput: function(n),
+ *
+ *
+ *    showPosition: function(),
+ *
+ *
+ *    test_match: function(regex_match_array, rule_index),
+ *
+ *
+ *    next: function(),
+ *
+ *
+ *    begin: function(condition),
+ *
+ *
+ *    pushState: function(condition),
+ *
+ *
+ *    popState: function(),
+ *
+ *
+ *    topState: function(),
+ *
+ *
+ *    _currentRules: function(),
+ *
+ *
+ *    stateStackSize: function(),
+ *
+ *
+ *    performAction: function(yy, yy_, yyrulenumber, YY_START),
+ *
+ *
+ *    rules: [...],
+ *
+ *
+ *    conditions: {associative list: name ==> set},
+ *  }
+ *
+ *
+ *  token location info (`yylloc`): {
+ *    first_line: n,
+ *    last_line: n,
+ *    first_column: n,
+ *    last_column: n,
+ *    range: [start_number, end_number]
+ *               (where the numbers are indexes into the input string, zero-based)
+ *  }
+ *
+ * ---
+ *
+ * The `parseError` function receives a 'hash' object with these members for lexer errors:
+ *
+ *  {
+ *    text:        (matched text)
+ *    token:       (the produced terminal token, if any)
+ *    token_id:    (the produced terminal token numeric ID, if any)
+ *    line:        (yylineno)
+ *    loc:         (yylloc)
+ *    recoverable: (boolean: TRUE when the parser MAY have an error recovery rule
+ *                  available for this particular error)
+ *    yy:          (object: the current parser internal "shared state" `yy`
+ *                  as is also available in the rule actions; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    lexer:       (reference to the current lexer instance used by the parser)
+ *  }
+ *
+ * while `this` will reference the current lexer instance.
+ *
+ * When `parseError` is invoked by the lexer, the default implementation will
+ * attempt to invoke `yy.parser.parseError()`; when this callback is not provided
+ * it will try to invoke `yy.parseError()` instead. When that callback is also not
+ * provided, a `JisonLexerError` exception will be thrown containing the error
+ * message and `hash`, as constructed by the `constructLexErrorInfo()` API.
+ *
+ * Note that the lexer's `JisonLexerError` error class is passed via the
+ * `ExceptionClass` argument, which is invoked to construct the exception
+ * instance to be thrown, so technically `parseError` will throw the object
+ * produced by the `new ExceptionClass(str, hash)` JavaScript expression.
+ *
+ * ---
+ *
+ * You can specify lexer options by setting / modifying the `.options` object of your Lexer instance.
+ * These options are available:
+ *
+ * (Options are permanent.)
+ *  
+ *  yy: {
+ *      parseError: function(str, hash, ExceptionClass)
+ *                 optional: overrides the default `parseError` function.
+ *  }
+ *
+ *  lexer.options: {
+ *      pre_lex:  function()
+ *                 optional: is invoked before the lexer is invoked to produce another token.
+ *                 `this` refers to the Lexer object.
+ *      post_lex: function(token) { return token; }
+ *                 optional: is invoked when the lexer has produced a token `token`;
+ *                 this function can override the returned token value by returning another.
+ *                 When it does not return any (truthy) value, the lexer will return
+ *                 the original `token`.
+ *                 `this` refers to the Lexer object.
+ *
+ * WARNING: the next set of options are not meant to be changed. They echo the abilities of
+ * the lexer as per when it was compiled!
+ *
+ *      ranges: boolean
+ *                 optional: `true` ==> token location info will include a .range[] member.
+ *      flex: boolean
+ *                 optional: `true` ==> flex-like lexing behaviour where the rules are tested
+ *                 exhaustively to find the longest match.
+ *      backtrack_lexer: boolean
+ *                 optional: `true` ==> lexer regexes are tested in order and for invoked;
+ *                 the lexer terminates the scan when a token is returned by the action code.
+ *      xregexp: boolean
+ *                 optional: `true` ==> lexer rule regexes are "extended regex format" requiring the
+ *                 `XRegExp` library. When this %option has not been specified at compile time, all lexer
+ *                 rule regexes have been written as standard JavaScript RegExp expressions.
+ *  }
+ */ var $5355ad80bd576add$var$lexer = function() {
+    /**
+   * See also:
+   * http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
+   * but we keep the prototype.constructor and prototype.name assignment lines too for compatibility
+   * with userland code which might access the derived class in a 'classic' way.
+   *
+   * @public
+   * @constructor
+   * @nocollapse
+   */ function JisonLexerError(msg, hash) {
+        Object.defineProperty(this, 'name', {
+            enumerable: false,
+            writable: false,
+            value: 'JisonLexerError'
+        });
+        if (msg == null) msg = '???';
+        Object.defineProperty(this, 'message', {
+            enumerable: false,
+            writable: true,
+            value: msg
+        });
+        this.hash = hash;
+        var stacktrace;
+        if (hash && hash.exception instanceof Error) {
+            var ex2 = hash.exception;
+            this.message = ex2.message || msg;
+            stacktrace = ex2.stack;
+        }
+        if (!stacktrace) {
+            if (Error.hasOwnProperty('captureStackTrace')) // V8
+            Error.captureStackTrace(this, this.constructor);
+            else stacktrace = new Error(msg).stack;
+        }
+        if (stacktrace) Object.defineProperty(this, 'stack', {
+            enumerable: false,
+            writable: false,
+            value: stacktrace
+        });
+    }
+    if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf(JisonLexerError.prototype, Error.prototype);
+    else JisonLexerError.prototype = Object.create(Error.prototype);
+    JisonLexerError.prototype.constructor = JisonLexerError;
+    JisonLexerError.prototype.name = 'JisonLexerError';
+    var lexer = {
+        // Code Generator Information Report
+        // ---------------------------------
+        //
+        // Options:
+        //
+        //   backtracking: .................... false
+        //   location.ranges: ................. false
+        //   location line+column tracking: ... true
+        //
+        //
+        // Forwarded Parser Analysis flags:
+        //
+        //   uses yyleng: ..................... false
+        //   uses yylineno: ................... false
+        //   uses yytext: ..................... false
+        //   uses yylloc: ..................... false
+        //   uses lexer values: ............... true / true
+        //   location tracking: ............... false
+        //   location assignment: ............. false
+        //
+        //
+        // Lexer Analysis flags:
+        //
+        //   uses yyleng: ..................... ???
+        //   uses yylineno: ................... ???
+        //   uses yytext: ..................... ???
+        //   uses yylloc: ..................... ???
+        //   uses ParseError API: ............. ???
+        //   uses yyerror: .................... ???
+        //   uses location tracking & editing:  ???
+        //   uses more() API: ................. ???
+        //   uses unput() API: ................ ???
+        //   uses reject() API: ............... ???
+        //   uses less() API: ................. ???
+        //   uses display APIs pastInput(), upcomingInput(), showPosition():
+        //        ............................. ???
+        //   uses describeYYLLOC() API: ....... ???
+        //
+        // --------- END OF REPORT -----------
+        EOF: 1,
+        ERROR: 2,
+        // JisonLexerError: JisonLexerError,        /// <-- injected by the code generator
+        // options: {},                             /// <-- injected by the code generator
+        // yy: ...,                                 /// <-- injected by setInput()
+        /// INTERNAL USE ONLY: internal rule set cache for the current lexer state
+        __currentRuleSet__: null,
+        /// INTERNAL USE ONLY: the set of lexErrorInfo objects created since the last cleanup
+        __error_infos: [],
+        /// INTERNAL USE ONLY: mark whether the lexer instance has been 'unfolded' completely and is now ready for use
+        __decompressed: false,
+        /// INTERNAL USE ONLY
+        done: false,
+        /// INTERNAL USE ONLY
+        _backtrack: false,
+        /// INTERNAL USE ONLY
+        _input: '',
+        /// INTERNAL USE ONLY
+        _more: false,
+        /// INTERNAL USE ONLY
+        _signaled_error_token: false,
+        /// INTERNAL USE ONLY; managed via `pushState()`, `popState()`, `topState()` and `stateStackSize()`
+        conditionStack: [],
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks input which has been matched so far for the lexer token under construction. `match` is identical to `yytext` except that this one still contains the matched input string after `lexer.performAction()` has been invoked, where userland code MAY have changed/replaced the `yytext` value entirely!
+        match: '',
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks entire input which has been matched so far
+        matched: '',
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks RE match result for last (successful) match attempt
+        matches: false,
+        /// ADVANCED USE ONLY: tracks input which has been matched so far for the lexer token under construction; this value is transferred to the parser as the 'token value' when the parser consumes the lexer token produced through a call to the `lex()` API.
+        yytext: '',
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks the 'cursor position' in the input string, i.e. the number of characters matched so far
+        offset: 0,
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: length of matched input for the token under construction (`yytext`)
+        yyleng: 0,
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: 'line number' at which the token under construction is located
+        yylineno: 0,
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks location info (lines + columns) for the token under construction
+        yylloc: null,
+        /**
+     * INTERNAL USE: construct a suitable error info hash object instance for `parseError`.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ constructLexErrorInfo: function lexer_constructLexErrorInfo(msg, recoverable, show_input_position) {
+            msg = '' + msg;
+            // heuristic to determine if the error message already contains a (partial) source code dump
+            // as produced by either `showPosition()` or `prettyPrintRange()`:
+            if (show_input_position == undefined) show_input_position = !(msg.indexOf('\n') > 0 && msg.indexOf('^') > 0);
+            if (this.yylloc && show_input_position) {
+                if (typeof this.prettyPrintRange === 'function') {
+                    var pretty_src = this.prettyPrintRange(this.yylloc);
+                    if (!/\n\s*$/.test(msg)) msg += '\n';
+                    msg += '\n  Erroneous area:\n' + this.prettyPrintRange(this.yylloc);
+                } else if (typeof this.showPosition === 'function') {
+                    var pos_str = this.showPosition();
+                    if (pos_str) {
+                        if (msg.length && msg[msg.length - 1] !== '\n' && pos_str[0] !== '\n') msg += '\n' + pos_str;
+                        else msg += pos_str;
+                    }
+                }
+            }
+            /** @constructor */ var pei = {
+                errStr: msg,
+                recoverable: !!recoverable,
+                // This one MAY be empty; userland code should use the `upcomingInput` API to obtain more text which follows the 'lexer cursor position'...
+                text: this.match,
+                token: null,
+                line: this.yylineno,
+                loc: this.yylloc,
+                yy: this.yy,
+                lexer: this,
+                /**
+         * and make sure the error info doesn't stay due to potential
+         * ref cycle via userland code manipulations.
+         * These would otherwise all be memory leak opportunities!
+         * 
+         * Note that only array and object references are nuked as those
+         * constitute the set of elements which can produce a cyclic ref.
+         * The rest of the members is kept intact as they are harmless.
+         * 
+         * @public
+         * @this {LexErrorInfo}
+         */ destroy: function destructLexErrorInfo() {
+                    // remove cyclic references added to error info:
+                    // info.yy = null;
+                    // info.lexer = null;
+                    // ...
+                    var rec = !!this.recoverable;
+                    for(var key in this)if (this.hasOwnProperty(key) && typeof key === 'object') this[key] = undefined;
+                    this.recoverable = rec;
+                }
+            };
+            // track this instance so we can `destroy()` it once we deem it superfluous and ready for garbage collection!
+            this.__error_infos.push(pei);
+            return pei;
+        },
+        /**
+     * handler which is invoked when a lexer error occurs.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ parseError: function lexer_parseError(str, hash, ExceptionClass) {
+            if (!ExceptionClass) ExceptionClass = this.JisonLexerError;
+            if (this.yy) {
+                if (this.yy.parser && typeof this.yy.parser.parseError === 'function') return this.yy.parser.parseError.call(this, str, hash, ExceptionClass) || this.ERROR;
+                else if (typeof this.yy.parseError === 'function') return this.yy.parseError.call(this, str, hash, ExceptionClass) || this.ERROR;
+            }
+            throw new ExceptionClass(str, hash);
+        },
+        /**
+     * method which implements `yyerror(str, ...args)` functionality for use inside lexer actions.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ yyerror: function yyError(str /*, ...args */ ) {
+            var lineno_msg = '';
+            if (this.yylloc) lineno_msg = ' on line ' + (this.yylineno + 1);
+            var p = this.constructLexErrorInfo('Lexical error' + lineno_msg + ': ' + str, this.options.lexerErrorsAreRecoverable);
+            // Add any extra args to the hash under the name `extra_error_attributes`:
+            var args = Array.prototype.slice.call(arguments, 1);
+            if (args.length) p.extra_error_attributes = args;
+            return this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+        },
+        /**
+     * final cleanup function for when we have completed lexing the input;
+     * make it an API so that external code can use this one once userland
+     * code has decided it's time to destroy any lingering lexer error
+     * hash object instances and the like: this function helps to clean
+     * up these constructs, which *may* carry cyclic references which would
+     * otherwise prevent the instances from being properly and timely
+     * garbage-collected, i.e. this function helps prevent memory leaks!
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ cleanupAfterLex: function lexer_cleanupAfterLex(do_not_nuke_errorinfos) {
+            // prevent lingering circular references from causing memory leaks:
+            this.setInput('', {
+            });
+            // nuke the error hash info instances created during this run.
+            // Userland code must COPY any data/references
+            // in the error hash instance(s) it is more permanently interested in.
+            if (!do_not_nuke_errorinfos) {
+                for(var i = this.__error_infos.length - 1; i >= 0; i--){
+                    var el = this.__error_infos[i];
+                    if (el && typeof el.destroy === 'function') el.destroy();
+                }
+                this.__error_infos.length = 0;
+            }
+            return this;
+        },
+        /**
+     * clear the lexer token context; intended for internal use only
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ clear: function lexer_clear() {
+            this.yytext = '';
+            this.yyleng = 0;
+            this.match = '';
+            // - DO NOT reset `this.matched`
+            this.matches = false;
+            this._more = false;
+            this._backtrack = false;
+            var col = this.yylloc ? this.yylloc.last_column : 0;
+            this.yylloc = {
+                first_line: this.yylineno + 1,
+                first_column: col,
+                last_line: this.yylineno + 1,
+                last_column: col,
+                range: [
+                    this.offset,
+                    this.offset
+                ]
+            };
+        },
+        /**
+     * resets the lexer, sets new input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ setInput: function lexer_setInput(input, yy) {
+            this.yy = yy || this.yy || {
+            };
+            // also check if we've fully initialized the lexer instance,
+            // including expansion work to be done to go from a loaded
+            // lexer to a usable lexer:
+            if (!this.__decompressed) {
+                // step 1: decompress the regex list:
+                var rules = this.rules;
+                for(var i = 0, len = rules.length; i < len; i++){
+                    var rule_re = rules[i];
+                    // compression: is the RE an xref to another RE slot in the rules[] table?
+                    if (typeof rule_re === 'number') rules[i] = rules[rule_re];
+                }
+                // step 2: unfold the conditions[] set to make these ready for use:
+                var conditions = this.conditions;
+                for(var k in conditions){
+                    var spec = conditions[k];
+                    var rule_ids = spec.rules;
+                    var len = rule_ids.length;
+                    var rule_regexes = new Array(len + 1); // slot 0 is unused; we use a 1-based index approach here to keep the hottest code in `lexer_next()` fast and simple!
+                    var rule_new_ids = new Array(len + 1);
+                    for(var i = 0; i < len; i++){
+                        var idx = rule_ids[i];
+                        var rule_re = rules[idx];
+                        rule_regexes[i + 1] = rule_re;
+                        rule_new_ids[i + 1] = idx;
+                    }
+                    spec.rules = rule_new_ids;
+                    spec.__rule_regexes = rule_regexes;
+                    spec.__rule_count = len;
+                }
+                this.__decompressed = true;
+            }
+            this._input = input || '';
+            this.clear();
+            this._signaled_error_token = false;
+            this.done = false;
+            this.yylineno = 0;
+            this.matched = '';
+            this.conditionStack = [
+                'INITIAL'
+            ];
+            this.__currentRuleSet__ = null;
+            this.yylloc = {
+                first_line: 1,
+                first_column: 0,
+                last_line: 1,
+                last_column: 0,
+                range: [
+                    0,
+                    0
+                ]
+            };
+            this.offset = 0;
+            return this;
+        },
+        /**
+     * edit the remaining input via user-specified callback.
+     * This can be used to forward-adjust the input-to-parse, 
+     * e.g. inserting macro expansions and alike in the
+     * input which has yet to be lexed.
+     * The behaviour of this API contrasts the `unput()` et al
+     * APIs as those act on the *consumed* input, while this
+     * one allows one to manipulate the future, without impacting
+     * the current `yyloc` cursor location or any history. 
+     * 
+     * Use this API to help implement C-preprocessor-like
+     * `#include` statements, etc.
+     * 
+     * The provided callback must be synchronous and is
+     * expected to return the edited input (string).
+     *
+     * The `cpsArg` argument value is passed to the callback
+     * as-is.
+     *
+     * `callback` interface: 
+     * `function callback(input, cpsArg)`
+     * 
+     * - `input` will carry the remaining-input-to-lex string
+     *   from the lexer.
+     * - `cpsArg` is `cpsArg` passed into this API.
+     * 
+     * The `this` reference for the callback will be set to
+     * reference this lexer instance so that userland code
+     * in the callback can easily and quickly access any lexer
+     * API. 
+     *
+     * When the callback returns a non-string-type falsey value,
+     * we assume the callback did not edit the input and we
+     * will using the input as-is.
+     *
+     * When the callback returns a non-string-type value, it
+     * is converted to a string for lexing via the `"" + retval`
+     * operation. (See also why: http://2ality.com/2012/03/converting-to-string.html 
+     * -- that way any returned object's `toValue()` and `toString()`
+     * methods will be invoked in a proper/desirable order.)
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ editRemainingInput: function lexer_editRemainingInput(callback, cpsArg) {
+            var rv = callback.call(this, this._input, cpsArg);
+            if (typeof rv !== 'string') {
+                if (rv) this._input = '' + rv;
+            } else this._input = rv;
+            return this;
+        },
+        /**
+     * consumes and returns one char from the input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ input: function lexer_input() {
+            if (!this._input) //this.done = true;    -- don't set `done` as we want the lex()/next() API to be able to produce one custom EOF token match after this anyhow. (lexer can match special <<EOF>> tokens and perform user action code for a <<EOF>> match, but only does so *once*)
+            return null;
+            var ch = this._input[0];
+            this.yytext += ch;
+            this.yyleng++;
+            this.offset++;
+            this.match += ch;
+            this.matched += ch;
+            // Count the linenumber up when we hit the LF (or a stand-alone CR).
+            // On CRLF, the linenumber is incremented when you fetch the CR or the CRLF combo
+            // and we advance immediately past the LF as well, returning both together as if
+            // it was all a single 'character' only.
+            var slice_len = 1;
+            var lines = false;
+            if (ch === '\n') lines = true;
+            else if (ch === '\r') {
+                lines = true;
+                var ch2 = this._input[1];
+                if (ch2 === '\n') {
+                    slice_len++;
+                    ch += ch2;
+                    this.yytext += ch2;
+                    this.yyleng++;
+                    this.offset++;
+                    this.match += ch2;
+                    this.matched += ch2;
+                    this.yylloc.range[1]++;
+                }
+            }
+            if (lines) {
+                this.yylineno++;
+                this.yylloc.last_line++;
+                this.yylloc.last_column = 0;
+            } else this.yylloc.last_column++;
+            this.yylloc.range[1]++;
+            this._input = this._input.slice(slice_len);
+            return ch;
+        },
+        /**
+     * unshifts one char (or an entire string) into the input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ unput: function lexer_unput(ch) {
+            var len = ch.length;
+            var lines = ch.split(/(?:\r\n?|\n)/g);
+            this._input = ch + this._input;
+            this.yytext = this.yytext.substr(0, this.yytext.length - len);
+            this.yyleng = this.yytext.length;
+            this.offset -= len;
+            this.match = this.match.substr(0, this.match.length - len);
+            this.matched = this.matched.substr(0, this.matched.length - len);
+            if (lines.length > 1) {
+                this.yylineno -= lines.length - 1;
+                this.yylloc.last_line = this.yylineno + 1;
+                // Get last entirely matched line into the `pre_lines[]` array's
+                // last index slot; we don't mind when other previously 
+                // matched lines end up in the array too. 
+                var pre = this.match;
+                var pre_lines = pre.split(/(?:\r\n?|\n)/g);
+                if (pre_lines.length === 1) {
+                    pre = this.matched;
+                    pre_lines = pre.split(/(?:\r\n?|\n)/g);
+                }
+                this.yylloc.last_column = pre_lines[pre_lines.length - 1].length;
+            } else this.yylloc.last_column -= len;
+            this.yylloc.range[1] = this.yylloc.range[0] + this.yyleng;
+            this.done = false;
+            return this;
+        },
+        /**
+     * cache matched text and append it on next action
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ more: function lexer_more() {
+            this._more = true;
+            return this;
+        },
+        /**
+     * signal the lexer that this rule fails to match the input, so the
+     * next matching rule (regex) should be tested instead.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ reject: function lexer_reject() {
+            if (this.options.backtrack_lexer) this._backtrack = true;
+            else {
+                // when the `parseError()` call returns, we MUST ensure that the error is registered.
+                // We accomplish this by signaling an 'error' token to be produced for the current
+                // `.lex()` run.
+                var lineno_msg = '';
+                if (this.yylloc) lineno_msg = ' on line ' + (this.yylineno + 1);
+                var p = this.constructLexErrorInfo('Lexical error' + lineno_msg + ': You can only invoke reject() in the lexer when the lexer is of the backtracking persuasion (options.backtrack_lexer = true).', false);
+                this._signaled_error_token = this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+            }
+            return this;
+        },
+        /**
+     * retain first n characters of the match
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ less: function lexer_less(n) {
+            return this.unput(this.match.slice(n));
+        },
+        /**
+     * return (part of the) already matched input, i.e. for error
+     * messages.
+     * 
+     * Limit the returned string length to `maxSize` (default: 20).
+     * 
+     * Limit the returned string to the `maxLines` number of lines of
+     * input (default: 1).
+     * 
+     * Negative limit values equal *unlimited*.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ pastInput: function lexer_pastInput(maxSize, maxLines) {
+            var past = this.matched.substring(0, this.matched.length - this.match.length);
+            if (maxSize < 0) maxSize = past.length;
+            else if (!maxSize) maxSize = 20;
+            if (maxLines < 0) maxLines = past.length; // can't ever have more input lines than this!;
+            else if (!maxLines) maxLines = 1;
+            // `substr` anticipation: treat \r\n as a single character and take a little
+            // more than necessary so that we can still properly check against maxSize
+            // after we've transformed and limited the newLines in here:
+            past = past.substr(-maxSize * 2 - 2);
+            // now that we have a significantly reduced string to process, transform the newlines
+            // and chop them, then limit them:
+            var a = past.replace(/\r\n|\r/g, '\n').split('\n');
+            a = a.slice(-maxLines);
+            past = a.join('\n');
+            // When, after limiting to maxLines, we still have too much to return,
+            // do add an ellipsis prefix...
+            if (past.length > maxSize) past = '...' + past.substr(-maxSize);
+            return past;
+        },
+        /**
+     * return (part of the) upcoming input, i.e. for error messages.
+     * 
+     * Limit the returned string length to `maxSize` (default: 20).
+     * 
+     * Limit the returned string to the `maxLines` number of lines of input (default: 1).
+     * 
+     * Negative limit values equal *unlimited*.
+     *
+     * > ### NOTE ###
+     * >
+     * > *"upcoming input"* is defined as the whole of the both
+     * > the *currently lexed* input, together with any remaining input
+     * > following that. *"currently lexed"* input is the input 
+     * > already recognized by the lexer but not yet returned with
+     * > the lexer token. This happens when you are invoking this API
+     * > from inside any lexer rule action code block. 
+     * >
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ upcomingInput: function lexer_upcomingInput(maxSize, maxLines) {
+            var next = this.match;
+            if (maxSize < 0) maxSize = next.length + this._input.length;
+            else if (!maxSize) maxSize = 20;
+            if (maxLines < 0) maxLines = maxSize; // can't ever have more input lines than this!;
+            else if (!maxLines) maxLines = 1;
+            // `substring` anticipation: treat \r\n as a single character and take a little
+            // more than necessary so that we can still properly check against maxSize
+            // after we've transformed and limited the newLines in here:
+            if (next.length < maxSize * 2 + 2) next += this._input.substring(0, maxSize * 2 + 2); // substring is faster on Chrome/V8
+            // now that we have a significantly reduced string to process, transform the newlines
+            // and chop them, then limit them:
+            var a = next.replace(/\r\n|\r/g, '\n').split('\n');
+            a = a.slice(0, maxLines);
+            next = a.join('\n');
+            // When, after limiting to maxLines, we still have too much to return,
+            // do add an ellipsis postfix...
+            if (next.length > maxSize) next = next.substring(0, maxSize) + '...';
+            return next;
+        },
+        /**
+     * return a string which displays the character position where the
+     * lexing error occurred, i.e. for error messages
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ showPosition: function lexer_showPosition(maxPrefix, maxPostfix) {
+            var pre = this.pastInput(maxPrefix).replace(/\s/g, ' ');
+            var c = new Array(pre.length + 1).join('-');
+            return pre + this.upcomingInput(maxPostfix).replace(/\s/g, ' ') + '\n' + c + '^';
+        },
+        /**
+     * return an YYLLOC info object derived off the given context (actual, preceding, following, current).
+     * Use this method when the given `actual` location is not guaranteed to exist (i.e. when
+     * it MAY be NULL) and you MUST have a valid location info object anyway:
+     * then we take the given context of the `preceding` and `following` locations, IFF those are available,
+     * and reconstruct the `actual` location info from those.
+     * If this fails, the heuristic is to take the `current` location, IFF available.
+     * If this fails as well, we assume the sought location is at/around the current lexer position
+     * and then produce that one as a response. DO NOTE that these heuristic/derived location info
+     * values MAY be inaccurate!
+     *
+     * NOTE: `deriveLocationInfo()` ALWAYS produces a location info object *copy* of `actual`, not just
+     * a *reference* hence all input location objects can be assumed to be 'constant' (function has no side-effects).
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ deriveLocationInfo: function lexer_deriveYYLLOC(actual, preceding, following, current) {
+            var loc = {
+                first_line: 1,
+                first_column: 0,
+                last_line: 1,
+                last_column: 0,
+                range: [
+                    0,
+                    0
+                ]
+            };
+            if (actual) {
+                loc.first_line = actual.first_line | 0;
+                loc.last_line = actual.last_line | 0;
+                loc.first_column = actual.first_column | 0;
+                loc.last_column = actual.last_column | 0;
+                if (actual.range) {
+                    loc.range[0] = actual.range[0] | 0;
+                    loc.range[1] = actual.range[1] | 0;
+                }
+            }
+            if (loc.first_line <= 0 || loc.last_line < loc.first_line) {
+                // plan B: heuristic using preceding and following:
+                if (loc.first_line <= 0 && preceding) {
+                    loc.first_line = preceding.last_line | 0;
+                    loc.first_column = preceding.last_column | 0;
+                    if (preceding.range) loc.range[0] = actual.range[1] | 0;
+                }
+                if ((loc.last_line <= 0 || loc.last_line < loc.first_line) && following) {
+                    loc.last_line = following.first_line | 0;
+                    loc.last_column = following.first_column | 0;
+                    if (following.range) loc.range[1] = actual.range[0] | 0;
+                }
+                // plan C?: see if the 'current' location is useful/sane too:
+                if (loc.first_line <= 0 && current && (loc.last_line <= 0 || current.last_line <= loc.last_line)) {
+                    loc.first_line = current.first_line | 0;
+                    loc.first_column = current.first_column | 0;
+                    if (current.range) loc.range[0] = current.range[0] | 0;
+                }
+                if (loc.last_line <= 0 && current && (loc.first_line <= 0 || current.first_line >= loc.first_line)) {
+                    loc.last_line = current.last_line | 0;
+                    loc.last_column = current.last_column | 0;
+                    if (current.range) loc.range[1] = current.range[1] | 0;
+                }
+            }
+            // sanitize: fix last_line BEFORE we fix first_line as we use the 'raw' value of the latter
+            // or plan D heuristics to produce a 'sensible' last_line value:
+            if (loc.last_line <= 0) {
+                if (loc.first_line <= 0) {
+                    loc.first_line = this.yylloc.first_line;
+                    loc.last_line = this.yylloc.last_line;
+                    loc.first_column = this.yylloc.first_column;
+                    loc.last_column = this.yylloc.last_column;
+                    loc.range[0] = this.yylloc.range[0];
+                    loc.range[1] = this.yylloc.range[1];
+                } else {
+                    loc.last_line = this.yylloc.last_line;
+                    loc.last_column = this.yylloc.last_column;
+                    loc.range[1] = this.yylloc.range[1];
+                }
+            }
+            if (loc.first_line <= 0) {
+                loc.first_line = loc.last_line;
+                loc.first_column = 0; // loc.last_column;
+                loc.range[1] = loc.range[0];
+            }
+            if (loc.first_column < 0) loc.first_column = 0;
+            if (loc.last_column < 0) loc.last_column = loc.first_column > 0 ? loc.first_column : 80;
+            return loc;
+        },
+        /**
+     * return a string which displays the lines & columns of input which are referenced 
+     * by the given location info range, plus a few lines of context.
+     * 
+     * This function pretty-prints the indicated section of the input, with line numbers 
+     * and everything!
+     * 
+     * This function is very useful to provide highly readable error reports, while
+     * the location range may be specified in various flexible ways:
+     * 
+     * - `loc` is the location info object which references the area which should be
+     *   displayed and 'marked up': these lines & columns of text are marked up by `^`
+     *   characters below each character in the entire input range.
+     * 
+     * - `context_loc` is the *optional* location info object which instructs this
+     *   pretty-printer how much *leading* context should be displayed alongside
+     *   the area referenced by `loc`. This can help provide context for the displayed
+     *   error, etc.
+     * 
+     *   When this location info is not provided, a default context of 3 lines is
+     *   used.
+     * 
+     * - `context_loc2` is another *optional* location info object, which serves
+     *   a similar purpose to `context_loc`: it specifies the amount of *trailing*
+     *   context lines to display in the pretty-print output.
+     * 
+     *   When this location info is not provided, a default context of 1 line only is
+     *   used.
+     * 
+     * Special Notes:
+     * 
+     * - when the `loc`-indicated range is very large (about 5 lines or more), then
+     *   only the first and last few lines of this block are printed while a
+     *   `...continued...` message will be printed between them.
+     * 
+     *   This serves the purpose of not printing a huge amount of text when the `loc`
+     *   range happens to be huge: this way a manageable & readable output results
+     *   for arbitrary large ranges.
+     * 
+     * - this function can display lines of input which whave not yet been lexed.
+     *   `prettyPrintRange()` can access the entire input!
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ prettyPrintRange: function lexer_prettyPrintRange(loc, context_loc, context_loc2) {
+            loc = this.deriveLocationInfo(loc, context_loc, context_loc2);
+            const CONTEXT = 3;
+            const CONTEXT_TAIL = 1;
+            const MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT = 2;
+            var input = this.matched + this._input;
+            var lines = input.split('\n');
+            var l0 = Math.max(1, context_loc ? context_loc.first_line : loc.first_line - CONTEXT);
+            var l1 = Math.max(1, context_loc2 ? context_loc2.last_line : loc.last_line + CONTEXT_TAIL);
+            var lineno_display_width = 1 + Math.log10(l1 | 1) | 0;
+            var ws_prefix = new Array(lineno_display_width).join(' ');
+            var nonempty_line_indexes = [
+                [],
+                [],
+                []
+            ];
+            var rv1 = lines.slice(l0 - 1, l1 + 1).map(function injectLineNumber(line, index) {
+                var lno = index + l0;
+                var lno_pfx = (ws_prefix + lno).substr(-lineno_display_width);
+                var rv = lno_pfx + ': ' + line;
+                var errpfx = new Array(lineno_display_width + 1).join('^');
+                var offset = 3;
+                var len = 0;
+                if (lno === loc.first_line) {
+                    offset += loc.first_column;
+                    len = Math.max(2, (lno === loc.last_line ? loc.last_column : line.length) - loc.first_column + 1);
+                } else if (lno === loc.last_line) len = Math.max(2, loc.last_column + 1);
+                else if (lno > loc.first_line && lno < loc.last_line) len = Math.max(2, line.length + 1);
+                var nli;
+                if (len) {
+                    var lead = new Array(offset).join('.');
+                    var mark = new Array(len).join('^');
+                    rv += '\n' + errpfx + lead + mark;
+                    nli = 1;
+                } else if (lno < loc.first_line) nli = 0;
+                else if (lno > loc.last_line) nli = 2;
+                if (line.trim().length > 0) nonempty_line_indexes[nli].push(index);
+                rv = rv.replace(/\t/g, ' ');
+                return rv;
+            });
+            // now make sure we don't print an overly large amount of lead/error/tail area: limit it 
+            // to the top and bottom line count:
+            for(var i = 0; i <= 2; i++){
+                var line_arr = nonempty_line_indexes[i];
+                if (line_arr.length > 2 * MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT) {
+                    var clip_start = line_arr[MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT - 1] + 1;
+                    var clip_end = line_arr[line_arr.length - MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT] - 1;
+                    var intermediate_line = new Array(lineno_display_width + 1).join(' ') + '  (...continued...)';
+                    if (i === 1) intermediate_line += '\n' + new Array(lineno_display_width + 1).join('-') + '  (---------------)';
+                    rv1.splice(clip_start, clip_end - clip_start + 1, intermediate_line);
+                }
+            }
+            return rv1.join('\n');
+        },
+        /**
+     * helper function, used to produce a human readable description as a string, given
+     * the input `yylloc` location object.
+     * 
+     * Set `display_range_too` to TRUE to include the string character index position(s)
+     * in the description if the `yylloc.range` is available.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ describeYYLLOC: function lexer_describe_yylloc(yylloc, display_range_too) {
+            var l1 = yylloc.first_line;
+            var l2 = yylloc.last_line;
+            var c1 = yylloc.first_column;
+            var c2 = yylloc.last_column;
+            var dl = l2 - l1;
+            var dc = c2 - c1;
+            var rv;
+            if (dl === 0) {
+                rv = 'line ' + l1 + ', ';
+                if (dc <= 1) rv += 'column ' + c1;
+                else rv += 'columns ' + c1 + ' .. ' + c2;
+            } else rv = 'lines ' + l1 + '(column ' + c1 + ') .. ' + l2 + '(column ' + c2 + ')';
+            if (yylloc.range && display_range_too) {
+                var r1 = yylloc.range[0];
+                var r2 = yylloc.range[1] - 1;
+                if (r2 <= r1) rv += ' {String Offset: ' + r1 + '}';
+                else rv += ' {String Offset range: ' + r1 + ' .. ' + r2 + '}';
+            }
+            return rv;
+        },
+        /**
+     * test the lexed token: return FALSE when not a match, otherwise return token.
+     * 
+     * `match` is supposed to be an array coming out of a regex match, i.e. `match[0]`
+     * contains the actually matched text string.
+     * 
+     * Also move the input cursor forward and update the match collectors:
+     * 
+     * - `yytext`
+     * - `yyleng`
+     * - `match`
+     * - `matches`
+     * - `yylloc`
+     * - `offset`
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ test_match: function lexer_test_match(match, indexed_rule) {
+            var token, lines, backup, match_str, match_str_len;
+            if (this.options.backtrack_lexer) // save context
+            backup = {
+                yylineno: this.yylineno,
+                yylloc: {
+                    first_line: this.yylloc.first_line,
+                    last_line: this.yylloc.last_line,
+                    first_column: this.yylloc.first_column,
+                    last_column: this.yylloc.last_column,
+                    range: this.yylloc.range.slice(0)
+                },
+                yytext: this.yytext,
+                match: this.match,
+                matches: this.matches,
+                matched: this.matched,
+                yyleng: this.yyleng,
+                offset: this.offset,
+                _more: this._more,
+                _input: this._input,
+                //_signaled_error_token: this._signaled_error_token,
+                yy: this.yy,
+                conditionStack: this.conditionStack.slice(0),
+                done: this.done
+            };
+            match_str = match[0];
+            match_str_len = match_str.length;
+            // if (match_str.indexOf('\n') !== -1 || match_str.indexOf('\r') !== -1) {
+            lines = match_str.split(/(?:\r\n?|\n)/g);
+            if (lines.length > 1) {
+                this.yylineno += lines.length - 1;
+                this.yylloc.last_line = this.yylineno + 1;
+                this.yylloc.last_column = lines[lines.length - 1].length;
+            } else this.yylloc.last_column += match_str_len;
+            // }
+            this.yytext += match_str;
+            this.match += match_str;
+            this.matched += match_str;
+            this.matches = match;
+            this.yyleng = this.yytext.length;
+            this.yylloc.range[1] += match_str_len;
+            // previous lex rules MAY have invoked the `more()` API rather than producing a token:
+            // those rules will already have moved this `offset` forward matching their match lengths,
+            // hence we must only add our own match length now:
+            this.offset += match_str_len;
+            this._more = false;
+            this._backtrack = false;
+            this._input = this._input.slice(match_str_len);
+            // calling this method:
+            //
+            //   function lexer__performAction(yy, yyrulenumber, YY_START) {...}
+            token = this.performAction.call(this, this.yy, indexed_rule, this.conditionStack[this.conditionStack.length - 1]);
+            // otherwise, when the action codes are all simple return token statements:
+            //token = this.simpleCaseActionClusters[indexed_rule];
+            if (this.done && this._input) this.done = false;
+            if (token) return token;
+            else if (this._backtrack) {
+                // recover context
+                for(var k in backup)this[k] = backup[k];
+                this.__currentRuleSet__ = null;
+                return false; // rule action called reject() implying the next rule should be tested instead.
+            } else if (this._signaled_error_token) {
+                // produce one 'error' token as `.parseError()` in `reject()`
+                // did not guarantee a failure signal by throwing an exception!
+                token = this._signaled_error_token;
+                this._signaled_error_token = false;
+                return token;
+            }
+            return false;
+        },
+        /**
+     * return next match in input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ next: function lexer_next() {
+            if (this.done) {
+                this.clear();
+                return this.EOF;
+            }
+            if (!this._input) this.done = true;
+            var token, match, tempMatch, index;
+            if (!this._more) this.clear();
+            var spec = this.__currentRuleSet__;
+            if (!spec) {
+                // Update the ruleset cache as we apparently encountered a state change or just started lexing.
+                // The cache is set up for fast lookup -- we assume a lexer will switch states much less often than it will
+                // invoke the `lex()` token-producing API and related APIs, hence caching the set for direct access helps
+                // speed up those activities a tiny bit.
+                spec = this.__currentRuleSet__ = this._currentRules();
+                // Check whether a *sane* condition has been pushed before: this makes the lexer robust against
+                // user-programmer bugs such as https://github.com/zaach/jison-lex/issues/19
+                if (!spec || !spec.rules) {
+                    var lineno_msg = '';
+                    if (this.options.trackPosition) lineno_msg = ' on line ' + (this.yylineno + 1);
+                    var p = this.constructLexErrorInfo('Internal lexer engine error' + lineno_msg + ': The lex grammar programmer pushed a non-existing condition name "' + this.topState() + '"; this is a fatal error and should be reported to the application programmer team!', false);
+                    // produce one 'error' token until this situation has been resolved, most probably by parse termination!
+                    return this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+                }
+            }
+            var rule_ids = spec.rules;
+            var regexes = spec.__rule_regexes;
+            var len = spec.__rule_count;
+            // Note: the arrays are 1-based, while `len` itself is a valid index,
+            // hence the non-standard less-or-equal check in the next loop condition!
+            for(var i = 1; i <= len; i++){
+                tempMatch = this._input.match(regexes[i]);
+                if (tempMatch && (!match || tempMatch[0].length > match[0].length)) {
+                    match = tempMatch;
+                    index = i;
+                    if (this.options.backtrack_lexer) {
+                        token = this.test_match(tempMatch, rule_ids[i]);
+                        if (token !== false) return token;
+                        else if (this._backtrack) {
+                            match = undefined;
+                            continue; // rule action called reject() implying a rule MISmatch.
+                        } else // else: this is a lexer rule which consumes input without producing a token (e.g. whitespace)
+                        return false;
+                    } else if (!this.options.flex) break;
+                }
+            }
+            if (match) {
+                token = this.test_match(match, rule_ids[index]);
+                if (token !== false) return token;
+                // else: this is a lexer rule which consumes input without producing a token (e.g. whitespace)
+                return false;
+            }
+            if (!this._input) {
+                this.done = true;
+                this.clear();
+                return this.EOF;
+            } else {
+                var lineno_msg = '';
+                if (this.options.trackPosition) lineno_msg = ' on line ' + (this.yylineno + 1);
+                var p = this.constructLexErrorInfo('Lexical error' + lineno_msg + ': Unrecognized text.', this.options.lexerErrorsAreRecoverable);
+                var pendingInput = this._input;
+                var activeCondition = this.topState();
+                var conditionStackDepth = this.conditionStack.length;
+                token = this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+                if (token === this.ERROR) // we can try to recover from a lexer error that `parseError()` did not 'recover' for us
+                // by moving forward at least one character at a time IFF the (user-specified?) `parseError()`
+                // has not consumed/modified any pending input or changed state in the error handler:
+                {
+                    if (!this.matches && pendingInput === this._input && // to merit a non-consuming error handling action right now.
+                    activeCondition === this.topState() && conditionStackDepth === this.conditionStack.length) this.input();
+                }
+                return token;
+            }
+        },
+        /**
+     * return next match that has a token
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ lex: function lexer_lex() {
+            var r;
+            // allow the PRE/POST handlers set/modify the return token for maximum flexibility of the generated lexer:
+            if (typeof this.pre_lex === 'function') r = this.pre_lex.call(this, 0);
+            if (typeof this.options.pre_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.options.pre_lex.call(this, r) || r;
+            if (this.yy && typeof this.yy.pre_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.yy.pre_lex.call(this, r) || r;
+            while(!r)r = this.next();
+            if (this.yy && typeof this.yy.post_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.yy.post_lex.call(this, r) || r;
+            if (typeof this.options.post_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.options.post_lex.call(this, r) || r;
+            if (typeof this.post_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.post_lex.call(this, r) || r;
+            return r;
+        },
+        /**
+     * return next match that has a token. Identical to the `lex()` API but does not invoke any of the 
+     * `pre_lex()` nor any of the `post_lex()` callbacks.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ fastLex: function lexer_fastLex() {
+            var r;
+            while(!r)r = this.next();
+            return r;
+        },
+        /**
+     * return info about the lexer state that can help a parser or other lexer API user to use the
+     * most efficient means available. This API is provided to aid run-time performance for larger
+     * systems which employ this lexer.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ canIUse: function lexer_canIUse() {
+            var rv = {
+                fastLex: !(typeof this.pre_lex === 'function' || typeof this.options.pre_lex === 'function' || this.yy && typeof this.yy.pre_lex === 'function' || this.yy && typeof this.yy.post_lex === 'function' || typeof this.options.post_lex === 'function' || typeof this.post_lex === 'function') && typeof this.fastLex === 'function'
+            };
+            return rv;
+        },
+        /**
+     * backwards compatible alias for `pushState()`;
+     * the latter is symmetrical with `popState()` and we advise to use
+     * those APIs in any modern lexer code, rather than `begin()`.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ begin: function lexer_begin(condition) {
+            return this.pushState(condition);
+        },
+        /**
+     * activates a new lexer condition state (pushes the new lexer
+     * condition state onto the condition stack)
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ pushState: function lexer_pushState(condition) {
+            this.conditionStack.push(condition);
+            this.__currentRuleSet__ = null;
+            return this;
+        },
+        /**
+     * pop the previously active lexer condition state off the condition
+     * stack
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ popState: function lexer_popState() {
+            var n = this.conditionStack.length - 1;
+            if (n > 0) {
+                this.__currentRuleSet__ = null;
+                return this.conditionStack.pop();
+            } else return this.conditionStack[0];
+        },
+        /**
+     * return the currently active lexer condition state; when an index
+     * argument is provided it produces the N-th previous condition state,
+     * if available
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ topState: function lexer_topState(n) {
+            n = this.conditionStack.length - 1 - Math.abs(n || 0);
+            if (n >= 0) return this.conditionStack[n];
+            else return 'INITIAL';
+        },
+        /**
+     * (internal) determine the lexer rule set which is active for the
+     * currently active lexer condition state
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ _currentRules: function lexer__currentRules() {
+            if (this.conditionStack.length && this.conditionStack[this.conditionStack.length - 1]) return this.conditions[this.conditionStack[this.conditionStack.length - 1]];
+            else return this.conditions['INITIAL'];
+        },
+        /**
+     * return the number of states currently on the stack
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ stateStackSize: function lexer_stateStackSize() {
+            return this.conditionStack.length;
+        },
+        options: {
+            trackPosition: true
+        },
+        JisonLexerError: JisonLexerError,
+        performAction: function lexer__performAction(yy, yyrulenumber, YY_START) {
+            var yy_ = this;
+            var YYSTATE = YY_START;
+            switch(yyrulenumber){
+                case 1:
+                    /*! Conditions:: INITIAL */ /*! Rule::       \.\.\.\w+ */ $5355ad80bd576add$var$debug('spread');
+                    return 5;
+                case 3:
+                    /*! Conditions:: INITIAL */ /*! Rule::       \s*[^= ,]+ */ this.pushState('AFTER_NAME');
+                    return 3;
+                case 4:
+                    /*! Conditions:: AFTER_NAME */ /*! Rule::       \s*=\s* */ this.popState();
+                    this.pushState('AFTER_EQ');
+                    return 4;
+                case 5:
+                    /*! Conditions:: AFTER_EQ */ /*! Rule::       \[[^\]]+\] */ this.popState();
+                    return 6;
+                case 6:
+                    /*! Conditions:: AFTER_EQ */ /*! Rule::       \{[^\}]+\} */ this.popState();
+                    return 6;
+                case 7:
+                    /*! Conditions:: AFTER_EQ */ /*! Rule::       "[^"]+" */ this.popState();
+                    return 6;
+                case 8:
+                    /*! Conditions:: AFTER_EQ */ /*! Rule::       '([^']|\\')+'\s*$ */ this.popState();
+                    this.pushState('VARS');
+                    return 7;
+                case 9:
+                    /*! Conditions:: AFTER_EQ */ /*! Rule::       '([^']|\\')+' */ this.popState();
+                    this.pushState('VARS');
+                    return 7;
+                case 10:
+                    /*! Conditions:: AFTER_EQ */ /*! Rule::       \w+\(\) */ this.popState();
+                    return 6;
+                case 11:
+                    /*! Conditions:: AFTER_EQ */ /*! Rule::       [^=]+=(?!>) */ $5355ad80bd576add$var$debug('<AFTER_EQ>[^=]+\'=\'');
+                    $5355ad80bd576add$var$debug('1 yy_.yytext=', yy_.yytext);
+                    const lastSepIndex = $5355ad80bd576add$var$findLastSeparatorIndex(yy_.yytext);
+                    $5355ad80bd576add$var$debug('lastSepIndex=', lastSepIndex);
+                    $5355ad80bd576add$var$debug('yy_.yytext.length=', yy_.yytext.length);
+                    const nextToken = yy_.yytext.substring(lastSepIndex);
+                    $5355ad80bd576add$var$debug('nextToken=', nextToken);
+                    this.unput(nextToken);
+                    yy_.yytext = yy_.yytext.substring(0, lastSepIndex);
+                    yy_.yytext = yy_.yytext.removeFromEnd(' ');
+                    yy_.yytext = yy_.yytext.removeFromEnd(',');
+                    $5355ad80bd576add$var$debug('2 yy_.yytext=' + yy_.yytext);
+                    // debug('this.matches=', this.matches)
+                    // if (yy_.yytext.includes('=')) {
+                    //   debug('"=" was found')
+                    //   // oh, great
+                    //   // TODO:
+                    // }
+                    // else {
+                    //   debug('"=" NOT found')
+                    // }
+                    this.popState();
+                    this.popState();
+                    return 6;
+                case 12:
+                    /*! Conditions:: VARS */ /*! Rule::       \s*\+\s*\w+ */ return [
+                        'VAR',
+                        'PLUS'
+                    ];
+                case 13:
+                    /*! Conditions:: VARS */ /*! Rule::       ,\s* */ this.popState();
+                    return 10;
+                case 14:
+                    /*! Conditions:: VARS */ /*! Rule::       {space} */ this.popState();
+                    return 9;
+                case 15:
+                    /*! Conditions:: AFTER_EQ */ /*! Rule::       .+ */ // id=id
+                    this.popState();
+                    return 6;
+                case 16:
+                    /*! Conditions:: AFTER_NAME */ /*! Rule::       ,{space}* */ $5355ad80bd576add$var$debug('<AFTER_NAME>\',\'');
+                    this.popState();
+                    return 10;
+                case 17:
+                    /*! Conditions:: AFTER_NAME */ /*! Rule::       {space} */ $5355ad80bd576add$var$debug('<AFTER_NAME>{space}');
+                    this.popState();
+                    return 9;
+                default:
+                    return this.simpleCaseActionClusters[yyrulenumber];
+            }
+        },
+        simpleCaseActionClusters: {
+            /*! Conditions:: INITIAL */ /*! Rule::       ,\s* */ 0: 10,
+            /*! Conditions:: INITIAL */ /*! Rule::       {space} */ 2: 9
+        },
+        rules: [
+            /*  0: */ /^(?:,\s*)/,
+            /*  1: */ /^(?:\.\.\.\w+)/,
+            /*  2: */ /^(?:([   -​\u2028\u2029　]))/,
+            /*  3: */ /^(?:\s*[^= ,]+)/,
+            /*  4: */ /^(?:\s*=\s*)/,
+            /*  5: */ /^(?:\[[^\]]+\])/,
+            /*  6: */ /^(?:\{[^}]+\})/,
+            /*  7: */ /^(?:"[^"]+")/,
+            /*  8: */ /^(?:'([^']|\\')+'\s*$)/,
+            /*  9: */ /^(?:'([^']|\\')+')/,
+            /* 10: */ /^(?:\w+\(\))/,
+            /* 11: */ /^(?:[^=]+=(?!>))/,
+            /* 12: */ /^(?:\s*\+\s*\w+)/,
+            /* 13: */ /^(?:,\s*)/,
+            /* 14: */ /^(?:([   -​\u2028\u2029　]))/,
+            /* 15: */ /^(?:.+)/,
+            /* 16: */ /^(?:,([   -​\u2028\u2029　])*)/,
+            /* 17: */ /^(?:([   -​\u2028\u2029　]))/
+        ],
+        conditions: {
+            'AFTER_NAME': {
+                rules: [
+                    4,
+                    16,
+                    17
+                ],
+                inclusive: false
+            },
+            'AFTER_EQ': {
+                rules: [
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    15
+                ],
+                inclusive: false
+            },
+            'VARS': {
+                rules: [
+                    12,
+                    13,
+                    14
+                ],
+                inclusive: false
+            },
+            'INITIAL': {
+                rules: [
+                    0,
+                    1,
+                    2,
+                    3
+                ],
+                inclusive: true
+            }
+        }
+    };
+    return lexer;
+}();
+$5355ad80bd576add$var$parser.lexer = $5355ad80bd576add$var$lexer;
+const $5355ad80bd576add$var$TEXT_TAGS_ALLOW_SUB_TAGS = true;
+const $5355ad80bd576add$var$debug = $cjPlG$debug('pug-line-lexer:attrs');
+let $5355ad80bd576add$var$tagAlreadyFound = false;
+let $5355ad80bd576add$var$obj, $5355ad80bd576add$var$name, $5355ad80bd576add$var$value;
+var $5355ad80bd576add$var$lparenOpen = false;
+const $5355ad80bd576add$var$keysToMergeText = [
+    'therest'
+];
+const $5355ad80bd576add$var$quoteStack = [];
+const $5355ad80bd576add$var$parens = [];
+function $5355ad80bd576add$var$findLastSeparatorIndex(str) {
+    let index = str.length - 2;
+    let letterFoundIndex = -1;
+    while(letterFoundIndex == -1 && index > -1){
+        const c = str.charAt(index);
+        if (/\w/.test(c)) letterFoundIndex = index;
+        index--;
+    }
+    const substr = str.substring(0, letterFoundIndex);
+    return Math.max(substr.lastIndexOf(' '), substr.lastIndexOf(','));
+}
+function $5355ad80bd576add$var$parseNumber(str) {
+    try {
+        if (str.includes('.')) return parseFloat(str);
+        else return parseInt(str);
+    } catch (e) {
+        console.error('Unparseable string "' + str + '"');
+        return NaN;
+    }
+}
+$5355ad80bd576add$var$parser.main = function() {
+    $5355ad80bd576add$var$tagAlreadyFound = false;
+    $5355ad80bd576add$var$lparenOpen = false;
+    function test(input, expected, strict = true) {
+        $5355ad80bd576add$var$tagAlreadyFound = false;
+        $5355ad80bd576add$var$lparenOpen = false;
+        $5355ad80bd576add$var$debug(`\nTesting '${input}'...`);
+        var actual = $5355ad80bd576add$var$parser.parse(input);
+        $5355ad80bd576add$var$debug(input + ' ==> ', $cjPlG$util.inspect(actual));
+        let compareFunc;
+        if (strict) compareFunc = $cjPlG$assert.deepEqual;
+        else compareFunc = dyp;
+        compareFunc.call({
+        }, actual, expected);
+    }
+    test('abc,', [
+        {
+            name: 'abc'
+        }
+    ]);
+    test('foo, bar, baz', [
+        {
+            name: 'foo'
+        },
+        {
+            name: 'bar'
+        },
+        {
+            name: 'baz'
+        }
+    ]);
+    test("value='foo' selected", [
+        {
+            name: 'value',
+            val: "'foo'"
+        },
+        {
+            name: 'selected'
+        }
+    ]);
+    test("selected value='bar'", [
+        {
+            name: 'selected'
+        },
+        {
+            name: 'value',
+            val: "'bar'"
+        }
+    ]);
+    test("name='viewport' content='width=device-width'", [
+        {
+            name: 'name',
+            val: "'viewport'"
+        },
+        {
+            name: 'content',
+            val: "'width=device-width'"
+        }
+    ]);
+    test("content='I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'", [
+        {
+            name: 'content',
+            val: "'I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'"
+        }
+    ]);
+    test("property='og:description' content='I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'", [
+        {
+            name: 'property',
+            val: "'og:description'"
+        },
+        {
+            name: 'content',
+            val: "'I came across a problem in Internet Explorer (it wasn\\'t a problem with Firefox) when I...'"
+        }
+    ]);
+    test(`foo=null bar=bar`, [
+        {
+            name: 'foo',
+            val: 'null'
+        },
+        {
+            name: 'bar',
+            val: 'bar'
+        }
+    ]);
+    test(`data-epoc=new Date(0)`, [
+        {
+            name: 'data-epoc',
+            val: 'new Date(0)'
+        }
+    ]);
+    test(`class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`, [
+        {
+            name: 'class',
+            val: '(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")'
+        }
+    ]);
+    test('id=id', [
+        {
+            name: 'id',
+            val: 'id'
+        }
+    ]);
+    test(`class=['foo', 'bar', 'baz']`, [
+        {
+            name: 'class',
+            val: "['foo', 'bar', 'baz']"
+        }
+    ]);
+    // commenting this all out for now while I test pug-attr {
+    test(`class='bar'`, [
+        {
+            name: 'class',
+            val: "'bar'"
+        }
+    ]);
+    // test(`class={foo: true, bar: false, baz: true}`, [{ name: 'class', val: "[ 'foo', 'baz' ]" }])
+    // test(`v-for="item in items" :name="item.id" :value="item.name"`, [{
+    //   name: "v-for",
+    //   val: "item in items"
+    // }, {
+    //   name: ":name",
+    //   val: "item.id"
+    // }, {
+    //   name: ":value",
+    //   val: "item.name"
+    // }])
+    // test(`class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`, [{
+    //   assignment: true,
+    //   val: `(tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`,
+    //   name: 'class'
+    // }])
+    // // url is a variable in a mixin
+    // test(`href=url`, [
+    //     { name: 'href', assignment: true, val: 'url' }
+    //   ])
+    // }
+    test(`data-escaped={message: "Let's rock!"}`, [
+        {
+            name: 'data-escaped',
+            val: '{message: "Let\'s rock!"}'
+        }
+    ]);
+    test(`data-items=[1,2,3]`, [
+        {
+            name: 'data-items',
+            val: '[1,2,3]'
+        }
+    ]);
+    test(`href  =  '/user/' + id, class  =  'button'`, [
+        {
+            name: 'href',
+            val: "'/user/' + id"
+        },
+        {
+            name: 'class',
+            val: "'button'"
+        }
+    ]);
+    // I'm not supporting this right now
+    // test(`href='/user/' + id, class='button'`, [{
+    //   name: 'href',
+    //   assignment: true,
+    //   val: '"/user/" + id'
+    // },
+    // {name: 'class', val: 'button'}])
+    // test(`class = ['class1', 'class2']`, [{ name: 'class', val: 'class1 class2'}])
+    test(`href='/user/' + id, class='button'`, [
+        {
+            name: 'href',
+            val: "'/user/' + id"
+        },
+        {
+            name: 'class',
+            val: "'button'"
+        }
+    ]);
+    test(`key='answer', value=answer()`, [
+        {
+            name: 'key',
+            val: "'answer'"
+        },
+        {
+            name: 'value',
+            val: 'answer()'
+        }
+    ]);
+    test(`class = ['class1', 'class2']`, [
+        {
+            name: 'class',
+            val: "['class1', 'class2']"
+        }
+    ]);
+    test(`href='/user/' + id class='button'`, [
+        {
+            name: 'href',
+            val: "'/user/' + id"
+        },
+        {
+            name: 'class',
+            val: "'button'"
+        }
+    ]);
+    test(`href  =  '/user/' + id class  =  'button'`, [
+        {
+            name: 'href',
+            val: "'/user/' + id"
+        },
+        {
+            name: 'class',
+            val: "'button'"
+        }
+    ]);
+    test(`key='answer' value=answer()`, [
+        {
+            name: 'key',
+            val: "'answer'"
+        },
+        {
+            name: 'value',
+            val: 'answer()'
+        }
+    ]);
+    test(`class = ['class1', 'class2']`, [
+        {
+            name: 'class',
+            val: "['class1', 'class2']"
+        }
+    ]);
+    test(`class = ['class1', 'class2']`, [
+        {
+            name: 'class',
+            val: "['class1', 'class2']"
+        }
+    ]);
+    // test(`id=id)&attributes({foo: 'bar'}`, {})
+    // - var bar = null
+    // test(`foo=null bar=bar)&attributes({baz: 'baz'}`. [])
+    test(`...object`, [
+        {
+            name: '...object',
+            val: '...object'
+        }
+    ]);
+    test(`...object after="after"`, [
+        {
+            name: '...object',
+            val: '...object'
+        },
+        {
+            name: 'after',
+            val: '"after"'
+        }
+    ]);
+    test(`before="before" ...object`, [
+        {
+            name: 'before',
+            val: '"before"'
+        },
+        {
+            name: '...object',
+            val: '...object'
+        }
+    ]);
+    test(`before="before" ...object after="after"`, [
+        {
+            name: 'before',
+            val: '"before"'
+        },
+        {
+            name: '...object',
+            val: '...object'
+        },
+        {
+            name: 'after',
+            val: '"after"'
+        }
+    ]);
+};
+function $5355ad80bd576add$var$Parser() {
+    this.yy = {
+    };
+}
+$5355ad80bd576add$var$Parser.prototype = $5355ad80bd576add$var$parser;
+$5355ad80bd576add$var$parser.Parser = $5355ad80bd576add$var$Parser;
+function $5355ad80bd576add$var$yyparse() {
+    return $5355ad80bd576add$var$parser.parse.apply($5355ad80bd576add$var$parser, arguments);
+}
+var $5355ad80bd576add$export$2e2bcd8739ae039 = {
+    parser: $5355ad80bd576add$var$parser,
+    Parser: $5355ad80bd576add$var$Parser,
+    parse: $5355ad80bd576add$var$yyparse
+};
+
+
+
+
+/* parser generated by jison 0.6.1-216 */ /*
+ * Returns a Parser object of the following structure:
+ *
+ *  Parser: {
+ *    yy: {}     The so-called "shared state" or rather the *source* of it;
+ *               the real "shared state" `yy` passed around to
+ *               the rule actions, etc. is a derivative/copy of this one,
+ *               not a direct reference!
+ *  }
+ *
+ *  Parser.prototype: {
+ *    yy: {},
+ *    EOF: 1,
+ *    TERROR: 2,
+ *
+ *    trace: function(errorMessage, ...),
+ *
+ *    JisonParserError: function(msg, hash),
+ *
+ *    quoteName: function(name),
+ *               Helper function which can be overridden by user code later on: put suitable
+ *               quotes around literal IDs in a description string.
+ *
+ *    originalQuoteName: function(name),
+ *               The basic quoteName handler provided by JISON.
+ *               `cleanupAfterParse()` will clean up and reset `quoteName()` to reference this function
+ *               at the end of the `parse()`.
+ *
+ *    describeSymbol: function(symbol),
+ *               Return a more-or-less human-readable description of the given symbol, when
+ *               available, or the symbol itself, serving as its own 'description' for lack
+ *               of something better to serve up.
+ *
+ *               Return NULL when the symbol is unknown to the parser.
+ *
+ *    symbols_: {associative list: name ==> number},
+ *    terminals_: {associative list: number ==> name},
+ *    nonterminals: {associative list: rule-name ==> {associative list: number ==> rule-alt}},
+ *    terminal_descriptions_: (if there are any) {associative list: number ==> description},
+ *    productions_: [...],
+ *
+ *    performAction: function parser__performAction(yytext, yyleng, yylineno, yyloc, yystate, yysp, yyvstack, yylstack, yystack, yysstack),
+ *
+ *               The function parameters and `this` have the following value/meaning:
+ *               - `this`    : reference to the `yyval` internal object, which has members (`$` and `_$`)
+ *                             to store/reference the rule value `$$` and location info `@$`.
+ *
+ *                 One important thing to note about `this` a.k.a. `yyval`: every *reduce* action gets
+ *                 to see the same object via the `this` reference, i.e. if you wish to carry custom
+ *                 data from one reduce action through to the next within a single parse run, then you
+ *                 may get nasty and use `yyval` a.k.a. `this` for storing you own semi-permanent data.
+ *
+ *                 `this.yy` is a direct reference to the `yy` shared state object.
+ *
+ *                 `%parse-param`-specified additional `parse()` arguments have been added to this `yy`
+ *                 object at `parse()` start and are therefore available to the action code via the
+ *                 same named `yy.xxxx` attributes (where `xxxx` represents a identifier name from
+ *                 the %parse-param` list.
+ *
+ *               - `yytext`  : reference to the lexer value which belongs to the last lexer token used
+ *                             to match this rule. This is *not* the look-ahead token, but the last token
+ *                             that's actually part of this rule.
+ *
+ *                 Formulated another way, `yytext` is the value of the token immediately preceeding
+ *                 the current look-ahead token.
+ *                 Caveats apply for rules which don't require look-ahead, such as epsilon rules.
+ *
+ *               - `yyleng`  : ditto as `yytext`, only now for the lexer.yyleng value.
+ *
+ *               - `yylineno`: ditto as `yytext`, only now for the lexer.yylineno value.
+ *
+ *               - `yyloc`   : ditto as `yytext`, only now for the lexer.yylloc lexer token location info.
+ *
+ *                               WARNING: since jison 0.4.18-186 this entry may be NULL/UNDEFINED instead
+ *                               of an empty object when no suitable location info can be provided.
+ *
+ *               - `yystate` : the current parser state number, used internally for dispatching and
+ *                               executing the action code chunk matching the rule currently being reduced.
+ *
+ *               - `yysp`    : the current state stack position (a.k.a. 'stack pointer')
+ *
+ *                 This one comes in handy when you are going to do advanced things to the parser
+ *                 stacks, all of which are accessible from your action code (see the next entries below).
+ *
+ *                 Also note that you can access this and other stack index values using the new double-hash
+ *                 syntax, i.e. `##$ === ##0 === yysp`, while `##1` is the stack index for all things
+ *                 related to the first rule term, just like you have `$1`, `@1` and `#1`.
+ *                 This is made available to write very advanced grammar action rules, e.g. when you want
+ *                 to investigate the parse state stack in your action code, which would, for example,
+ *                 be relevant when you wish to implement error diagnostics and reporting schemes similar
+ *                 to the work described here:
+ *
+ *                 + Pottier, F., 2016. Reachability and error diagnosis in LR(1) automata.
+ *                   In Journées Francophones des Languages Applicatifs.
+ *
+ *                 + Jeffery, C.L., 2003. Generating LR syntax error messages from examples.
+ *                   ACM Transactions on Programming Languages and Systems (TOPLAS), 25(5), pp.631–640.
+ *
+ *               - `yyrulelength`: the current rule's term count, i.e. the number of entries occupied on the stack.
+ *
+ *                 This one comes in handy when you are going to do advanced things to the parser
+ *                 stacks, all of which are accessible from your action code (see the next entries below).
+ *
+ *               - `yyvstack`: reference to the parser value stack. Also accessed via the `$1` etc.
+ *                             constructs.
+ *
+ *               - `yylstack`: reference to the parser token location stack. Also accessed via
+ *                             the `@1` etc. constructs.
+ *
+ *                             WARNING: since jison 0.4.18-186 this array MAY contain slots which are
+ *                             UNDEFINED rather than an empty (location) object, when the lexer/parser
+ *                             action code did not provide a suitable location info object when such a
+ *                             slot was filled!
+ *
+ *               - `yystack` : reference to the parser token id stack. Also accessed via the
+ *                             `#1` etc. constructs.
+ *
+ *                 Note: this is a bit of a **white lie** as we can statically decode any `#n` reference to
+ *                 its numeric token id value, hence that code wouldn't need the `yystack` but *you* might
+ *                 want access this array for your own purposes, such as error analysis as mentioned above!
+ *
+ *                 Note that this stack stores the current stack of *tokens*, that is the sequence of
+ *                 already parsed=reduced *nonterminals* (tokens representing rules) and *terminals*
+ *                 (lexer tokens *shifted* onto the stack until the rule they belong to is found and
+ *                 *reduced*.
+ *
+ *               - `yysstack`: reference to the parser state stack. This one carries the internal parser
+ *                             *states* such as the one in `yystate`, which are used to represent
+ *                             the parser state machine in the *parse table*. *Very* *internal* stuff,
+ *                             what can I say? If you access this one, you're clearly doing wicked things
+ *
+ *               - `...`     : the extra arguments you specified in the `%parse-param` statement in your
+ *                             grammar definition file.
+ *
+ *    table: [...],
+ *               State transition table
+ *               ----------------------
+ *
+ *               index levels are:
+ *               - `state`  --> hash table
+ *               - `symbol` --> action (number or array)
+ *
+ *                 If the `action` is an array, these are the elements' meaning:
+ *                 - index [0]: 1 = shift, 2 = reduce, 3 = accept
+ *                 - index [1]: GOTO `state`
+ *
+ *                 If the `action` is a number, it is the GOTO `state`
+ *
+ *    defaultActions: {...},
+ *
+ *    parseError: function(str, hash, ExceptionClass),
+ *    yyError: function(str, ...),
+ *    yyRecovering: function(),
+ *    yyErrOk: function(),
+ *    yyClearIn: function(),
+ *
+ *    constructParseErrorInfo: function(error_message, exception_object, expected_token_set, is_recoverable),
+ *               Helper function **which will be set up during the first invocation of the `parse()` method**.
+ *               Produces a new errorInfo 'hash object' which can be passed into `parseError()`.
+ *               See it's use in this parser kernel in many places; example usage:
+ *
+ *                   var infoObj = parser.constructParseErrorInfo('fail!', null,
+ *                                     parser.collect_expected_token_set(state), true);
+ *                   var retVal = parser.parseError(infoObj.errStr, infoObj, parser.JisonParserError);
+ *
+ *    originalParseError: function(str, hash, ExceptionClass),
+ *               The basic `parseError` handler provided by JISON.
+ *               `cleanupAfterParse()` will clean up and reset `parseError()` to reference this function
+ *               at the end of the `parse()`.
+ *
+ *    options: { ... parser %options ... },
+ *
+ *    parse: function(input[, args...]),
+ *               Parse the given `input` and return the parsed value (or `true` when none was provided by
+ *               the root action, in which case the parser is acting as a *matcher*).
+ *               You MAY use the additional `args...` parameters as per `%parse-param` spec of this grammar:
+ *               these extra `args...` are added verbatim to the `yy` object reference as member variables.
+ *
+ *               WARNING:
+ *               Parser's additional `args...` parameters (via `%parse-param`) MAY conflict with
+ *               any attributes already added to `yy` by the jison run-time;
+ *               when such a collision is detected an exception is thrown to prevent the generated run-time
+ *               from silently accepting this confusing and potentially hazardous situation!
+ *
+ *               The lexer MAY add its own set of additional parameters (via the `%parse-param` line in
+ *               the lexer section of the grammar spec): these will be inserted in the `yy` shared state
+ *               object and any collision with those will be reported by the lexer via a thrown exception.
+ *
+ *    cleanupAfterParse: function(resultValue, invoke_post_methods, do_not_nuke_errorinfos),
+ *               Helper function **which will be set up during the first invocation of the `parse()` method**.
+ *               This helper API is invoked at the end of the `parse()` call, unless an exception was thrown
+ *               and `%options no-try-catch` has been defined for this grammar: in that case this helper MAY
+ *               be invoked by calling user code to ensure the `post_parse` callbacks are invoked and
+ *               the internal parser gets properly garbage collected under these particular circumstances.
+ *
+ *    yyMergeLocationInfo: function(first_index, last_index, first_yylloc, last_yylloc, dont_look_back),
+ *               Helper function **which will be set up during the first invocation of the `parse()` method**.
+ *               This helper API can be invoked to calculate a spanning `yylloc` location info object.
+ *
+ *               Note: %epsilon rules MAY specify no `first_index` and `first_yylloc`, in which case
+ *               this function will attempt to obtain a suitable location marker by inspecting the location stack
+ *               backwards.
+ *
+ *               For more info see the documentation comment further below, immediately above this function's
+ *               implementation.
+ *
+ *    lexer: {
+ *        yy: {...},           A reference to the so-called "shared state" `yy` once
+ *                             received via a call to the `.setInput(input, yy)` lexer API.
+ *        EOF: 1,
+ *        ERROR: 2,
+ *        JisonLexerError: function(msg, hash),
+ *        parseError: function(str, hash, ExceptionClass),
+ *        setInput: function(input, [yy]),
+ *        input: function(),
+ *        unput: function(str),
+ *        more: function(),
+ *        reject: function(),
+ *        less: function(n),
+ *        pastInput: function(n),
+ *        upcomingInput: function(n),
+ *        showPosition: function(),
+ *        test_match: function(regex_match_array, rule_index, ...),
+ *        next: function(...),
+ *        lex: function(...),
+ *        begin: function(condition),
+ *        pushState: function(condition),
+ *        popState: function(),
+ *        topState: function(),
+ *        _currentRules: function(),
+ *        stateStackSize: function(),
+ *        cleanupAfterLex: function()
+ *
+ *        options: { ... lexer %options ... },
+ *
+ *        performAction: function(yy, yy_, $avoiding_name_collisions, YY_START, ...),
+ *        rules: [...],
+ *        conditions: {associative list: name ==> set},
+ *    }
+ *  }
+ *
+ *
+ *  token location info (@$, _$, etc.): {
+ *    first_line: n,
+ *    last_line: n,
+ *    first_column: n,
+ *    last_column: n,
+ *    range: [start_number, end_number]
+ *               (where the numbers are indexes into the input string, zero-based)
+ *  }
+ *
+ * ---
+ *
+ * The `parseError` function receives a 'hash' object with these members for lexer and
+ * parser errors:
+ *
+ *  {
+ *    text:        (matched text)
+ *    token:       (the produced terminal token, if any)
+ *    token_id:    (the produced terminal token numeric ID, if any)
+ *    line:        (yylineno)
+ *    loc:         (yylloc)
+ *  }
+ *
+ * parser (grammar) errors will also provide these additional members:
+ *
+ *  {
+ *    expected:    (array describing the set of expected tokens;
+ *                  may be UNDEFINED when we cannot easily produce such a set)
+ *    state:       (integer (or array when the table includes grammar collisions);
+ *                  represents the current internal state of the parser kernel.
+ *                  can, for example, be used to pass to the `collect_expected_token_set()`
+ *                  API to obtain the expected token set)
+ *    action:      (integer; represents the current internal action which will be executed)
+ *    new_state:   (integer; represents the next/planned internal state, once the current
+ *                  action has executed)
+ *    recoverable: (boolean: TRUE when the parser MAY have an error recovery rule
+ *                  available for this particular error)
+ *    state_stack: (array: the current parser LALR/LR internal state stack; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    value_stack: (array: the current parser LALR/LR internal `$$` value stack; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    location_stack: (array: the current parser LALR/LR internal location stack; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    yy:          (object: the current parser internal "shared state" `yy`
+ *                  as is also available in the rule actions; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    lexer:       (reference to the current lexer instance used by the parser)
+ *    parser:      (reference to the current parser instance)
+ *  }
+ *
+ * while `this` will reference the current parser instance.
+ *
+ * When `parseError` is invoked by the lexer, `this` will still reference the related *parser*
+ * instance, while these additional `hash` fields will also be provided:
+ *
+ *  {
+ *    lexer:       (reference to the current lexer instance which reported the error)
+ *  }
+ *
+ * When `parseError` is invoked by the parser due to a **JavaScript exception** being fired
+ * from either the parser or lexer, `this` will still reference the related *parser*
+ * instance, while these additional `hash` fields will also be provided:
+ *
+ *  {
+ *    exception:   (reference to the exception thrown)
+ *  }
+ *
+ * Please do note that in the latter situation, the `expected` field will be omitted as
+ * this type of failure is assumed not to be due to *parse errors* but rather due to user
+ * action code in either parser or lexer failing unexpectedly.
+ *
+ * ---
+ *
+ * You can specify parser options by setting / modifying the `.yy` object of your Parser instance.
+ * These options are available:
+ *
+ * ### options which are global for all parser instances
+ *
+ *  Parser.pre_parse: function(yy)
+ *                 optional: you can specify a pre_parse() function in the chunk following
+ *                 the grammar, i.e. after the last `%%`.
+ *  Parser.post_parse: function(yy, retval, parseInfo) { return retval; }
+ *                 optional: you can specify a post_parse() function in the chunk following
+ *                 the grammar, i.e. after the last `%%`. When it does not return any value,
+ *                 the parser will return the original `retval`.
+ *
+ * ### options which can be set up per parser instance
+ *
+ *  yy: {
+ *      pre_parse:  function(yy)
+ *                 optional: is invoked before the parse cycle starts (and before the first
+ *                 invocation of `lex()`) but immediately after the invocation of
+ *                 `parser.pre_parse()`).
+ *      post_parse: function(yy, retval, parseInfo) { return retval; }
+ *                 optional: is invoked when the parse terminates due to success ('accept')
+ *                 or failure (even when exceptions are thrown).
+ *                 `retval` contains the return value to be produced by `Parser.parse()`;
+ *                 this function can override the return value by returning another.
+ *                 When it does not return any value, the parser will return the original
+ *                 `retval`.
+ *                 This function is invoked immediately before `parser.post_parse()`.
+ *
+ *      parseError: function(str, hash, ExceptionClass)
+ *                 optional: overrides the default `parseError` function.
+ *      quoteName: function(name),
+ *                 optional: overrides the default `quoteName` function.
+ *  }
+ *
+ *  parser.lexer.options: {
+ *      pre_lex:  function()
+ *                 optional: is invoked before the lexer is invoked to produce another token.
+ *                 `this` refers to the Lexer object.
+ *      post_lex: function(token) { return token; }
+ *                 optional: is invoked when the lexer has produced a token `token`;
+ *                 this function can override the returned token value by returning another.
+ *                 When it does not return any (truthy) value, the lexer will return
+ *                 the original `token`.
+ *                 `this` refers to the Lexer object.
+ *
+ *      ranges: boolean
+ *                 optional: `true` ==> token location info will include a .range[] member.
+ *      flex: boolean
+ *                 optional: `true` ==> flex-like lexing behaviour where the rules are tested
+ *                 exhaustively to find the longest match.
+ *      backtrack_lexer: boolean
+ *                 optional: `true` ==> lexer regexes are tested in order and for invoked;
+ *                 the lexer terminates the scan when a token is returned by the action code.
+ *      xregexp: boolean
+ *                 optional: `true` ==> lexer rule regexes are "extended regex format" requiring the
+ *                 `XRegExp` library. When this `%option` has not been specified at compile time, all lexer
+ *                 rule regexes have been written as standard JavaScript RegExp expressions.
+ *  }
+ */ // See also:
+// http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
+// but we keep the prototype.constructor and prototype.name assignment lines too for compatibility
+// with userland code which might access the derived class in a 'classic' way.
+function $e99c546f9ac18755$var$JisonParserError(msg, hash) {
+    Object.defineProperty(this, 'name', {
+        enumerable: false,
+        writable: false,
+        value: 'JisonParserError'
+    });
+    if (msg == null) msg = '???';
+    Object.defineProperty(this, 'message', {
+        enumerable: false,
+        writable: true,
+        value: msg
+    });
+    this.hash = hash;
+    var stacktrace;
+    if (hash && hash.exception instanceof Error) {
+        var ex2 = hash.exception;
+        this.message = ex2.message || msg;
+        stacktrace = ex2.stack;
+    }
+    if (!stacktrace) {
+        if (Error.hasOwnProperty('captureStackTrace')) Error.captureStackTrace(this, this.constructor);
+        else stacktrace = new Error(msg).stack;
+    }
+    if (stacktrace) Object.defineProperty(this, 'stack', {
+        enumerable: false,
+        writable: false,
+        value: stacktrace
+    });
+}
+if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf($e99c546f9ac18755$var$JisonParserError.prototype, Error.prototype);
+else $e99c546f9ac18755$var$JisonParserError.prototype = Object.create(Error.prototype);
+$e99c546f9ac18755$var$JisonParserError.prototype.constructor = $e99c546f9ac18755$var$JisonParserError;
+$e99c546f9ac18755$var$JisonParserError.prototype.name = 'JisonParserError';
+// helper: reconstruct the productions[] table
+function $e99c546f9ac18755$var$bp(s) {
+    var rv = [];
+    var p = s.pop;
+    var r = s.rule;
+    for(var i = 0, l = p.length; i < l; i++)rv.push([
+        p[i],
+        r[i]
+    ]);
+    return rv;
+}
+// helper: reconstruct the defaultActions[] table
+function $e99c546f9ac18755$var$bda(s) {
+    var rv = {
+    };
+    var d = s.idx;
+    var g = s.goto;
+    for(var i = 0, l = d.length; i < l; i++){
+        var j = d[i];
+        rv[j] = g[i];
+    }
+    return rv;
+}
+// helper: reconstruct the 'goto' table
+function $e99c546f9ac18755$var$bt(s) {
+    var rv = [];
+    var d = s.len;
+    var y = s.symbol;
+    var t = s.type;
+    var a = s.state;
+    var m = s.mode;
+    var g = s.goto;
+    for(var i = 0, l = d.length; i < l; i++){
+        var n = d[i];
+        var q = {
+        };
+        for(var j = 0; j < n; j++){
+            var z = y.shift();
+            switch(t.shift()){
+                case 2:
+                    q[z] = [
+                        m.shift(),
+                        g.shift()
+                    ];
+                    break;
+                case 0:
+                    q[z] = a.shift();
+                    break;
+                default:
+                    // type === 1: accept
+                    q[z] = [
+                        3
+                    ];
+            }
+        }
+        rv.push(q);
+    }
+    return rv;
+}
+// helper: runlength encoding with increment step: code, length: step (default step = 0)
+// `this` references an array
+function $e99c546f9ac18755$var$s(c, l, a) {
+    a = a || 0;
+    for(var i = 0; i < l; i++){
+        this.push(c);
+        c += a;
+    }
+}
+// helper: duplicate sequence from *relative* offset and length.
+// `this` references an array
+function $e99c546f9ac18755$var$c(i, l) {
+    i = this.length - i;
+    for(l += i; i < l; i++)this.push(this[i]);
+}
+// helper: unpack an array using helpers and data, all passed in an array argument 'a'.
+function $e99c546f9ac18755$var$u(a) {
+    var rv = [];
+    for(var i = 0, l = a.length; i < l; i++){
+        var e = a[i];
+        // Is this entry a helper function?
+        if (typeof e === 'function') {
+            i++;
+            e.apply(rv, a[i]);
+        } else rv.push(e);
+    }
+    return rv;
+}
+var $e99c546f9ac18755$var$parser = {
+    // Code Generator Information Report
+    // ---------------------------------
+    //
+    // Options:
+    //
+    //   default action mode: ............. ["classic","merge"]
+    //   test-compile action mode: ........ "parser:*,lexer:*"
+    //   try..catch: ...................... true
+    //   default resolve on conflict: ..... true
+    //   on-demand look-ahead: ............ false
+    //   error recovery token skip maximum: 3
+    //   yyerror in parse actions is: ..... NOT recoverable,
+    //   yyerror in lexer actions and other non-fatal lexer are:
+    //   .................................. NOT recoverable,
+    //   debug grammar/output: ............ false
+    //   has partial LR conflict upgrade:   true
+    //   rudimentary token-stack support:   true
+    //   parser table compression mode: ... 2
+    //   export debug tables: ............. false
+    //   export *all* tables: ............. false
+    //   module type: ..................... es
+    //   parser engine type: .............. lalr
+    //   output main() in the module: ..... true
+    //   has user-specified main(): ....... false
+    //   has user-specified require()/import modules for main():
+    //   .................................. false
+    //   number of expected conflicts: .... 0
+    //
+    //
+    // Parser Analysis flags:
+    //
+    //   no significant actions (parser is a language matcher only):
+    //   .................................. false
+    //   uses yyleng: ..................... false
+    //   uses yylineno: ................... false
+    //   uses yytext: ..................... false
+    //   uses yylloc: ..................... false
+    //   uses ParseError API: ............. false
+    //   uses YYERROR: .................... false
+    //   uses YYRECOVERING: ............... false
+    //   uses YYERROK: .................... false
+    //   uses YYCLEARIN: .................. false
+    //   tracks rule values: .............. true
+    //   assigns rule values: ............. true
+    //   uses location tracking: .......... false
+    //   assigns location: ................ false
+    //   uses yystack: .................... false
+    //   uses yysstack: ................... false
+    //   uses yysp: ....................... true
+    //   uses yyrulelength: ............... false
+    //   uses yyMergeLocationInfo API: .... false
+    //   has error recovery: .............. false
+    //   has error reporting: ............. false
+    //
+    // --------- END OF REPORT -----------
+    trace: function no_op_trace() {
+    },
+    JisonParserError: $e99c546f9ac18755$var$JisonParserError,
+    yy: {
+    },
+    options: {
+        type: "lalr",
+        hasPartialLrUpgradeOnConflict: true,
+        errorRecoveryTokenDiscardCount: 3,
+        tokenStack: true,
+        ebnf: true
+    },
+    symbols_: {
+        "$accept": 0,
+        "$end": 1,
+        "ASSIGNMENT": 35,
+        "ASSIGNMENT_VALUE": 34,
+        "ATTR_TEXT": 32,
+        "ATTR_TEXT_CONT": 7,
+        "ATTR_TEXT_END": 6,
+        "AT_ATTRS": 14,
+        "CLASSNAME": 13,
+        "COMMENT": 18,
+        "CONDITION": 33,
+        "CONDITIONAL": 26,
+        "DOT_END": 24,
+        "EOF": 1,
+        "FILTER": 31,
+        "HTML_COMMENT": 8,
+        "INTERP_END": 29,
+        "INTERP_START": 27,
+        "INTERP_VAL": 28,
+        "KEYWORD": 21,
+        "LPAREN": 10,
+        "MIXIN_CALL": 20,
+        "MIXIN_CALL_TODO": 30,
+        "MIXIN_PARAMS": 11,
+        "NESTED_TAG_START": 5,
+        "PIPE": 22,
+        "RCURLY": 23,
+        "RPAREN": 12,
+        "SPACE": 25,
+        "TAG": 15,
+        "TAG_ID": 17,
+        "TEXT": 3,
+        "TEXT_TAG": 16,
+        "UNBUF_CODE": 4,
+        "UNBUF_CODE_BLOCK": 19,
+        "UNBUF_CODE_BLOCK_START": 9,
+        "attrs": 41,
+        "error": 2,
+        "first_token": 39,
+        "line": 37,
+        "line_end": 42,
+        "line_splitter": 43,
+        "line_start": 38,
+        "line_start_option": 45,
+        "line_start_repetition_plus": 44,
+        "start": 36,
+        "tag_part": 40,
+        "tag_part_repetition_plus": 46
+    },
+    terminals_: {
+        1: "EOF",
+        2: "error",
+        3: "TEXT",
+        4: "UNBUF_CODE",
+        5: "NESTED_TAG_START",
+        6: "ATTR_TEXT_END",
+        7: "ATTR_TEXT_CONT",
+        8: "HTML_COMMENT",
+        9: "UNBUF_CODE_BLOCK_START",
+        10: "LPAREN",
+        11: "MIXIN_PARAMS",
+        12: "RPAREN",
+        13: "CLASSNAME",
+        14: "AT_ATTRS",
+        15: "TAG",
+        16: "TEXT_TAG",
+        17: "TAG_ID",
+        18: "COMMENT",
+        19: "UNBUF_CODE_BLOCK",
+        20: "MIXIN_CALL",
+        21: "KEYWORD",
+        22: "PIPE",
+        23: "RCURLY",
+        24: "DOT_END",
+        25: "SPACE",
+        26: "CONDITIONAL",
+        27: "INTERP_START",
+        28: "INTERP_VAL",
+        29: "INTERP_END",
+        30: "MIXIN_CALL_TODO",
+        31: "FILTER",
+        32: "ATTR_TEXT",
+        33: "CONDITION",
+        34: "ASSIGNMENT_VALUE",
+        35: "ASSIGNMENT"
+    },
+    TERROR: 2,
+    EOF: 1,
+    // internals: defined here so the object *structure* doesn't get modified by parse() et al,
+    // thus helping JIT compilers like Chrome V8.
+    originalQuoteName: null,
+    originalParseError: null,
+    cleanupAfterParse: null,
+    constructParseErrorInfo: null,
+    yyMergeLocationInfo: null,
+    __reentrant_call_depth: 0,
+    __error_infos: [],
+    __error_recovery_infos: [],
+    // APIs which will be set up depending on user action code analysis:
+    //yyRecovering: 0,
+    //yyErrOk: 0,
+    //yyClearIn: 0,
+    // Helper APIs
+    // -----------
+    // Helper function which can be overridden by user code later on: put suitable quotes around
+    // literal IDs in a description string.
+    quoteName: function parser_quoteName(id_str) {
+        return '"' + id_str + '"';
+    },
+    // Return the name of the given symbol (terminal or non-terminal) as a string, when available.
+    //
+    // Return NULL when the symbol is unknown to the parser.
+    getSymbolName: function parser_getSymbolName(symbol) {
+        if (this.terminals_[symbol]) return this.terminals_[symbol];
+        // Otherwise... this might refer to a RULE token i.e. a non-terminal: see if we can dig that one up.
+        //
+        // An example of this may be where a rule's action code contains a call like this:
+        //
+        //      parser.getSymbolName(#$)
+        //
+        // to obtain a human-readable name of the current grammar rule.
+        var s = this.symbols_;
+        for(var key in s){
+            if (s[key] === symbol) return key;
+        }
+        return null;
+    },
+    // Return a more-or-less human-readable description of the given symbol, when available,
+    // or the symbol itself, serving as its own 'description' for lack of something better to serve up.
+    //
+    // Return NULL when the symbol is unknown to the parser.
+    describeSymbol: function parser_describeSymbol(symbol) {
+        if (symbol !== this.EOF && this.terminal_descriptions_ && this.terminal_descriptions_[symbol]) return this.terminal_descriptions_[symbol];
+        else if (symbol === this.EOF) return 'end of input';
+        var id = this.getSymbolName(symbol);
+        if (id) return this.quoteName(id);
+        return null;
+    },
+    // Produce a (more or less) human-readable list of expected tokens at the point of failure.
+    //
+    // The produced list may contain token or token set descriptions instead of the tokens
+    // themselves to help turning this output into something that easier to read by humans
+    // unless `do_not_describe` parameter is set, in which case a list of the raw, *numeric*,
+    // expected terminals and nonterminals is produced.
+    //
+    // The returned list (array) will not contain any duplicate entries.
+    collect_expected_token_set: function parser_collect_expected_token_set(state, do_not_describe) {
+        var TERROR = this.TERROR;
+        var tokenset = [];
+        var check = {
+        };
+        // Has this (error?) state been outfitted with a custom expectations description text for human consumption?
+        // If so, use that one instead of the less palatable token set.
+        if (!do_not_describe && this.state_descriptions_ && this.state_descriptions_[state]) return [
+            this.state_descriptions_[state]
+        ];
+        for(var p in this.table[state]){
+            p = +p;
+            if (p !== TERROR) {
+                var d = do_not_describe ? p : this.describeSymbol(p);
+                if (d && !check[d]) {
+                    tokenset.push(d);
+                    check[d] = true; // Mark this token description as already mentioned to prevent outputting duplicate entries.
+                }
+            }
+        }
+        return tokenset;
+    },
+    productions_: $e99c546f9ac18755$var$bp({
+        pop: $e99c546f9ac18755$var$u([
+            36,
+            36,
+            $e99c546f9ac18755$var$s,
+            [
+                37,
+                9
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                38,
+                11
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                39,
+                18
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                40,
+                4
+            ],
+            41,
+            41,
+            $e99c546f9ac18755$var$s,
+            [
+                42,
+                6
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                43,
+                3
+            ],
+            44,
+            44,
+            45,
+            45,
+            46,
+            46
+        ]),
+        rule: $e99c546f9ac18755$var$u([
+            1,
+            2,
+            1,
+            2,
+            2,
+            3,
+            3,
+            $e99c546f9ac18755$var$s,
+            [
+                1,
+                5
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                9,
+                3
+            ],
+            4,
+            5,
+            3,
+            3,
+            4,
+            3,
+            4,
+            $e99c546f9ac18755$var$s,
+            [
+                1,
+                15
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                31,
+                6
+            ],
+            1,
+            3,
+            3,
+            0,
+            $e99c546f9ac18755$var$s,
+            [
+                1,
+                9
+            ],
+            2,
+            $e99c546f9ac18755$var$c,
+            [
+                11,
+                3
+            ],
+            2
+        ])
+    }),
+    performAction: function parser__PerformAction(yystate /* action[1] */ , yysp, yyvstack) {
+        /* this == yyval */ // the JS engine itself can go and remove these statements when `yy` turns out to be unused in any action code!
+        var yy = this.yy;
+        var yyparser = yy.parser;
+        var yylexer = yy.lexer;
+        switch(yystate){
+            case 0:
+                /*! Production::    $accept : start $end */ // default action (generated by JISON mode classic/merge :: 1,VT,VA,-,-,-,-,-,-):
+                this.$ = yyvstack[yysp - 1];
+                break;
+            case 1:
+            /*! Production::    start : EOF */ case 3:
+            /*! Production::    line : line_start */ case 12:
+                /*! Production::    line_start : first_token */ // default action (generated by JISON mode classic/merge :: 1,VT,VA,-,-,-,-,-,-):
+                this.$ = yyvstack[yysp];
+                break;
+            case 2:
+                /*! Production::    start : line EOF */ // default action (generated by JISON mode classic/merge :: 2,VT,VA,-,-,-,-,-,-):
+                this.$ = yyvstack[yysp - 1];
+                break;
+            case 4:
+                /*! Production::    line : line_start TEXT */ $e99c546f9ac18755$var$debug('line: line_start TEXT: $line_start=', yyvstack[yysp - 1], ', $TEXT=', yyvstack[yysp]);
+                // if ($TEXT.includes('#[')) {
+                //   debug('Calling parseInline with ', $TEXT)
+                //   const possibleTags2 = parseInline.parse($TEXT)
+                //   debug('possibleTags2=', possibleTags2)
+                // }
+                // $$ = { type: 'text', val: $TEXT }
+                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 1], {
+                    type: 'text',
+                    val: yyvstack[yysp]
+                });
+                break;
+            case 5:
+                /*! Production::    line : line_start UNBUF_CODE */ this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 1], {
+                    type: 'unbuf_code',
+                    val: yyvstack[yysp],
+                    state: 'UNBUF_CODE_FOLLOWER'
+                });
+                break;
+            case 6:
+                /*! Production::    line : line_start line_splitter line_end */ $e99c546f9ac18755$var$debug('line: line_start line_splitter line_end: $line_start=', yyvstack[yysp - 2], ', $line_end=', yyvstack[yysp]);
+                if (yyvstack[yysp] == undefined) this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], yyvstack[yysp - 1]);
+                else if (yyvstack[yysp].hasOwnProperty('type') && yyvstack[yysp].type == 'array') this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], [
+                    yyvstack[yysp - 1],
+                    {
+                        children: yyvstack[yysp].val
+                    }
+                ]);
+                else this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], [
+                    yyvstack[yysp - 1],
+                    yyvstack[yysp]
+                ]);
+                break;
+            case 7:
+                /*! Production::    line : line_start NESTED_TAG_START line */ this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], {
+                    state: 'NESTED',
+                    children: [
+                        yyvstack[yysp]
+                    ]
+                });
+                break;
+            case 8:
+                /*! Production::    line : ATTR_TEXT_END */ this.$ = {
+                    type: 'attrs_end',
+                    val: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp])
+                };
+                break;
+            case 9:
+                /*! Production::    line : ATTR_TEXT_CONT */ this.$ = {
+                    type: 'attrs_cont',
+                    val: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp]),
+                    state: 'MULTI_LINE_ATTRS'
+                };
+                break;
+            case 10:
+                /*! Production::    line : HTML_COMMENT */ $e99c546f9ac18755$var$debug('$HTML_COMMENT=', yyvstack[yysp]);
+                if (yyvstack[yysp].includes('#')) {
+                    let elemsReturned = $e99c546f9ac18755$var$createElems(yyvstack[yysp], this.yy.parser);
+                    $e99c546f9ac18755$var$debug('elemsReturned', JSON.stringify(elemsReturned));
+                    this.$ = {
+                        type: 'html_comment',
+                        children: elemsReturned
+                    };
+                } else this.$ = {
+                    type: 'html_comment',
+                    val: yyvstack[yysp]
+                };
+                break;
+            case 11:
+                /*! Production::    line : UNBUF_CODE_BLOCK_START */ this.$ = {
+                    type: 'unbuf_code_block',
+                    state: 'UNBUF_CODE_BLOCK_START'
+                };
+                break;
+            case 13:
+                /*! Production::    line_start : first_token line_start_repetition_plus */ $e99c546f9ac18755$var$debug('line_start: first_token tag_part+');
+                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 1], yyvstack[yysp]);
+                break;
+            case 14:
+                /*! Production::    line_start : first_token attrs */ $e99c546f9ac18755$var$debug('line_start: first_token attrs');
+                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 1], yyvstack[yysp]);
+                break;
+            case 15:
+                /*! Production::    line_start : first_token LPAREN line_start_option */ $e99c546f9ac18755$var$debug('line_start: first_token LPAREN ATTR_TEXT_CONT?');
+                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], {
+                    state: 'MULTI_LINE_ATTRS'
+                });
+                if (yyvstack[yysp]) {
+                    $e99c546f9ac18755$var$debug('3 Calling parseAttrs with ', yyvstack[yysp]);
+                    try {
+                        this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], {
+                            attrs_start: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp])
+                        });
+                    } catch (e) {
+                        console.error('Could not parse attributes=' + yyvstack[yysp], e);
+                    }
+                }
+                break;
+            case 16:
+                /*! Production::    line_start : first_token tag_part LPAREN ATTR_TEXT_CONT */ $e99c546f9ac18755$var$debug('line_start: first_token tag_part LPAREN ATTR_TEXT_CONT');
+                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 3], [
+                    yyvstack[yysp - 2],
+                    yyvstack[yysp]
+                ]);
+                break;
+            case 17:
+                /*! Production::    line_start : first_token tag_part LPAREN MIXIN_PARAMS RPAREN */ $e99c546f9ac18755$var$debug('line_start: first_token tag_part LPAREN MIXIN_PARAMS RPAREN');
+                this.$ = $e99c546f9ac18755$var$merge($e99c546f9ac18755$var$merge(yyvstack[yysp - 4], yyvstack[yysp - 3]), {
+                    params: yyvstack[yysp - 1]
+                });
+                break;
+            case 18:
+                /*! Production::    line_start : first_token tag_part attrs */ $e99c546f9ac18755$var$debug('line_start: first_token tag_part attrs');
+                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], [
+                    yyvstack[yysp - 1],
+                    yyvstack[yysp]
+                ]);
+                break;
+            case 19:
+                /*! Production::    line_start : first_token attrs CLASSNAME */ $e99c546f9ac18755$var$debug('first_token attrs CLASSNAME: first_token=', yyvstack[yysp - 2], ', attrs=', yyvstack[yysp - 1], ', CLASSNAME=', yyvstack[yysp]);
+                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], [
+                    yyvstack[yysp - 1],
+                    {
+                        attrs: [
+                            {
+                                name: 'class',
+                                val: $e99c546f9ac18755$var$quote(yyvstack[yysp])
+                            }
+                        ]
+                    }
+                ]);
+                break;
+            case 20:
+                /*! Production::    line_start : first_token tag_part attrs CLASSNAME */ $e99c546f9ac18755$var$debug('first_token tag_part attrs CLASSNAME: first_token=', yyvstack[yysp - 3], ', tag_part=', yyvstack[yysp - 2], ', attrs=', yyvstack[yysp - 1], ', CLASSNAME=', yyvstack[yysp]);
+                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 3], [
+                    yyvstack[yysp - 2],
+                    yyvstack[yysp - 1],
+                    {
+                        attrs: [
+                            {
+                                name: 'class',
+                                val: $e99c546f9ac18755$var$quote(yyvstack[yysp])
+                            }
+                        ]
+                    }
+                ]);
+                break;
+            case 21:
+                /*! Production::    line_start : first_token attrs AT_ATTRS */ $e99c546f9ac18755$var$debug('first_token attrs AT_ATTRS: first_token=', yyvstack[yysp - 2], ', $attrs=', yyvstack[yysp - 1], ', AT_ATTRS=', yyvstack[yysp]);
+                let attrArr = yyvstack[yysp - 1].attrs;
+                $e99c546f9ac18755$var$debug('1 attrArr=', attrArr);
+                let atAttrObj = Function('return ' + yyvstack[yysp].slice(12, -1))();
+                $e99c546f9ac18755$var$debug('2 atAttrObj=', atAttrObj);
+                var atAttrObjToArray = Object.entries(atAttrObj).map(([name, val])=>({
+                        name: name,
+                        val: val
+                    })
+                );
+                $e99c546f9ac18755$var$debug('3 atAttrObjToArray=', atAttrObjToArray);
+                attrArr = attrArr.concat(atAttrObjToArray);
+                $e99c546f9ac18755$var$debug('4 attrArr=', attrArr);
+                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], {
+                    attrs: attrArr
+                });
+                break;
+            case 22:
+                /*! Production::    line_start : first_token LPAREN MIXIN_PARAMS RPAREN */ $e99c546f9ac18755$var$debug('first_token LPAREN MIXIN_PARAMS RPAREN: first_token=', yyvstack[yysp - 3], ', MIXIN_PARAMS=', yyvstack[yysp - 1]);
+                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 3], {
+                    params: yyvstack[yysp - 1]
+                });
+                break;
+            case 23:
+                /*! Production::    first_token : TAG */ this.$ = {
+                    name: yyvstack[yysp],
+                    type: 'tag'
+                };
+                break;
+            case 24:
+                /*! Production::    first_token : TEXT_TAG */ this.$ = {
+                    name: yyvstack[yysp],
+                    type: 'tag',
+                    state: 'TEXT_START'
+                };
+                break;
+            case 25:
+                /*! Production::    first_token : CLASSNAME */ this.$ = {
+                    type: 'tag',
+                    attrs: [
+                        {
+                            name: 'class',
+                            val: $e99c546f9ac18755$var$quote(yyvstack[yysp])
+                        }
+                    ]
+                };
+                break;
+            case 26:
+                /*! Production::    first_token : TAG_ID */ this.$ = {
+                    type: 'tag',
+                    id: yyvstack[yysp]
+                };
+                break;
+            case 27:
+                /*! Production::    first_token : TEXT */ // if ($TEXT.includes('#[')) {
+                //   debug('Calling parseInline with ', $TEXT)
+                //   const possibleTags = parseInline.parse($TEXT)
+                //   debug('possibleTags=', possibleTags)
+                // }
+                this.$ = {
+                    type: 'text',
+                    val: yyvstack[yysp]
+                };
+                break;
+            case 28:
+                /*! Production::    first_token : COMMENT */ if (yyvstack[yysp][0] == '-') this.$ = {
+                    type: 'comment',
+                    state: 'TEXT_START'
+                };
+                else this.$ = {
+                    type: 'html_comment',
+                    state: 'TEXT_START'
+                };
+                break;
+            case 29:
+            /*! Production::    first_token : UNBUF_CODE */ case 51:
+                /*! Production::    line_end : UNBUF_CODE */ this.$ = {
+                    type: 'unbuf_code',
+                    val: yyvstack[yysp],
+                    state: 'UNBUF_CODE_FOLLOWER'
+                };
+                break;
+            case 30:
+                /*! Production::    first_token : UNBUF_CODE_BLOCK */ this.$ = {
+                    type: 'unbuf_code',
+                    val: yyvstack[yysp],
+                    state: 'UNBUF_CODE_BLOCK'
+                };
+                break;
+            case 31:
+                /*! Production::    first_token : MIXIN_CALL */ $e99c546f9ac18755$var$debug('first_token MIXIN_CALL, $MIXIN_CALL=', yyvstack[yysp]);
+                this.$ = {
+                    type: 'mixin_call',
+                    name: yyvstack[yysp].trim(),
+                    state: 'MIXIN_CALL'
+                };
+                break;
+            case 32:
+                /*! Production::    first_token : KEYWORD */ // %include ../src/keywords.js
+                this.$ = {
+                    type: yyvstack[yysp]
+                };
+                break;
+            case 33:
+                /*! Production::    first_token : PIPE */ this.$ = {
+                    type: 'text'
+                };
+                break;
+            case 34:
+                /*! Production::    first_token : RCURLY */ this.$ = {
+                    type: 'block_end'
+                };
+                break;
+            case 35:
+                /*! Production::    first_token : DOT_END */ $e99c546f9ac18755$var$debug('line: DOT_END');
+                this.$ = {
+                    state: 'TEXT_START'
+                };
+                break;
+            case 36:
+                /*! Production::    first_token : SPACE */ this.$ = {
+                };
+                break;
+            case 37:
+                /*! Production::    first_token : CONDITIONAL */ this.$ = {
+                    type: 'conditional',
+                    name: yyvstack[yysp]
+                };
+                break;
+            case 38:
+                /*! Production::    first_token : INTERP_START INTERP_VAL INTERP_END */ $e99c546f9ac18755$var$debug('line: INTERP_START INTERP_VAL INTERP_END: $INTERP_VAL=', yyvstack[yysp - 1]);
+                const resultInterpVal1 = $e99c546f9ac18755$var$attrResolver.resolve({
+                    name: 'anonymous',
+                    val: yyvstack[yysp - 1].slice(2, -1)
+                });
+                this.$ = {
+                    type: 'tag',
+                    name: resultInterpVal1.val
+                };
+                break;
+            case 39:
+                /*! Production::    first_token : INTERP_VAL */ $e99c546f9ac18755$var$debug('line: INTERP_VAL: $INTERP_VAL=', yyvstack[yysp]);
+                $e99c546f9ac18755$var$debug('AttrResolver=', $cjPlG$AttrResolver);
+                const resultInterpVal2 = $e99c546f9ac18755$var$attrResolver.resolve({
+                    name: 'anonymous',
+                    val: yyvstack[yysp]
+                });
+                $e99c546f9ac18755$var$debug('AttrResolver returned=', resultInterpVal2);
+                this.$ = {
+                    type: 'text',
+                    val: resultInterpVal2.val
+                };
+                break;
+            case 40:
+                /*! Production::    first_token : MIXIN_CALL_TODO */ $e99c546f9ac18755$var$debug('line: MIXIN_CALL_TODO: $MIXIN_CALL_TODO=', yyvstack[yysp]);
+                this.$ = {
+                };
+                break;
+            case 41:
+                /*! Production::    tag_part : TAG_ID */ this.$ = {
+                    id: yyvstack[yysp]
+                };
+                break;
+            case 42:
+                /*! Production::    tag_part : tag_part_repetition_plus */ let attrs1 = yyvstack[yysp].map((cn)=>{
+                    return {
+                        name: 'class',
+                        val: $e99c546f9ac18755$var$quote(cn)
+                    };
+                });
+                this.$ = {
+                    type: 'tag',
+                    attrs: attrs1
+                };
+                break;
+            case 43:
+                /*! Production::    tag_part : FILTER */ this.$ = {
+                    filter: yyvstack[yysp]
+                };
+                break;
+            case 44:
+                /*! Production::    tag_part : AT_ATTRS */ $e99c546f9ac18755$var$debug('tag_part AT_ATTRS: $AT_ATTRS=', yyvstack[yysp]);
+                if (yyvstack[yysp].includes('{') && yyvstack[yysp].includes('}')) {
+                    let func = Function('return (' + yyvstack[yysp].substring(12, yyvstack[yysp].length - 1) + ')');
+                    let entries2 = Object.entries(func());
+                    $e99c546f9ac18755$var$debug('entries2=', entries2);
+                    let attrs2 = Object.entries(entries2).map(([index, [key, value]])=>{
+                        $e99c546f9ac18755$var$debug('name=', key, 'value=', value);
+                        return {
+                            name: key,
+                            val: value
+                        };
+                    });
+                    this.$ = {
+                        type: 'tag',
+                        attrs: attrs2
+                    };
+                } else this.$ = {
+                    type: 'tag',
+                    attrs: [
+                        {
+                            val: yyvstack[yysp].substring(12, yyvstack[yysp].length - 1)
+                        }
+                    ]
+                };
+                break;
+            case 45:
+                /*! Production::    attrs : LPAREN ATTR_TEXT RPAREN */ $e99c546f9ac18755$var$debug('1 Calling parseAttrs with ', yyvstack[yysp - 1]);
+                this.$ = {
+                };
+                try {
+                    const attrs = $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].trim());
+                    $e99c546f9ac18755$var$debug('attrs=', attrs);
+                    attrs.forEach((attr)=>{
+                        // if (attr.hasOwnProperty('key') && attr.key == 'class' && !attr.assignment) {
+                        //   $$ = merge($$, { classes: attr.val.split(' ') } )
+                        //   delete attr.class
+                        // }
+                        // else if (attr.hasOwnProperty('id')) {
+                        //   $$ = merge($$, { id: attr.id } )
+                        //   delete attr.id
+                        // }
+                        // else 
+                        if (!$cjPlG$lodash.isEmpty(attr)) this.$ = $e99c546f9ac18755$var$merge(this.$, {
+                            attrs: [
+                                attr
+                            ]
+                        });
+                    });
+                } catch (e) {
+                    console.error('Error parsing ' + yyvstack[yysp - 1], e);
+                }
+                break;
+            case 46:
+                /*! Production::    attrs : LPAREN CONDITION RPAREN */ $e99c546f9ac18755$var$debug('attrs: LPAREN CONDITION RPAREN');
+                this.$ = {
+                    condition: yyvstack[yysp - 1]
+                };
+                break;
+            case 47:
+                /*! Production::    line_end : %epsilon */ // default action (generated by JISON mode classic/merge :: 0,VT,VA,-,-,-,-,-,-):
+                this.$ = undefined;
+                // END of default action (generated by JISON mode classic/merge :: 0,VT,VA,-,-,-,-,-,-)
+                $e99c546f9ac18755$var$debug('line_end: <blank>');
+                break;
+            case 48:
+                /*! Production::    line_end : DOT_END */ $e99c546f9ac18755$var$debug('line_end: DOT_END');
+                this.$ = {
+                    state: 'TEXT_START'
+                };
+                break;
+            case 49:
+                /*! Production::    line_end : ASSIGNMENT_VALUE */ this.$ = {
+                    assignment_val: yyvstack[yysp]
+                };
+                break;
+            case 50:
+                /*! Production::    line_end : TEXT */ $e99c546f9ac18755$var$debug('line_end: TEXT: $TEXT=', yyvstack[yysp]);
+                if (yyvstack[yysp].includes('#')) {
+                    let elemsReturned = $e99c546f9ac18755$var$createElems(yyvstack[yysp], this.yy.parser);
+                    $e99c546f9ac18755$var$debug('elemsReturned', elemsReturned);
+                    this.$ = {
+                        children: elemsReturned
+                    };
+                } else this.$ = {
+                    type: 'text',
+                    val: yyvstack[yysp]
+                };
+                break;
+            case 52:
+                /*! Production::    line_end : RPAREN */ this.$ = {
+                    type: 'text',
+                    val: yyvstack[yysp]
+                };
+                break;
+            case 53:
+                /*! Production::    line_splitter : SPACE */ $e99c546f9ac18755$var$debug('line_splitter: SPACE');
+                this.$ = {
+                };
+                break;
+            case 54:
+                /*! Production::    line_splitter : ASSIGNMENT */ this.$ = {
+                    assignment: true
+                };
+                break;
+            case 55:
+                /*! Production::    line_splitter : DOT_END */ $e99c546f9ac18755$var$debug('line_splitter: DOT_END');
+                this.$ = {
+                    state: 'TEXT_START'
+                };
+                break;
+            case 56:
+            /*! Production::    line_start_repetition_plus : tag_part */ case 60:
+                /*! Production::    tag_part_repetition_plus : CLASSNAME */ this.$ = [
+                    yyvstack[yysp]
+                ];
+                break;
+            case 57:
+            /*! Production::    line_start_repetition_plus : line_start_repetition_plus tag_part */ case 61:
+                /*! Production::    tag_part_repetition_plus : tag_part_repetition_plus CLASSNAME */ yyvstack[yysp - 1].push(yyvstack[yysp]);
+                this.$ = yyvstack[yysp - 1];
+                break;
+            case 58:
+                /*! Production::    line_start_option : %epsilon */ this.$ = undefined;
+                break;
+            case 59:
+                /*! Production::    line_start_option : ATTR_TEXT_CONT */ this.$ = yyvstack[yysp];
+                break;
+        }
+    },
+    table: $e99c546f9ac18755$var$bt({
+        len: $e99c546f9ac18755$var$u([
+            27,
+            1,
+            0,
+            1,
+            8,
+            $e99c546f9ac18755$var$s,
+            [
+                0,
+                4
+            ],
+            16,
+            $e99c546f9ac18755$var$s,
+            [
+                0,
+                15
+            ],
+            1,
+            $e99c546f9ac18755$var$s,
+            [
+                0,
+                5
+            ],
+            7,
+            25,
+            $e99c546f9ac18755$var$s,
+            [
+                0,
+                3
+            ],
+            13,
+            9,
+            12,
+            13,
+            0,
+            12,
+            $e99c546f9ac18755$var$c,
+            [
+                20,
+                9
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                32,
+                7
+            ],
+            1,
+            1,
+            0,
+            4,
+            $e99c546f9ac18755$var$c,
+            [
+                58,
+                5
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                24,
+                5
+            ]
+        ]),
+        symbol: $e99c546f9ac18755$var$u([
+            1,
+            3,
+            4,
+            $e99c546f9ac18755$var$s,
+            [
+                6,
+                4,
+                1
+            ],
+            13,
+            $e99c546f9ac18755$var$s,
+            [
+                15,
+                14,
+                1
+            ],
+            30,
+            $e99c546f9ac18755$var$s,
+            [
+                36,
+                4,
+                1
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                1,
+                3
+            ],
+            3,
+            4,
+            5,
+            24,
+            25,
+            35,
+            43,
+            $e99c546f9ac18755$var$c,
+            [
+                8,
+                4
+            ],
+            10,
+            13,
+            14,
+            17,
+            24,
+            25,
+            31,
+            35,
+            40,
+            41,
+            44,
+            46,
+            28,
+            $e99c546f9ac18755$var$c,
+            [
+                17,
+                3
+            ],
+            12,
+            24,
+            34,
+            42,
+            $e99c546f9ac18755$var$c,
+            [
+                60,
+                22
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                59,
+                4
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                49,
+                3
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                48,
+                8
+            ],
+            46,
+            $e99c546f9ac18755$var$c,
+            [
+                13,
+                6
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                72,
+                3
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                9,
+                4
+            ],
+            7,
+            11,
+            24,
+            25,
+            32,
+            33,
+            35,
+            45,
+            $e99c546f9ac18755$var$c,
+            [
+                83,
+                12
+            ],
+            41,
+            $e99c546f9ac18755$var$c,
+            [
+                13,
+                12
+            ],
+            29,
+            $e99c546f9ac18755$var$s,
+            [
+                12,
+                3
+            ],
+            7,
+            11,
+            32,
+            33,
+            $e99c546f9ac18755$var$c,
+            [
+                54,
+                5
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                53,
+                3
+            ],
+            12
+        ]),
+        type: $e99c546f9ac18755$var$u([
+            $e99c546f9ac18755$var$s,
+            [
+                2,
+                23
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                0,
+                4
+            ],
+            1,
+            $e99c546f9ac18755$var$c,
+            [
+                13,
+                9
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                26,
+                16
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                24,
+                20
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                34,
+                13
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                14,
+                13
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                36,
+                21
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                13,
+                25
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                2,
+                17
+            ]
+        ]),
+        state: $e99c546f9ac18755$var$u([
+            1,
+            3,
+            4,
+            9,
+            31,
+            39,
+            37,
+            36,
+            41,
+            46,
+            52,
+            4,
+            9,
+            53,
+            41,
+            56,
+            62
+        ]),
+        mode: $e99c546f9ac18755$var$u([
+            $e99c546f9ac18755$var$s,
+            [
+                1,
+                24
+            ],
+            2,
+            $e99c546f9ac18755$var$c,
+            [
+                7,
+                7
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                2,
+                3
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                8,
+                6
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                18,
+                3
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                20,
+                7
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                48,
+                22
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                41,
+                6
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                40,
+                4
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                11,
+                6
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                2,
+                7
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                19,
+                5
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                20,
+                7
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                2,
+                12
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                13,
+                7
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                63,
+                13
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                4,
+                4
+            ]
+        ]),
+        goto: $e99c546f9ac18755$var$u([
+            2,
+            14,
+            16,
+            $e99c546f9ac18755$var$s,
+            [
+                5,
+                4,
+                1
+            ],
+            12,
+            10,
+            $e99c546f9ac18755$var$s,
+            [
+                11,
+                4,
+                2
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                18,
+                11,
+                1
+            ],
+            3,
+            29,
+            30,
+            32,
+            35,
+            33,
+            34,
+            $e99c546f9ac18755$var$s,
+            [
+                12,
+                4
+            ],
+            38,
+            44,
+            43,
+            40,
+            12,
+            12,
+            42,
+            12,
+            45,
+            47,
+            49,
+            50,
+            51,
+            47,
+            48,
+            $e99c546f9ac18755$var$c,
+            [
+                49,
+                22
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                13,
+                4
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                40,
+                3
+            ],
+            13,
+            13,
+            42,
+            13,
+            $e99c546f9ac18755$var$s,
+            [
+                14,
+                4
+            ],
+            54,
+            55,
+            $e99c546f9ac18755$var$s,
+            [
+                14,
+                3
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                58,
+                4
+            ],
+            60,
+            57,
+            $e99c546f9ac18755$var$s,
+            [
+                58,
+                3
+            ],
+            59,
+            58,
+            $e99c546f9ac18755$var$s,
+            [
+                56,
+                4
+            ],
+            61,
+            $e99c546f9ac18755$var$s,
+            [
+                56,
+                7
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                42,
+                5
+            ],
+            63,
+            $e99c546f9ac18755$var$s,
+            [
+                42,
+                6
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                64,
+                6,
+                1
+            ],
+            58,
+            59,
+            $e99c546f9ac18755$var$s,
+            [
+                18,
+                4
+            ],
+            70,
+            $e99c546f9ac18755$var$s,
+            [
+                18,
+                3
+            ],
+            71
+        ])
+    }),
+    defaultActions: $e99c546f9ac18755$var$bda({
+        idx: $e99c546f9ac18755$var$u([
+            2,
+            $e99c546f9ac18755$var$s,
+            [
+                5,
+                4,
+                1
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                10,
+                15,
+                1
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                26,
+                5,
+                1
+            ],
+            33,
+            34,
+            35,
+            40,
+            42,
+            43,
+            44,
+            $e99c546f9ac18755$var$s,
+            [
+                46,
+                11,
+                1
+            ],
+            60,
+            $e99c546f9ac18755$var$s,
+            [
+                63,
+                6,
+                1
+            ],
+            70,
+            71
+        ]),
+        goto: $e99c546f9ac18755$var$u([
+            1,
+            $e99c546f9ac18755$var$s,
+            [
+                8,
+                4,
+                1
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                23,
+                15,
+                1
+            ],
+            39,
+            40,
+            2,
+            4,
+            5,
+            53,
+            54,
+            55,
+            41,
+            43,
+            44,
+            60,
+            6,
+            $e99c546f9ac18755$var$s,
+            [
+                48,
+                5,
+                1
+            ],
+            7,
+            57,
+            19,
+            21,
+            15,
+            59,
+            61,
+            38,
+            22,
+            45,
+            46,
+            16,
+            20,
+            17
+        ])
+    }),
+    parseError: function parseError(str, hash, ExceptionClass) {
+        if (hash.recoverable) {
+            if (typeof this.trace === 'function') this.trace(str);
+            hash.destroy(); // destroy... well, *almost*!
+        } else {
+            if (typeof this.trace === 'function') this.trace(str);
+            if (!ExceptionClass) ExceptionClass = this.JisonParserError;
+            throw new ExceptionClass(str, hash);
+        }
+    },
+    parse: function parse(input) {
+        var self = this;
+        var stack = new Array(128); // token stack: stores token which leads to state at the same index (column storage)
+        var sstack = new Array(128); // state stack: stores states (column storage)
+        var tstack = []; // token stack (only used when `%options token_stack` support has been enabled)
+        var vstack = new Array(128); // semantic value stack
+        var table = this.table;
+        var sp = 0; // 'stack pointer': index into the stacks
+        var symbol1 = 0;
+        var TERROR = this.TERROR;
+        var EOF = this.EOF;
+        var ERROR_RECOVERY_TOKEN_DISCARD_COUNT = this.options.errorRecoveryTokenDiscardCount | 0 || 3;
+        var NO_ACTION = [
+            0,
+            72 /* === table.length :: ensures that anyone using this new state will fail dramatically! */ 
+        ];
+        var lexer;
+        if (this.__lexer__) lexer = this.__lexer__;
+        else lexer = this.__lexer__ = Object.create(this.lexer);
+        var sharedState_yy = {
+            parseError: undefined,
+            quoteName: undefined,
+            lexer: undefined,
+            parser: undefined,
+            pre_parse: undefined,
+            post_parse: undefined,
+            pre_lex: undefined,
+            post_lex: undefined // WARNING: must be written this way for the code expanders to work correctly in both ES5 and ES6 modes!
+        };
+        var ASSERT;
+        if (typeof $cjPlG$assert !== 'function') ASSERT = function JisonAssert(cond, msg) {
+            if (!cond) throw new Error('assertion failed: ' + (msg || '***'));
+        };
+        else ASSERT = $cjPlG$assert;
+        this.yyGetSharedState = function yyGetSharedState() {
+            return sharedState_yy;
+        };
+        function shallow_copy_noclobber(dst, src) {
+            for(var k in src)if (typeof dst[k] === 'undefined' && Object.prototype.hasOwnProperty.call(src, k)) dst[k] = src[k];
+        }
+        // copy state
+        shallow_copy_noclobber(sharedState_yy, this.yy);
+        sharedState_yy.lexer = lexer;
+        sharedState_yy.parser = this;
+        // Does the shared state override the default `parseError` that already comes with this instance?
+        if (typeof sharedState_yy.parseError === 'function') this.parseError = function parseErrorAlt(str, hash, ExceptionClass) {
+            if (!ExceptionClass) ExceptionClass = this.JisonParserError;
+            return sharedState_yy.parseError.call(this, str, hash, ExceptionClass);
+        };
+        else this.parseError = this.originalParseError;
+        // Does the shared state override the default `quoteName` that already comes with this instance?
+        if (typeof sharedState_yy.quoteName === 'function') this.quoteName = function quoteNameAlt(id_str) {
+            return sharedState_yy.quoteName.call(this, id_str);
+        };
+        else this.quoteName = this.originalQuoteName;
+        // set up the cleanup function; make it an API so that external code can re-use this one in case of
+        // calamities or when the `%options no-try-catch` option has been specified for the grammar, in which
+        // case this parse() API method doesn't come with a `finally { ... }` block any more!
+        //
+        // NOTE: as this API uses parse() as a closure, it MUST be set again on every parse() invocation,
+        //       or else your `sharedState`, etc. references will be *wrong*!
+        this.cleanupAfterParse = function parser_cleanupAfterParse(resultValue, invoke_post_methods, do_not_nuke_errorinfos) {
+            var rv;
+            if (invoke_post_methods) {
+                var hash;
+                if (sharedState_yy.post_parse || this.post_parse) // create an error hash info instance: we re-use this API in a **non-error situation**
+                // as this one delivers all parser internals ready for access by userland code.
+                hash = this.constructParseErrorInfo(null, null, null, false);
+                if (sharedState_yy.post_parse) {
+                    rv = sharedState_yy.post_parse.call(this, sharedState_yy, resultValue, hash);
+                    if (typeof rv !== 'undefined') resultValue = rv;
+                }
+                if (this.post_parse) {
+                    rv = this.post_parse.call(this, sharedState_yy, resultValue, hash);
+                    if (typeof rv !== 'undefined') resultValue = rv;
+                }
+                // cleanup:
+                if (hash && hash.destroy) hash.destroy();
+            }
+            if (this.__reentrant_call_depth > 1) return resultValue; // do not (yet) kill the sharedState when this is a reentrant run.
+            // clean up the lingering lexer structures as well:
+            if (lexer.cleanupAfterLex) lexer.cleanupAfterLex(do_not_nuke_errorinfos);
+            // prevent lingering circular references from causing memory leaks:
+            if (sharedState_yy) {
+                sharedState_yy.lexer = undefined;
+                sharedState_yy.parser = undefined;
+                if (lexer.yy === sharedState_yy) lexer.yy = undefined;
+            }
+            sharedState_yy = undefined;
+            this.parseError = this.originalParseError;
+            this.quoteName = this.originalQuoteName;
+            // nuke the vstack[] array at least as that one will still reference obsoleted user values.
+            // To be safe, we nuke the other internal stack columns as well...
+            stack.length = 0; // fastest way to nuke an array without overly bothering the GC
+            sstack.length = 0;
+            vstack.length = 0;
+            sp = 0;
+            // nuke the error hash info instances created during this run.
+            // Userland code must COPY any data/references
+            // in the error hash instance(s) it is more permanently interested in.
+            if (!do_not_nuke_errorinfos) {
+                for(var i = this.__error_infos.length - 1; i >= 0; i--){
+                    var el = this.__error_infos[i];
+                    if (el && typeof el.destroy === 'function') el.destroy();
+                }
+                this.__error_infos.length = 0;
+            }
+            return resultValue;
+        };
+        // NOTE: as this API uses parse() as a closure, it MUST be set again on every parse() invocation,
+        //       or else your `lexer`, `sharedState`, etc. references will be *wrong*!
+        this.constructParseErrorInfo = function parser_constructParseErrorInfo(msg, ex, expected, recoverable) {
+            var pei = {
+                errStr: msg,
+                exception: ex,
+                text: lexer.match,
+                value: lexer.yytext,
+                token: this.describeSymbol(symbol1) || symbol1,
+                token_id: symbol1,
+                line: lexer.yylineno,
+                expected: expected,
+                recoverable: recoverable,
+                state: state,
+                action: action,
+                new_state: newState,
+                symbol_stack: stack,
+                state_stack: sstack,
+                value_stack: vstack,
+                stack_pointer: sp,
+                yy: sharedState_yy,
+                lexer: lexer,
+                parser: this,
+                // and make sure the error info doesn't stay due to potential
+                // ref cycle via userland code manipulations.
+                // These would otherwise all be memory leak opportunities!
+                //
+                // Note that only array and object references are nuked as those
+                // constitute the set of elements which can produce a cyclic ref.
+                // The rest of the members is kept intact as they are harmless.
+                destroy: function destructParseErrorInfo() {
+                    // remove cyclic references added to error info:
+                    // info.yy = null;
+                    // info.lexer = null;
+                    // info.value = null;
+                    // info.value_stack = null;
+                    // ...
+                    var rec = !!this.recoverable;
+                    for(var key in this)if (this.hasOwnProperty(key) && typeof key === 'object') this[key] = undefined;
+                    this.recoverable = rec;
+                }
+            };
+            // track this instance so we can `destroy()` it once we deem it superfluous and ready for garbage collection!
+            this.__error_infos.push(pei);
+            return pei;
+        };
+        function getNonTerminalFromCode(symbol) {
+            var tokenName = self.getSymbolName(symbol);
+            if (!tokenName) tokenName = symbol;
+            return tokenName;
+        }
+        // lex function that supports token stacks
+        function lex() {
+            var token;
+            token = tstack.pop() || lexer.lex() || EOF;
+            // if token isn't its numeric value, convert
+            if (typeof token !== 'number') {
+                if (token instanceof Array) {
+                    tstack = token;
+                    token = tstack.pop();
+                }
+                // if token isn't its numeric value, convert
+                if (typeof token !== 'number') token = self.symbols_[token] || token;
+            }
+            return token || EOF;
+        }
+        var state, action, r, t;
+        var yyval = {
+            $: true,
+            _$: undefined,
+            yy: sharedState_yy
+        };
+        var p;
+        var yyrulelen;
+        var this_production;
+        var newState;
+        var retval = false;
+        try {
+            this.__reentrant_call_depth++;
+            lexer.setInput(input, sharedState_yy);
+            // NOTE: we *assume* no lexer pre/post handlers are set up *after* 
+            // this initial `setInput()` call: hence we can now check and decide
+            // whether we'll go with the standard, slower, lex() API or the
+            // `fast_lex()` one:
+            if (typeof lexer.canIUse === 'function') {
+                var lexerInfo = lexer.canIUse();
+                if (lexerInfo.fastLex && typeof fastLex === 'function') lex = fastLex;
+            }
+            vstack[sp] = null;
+            sstack[sp] = 0;
+            stack[sp] = 0;
+            ++sp;
+            if (this.pre_parse) this.pre_parse.call(this, sharedState_yy);
+            if (sharedState_yy.pre_parse) sharedState_yy.pre_parse.call(this, sharedState_yy);
+            newState = sstack[sp - 1];
+            for(;;){
+                // retrieve state number from top of stack
+                state = newState; // sstack[sp - 1];
+                // use default actions if available
+                if (this.defaultActions[state]) {
+                    action = 2;
+                    newState = this.defaultActions[state];
+                } else {
+                    // The single `==` condition below covers both these `===` comparisons in a single
+                    // operation:
+                    //
+                    //     if (symbol === null || typeof symbol === 'undefined') ...
+                    if (!symbol1) symbol1 = lex();
+                    // read action for current state and first input
+                    t = table[state] && table[state][symbol1] || NO_ACTION;
+                    newState = t[1];
+                    action = t[0];
+                    // handle parse error
+                    if (!action) {
+                        var errStr;
+                        var errSymbolDescr = this.describeSymbol(symbol1) || symbol1;
+                        var expected1 = this.collect_expected_token_set(state);
+                        // Report error
+                        if (typeof lexer.yylineno === 'number') errStr = 'Parse error on line ' + (lexer.yylineno + 1) + ': ';
+                        else errStr = 'Parse error: ';
+                        if (typeof lexer.showPosition === 'function') errStr += '\n' + lexer.showPosition(69, 10) + '\n';
+                        if (expected1.length) errStr += 'Expecting ' + expected1.join(', ') + ', got unexpected ' + errSymbolDescr;
+                        else errStr += 'Unexpected ' + errSymbolDescr;
+                        // we cannot recover from the error!
+                        p = this.constructParseErrorInfo(errStr, null, expected1, false);
+                        r = this.parseError(p.errStr, p, this.JisonParserError);
+                        if (typeof r !== 'undefined') retval = r;
+                        break;
+                    }
+                }
+                switch(action){
+                    // catch misc. parse failures:
+                    default:
+                        // this shouldn't happen, unless resolve defaults are off
+                        if (action instanceof Array) {
+                            p = this.constructParseErrorInfo('Parse Error: multiple actions possible at state: ' + state + ', token: ' + symbol1, null, null, false);
+                            r = this.parseError(p.errStr, p, this.JisonParserError);
+                            if (typeof r !== 'undefined') retval = r;
+                            break;
+                        }
+                        // Another case of better safe than sorry: in case state transitions come out of another error recovery process
+                        // or a buggy LUT (LookUp Table):
+                        p = this.constructParseErrorInfo('Parsing halted. No viable error recovery approach available due to internal system failure.', null, null, false);
+                        r = this.parseError(p.errStr, p, this.JisonParserError);
+                        if (typeof r !== 'undefined') retval = r;
+                        break;
+                    // shift:
+                    case 1:
+                        stack[sp] = symbol1;
+                        vstack[sp] = lexer.yytext;
+                        sstack[sp] = newState; // push state
+                        ++sp;
+                        symbol1 = 0;
+                        continue;
+                    // reduce:
+                    case 2:
+                        this_production = this.productions_[newState - 1]; // `this.productions_[]` is zero-based indexed while states start from 1 upwards...
+                        yyrulelen = this_production[1];
+                        r = this.performAction.call(yyval, newState, sp - 1, vstack);
+                        if (typeof r !== 'undefined') {
+                            retval = r;
+                            break;
+                        }
+                        // pop off stack
+                        sp -= yyrulelen;
+                        // don't overwrite the `symbol` variable: use a local var to speed things up:
+                        var ntsymbol = this_production[0]; // push nonterminal (reduce)
+                        stack[sp] = ntsymbol;
+                        vstack[sp] = yyval.$;
+                        // goto new state = table[STATE][NONTERMINAL]
+                        newState = table[sstack[sp - 1]][ntsymbol];
+                        sstack[sp] = newState;
+                        ++sp;
+                        continue;
+                    // accept:
+                    case 3:
+                        if (sp !== -2) {
+                            retval = true;
+                            // Return the `$accept` rule's `$$` result, if available.
+                            //
+                            // Also note that JISON always adds this top-most `$accept` rule (with implicit,
+                            // default, action):
+                            //
+                            //     $accept: <startSymbol> $end
+                            //                  %{ $$ = $1; @$ = @1; %}
+                            //
+                            // which, combined with the parse kernel's `$accept` state behaviour coded below,
+                            // will produce the `$$` value output of the <startSymbol> rule as the parse result,
+                            // IFF that result is *not* `undefined`. (See also the parser kernel code.)
+                            //
+                            // In code:
+                            //
+                            //                  %{
+                            //                      @$ = @1;            // if location tracking support is included
+                            //                      if (typeof $1 !== 'undefined')
+                            //                          return $1;
+                            //                      else
+                            //                          return true;           // the default parse result if the rule actions don't produce anything
+                            //                  %}
+                            sp--;
+                            if (typeof vstack[sp] !== 'undefined') retval = vstack[sp];
+                        }
+                        break;
+                }
+                break;
+            }
+        } catch (ex) {
+            // report exceptions through the parseError callback too, but keep the exception intact
+            // if it is a known parser or lexer error which has been thrown by parseError() already:
+            if (ex instanceof this.JisonParserError) throw ex;
+            else if (lexer && typeof lexer.JisonLexerError === 'function' && ex instanceof lexer.JisonLexerError) throw ex;
+            p = this.constructParseErrorInfo('Parsing aborted due to exception.', ex, null, false);
+            retval = false;
+            r = this.parseError(p.errStr, p, this.JisonParserError);
+            if (typeof r !== 'undefined') retval = r;
+        } finally{
+            retval = this.cleanupAfterParse(retval, true, true);
+            this.__reentrant_call_depth--;
+        } // /finally
+        return retval;
+    }
+};
+$e99c546f9ac18755$var$parser.originalParseError = $e99c546f9ac18755$var$parser.parseError;
+$e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.quoteName;
+/* lexer generated by jison-lex 0.6.1-216 */ /*
+ * Returns a Lexer object of the following structure:
+ *
+ *  Lexer: {
+ *    yy: {}     The so-called "shared state" or rather the *source* of it;
+ *               the real "shared state" `yy` passed around to
+ *               the rule actions, etc. is a direct reference!
+ *
+ *               This "shared context" object was passed to the lexer by way of 
+ *               the `lexer.setInput(str, yy)` API before you may use it.
+ *
+ *               This "shared context" object is passed to the lexer action code in `performAction()`
+ *               so userland code in the lexer actions may communicate with the outside world 
+ *               and/or other lexer rules' actions in more or less complex ways.
+ *
+ *  }
+ *
+ *  Lexer.prototype: {
+ *    EOF: 1,
+ *    ERROR: 2,
+ *
+ *    yy:        The overall "shared context" object reference.
+ *
+ *    JisonLexerError: function(msg, hash),
+ *
+ *    performAction: function lexer__performAction(yy, yyrulenumber, YY_START),
+ *
+ *               The function parameters and `this` have the following value/meaning:
+ *               - `this`    : reference to the `lexer` instance. 
+ *                               `yy_` is an alias for `this` lexer instance reference used internally.
+ *
+ *               - `yy`      : a reference to the `yy` "shared state" object which was passed to the lexer
+ *                             by way of the `lexer.setInput(str, yy)` API before.
+ *
+ *                             Note:
+ *                             The extra arguments you specified in the `%parse-param` statement in your
+ *                             **parser** grammar definition file are passed to the lexer via this object
+ *                             reference as member variables.
+ *
+ *               - `yyrulenumber`   : index of the matched lexer rule (regex), used internally.
+ *
+ *               - `YY_START`: the current lexer "start condition" state.
+ *
+ *    parseError: function(str, hash, ExceptionClass),
+ *
+ *    constructLexErrorInfo: function(error_message, is_recoverable),
+ *               Helper function.
+ *               Produces a new errorInfo 'hash object' which can be passed into `parseError()`.
+ *               See it's use in this lexer kernel in many places; example usage:
+ *
+ *                   var infoObj = lexer.constructParseErrorInfo('fail!', true);
+ *                   var retVal = lexer.parseError(infoObj.errStr, infoObj, lexer.JisonLexerError);
+ *
+ *    options: { ... lexer %options ... },
+ *
+ *    lex: function(),
+ *               Produce one token of lexed input, which was passed in earlier via the `lexer.setInput()` API.
+ *               You MAY use the additional `args...` parameters as per `%parse-param` spec of the **lexer** grammar:
+ *               these extra `args...` are added verbatim to the `yy` object reference as member variables.
+ *
+ *               WARNING:
+ *               Lexer's additional `args...` parameters (via lexer's `%parse-param`) MAY conflict with
+ *               any attributes already added to `yy` by the **parser** or the jison run-time; 
+ *               when such a collision is detected an exception is thrown to prevent the generated run-time 
+ *               from silently accepting this confusing and potentially hazardous situation! 
+ *
+ *    cleanupAfterLex: function(do_not_nuke_errorinfos),
+ *               Helper function.
+ *
+ *               This helper API is invoked when the **parse process** has completed: it is the responsibility
+ *               of the **parser** (or the calling userland code) to invoke this method once cleanup is desired. 
+ *
+ *               This helper may be invoked by user code to ensure the internal lexer gets properly garbage collected.
+ *
+ *    setInput: function(input, [yy]),
+ *
+ *
+ *    input: function(),
+ *
+ *
+ *    unput: function(str),
+ *
+ *
+ *    more: function(),
+ *
+ *
+ *    reject: function(),
+ *
+ *
+ *    less: function(n),
+ *
+ *
+ *    pastInput: function(n),
+ *
+ *
+ *    upcomingInput: function(n),
+ *
+ *
+ *    showPosition: function(),
+ *
+ *
+ *    test_match: function(regex_match_array, rule_index),
+ *
+ *
+ *    next: function(),
+ *
+ *
+ *    begin: function(condition),
+ *
+ *
+ *    pushState: function(condition),
+ *
+ *
+ *    popState: function(),
+ *
+ *
+ *    topState: function(),
+ *
+ *
+ *    _currentRules: function(),
+ *
+ *
+ *    stateStackSize: function(),
+ *
+ *
+ *    performAction: function(yy, yy_, yyrulenumber, YY_START),
+ *
+ *
+ *    rules: [...],
+ *
+ *
+ *    conditions: {associative list: name ==> set},
+ *  }
+ *
+ *
+ *  token location info (`yylloc`): {
+ *    first_line: n,
+ *    last_line: n,
+ *    first_column: n,
+ *    last_column: n,
+ *    range: [start_number, end_number]
+ *               (where the numbers are indexes into the input string, zero-based)
+ *  }
+ *
+ * ---
+ *
+ * The `parseError` function receives a 'hash' object with these members for lexer errors:
+ *
+ *  {
+ *    text:        (matched text)
+ *    token:       (the produced terminal token, if any)
+ *    token_id:    (the produced terminal token numeric ID, if any)
+ *    line:        (yylineno)
+ *    loc:         (yylloc)
+ *    recoverable: (boolean: TRUE when the parser MAY have an error recovery rule
+ *                  available for this particular error)
+ *    yy:          (object: the current parser internal "shared state" `yy`
+ *                  as is also available in the rule actions; this can be used,
+ *                  for instance, for advanced error analysis and reporting)
+ *    lexer:       (reference to the current lexer instance used by the parser)
+ *  }
+ *
+ * while `this` will reference the current lexer instance.
+ *
+ * When `parseError` is invoked by the lexer, the default implementation will
+ * attempt to invoke `yy.parser.parseError()`; when this callback is not provided
+ * it will try to invoke `yy.parseError()` instead. When that callback is also not
+ * provided, a `JisonLexerError` exception will be thrown containing the error
+ * message and `hash`, as constructed by the `constructLexErrorInfo()` API.
+ *
+ * Note that the lexer's `JisonLexerError` error class is passed via the
+ * `ExceptionClass` argument, which is invoked to construct the exception
+ * instance to be thrown, so technically `parseError` will throw the object
+ * produced by the `new ExceptionClass(str, hash)` JavaScript expression.
+ *
+ * ---
+ *
+ * You can specify lexer options by setting / modifying the `.options` object of your Lexer instance.
+ * These options are available:
+ *
+ * (Options are permanent.)
+ *  
+ *  yy: {
+ *      parseError: function(str, hash, ExceptionClass)
+ *                 optional: overrides the default `parseError` function.
+ *  }
+ *
+ *  lexer.options: {
+ *      pre_lex:  function()
+ *                 optional: is invoked before the lexer is invoked to produce another token.
+ *                 `this` refers to the Lexer object.
+ *      post_lex: function(token) { return token; }
+ *                 optional: is invoked when the lexer has produced a token `token`;
+ *                 this function can override the returned token value by returning another.
+ *                 When it does not return any (truthy) value, the lexer will return
+ *                 the original `token`.
+ *                 `this` refers to the Lexer object.
+ *
+ * WARNING: the next set of options are not meant to be changed. They echo the abilities of
+ * the lexer as per when it was compiled!
+ *
+ *      ranges: boolean
+ *                 optional: `true` ==> token location info will include a .range[] member.
+ *      flex: boolean
+ *                 optional: `true` ==> flex-like lexing behaviour where the rules are tested
+ *                 exhaustively to find the longest match.
+ *      backtrack_lexer: boolean
+ *                 optional: `true` ==> lexer regexes are tested in order and for invoked;
+ *                 the lexer terminates the scan when a token is returned by the action code.
+ *      xregexp: boolean
+ *                 optional: `true` ==> lexer rule regexes are "extended regex format" requiring the
+ *                 `XRegExp` library. When this %option has not been specified at compile time, all lexer
+ *                 rule regexes have been written as standard JavaScript RegExp expressions.
+ *  }
+ */ var $e99c546f9ac18755$var$lexer = function() {
+    /**
+   * See also:
+   * http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
+   * but we keep the prototype.constructor and prototype.name assignment lines too for compatibility
+   * with userland code which might access the derived class in a 'classic' way.
+   *
+   * @public
+   * @constructor
+   * @nocollapse
+   */ function JisonLexerError(msg, hash) {
+        Object.defineProperty(this, 'name', {
+            enumerable: false,
+            writable: false,
+            value: 'JisonLexerError'
+        });
+        if (msg == null) msg = '???';
+        Object.defineProperty(this, 'message', {
+            enumerable: false,
+            writable: true,
+            value: msg
+        });
+        this.hash = hash;
+        var stacktrace;
+        if (hash && hash.exception instanceof Error) {
+            var ex2 = hash.exception;
+            this.message = ex2.message || msg;
+            stacktrace = ex2.stack;
+        }
+        if (!stacktrace) {
+            if (Error.hasOwnProperty('captureStackTrace')) // V8
+            Error.captureStackTrace(this, this.constructor);
+            else stacktrace = new Error(msg).stack;
+        }
+        if (stacktrace) Object.defineProperty(this, 'stack', {
+            enumerable: false,
+            writable: false,
+            value: stacktrace
+        });
+    }
+    if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf(JisonLexerError.prototype, Error.prototype);
+    else JisonLexerError.prototype = Object.create(Error.prototype);
+    JisonLexerError.prototype.constructor = JisonLexerError;
+    JisonLexerError.prototype.name = 'JisonLexerError';
+    var lexer = {
+        // Code Generator Information Report
+        // ---------------------------------
+        //
+        // Options:
+        //
+        //   backtracking: .................... false
+        //   location.ranges: ................. false
+        //   location line+column tracking: ... true
+        //
+        //
+        // Forwarded Parser Analysis flags:
+        //
+        //   uses yyleng: ..................... false
+        //   uses yylineno: ................... false
+        //   uses yytext: ..................... false
+        //   uses yylloc: ..................... false
+        //   uses lexer values: ............... true / true
+        //   location tracking: ............... false
+        //   location assignment: ............. false
+        //
+        //
+        // Lexer Analysis flags:
+        //
+        //   uses yyleng: ..................... ???
+        //   uses yylineno: ................... ???
+        //   uses yytext: ..................... ???
+        //   uses yylloc: ..................... ???
+        //   uses ParseError API: ............. ???
+        //   uses yyerror: .................... ???
+        //   uses location tracking & editing:  ???
+        //   uses more() API: ................. ???
+        //   uses unput() API: ................ ???
+        //   uses reject() API: ............... ???
+        //   uses less() API: ................. ???
+        //   uses display APIs pastInput(), upcomingInput(), showPosition():
+        //        ............................. ???
+        //   uses describeYYLLOC() API: ....... ???
+        //
+        // --------- END OF REPORT -----------
+        EOF: 1,
+        ERROR: 2,
+        // JisonLexerError: JisonLexerError,        /// <-- injected by the code generator
+        // options: {},                             /// <-- injected by the code generator
+        // yy: ...,                                 /// <-- injected by setInput()
+        /// INTERNAL USE ONLY: internal rule set cache for the current lexer state
+        __currentRuleSet__: null,
+        /// INTERNAL USE ONLY: the set of lexErrorInfo objects created since the last cleanup
+        __error_infos: [],
+        /// INTERNAL USE ONLY: mark whether the lexer instance has been 'unfolded' completely and is now ready for use
+        __decompressed: false,
+        /// INTERNAL USE ONLY
+        done: false,
+        /// INTERNAL USE ONLY
+        _backtrack: false,
+        /// INTERNAL USE ONLY
+        _input: '',
+        /// INTERNAL USE ONLY
+        _more: false,
+        /// INTERNAL USE ONLY
+        _signaled_error_token: false,
+        /// INTERNAL USE ONLY; managed via `pushState()`, `popState()`, `topState()` and `stateStackSize()`
+        conditionStack: [],
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks input which has been matched so far for the lexer token under construction. `match` is identical to `yytext` except that this one still contains the matched input string after `lexer.performAction()` has been invoked, where userland code MAY have changed/replaced the `yytext` value entirely!
+        match: '',
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks entire input which has been matched so far
+        matched: '',
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks RE match result for last (successful) match attempt
+        matches: false,
+        /// ADVANCED USE ONLY: tracks input which has been matched so far for the lexer token under construction; this value is transferred to the parser as the 'token value' when the parser consumes the lexer token produced through a call to the `lex()` API.
+        yytext: '',
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks the 'cursor position' in the input string, i.e. the number of characters matched so far
+        offset: 0,
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: length of matched input for the token under construction (`yytext`)
+        yyleng: 0,
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: 'line number' at which the token under construction is located
+        yylineno: 0,
+        /// READ-ONLY EXTERNAL ACCESS - ADVANCED USE ONLY: tracks location info (lines + columns) for the token under construction
+        yylloc: null,
+        /**
+     * INTERNAL USE: construct a suitable error info hash object instance for `parseError`.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ constructLexErrorInfo: function lexer_constructLexErrorInfo(msg, recoverable, show_input_position) {
+            msg = '' + msg;
+            // heuristic to determine if the error message already contains a (partial) source code dump
+            // as produced by either `showPosition()` or `prettyPrintRange()`:
+            if (show_input_position == undefined) show_input_position = !(msg.indexOf('\n') > 0 && msg.indexOf('^') > 0);
+            if (this.yylloc && show_input_position) {
+                if (typeof this.prettyPrintRange === 'function') {
+                    var pretty_src = this.prettyPrintRange(this.yylloc);
+                    if (!/\n\s*$/.test(msg)) msg += '\n';
+                    msg += '\n  Erroneous area:\n' + this.prettyPrintRange(this.yylloc);
+                } else if (typeof this.showPosition === 'function') {
+                    var pos_str = this.showPosition();
+                    if (pos_str) {
+                        if (msg.length && msg[msg.length - 1] !== '\n' && pos_str[0] !== '\n') msg += '\n' + pos_str;
+                        else msg += pos_str;
+                    }
+                }
+            }
+            /** @constructor */ var pei = {
+                errStr: msg,
+                recoverable: !!recoverable,
+                // This one MAY be empty; userland code should use the `upcomingInput` API to obtain more text which follows the 'lexer cursor position'...
+                text: this.match,
+                token: null,
+                line: this.yylineno,
+                loc: this.yylloc,
+                yy: this.yy,
+                lexer: this,
+                /**
+         * and make sure the error info doesn't stay due to potential
+         * ref cycle via userland code manipulations.
+         * These would otherwise all be memory leak opportunities!
+         * 
+         * Note that only array and object references are nuked as those
+         * constitute the set of elements which can produce a cyclic ref.
+         * The rest of the members is kept intact as they are harmless.
+         * 
+         * @public
+         * @this {LexErrorInfo}
+         */ destroy: function destructLexErrorInfo() {
+                    // remove cyclic references added to error info:
+                    // info.yy = null;
+                    // info.lexer = null;
+                    // ...
+                    var rec = !!this.recoverable;
+                    for(var key in this)if (this.hasOwnProperty(key) && typeof key === 'object') this[key] = undefined;
+                    this.recoverable = rec;
+                }
+            };
+            // track this instance so we can `destroy()` it once we deem it superfluous and ready for garbage collection!
+            this.__error_infos.push(pei);
+            return pei;
+        },
+        /**
+     * handler which is invoked when a lexer error occurs.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ parseError: function lexer_parseError(str, hash, ExceptionClass) {
+            if (!ExceptionClass) ExceptionClass = this.JisonLexerError;
+            if (this.yy) {
+                if (this.yy.parser && typeof this.yy.parser.parseError === 'function') return this.yy.parser.parseError.call(this, str, hash, ExceptionClass) || this.ERROR;
+                else if (typeof this.yy.parseError === 'function') return this.yy.parseError.call(this, str, hash, ExceptionClass) || this.ERROR;
+            }
+            throw new ExceptionClass(str, hash);
+        },
+        /**
+     * method which implements `yyerror(str, ...args)` functionality for use inside lexer actions.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ yyerror: function yyError(str /*, ...args */ ) {
+            var lineno_msg = '';
+            if (this.yylloc) lineno_msg = ' on line ' + (this.yylineno + 1);
+            var p = this.constructLexErrorInfo('Lexical error' + lineno_msg + ': ' + str, this.options.lexerErrorsAreRecoverable);
+            // Add any extra args to the hash under the name `extra_error_attributes`:
+            var args = Array.prototype.slice.call(arguments, 1);
+            if (args.length) p.extra_error_attributes = args;
+            return this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+        },
+        /**
+     * final cleanup function for when we have completed lexing the input;
+     * make it an API so that external code can use this one once userland
+     * code has decided it's time to destroy any lingering lexer error
+     * hash object instances and the like: this function helps to clean
+     * up these constructs, which *may* carry cyclic references which would
+     * otherwise prevent the instances from being properly and timely
+     * garbage-collected, i.e. this function helps prevent memory leaks!
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ cleanupAfterLex: function lexer_cleanupAfterLex(do_not_nuke_errorinfos) {
+            // prevent lingering circular references from causing memory leaks:
+            this.setInput('', {
+            });
+            // nuke the error hash info instances created during this run.
+            // Userland code must COPY any data/references
+            // in the error hash instance(s) it is more permanently interested in.
+            if (!do_not_nuke_errorinfos) {
+                for(var i = this.__error_infos.length - 1; i >= 0; i--){
+                    var el = this.__error_infos[i];
+                    if (el && typeof el.destroy === 'function') el.destroy();
+                }
+                this.__error_infos.length = 0;
+            }
+            return this;
+        },
+        /**
+     * clear the lexer token context; intended for internal use only
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ clear: function lexer_clear() {
+            this.yytext = '';
+            this.yyleng = 0;
+            this.match = '';
+            // - DO NOT reset `this.matched`
+            this.matches = false;
+            this._more = false;
+            this._backtrack = false;
+            var col = this.yylloc ? this.yylloc.last_column : 0;
+            this.yylloc = {
+                first_line: this.yylineno + 1,
+                first_column: col,
+                last_line: this.yylineno + 1,
+                last_column: col,
+                range: [
+                    this.offset,
+                    this.offset
+                ]
+            };
+        },
+        /**
+     * resets the lexer, sets new input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ setInput: function lexer_setInput(input, yy) {
+            this.yy = yy || this.yy || {
+            };
+            // also check if we've fully initialized the lexer instance,
+            // including expansion work to be done to go from a loaded
+            // lexer to a usable lexer:
+            if (!this.__decompressed) {
+                // step 1: decompress the regex list:
+                var rules = this.rules;
+                for(var i = 0, len = rules.length; i < len; i++){
+                    var rule_re = rules[i];
+                    // compression: is the RE an xref to another RE slot in the rules[] table?
+                    if (typeof rule_re === 'number') rules[i] = rules[rule_re];
+                }
+                // step 2: unfold the conditions[] set to make these ready for use:
+                var conditions = this.conditions;
+                for(var k in conditions){
+                    var spec = conditions[k];
+                    var rule_ids = spec.rules;
+                    var len = rule_ids.length;
+                    var rule_regexes = new Array(len + 1); // slot 0 is unused; we use a 1-based index approach here to keep the hottest code in `lexer_next()` fast and simple!
+                    var rule_new_ids = new Array(len + 1);
+                    for(var i = 0; i < len; i++){
+                        var idx = rule_ids[i];
+                        var rule_re = rules[idx];
+                        rule_regexes[i + 1] = rule_re;
+                        rule_new_ids[i + 1] = idx;
+                    }
+                    spec.rules = rule_new_ids;
+                    spec.__rule_regexes = rule_regexes;
+                    spec.__rule_count = len;
+                }
+                this.__decompressed = true;
+            }
+            this._input = input || '';
+            this.clear();
+            this._signaled_error_token = false;
+            this.done = false;
+            this.yylineno = 0;
+            this.matched = '';
+            this.conditionStack = [
+                'INITIAL'
+            ];
+            this.__currentRuleSet__ = null;
+            this.yylloc = {
+                first_line: 1,
+                first_column: 0,
+                last_line: 1,
+                last_column: 0,
+                range: [
+                    0,
+                    0
+                ]
+            };
+            this.offset = 0;
+            return this;
+        },
+        /**
+     * edit the remaining input via user-specified callback.
+     * This can be used to forward-adjust the input-to-parse, 
+     * e.g. inserting macro expansions and alike in the
+     * input which has yet to be lexed.
+     * The behaviour of this API contrasts the `unput()` et al
+     * APIs as those act on the *consumed* input, while this
+     * one allows one to manipulate the future, without impacting
+     * the current `yyloc` cursor location or any history. 
+     * 
+     * Use this API to help implement C-preprocessor-like
+     * `#include` statements, etc.
+     * 
+     * The provided callback must be synchronous and is
+     * expected to return the edited input (string).
+     *
+     * The `cpsArg` argument value is passed to the callback
+     * as-is.
+     *
+     * `callback` interface: 
+     * `function callback(input, cpsArg)`
+     * 
+     * - `input` will carry the remaining-input-to-lex string
+     *   from the lexer.
+     * - `cpsArg` is `cpsArg` passed into this API.
+     * 
+     * The `this` reference for the callback will be set to
+     * reference this lexer instance so that userland code
+     * in the callback can easily and quickly access any lexer
+     * API. 
+     *
+     * When the callback returns a non-string-type falsey value,
+     * we assume the callback did not edit the input and we
+     * will using the input as-is.
+     *
+     * When the callback returns a non-string-type value, it
+     * is converted to a string for lexing via the `"" + retval`
+     * operation. (See also why: http://2ality.com/2012/03/converting-to-string.html 
+     * -- that way any returned object's `toValue()` and `toString()`
+     * methods will be invoked in a proper/desirable order.)
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ editRemainingInput: function lexer_editRemainingInput(callback, cpsArg) {
+            var rv = callback.call(this, this._input, cpsArg);
+            if (typeof rv !== 'string') {
+                if (rv) this._input = '' + rv;
+            } else this._input = rv;
+            return this;
+        },
+        /**
+     * consumes and returns one char from the input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ input: function lexer_input() {
+            if (!this._input) //this.done = true;    -- don't set `done` as we want the lex()/next() API to be able to produce one custom EOF token match after this anyhow. (lexer can match special <<EOF>> tokens and perform user action code for a <<EOF>> match, but only does so *once*)
+            return null;
+            var ch = this._input[0];
+            this.yytext += ch;
+            this.yyleng++;
+            this.offset++;
+            this.match += ch;
+            this.matched += ch;
+            // Count the linenumber up when we hit the LF (or a stand-alone CR).
+            // On CRLF, the linenumber is incremented when you fetch the CR or the CRLF combo
+            // and we advance immediately past the LF as well, returning both together as if
+            // it was all a single 'character' only.
+            var slice_len = 1;
+            var lines = false;
+            if (ch === '\n') lines = true;
+            else if (ch === '\r') {
+                lines = true;
+                var ch2 = this._input[1];
+                if (ch2 === '\n') {
+                    slice_len++;
+                    ch += ch2;
+                    this.yytext += ch2;
+                    this.yyleng++;
+                    this.offset++;
+                    this.match += ch2;
+                    this.matched += ch2;
+                    this.yylloc.range[1]++;
+                }
+            }
+            if (lines) {
+                this.yylineno++;
+                this.yylloc.last_line++;
+                this.yylloc.last_column = 0;
+            } else this.yylloc.last_column++;
+            this.yylloc.range[1]++;
+            this._input = this._input.slice(slice_len);
+            return ch;
+        },
+        /**
+     * unshifts one char (or an entire string) into the input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ unput: function lexer_unput(ch) {
+            var len = ch.length;
+            var lines = ch.split(/(?:\r\n?|\n)/g);
+            this._input = ch + this._input;
+            this.yytext = this.yytext.substr(0, this.yytext.length - len);
+            this.yyleng = this.yytext.length;
+            this.offset -= len;
+            this.match = this.match.substr(0, this.match.length - len);
+            this.matched = this.matched.substr(0, this.matched.length - len);
+            if (lines.length > 1) {
+                this.yylineno -= lines.length - 1;
+                this.yylloc.last_line = this.yylineno + 1;
+                // Get last entirely matched line into the `pre_lines[]` array's
+                // last index slot; we don't mind when other previously 
+                // matched lines end up in the array too. 
+                var pre = this.match;
+                var pre_lines = pre.split(/(?:\r\n?|\n)/g);
+                if (pre_lines.length === 1) {
+                    pre = this.matched;
+                    pre_lines = pre.split(/(?:\r\n?|\n)/g);
+                }
+                this.yylloc.last_column = pre_lines[pre_lines.length - 1].length;
+            } else this.yylloc.last_column -= len;
+            this.yylloc.range[1] = this.yylloc.range[0] + this.yyleng;
+            this.done = false;
+            return this;
+        },
+        /**
+     * cache matched text and append it on next action
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ more: function lexer_more() {
+            this._more = true;
+            return this;
+        },
+        /**
+     * signal the lexer that this rule fails to match the input, so the
+     * next matching rule (regex) should be tested instead.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ reject: function lexer_reject() {
+            if (this.options.backtrack_lexer) this._backtrack = true;
+            else {
+                // when the `parseError()` call returns, we MUST ensure that the error is registered.
+                // We accomplish this by signaling an 'error' token to be produced for the current
+                // `.lex()` run.
+                var lineno_msg = '';
+                if (this.yylloc) lineno_msg = ' on line ' + (this.yylineno + 1);
+                var p = this.constructLexErrorInfo('Lexical error' + lineno_msg + ': You can only invoke reject() in the lexer when the lexer is of the backtracking persuasion (options.backtrack_lexer = true).', false);
+                this._signaled_error_token = this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+            }
+            return this;
+        },
+        /**
+     * retain first n characters of the match
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ less: function lexer_less(n) {
+            return this.unput(this.match.slice(n));
+        },
+        /**
+     * return (part of the) already matched input, i.e. for error
+     * messages.
+     * 
+     * Limit the returned string length to `maxSize` (default: 20).
+     * 
+     * Limit the returned string to the `maxLines` number of lines of
+     * input (default: 1).
+     * 
+     * Negative limit values equal *unlimited*.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ pastInput: function lexer_pastInput(maxSize, maxLines) {
+            var past = this.matched.substring(0, this.matched.length - this.match.length);
+            if (maxSize < 0) maxSize = past.length;
+            else if (!maxSize) maxSize = 20;
+            if (maxLines < 0) maxLines = past.length; // can't ever have more input lines than this!;
+            else if (!maxLines) maxLines = 1;
+            // `substr` anticipation: treat \r\n as a single character and take a little
+            // more than necessary so that we can still properly check against maxSize
+            // after we've transformed and limited the newLines in here:
+            past = past.substr(-maxSize * 2 - 2);
+            // now that we have a significantly reduced string to process, transform the newlines
+            // and chop them, then limit them:
+            var a = past.replace(/\r\n|\r/g, '\n').split('\n');
+            a = a.slice(-maxLines);
+            past = a.join('\n');
+            // When, after limiting to maxLines, we still have too much to return,
+            // do add an ellipsis prefix...
+            if (past.length > maxSize) past = '...' + past.substr(-maxSize);
+            return past;
+        },
+        /**
+     * return (part of the) upcoming input, i.e. for error messages.
+     * 
+     * Limit the returned string length to `maxSize` (default: 20).
+     * 
+     * Limit the returned string to the `maxLines` number of lines of input (default: 1).
+     * 
+     * Negative limit values equal *unlimited*.
+     *
+     * > ### NOTE ###
+     * >
+     * > *"upcoming input"* is defined as the whole of the both
+     * > the *currently lexed* input, together with any remaining input
+     * > following that. *"currently lexed"* input is the input 
+     * > already recognized by the lexer but not yet returned with
+     * > the lexer token. This happens when you are invoking this API
+     * > from inside any lexer rule action code block. 
+     * >
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ upcomingInput: function lexer_upcomingInput(maxSize, maxLines) {
+            var next = this.match;
+            if (maxSize < 0) maxSize = next.length + this._input.length;
+            else if (!maxSize) maxSize = 20;
+            if (maxLines < 0) maxLines = maxSize; // can't ever have more input lines than this!;
+            else if (!maxLines) maxLines = 1;
+            // `substring` anticipation: treat \r\n as a single character and take a little
+            // more than necessary so that we can still properly check against maxSize
+            // after we've transformed and limited the newLines in here:
+            if (next.length < maxSize * 2 + 2) next += this._input.substring(0, maxSize * 2 + 2); // substring is faster on Chrome/V8
+            // now that we have a significantly reduced string to process, transform the newlines
+            // and chop them, then limit them:
+            var a = next.replace(/\r\n|\r/g, '\n').split('\n');
+            a = a.slice(0, maxLines);
+            next = a.join('\n');
+            // When, after limiting to maxLines, we still have too much to return,
+            // do add an ellipsis postfix...
+            if (next.length > maxSize) next = next.substring(0, maxSize) + '...';
+            return next;
+        },
+        /**
+     * return a string which displays the character position where the
+     * lexing error occurred, i.e. for error messages
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ showPosition: function lexer_showPosition(maxPrefix, maxPostfix) {
+            var pre = this.pastInput(maxPrefix).replace(/\s/g, ' ');
+            var c = new Array(pre.length + 1).join('-');
+            return pre + this.upcomingInput(maxPostfix).replace(/\s/g, ' ') + '\n' + c + '^';
+        },
+        /**
+     * return an YYLLOC info object derived off the given context (actual, preceding, following, current).
+     * Use this method when the given `actual` location is not guaranteed to exist (i.e. when
+     * it MAY be NULL) and you MUST have a valid location info object anyway:
+     * then we take the given context of the `preceding` and `following` locations, IFF those are available,
+     * and reconstruct the `actual` location info from those.
+     * If this fails, the heuristic is to take the `current` location, IFF available.
+     * If this fails as well, we assume the sought location is at/around the current lexer position
+     * and then produce that one as a response. DO NOTE that these heuristic/derived location info
+     * values MAY be inaccurate!
+     *
+     * NOTE: `deriveLocationInfo()` ALWAYS produces a location info object *copy* of `actual`, not just
+     * a *reference* hence all input location objects can be assumed to be 'constant' (function has no side-effects).
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ deriveLocationInfo: function lexer_deriveYYLLOC(actual, preceding, following, current) {
+            var loc = {
+                first_line: 1,
+                first_column: 0,
+                last_line: 1,
+                last_column: 0,
+                range: [
+                    0,
+                    0
+                ]
+            };
+            if (actual) {
+                loc.first_line = actual.first_line | 0;
+                loc.last_line = actual.last_line | 0;
+                loc.first_column = actual.first_column | 0;
+                loc.last_column = actual.last_column | 0;
+                if (actual.range) {
+                    loc.range[0] = actual.range[0] | 0;
+                    loc.range[1] = actual.range[1] | 0;
+                }
+            }
+            if (loc.first_line <= 0 || loc.last_line < loc.first_line) {
+                // plan B: heuristic using preceding and following:
+                if (loc.first_line <= 0 && preceding) {
+                    loc.first_line = preceding.last_line | 0;
+                    loc.first_column = preceding.last_column | 0;
+                    if (preceding.range) loc.range[0] = actual.range[1] | 0;
+                }
+                if ((loc.last_line <= 0 || loc.last_line < loc.first_line) && following) {
+                    loc.last_line = following.first_line | 0;
+                    loc.last_column = following.first_column | 0;
+                    if (following.range) loc.range[1] = actual.range[0] | 0;
+                }
+                // plan C?: see if the 'current' location is useful/sane too:
+                if (loc.first_line <= 0 && current && (loc.last_line <= 0 || current.last_line <= loc.last_line)) {
+                    loc.first_line = current.first_line | 0;
+                    loc.first_column = current.first_column | 0;
+                    if (current.range) loc.range[0] = current.range[0] | 0;
+                }
+                if (loc.last_line <= 0 && current && (loc.first_line <= 0 || current.first_line >= loc.first_line)) {
+                    loc.last_line = current.last_line | 0;
+                    loc.last_column = current.last_column | 0;
+                    if (current.range) loc.range[1] = current.range[1] | 0;
+                }
+            }
+            // sanitize: fix last_line BEFORE we fix first_line as we use the 'raw' value of the latter
+            // or plan D heuristics to produce a 'sensible' last_line value:
+            if (loc.last_line <= 0) {
+                if (loc.first_line <= 0) {
+                    loc.first_line = this.yylloc.first_line;
+                    loc.last_line = this.yylloc.last_line;
+                    loc.first_column = this.yylloc.first_column;
+                    loc.last_column = this.yylloc.last_column;
+                    loc.range[0] = this.yylloc.range[0];
+                    loc.range[1] = this.yylloc.range[1];
+                } else {
+                    loc.last_line = this.yylloc.last_line;
+                    loc.last_column = this.yylloc.last_column;
+                    loc.range[1] = this.yylloc.range[1];
+                }
+            }
+            if (loc.first_line <= 0) {
+                loc.first_line = loc.last_line;
+                loc.first_column = 0; // loc.last_column;
+                loc.range[1] = loc.range[0];
+            }
+            if (loc.first_column < 0) loc.first_column = 0;
+            if (loc.last_column < 0) loc.last_column = loc.first_column > 0 ? loc.first_column : 80;
+            return loc;
+        },
+        /**
+     * return a string which displays the lines & columns of input which are referenced 
+     * by the given location info range, plus a few lines of context.
+     * 
+     * This function pretty-prints the indicated section of the input, with line numbers 
+     * and everything!
+     * 
+     * This function is very useful to provide highly readable error reports, while
+     * the location range may be specified in various flexible ways:
+     * 
+     * - `loc` is the location info object which references the area which should be
+     *   displayed and 'marked up': these lines & columns of text are marked up by `^`
+     *   characters below each character in the entire input range.
+     * 
+     * - `context_loc` is the *optional* location info object which instructs this
+     *   pretty-printer how much *leading* context should be displayed alongside
+     *   the area referenced by `loc`. This can help provide context for the displayed
+     *   error, etc.
+     * 
+     *   When this location info is not provided, a default context of 3 lines is
+     *   used.
+     * 
+     * - `context_loc2` is another *optional* location info object, which serves
+     *   a similar purpose to `context_loc`: it specifies the amount of *trailing*
+     *   context lines to display in the pretty-print output.
+     * 
+     *   When this location info is not provided, a default context of 1 line only is
+     *   used.
+     * 
+     * Special Notes:
+     * 
+     * - when the `loc`-indicated range is very large (about 5 lines or more), then
+     *   only the first and last few lines of this block are printed while a
+     *   `...continued...` message will be printed between them.
+     * 
+     *   This serves the purpose of not printing a huge amount of text when the `loc`
+     *   range happens to be huge: this way a manageable & readable output results
+     *   for arbitrary large ranges.
+     * 
+     * - this function can display lines of input which whave not yet been lexed.
+     *   `prettyPrintRange()` can access the entire input!
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ prettyPrintRange: function lexer_prettyPrintRange(loc, context_loc, context_loc2) {
+            loc = this.deriveLocationInfo(loc, context_loc, context_loc2);
+            const CONTEXT = 3;
+            const CONTEXT_TAIL = 1;
+            const MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT = 2;
+            var input = this.matched + this._input;
+            var lines = input.split('\n');
+            var l0 = Math.max(1, context_loc ? context_loc.first_line : loc.first_line - CONTEXT);
+            var l1 = Math.max(1, context_loc2 ? context_loc2.last_line : loc.last_line + CONTEXT_TAIL);
+            var lineno_display_width = 1 + Math.log10(l1 | 1) | 0;
+            var ws_prefix = new Array(lineno_display_width).join(' ');
+            var nonempty_line_indexes = [
+                [],
+                [],
+                []
+            ];
+            var rv1 = lines.slice(l0 - 1, l1 + 1).map(function injectLineNumber(line, index) {
+                var lno = index + l0;
+                var lno_pfx = (ws_prefix + lno).substr(-lineno_display_width);
+                var rv = lno_pfx + ': ' + line;
+                var errpfx = new Array(lineno_display_width + 1).join('^');
+                var offset = 3;
+                var len = 0;
+                if (lno === loc.first_line) {
+                    offset += loc.first_column;
+                    len = Math.max(2, (lno === loc.last_line ? loc.last_column : line.length) - loc.first_column + 1);
+                } else if (lno === loc.last_line) len = Math.max(2, loc.last_column + 1);
+                else if (lno > loc.first_line && lno < loc.last_line) len = Math.max(2, line.length + 1);
+                var nli;
+                if (len) {
+                    var lead = new Array(offset).join('.');
+                    var mark = new Array(len).join('^');
+                    rv += '\n' + errpfx + lead + mark;
+                    nli = 1;
+                } else if (lno < loc.first_line) nli = 0;
+                else if (lno > loc.last_line) nli = 2;
+                if (line.trim().length > 0) nonempty_line_indexes[nli].push(index);
+                rv = rv.replace(/\t/g, ' ');
+                return rv;
+            });
+            // now make sure we don't print an overly large amount of lead/error/tail area: limit it 
+            // to the top and bottom line count:
+            for(var i = 0; i <= 2; i++){
+                var line_arr = nonempty_line_indexes[i];
+                if (line_arr.length > 2 * MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT) {
+                    var clip_start = line_arr[MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT - 1] + 1;
+                    var clip_end = line_arr[line_arr.length - MINIMUM_VISIBLE_NONEMPTY_LINE_COUNT] - 1;
+                    var intermediate_line = new Array(lineno_display_width + 1).join(' ') + '  (...continued...)';
+                    if (i === 1) intermediate_line += '\n' + new Array(lineno_display_width + 1).join('-') + '  (---------------)';
+                    rv1.splice(clip_start, clip_end - clip_start + 1, intermediate_line);
+                }
+            }
+            return rv1.join('\n');
+        },
+        /**
+     * helper function, used to produce a human readable description as a string, given
+     * the input `yylloc` location object.
+     * 
+     * Set `display_range_too` to TRUE to include the string character index position(s)
+     * in the description if the `yylloc.range` is available.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ describeYYLLOC: function lexer_describe_yylloc(yylloc, display_range_too) {
+            var l1 = yylloc.first_line;
+            var l2 = yylloc.last_line;
+            var c1 = yylloc.first_column;
+            var c2 = yylloc.last_column;
+            var dl = l2 - l1;
+            var dc = c2 - c1;
+            var rv;
+            if (dl === 0) {
+                rv = 'line ' + l1 + ', ';
+                if (dc <= 1) rv += 'column ' + c1;
+                else rv += 'columns ' + c1 + ' .. ' + c2;
+            } else rv = 'lines ' + l1 + '(column ' + c1 + ') .. ' + l2 + '(column ' + c2 + ')';
+            if (yylloc.range && display_range_too) {
+                var r1 = yylloc.range[0];
+                var r2 = yylloc.range[1] - 1;
+                if (r2 <= r1) rv += ' {String Offset: ' + r1 + '}';
+                else rv += ' {String Offset range: ' + r1 + ' .. ' + r2 + '}';
+            }
+            return rv;
+        },
+        /**
+     * test the lexed token: return FALSE when not a match, otherwise return token.
+     * 
+     * `match` is supposed to be an array coming out of a regex match, i.e. `match[0]`
+     * contains the actually matched text string.
+     * 
+     * Also move the input cursor forward and update the match collectors:
+     * 
+     * - `yytext`
+     * - `yyleng`
+     * - `match`
+     * - `matches`
+     * - `yylloc`
+     * - `offset`
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ test_match: function lexer_test_match(match, indexed_rule) {
+            var token, lines, backup, match_str, match_str_len;
+            if (this.options.backtrack_lexer) // save context
+            backup = {
+                yylineno: this.yylineno,
+                yylloc: {
+                    first_line: this.yylloc.first_line,
+                    last_line: this.yylloc.last_line,
+                    first_column: this.yylloc.first_column,
+                    last_column: this.yylloc.last_column,
+                    range: this.yylloc.range.slice(0)
+                },
+                yytext: this.yytext,
+                match: this.match,
+                matches: this.matches,
+                matched: this.matched,
+                yyleng: this.yyleng,
+                offset: this.offset,
+                _more: this._more,
+                _input: this._input,
+                //_signaled_error_token: this._signaled_error_token,
+                yy: this.yy,
+                conditionStack: this.conditionStack.slice(0),
+                done: this.done
+            };
+            match_str = match[0];
+            match_str_len = match_str.length;
+            // if (match_str.indexOf('\n') !== -1 || match_str.indexOf('\r') !== -1) {
+            lines = match_str.split(/(?:\r\n?|\n)/g);
+            if (lines.length > 1) {
+                this.yylineno += lines.length - 1;
+                this.yylloc.last_line = this.yylineno + 1;
+                this.yylloc.last_column = lines[lines.length - 1].length;
+            } else this.yylloc.last_column += match_str_len;
+            // }
+            this.yytext += match_str;
+            this.match += match_str;
+            this.matched += match_str;
+            this.matches = match;
+            this.yyleng = this.yytext.length;
+            this.yylloc.range[1] += match_str_len;
+            // previous lex rules MAY have invoked the `more()` API rather than producing a token:
+            // those rules will already have moved this `offset` forward matching their match lengths,
+            // hence we must only add our own match length now:
+            this.offset += match_str_len;
+            this._more = false;
+            this._backtrack = false;
+            this._input = this._input.slice(match_str_len);
+            // calling this method:
+            //
+            //   function lexer__performAction(yy, yyrulenumber, YY_START) {...}
+            token = this.performAction.call(this, this.yy, indexed_rule, this.conditionStack[this.conditionStack.length - 1]);
+            // otherwise, when the action codes are all simple return token statements:
+            //token = this.simpleCaseActionClusters[indexed_rule];
+            if (this.done && this._input) this.done = false;
+            if (token) return token;
+            else if (this._backtrack) {
+                // recover context
+                for(var k in backup)this[k] = backup[k];
+                this.__currentRuleSet__ = null;
+                return false; // rule action called reject() implying the next rule should be tested instead.
+            } else if (this._signaled_error_token) {
+                // produce one 'error' token as `.parseError()` in `reject()`
+                // did not guarantee a failure signal by throwing an exception!
+                token = this._signaled_error_token;
+                this._signaled_error_token = false;
+                return token;
+            }
+            return false;
+        },
+        /**
+     * return next match in input
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ next: function lexer_next() {
+            if (this.done) {
+                this.clear();
+                return this.EOF;
+            }
+            if (!this._input) this.done = true;
+            var token, match, tempMatch, index;
+            if (!this._more) this.clear();
+            var spec = this.__currentRuleSet__;
+            if (!spec) {
+                // Update the ruleset cache as we apparently encountered a state change or just started lexing.
+                // The cache is set up for fast lookup -- we assume a lexer will switch states much less often than it will
+                // invoke the `lex()` token-producing API and related APIs, hence caching the set for direct access helps
+                // speed up those activities a tiny bit.
+                spec = this.__currentRuleSet__ = this._currentRules();
+                // Check whether a *sane* condition has been pushed before: this makes the lexer robust against
+                // user-programmer bugs such as https://github.com/zaach/jison-lex/issues/19
+                if (!spec || !spec.rules) {
+                    var lineno_msg = '';
+                    if (this.options.trackPosition) lineno_msg = ' on line ' + (this.yylineno + 1);
+                    var p = this.constructLexErrorInfo('Internal lexer engine error' + lineno_msg + ': The lex grammar programmer pushed a non-existing condition name "' + this.topState() + '"; this is a fatal error and should be reported to the application programmer team!', false);
+                    // produce one 'error' token until this situation has been resolved, most probably by parse termination!
+                    return this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+                }
+            }
+            var rule_ids = spec.rules;
+            var regexes = spec.__rule_regexes;
+            var len = spec.__rule_count;
+            // Note: the arrays are 1-based, while `len` itself is a valid index,
+            // hence the non-standard less-or-equal check in the next loop condition!
+            for(var i = 1; i <= len; i++){
+                tempMatch = this._input.match(regexes[i]);
+                if (tempMatch && (!match || tempMatch[0].length > match[0].length)) {
+                    match = tempMatch;
+                    index = i;
+                    if (this.options.backtrack_lexer) {
+                        token = this.test_match(tempMatch, rule_ids[i]);
+                        if (token !== false) return token;
+                        else if (this._backtrack) {
+                            match = undefined;
+                            continue; // rule action called reject() implying a rule MISmatch.
+                        } else // else: this is a lexer rule which consumes input without producing a token (e.g. whitespace)
+                        return false;
+                    } else if (!this.options.flex) break;
+                }
+            }
+            if (match) {
+                token = this.test_match(match, rule_ids[index]);
+                if (token !== false) return token;
+                // else: this is a lexer rule which consumes input without producing a token (e.g. whitespace)
+                return false;
+            }
+            if (!this._input) {
+                this.done = true;
+                this.clear();
+                return this.EOF;
+            } else {
+                var lineno_msg = '';
+                if (this.options.trackPosition) lineno_msg = ' on line ' + (this.yylineno + 1);
+                var p = this.constructLexErrorInfo('Lexical error' + lineno_msg + ': Unrecognized text.', this.options.lexerErrorsAreRecoverable);
+                var pendingInput = this._input;
+                var activeCondition = this.topState();
+                var conditionStackDepth = this.conditionStack.length;
+                token = this.parseError(p.errStr, p, this.JisonLexerError) || this.ERROR;
+                if (token === this.ERROR) // we can try to recover from a lexer error that `parseError()` did not 'recover' for us
+                // by moving forward at least one character at a time IFF the (user-specified?) `parseError()`
+                // has not consumed/modified any pending input or changed state in the error handler:
+                {
+                    if (!this.matches && pendingInput === this._input && // to merit a non-consuming error handling action right now.
+                    activeCondition === this.topState() && conditionStackDepth === this.conditionStack.length) this.input();
+                }
+                return token;
+            }
+        },
+        /**
+     * return next match that has a token
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ lex: function lexer_lex() {
+            var r;
+            // allow the PRE/POST handlers set/modify the return token for maximum flexibility of the generated lexer:
+            if (typeof this.pre_lex === 'function') r = this.pre_lex.call(this, 0);
+            if (typeof this.options.pre_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.options.pre_lex.call(this, r) || r;
+            if (this.yy && typeof this.yy.pre_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.yy.pre_lex.call(this, r) || r;
+            while(!r)r = this.next();
+            if (this.yy && typeof this.yy.post_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.yy.post_lex.call(this, r) || r;
+            if (typeof this.options.post_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.options.post_lex.call(this, r) || r;
+            if (typeof this.post_lex === 'function') // (also account for a userdef function which does not return any value: keep the token as is)
+            r = this.post_lex.call(this, r) || r;
+            return r;
+        },
+        /**
+     * return next match that has a token. Identical to the `lex()` API but does not invoke any of the 
+     * `pre_lex()` nor any of the `post_lex()` callbacks.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ fastLex: function lexer_fastLex() {
+            var r;
+            while(!r)r = this.next();
+            return r;
+        },
+        /**
+     * return info about the lexer state that can help a parser or other lexer API user to use the
+     * most efficient means available. This API is provided to aid run-time performance for larger
+     * systems which employ this lexer.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ canIUse: function lexer_canIUse() {
+            var rv = {
+                fastLex: !(typeof this.pre_lex === 'function' || typeof this.options.pre_lex === 'function' || this.yy && typeof this.yy.pre_lex === 'function' || this.yy && typeof this.yy.post_lex === 'function' || typeof this.options.post_lex === 'function' || typeof this.post_lex === 'function') && typeof this.fastLex === 'function'
+            };
+            return rv;
+        },
+        /**
+     * backwards compatible alias for `pushState()`;
+     * the latter is symmetrical with `popState()` and we advise to use
+     * those APIs in any modern lexer code, rather than `begin()`.
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ begin: function lexer_begin(condition) {
+            return this.pushState(condition);
+        },
+        /**
+     * activates a new lexer condition state (pushes the new lexer
+     * condition state onto the condition stack)
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ pushState: function lexer_pushState(condition) {
+            this.conditionStack.push(condition);
+            this.__currentRuleSet__ = null;
+            return this;
+        },
+        /**
+     * pop the previously active lexer condition state off the condition
+     * stack
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ popState: function lexer_popState() {
+            var n = this.conditionStack.length - 1;
+            if (n > 0) {
+                this.__currentRuleSet__ = null;
+                return this.conditionStack.pop();
+            } else return this.conditionStack[0];
+        },
+        /**
+     * return the currently active lexer condition state; when an index
+     * argument is provided it produces the N-th previous condition state,
+     * if available
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ topState: function lexer_topState(n) {
+            n = this.conditionStack.length - 1 - Math.abs(n || 0);
+            if (n >= 0) return this.conditionStack[n];
+            else return 'INITIAL';
+        },
+        /**
+     * (internal) determine the lexer rule set which is active for the
+     * currently active lexer condition state
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ _currentRules: function lexer__currentRules() {
+            if (this.conditionStack.length && this.conditionStack[this.conditionStack.length - 1]) return this.conditions[this.conditionStack[this.conditionStack.length - 1]];
+            else return this.conditions['INITIAL'];
+        },
+        /**
+     * return the number of states currently on the stack
+     * 
+     * @public
+     * @this {RegExpLexer}
+     */ stateStackSize: function lexer_stateStackSize() {
+            return this.conditionStack.length;
+        },
+        options: {
+            trackPosition: true,
+            caseInsensitive: true
+        },
+        JisonLexerError: JisonLexerError,
+        performAction: function lexer__performAction(yy, yyrulenumber, YY_START) {
+            var yy_ = this;
+            var YYSTATE = YY_START;
+            switch(yyrulenumber){
+                case 0:
+                    return 15;
+                case 1:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {keyword} */ this.pushState('AFTER_KEYWORD');
+                    return 21;
+                case 2:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {tag} */ this.pushState('AFTER_TAG_NAME');
+                    return 15;
+                case 3:
+                    /*! Conditions:: INITIAL */ /*! Rule::       (script|style) */ if ($e99c546f9ac18755$var$TEXT_TAGS_ALLOW_SUB_TAGS) {
+                        this.pushState('AFTER_TAG_NAME');
+                        return 15;
+                    } else {
+                        this.pushState('AFTER_TEXT_TAG_NAME');
+                        return 16;
+                    }
+                    break;
+                case 4:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {tag_id} */ this.pushState('AFTER_TAG_NAME');
+                    yy_.yytext = yy_.yytext.substring(1);
+                    return 17;
+                case 5:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {mixin_call} */ yy_.yytext = yy_.yytext.substring(1);
+                    this.pushState('MIXIN_CALL_START');
+                    return 20;
+                case 6:
+                    /*! Conditions:: INITIAL */ /*! Rule::       \} */ this.pushState('AFTER_KEYWORD');
+                    return 23;
+                case 7:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {conditional} */ this.pushState('COND_START');
+                    if (yy_.yytext.startsWith('-')) yy_.yytext = yy_.yytext.substring(1);
+                    return 26;
+                case 8:
+                    /*! Conditions:: COND_START */ /*! Rule::       \( */ ')';
+                    this.pushState('COND_START');
+                    return 10;
+                case 9:
+                    /*! Conditions:: COND_START */ /*! Rule::       .+\) */ this.popState();
+                    yy_.yytext = yy_.yytext.substring(0, yy_.yytext.length - 1);
+                    return [
+                        'RPAREN',
+                        'CONDITION'
+                    ];
+                case 11:
+                    /*! Conditions:: INITIAL UNBUF_CODE */ /*! Rule::       - */ this.pushState('UNBUF_CODE_START');
+                    break;
+                case 12:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {classname} */ // debug('<INITIAL>{classname}')
+                    this.pushState('AFTER_TAG_NAME');
+                    yy_.yytext = yy_.yytext.substring(1);
+                    return 13;
+                case 13:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {classname_relaxed} */ $e99c546f9ac18755$var$debug('<INITIAL>{classname_relaxed}');
+                    if (this.yy.parser.options.allowDigitToStartClassName) {
+                        // debug('<INITIAL>{classname}')
+                        this.pushState('AFTER_TAG_NAME');
+                        yy_.yytext = yy_.yytext.substring(1);
+                        return 13;
+                    } else throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.');
+                    break;
+                case 14:
+                    /*! Conditions:: INITIAL */ /*! Rule::       \/\/ */ this.pushState('TEXT');
+                    return 18;
+                case 15:
+                    /*! Conditions:: INITIAL */ /*! Rule::       <[A-Z_]+> */ if (/<[A-Z_]+>/.test(yy_.yytext)) this.pushState(yy_.yytext.substring(1, yy_.yytext.length - 1));
+                    else {
+                        this.pushState('TEXT');
+                        return 3;
+                    }
+                    break;
+                case 16:
+                    /*! Conditions:: INITIAL TEXT */ /*! Rule::       \|  */ this.pushState('TEXT');
+                    return 22;
+                case 17:
+                    /*! Conditions:: INITIAL */ /*! Rule::       \|\. */ this.pushState('TEXT');
+                    this.unput('.');
+                    break;
+                case 18:
+                    /*! Conditions:: INITIAL */ /*! Rule::       \|$ */ this.pushState('TEXT');
+                    yy_.yytext = '';
+                    return 3; // only because it is an empty object 
+                case 19:
+                    /*! Conditions:: INITIAL AFTER_TAG_NAME ATTRS_END MIXIN_CALL_START */ /*! Rule::       &attributes\([^\)]+\) */ $e99c546f9ac18755$var$debug('\'&attributes(\'[^)]+\')\'');
+                    return 14;
+                case 20:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {interpolation} */ $e99c546f9ac18755$var$debug('{interpolation}');
+                    $e99c546f9ac18755$var$debug('this.matches=', this.matches);
+                    this.pushState('AFTER_TAG_NAME');
+                    return [
+                        'INTERP_END',
+                        'INTERP_VAL',
+                        'INTERP_START'
+                    ];
+                case 21:
+                    /*! Conditions:: INTERPOLATION */ /*! Rule::       .+ */ // debug('<INTERPOLATION>.+')
+                    // debug('this.matches=', this.matches)
+                    // this.pushState('INTERPOLATION');
+                    return 28;
+                case 22:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {interpolation_start} */ $e99c546f9ac18755$var$debug('{interpolation_start}');
+                    $e99c546f9ac18755$var$debug('this.matches=', this.matches);
+                    this.pushState('INTERPOLATION_START');
+                    return 'INTERPOLATION_START';
+                case 23:
+                    /*! Conditions:: INITIAL */ /*! Rule::       <\/.+ */ this.pushState('TEXT');
+                    return 3;
+                case 24:
+                    /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       =  */ this.popState();
+                    this.pushState('ASSIGNMENT_VALUE');
+                    return 35;
+                case 25:
+                    /*! Conditions:: AFTER_TAG_NAME AFTER_ATTRS */ /*! Rule::       :  */ this.popState();
+                    return 5;
+                case 26:
+                    /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       {filter} */ yy_.yytext = yy_.yytext.substring(1);
+                    return 31;
+                case 27:
+                    /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME */ /*! Rule::       \( */ ')'; // hack for syntax
+                    $e99c546f9ac18755$var$debug(`<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('`);
+                    this.pushState('ATTRS_STARTED');
+                    return 10;
+                case 29:
+                    /*! Conditions:: MIXIN_PARAMS_END */ /*! Rule::       \) */ // this.popState() // for inline blocks after mixin calls
+                    return 12;
+                case 30:
+                    /*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       {classname} */ this.pushState('AFTER_TAG_NAME');
+                    yy_.yytext = yy_.yytext.substring(1);
+                    return 13;
+                case 31:
+                    /*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       {classname_relaxed} */ $e99c546f9ac18755$var$debug('<INITIAL,ATTRS_END>{classname_relaxed}');
+                    if (this.yy.parser.options.allowDigitToStartClassName) {
+                        this.pushState('AFTER_TAG_NAME');
+                        yy_.yytext = yy_.yytext.substring(1);
+                        return 13;
+                    } else throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.');
+                    break;
+                case 32:
+                    /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (\(.+|.+\().+ */ '))';
+                    $e99c546f9ac18755$var$debug('15 yy_.yytext=', yy_.yytext);
+                    $e99c546f9ac18755$var$debug('15 this.matches=', this.matches);
+                    const stack = [];
+                    let i = 0;
+                    for(; i < yy_.yytext.length; i++)// debug('yy_.yytext[i]=', yy_.yytext[i])
+                    if (/[\)\]}]/.test(yy_.yytext[i])) {
+                        $e99c546f9ac18755$var$debug('match');
+                        $e99c546f9ac18755$var$debug('stack.peek()=', stack.peek());
+                        if (stack.length == 0 || stack.pop() != yy_.yytext[i]) {
+                            $e99c546f9ac18755$var$debug('stack.length=', stack.length);
+                            break;
+                        }
+                    // else if () {
+                    // }
+                    } else switch(yy_.yytext[i]){
+                        case '(':
+                            stack.push(')');
+                            break;
+                        case '[':
+                            stack.push(']');
+                            break;
+                        case '{':
+                            stack.push('}');
+                            break;
+                    }
+                    this.unput(yy_.yytext.substring(i));
+                    yy_.yytext = yy_.yytext.substring(0, i);
+                    $e99c546f9ac18755$var$debug('15 yy_.yytext=', yy_.yytext);
+                    this.popState();
+                    this.pushState('ATTRS_END');
+                    return 32;
+                case 33:
+                    /*! Conditions:: ATTRS_STARTED */ /*! Rule::       ([^\)]+)(\))(?!\s*\..+\)) */ this.popState();
+                    this.pushState('ATTRS_END');
+                    $e99c546f9ac18755$var$debug('20 this.matches=', this.matches);
+                    $e99c546f9ac18755$var$debug('20 this.matches.length=', this.matches.length);
+                    $e99c546f9ac18755$var$debug('20 yy_.yytext=', yy_.yytext);
+                    try {
+                        this.unput(')');
+                        if (this.matches.length > 1) yy_.yytext = this.matches[1];
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    $e99c546f9ac18755$var$lparenOpen = false;
+                    $e99c546f9ac18755$var$debug('20 yy_.yytext=', yy_.yytext);
+                    return 32;
+                case 34:
+                    /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\)\s*$ */ this.popState();
+                    $e99c546f9ac18755$var$debug('30 this.matches=', this.matches);
+                    $e99c546f9ac18755$var$debug('30 this.matches.length=', this.matches.length);
+                    $e99c546f9ac18755$var$debug('30 yy_.yytext=', yy_.yytext);
+                    try {
+                        if (this.matches.length > 1) yy_.yytext = this.matches[1];
+                    } catch (e1) {
+                        console.error(e1);
+                    }
+                    $e99c546f9ac18755$var$lparenOpen = false;
+                    $e99c546f9ac18755$var$debug('30 yy_.yytext=', yy_.yytext);
+                    return [
+                        'RPAREN',
+                        'ATTR_TEXT'
+                    ];
+                case 35:
+                    /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\)\.?\s*(.+)$ */ this.popState();
+                    this.pushState('ATTRS_END');
+                    $e99c546f9ac18755$var$debug('40 this.matches=', this.matches);
+                    this.unput(this.matches[2]);
+                    yy_.yytext = yy_.yytext.substring(0, yy_.yytext.indexOf(this.matches[1]) + this.matches[1].length);
+                    $e99c546f9ac18755$var$debug('40 yy_.yytext=', yy_.yytext);
+                    $e99c546f9ac18755$var$lparenOpen = false;
+                    return [
+                        'RPAREN',
+                        'ATTR_TEXT'
+                    ];
+                case 36:
+                    /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\.?\s*$ */ this.popState();
+                    $e99c546f9ac18755$var$debug('50 this.matches=', this.matches);
+                    $e99c546f9ac18755$var$debug('50 this.matches.length=', this.matches.length);
+                    $e99c546f9ac18755$var$debug('50 yy_.yytext=', yy_.yytext);
+                    try {
+                        if (this.matches.length > 1) yy_.yytext = this.matches[1];
+                    } catch (e2) {
+                        console.error(e2);
+                    }
+                    $e99c546f9ac18755$var$debug('50 yy_.yytext=', yy_.yytext);
+                    return 7;
+                case 37:
+                    /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {tag_id} */ this.pushState('AFTER_TAG_NAME');
+                    yy_.yytext = this.matches[1].substring(1);
+                    return 17;
+                case 38:
+                    /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {classname} */ // yy_.yytext = this.matches[1].substring(1);
+                    yy_.yytext = yy_.yytext.substring(1);
+                    $e99c546f9ac18755$var$debug('60 yy_.yytext=', yy_.yytext);
+                    return 13;
+                case 39:
+                    /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {classname_relaxed} */ // debug('<AFTER_TAG_NAME>{classname_relaxed}')
+                    // debug('Object.keys(this).length=', Object.keys(this).length)
+                    // debug('Object.keys(this.yy).length=', Object.keys(this.yy).length)
+                    // debug('Object.keys(this.yy.parser).length=', Object.keys(this.yy.parser).length)
+                    // debug('this.yy.parser.options=', util.inspect(this.yy.parser.options, false, 10, true))
+                    if (this.yy.parser.options.allowDigitToStartClassName) {
+                        yy_.yytext = yy_.yytext.substring(1);
+                        return 13;
+                    } else throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.');
+                    break;
+                case 40:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {space}{2,} */ $e99c546f9ac18755$var$debug('{space}{2,}');
+                    return 25;
+                case 41:
+                    /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{space} */ this.pushState('TEXT');
+                    $e99c546f9ac18755$var$debug('space space');
+                    this.unput(' ');
+                    return 25;
+                case 42:
+                    /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{classname} */ this.pushState('ATTRS_END');
+                    yy_.yytext = yy_.yytext.substring(1);
+                    return 3;
+                case 43:
+                    /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{classname_relaxed} */ $e99c546f9ac18755$var$debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname_relaxed} this.parser.options=', this.parser.options);
+                    if (this.yy.parser.options.allowDigitToStartClassName) {
+                        this.pushState('ATTRS_END');
+                        yy_.yytext = yy_.yytext.substring(1);
+                        return 3;
+                    } else throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.');
+                    break;
+                case 44:
+                    /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME */ /*! Rule::       {space} */ this.pushState('ATTRS_END');
+                    $e99c546f9ac18755$var$debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
+                    return 25;
+                case 45:
+                    /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       {space} */ this.pushState('ATTRS_END');
+                    $e99c546f9ac18755$var$debug('<AFTER_KEYWORD>{space}');
+                    return 25;
+                case 46:
+                    /*! Conditions:: ATTRS_END MIXIN_PARAMS_END */ /*! Rule::       {space} */ this.pushState('TEXT');
+                    $e99c546f9ac18755$var$debug('<ATTRS_END>{space}');
+                    return 25;
+                case 48:
+                    /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME NO_MORE_SPACE */ /*! Rule::       .+ */ // if (yy_.yytext.startsWith(' ') {
+                    //   yy_.yytext = yy_.yytext.substring(1);
+                    // }
+                    $e99c546f9ac18755$var$debug('70 yy_.yytext=', yy_.yytext);
+                    return 3;
+                case 49:
+                    /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       .+ */ // if (yy_.yytext.startsWith(' ') {
+                    //   yy_.yytext = yy_.yytext.substring(1);
+                    // }
+                    $e99c546f9ac18755$var$debug('77 yy_.yytext=', yy_.yytext);
+                    // this.pushState('BLOCK_BODY_BLOCK')
+                    return 3;
+                case 50:
+                    /*! Conditions:: ATTRS_END */ /*! Rule::       ={space} */ this.popState();
+                    this.pushState('ASSIGNMENT_VALUE');
+                    return 35;
+                case 51:
+                    /*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       \.\s*$ */ this.popState();
+                    return 24;
+                case 52:
+                    /*! Conditions:: ASSIGNMENT_VALUE */ /*! Rule::       .+ */ this.popState();
+                    return 34;
+                case 53:
+                    /*! Conditions:: ATTRS_END */ /*! Rule::       .+ */ // yy_.yytext = yy_.yytext.substring(1)
+                    $e99c546f9ac18755$var$debug('6 yy_.yytext=', yy_.yytext);
+                    return 3;
+                case 54:
+                    /*! Conditions:: UNBUF_CODE_START */ /*! Rule::       {space} */ $e99c546f9ac18755$var$debug('<UNBUF_CODE_START>{space}');
+                    return 25;
+                case 56:
+                    /*! Conditions:: MIXIN_CALL_START */ /*! Rule::       {classname} */ yy_.yytext = yy_.yytext.substring(1);
+                    return 13;
+                case 57:
+                    /*! Conditions:: MIXIN_CALL_START */ /*! Rule::       {tag_id} */ yy_.yytext = yy_.yytext.substring(1);
+                    return 17;
+                case 58:
+                    /*! Conditions:: MIXIN_CALL_START */ /*! Rule::       \( */ ')';
+                    this.popState();
+                    this.pushState('MIXIN_PARAMS_STARTED');
+                    return 10;
+                case 59:
+                    /*! Conditions:: MIXIN_CALL_START */ /*! Rule::       {space}$ */ this.popState();
+                    break;
+                case 60:
+                    /*! Conditions:: TEXT */ /*! Rule::       .+ */ $e99c546f9ac18755$var$debug('80 yy_.yytext=', yy_.yytext);
+                    return 3;
+                case 61:
+                    /*! Conditions:: MULTI_LINE_ATTRS */ /*! Rule::       ,?(.*)\) */ $e99c546f9ac18755$var$debug('110 this.matches=', this.matches);
+                    this.popState();
+                    yy_.yytext = this.matches[1];
+                    return 6;
+                case 63:
+                    /*! Conditions:: MIXIN_PARAMS_STARTED */ /*! Rule::       \) */ this.popState();
+                    this.pushState('MIXIN_PARAMS_END');
+                    yy_.yytext = '';
+                    return [
+                        'RPAREN',
+                        'MIXIN_PARAMS'
+                    ];
+                case 64:
+                    /*! Conditions:: MIXIN_PARAMS_STARTED */ /*! Rule::       (.+)(\)) */ this.popState();
+                    this.pushState('MIXIN_PARAMS_END');
+                    $e99c546f9ac18755$var$debug('120 this.matches=', this.matches);
+                    $e99c546f9ac18755$var$debug('120 this.matches.length=', this.matches.length);
+                    $e99c546f9ac18755$var$debug('120 yy_.yytext=', yy_.yytext);
+                    try {
+                        this.unput(')');
+                        if (this.matches.length > 1) yy_.yytext = this.matches[1];
+                    } catch (e3) {
+                        console.error(e3);
+                    }
+                    $e99c546f9ac18755$var$lparenOpen = false;
+                    $e99c546f9ac18755$var$debug('120 yy_.yytext=', yy_.yytext);
+                    return 11;
+                case 65:
+                    /*! Conditions:: INITIAL */ /*! Rule::       <!--.+--> */ yy_.yytext = yy_.yytext.slice(4, -3);
+                    return 8;
+                case 66:
+                    /*! Conditions:: UNBUF_CODE_FOLLOWER */ /*! Rule::       .+ */ this.popState();
+                    this.unput(yy_.yytext);
+                    break;
+                case 67:
+                    /*! Conditions:: UNBUF_CODE UNBUF_CODE_BLOCK */ /*! Rule::       .+ */ return this.popState();
+                case 68:
+                    /*! Conditions:: MIXIN_CALL */ /*! Rule::       . */ this.popState();
+                    this.unput(yy_.yytext);
+                    break;
+                default:
+                    return this.simpleCaseActionClusters[yyrulenumber];
+            }
+        },
+        simpleCaseActionClusters: {
+            /*! Conditions:: INITIAL */ /*! Rule::       -{space}*$ */ 10: 9,
+            /*! Conditions:: ATTRS_END */ /*! Rule::       \) */ 28: 12,
+            /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME ATTRS_END */ /*! Rule::       \.\s*$ */ 47: 24,
+            /*! Conditions:: UNBUF_CODE_START */ /*! Rule::       .+ */ 55: 4,
+            /*! Conditions:: MULTI_LINE_ATTRS */ /*! Rule::       .+ */ 62: 7
+        },
+        rules: [
+            /*  0: */ /^(?:#\[((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,
+            /*  1: */ /^(?:((append|block|case|default|doctype|each|else|extends|for|if|include|mixin|prepend|unless|when|while|yield)\b))/i,
+            /*  2: */ /^(?:((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,
+            /*  3: */ /^(?:(script|style))/i,
+            /*  4: */ /^(?:(#[\d\-a-z]+))/i,
+            /*  5: */ /^(?:(\+\s*[a-z]+\b))/i,
+            /*  6: */ /^(?:\})/i,
+            /*  7: */ /^(?:{conditional})/i,
+            /*  8: */ /^(?:\()/i,
+            /*  9: */ /^(?:.+\))/i,
+            /* 10: */ /^(?:-([   -​\u2028\u2029　])*$)/i,
+            /* 11: */ /^(?:-)/i,
+            /* 12: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+            /* 13: */ /^(?:(\.-?\w+[\w\-]*))/i,
+            /* 14: */ /^(?:\/\/)/i,
+            /* 15: */ /^(?:<[A-Z_]+>)/i,
+            /* 16: */ /^(?:\| )/i,
+            /* 17: */ /^(?:\|\.)/i,
+            /* 18: */ /^(?:\|$)/i,
+            /* 19: */ /^(?:&attributes\([^)]+\))/i,
+            /* 20: */ /^(?:(#\{.+\}))/i,
+            /* 21: */ /^(?:.+)/i,
+            /* 22: */ /^(?:(#\{))/i,
+            /* 23: */ /^(?:<\/.+)/i,
+            /* 24: */ /^(?:= )/i,
+            /* 25: */ /^(?:: )/i,
+            /* 26: */ /^(?:(:[\d\-a-z]+\b))/i,
+            /* 27: */ /^(?:\()/i,
+            /* 28: */ /^(?:\))/i,
+            /* 29: */ /^(?:\))/i,
+            /* 30: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+            /* 31: */ /^(?:(\.-?\w+[\w\-]*))/i,
+            /* 32: */ /^(?:(\(.+|.+\().+)/i,
+            /* 33: */ /^(?:([^)]+)(\))(?!\s*\..+\)))/i,
+            /* 34: */ /^(?:(.+)\)\s*$)/i,
+            /* 35: */ /^(?:(.+)\)\.?\s*(.+)$)/i,
+            /* 36: */ /^(?:(.+)\.?\s*$)/i,
+            /* 37: */ /^(?:(#[\d\-a-z]+))/i,
+            /* 38: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+            /* 39: */ /^(?:(\.-?\w+[\w\-]*))/i,
+            /* 40: */ /^(?:([   -​\u2028\u2029　]){2,})/i,
+            /* 41: */ /^(?:([   -​\u2028\u2029　])([   -​\u2028\u2029　]))/i,
+            /* 42: */ /^(?:([   -​\u2028\u2029　])(\.-?[^\W\d]+[\w\-]*))/i,
+            /* 43: */ /^(?:([   -​\u2028\u2029　])(\.-?\w+[\w\-]*))/i,
+            /* 44: */ /^(?:([   -​\u2028\u2029　]))/i,
+            /* 45: */ /^(?:([   -​\u2028\u2029　]))/i,
+            /* 46: */ /^(?:([   -​\u2028\u2029　]))/i,
+            /* 47: */ /^(?:\.\s*$)/i,
+            /* 48: */ /^(?:.+)/i,
+            /* 49: */ /^(?:.+)/i,
+            /* 50: */ /^(?:=([   -​\u2028\u2029　]))/i,
+            /* 51: */ /^(?:\.\s*$)/i,
+            /* 52: */ /^(?:.+)/i,
+            /* 53: */ /^(?:.+)/i,
+            /* 54: */ /^(?:([   -​\u2028\u2029　]))/i,
+            /* 55: */ /^(?:.+)/i,
+            /* 56: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+            /* 57: */ /^(?:(#[\d\-a-z]+))/i,
+            /* 58: */ /^(?:\()/i,
+            /* 59: */ /^(?:([   -​\u2028\u2029　])$)/i,
+            /* 60: */ /^(?:.+)/i,
+            /* 61: */ /^(?:,?(.*)\))/i,
+            /* 62: */ /^(?:.+)/i,
+            /* 63: */ /^(?:\))/i,
+            /* 64: */ /^(?:(.+)(\)))/i,
+            /* 65: */ /^(?:<!--.+-->)/i,
+            /* 66: */ /^(?:.+)/i,
+            /* 67: */ /^(?:.+)/i,
+            /* 68: */ /^(?:.)/i
+        ],
+        conditions: {
+            'TEXT': {
+                rules: [
+                    16,
+                    60
+                ],
+                inclusive: false
+            },
+            'TEXT_START': {
+                rules: [],
+                inclusive: false
+            },
+            'AFTER_TAG_NAME': {
+                rules: [
+                    19,
+                    24,
+                    25,
+                    27,
+                    37,
+                    38,
+                    39,
+                    41,
+                    42,
+                    43,
+                    44,
+                    47,
+                    48
+                ],
+                inclusive: false
+            },
+            'ATTRS_STARTED': {
+                rules: [
+                    32,
+                    33,
+                    34,
+                    35,
+                    36
+                ],
+                inclusive: false
+            },
+            'ATTR_TEXT': {
+                rules: [],
+                inclusive: false
+            },
+            'MIXIN_CALL': {
+                rules: [
+                    68
+                ],
+                inclusive: false
+            },
+            'MIXIN_CALL_START': {
+                rules: [
+                    19,
+                    56,
+                    57,
+                    58,
+                    59
+                ],
+                inclusive: false
+            },
+            'ATTRS_END': {
+                rules: [
+                    19,
+                    28,
+                    30,
+                    31,
+                    46,
+                    47,
+                    50,
+                    51,
+                    53
+                ],
+                inclusive: true
+            },
+            'CODE_START': {
+                rules: [],
+                inclusive: false
+            },
+            'UNBUF_CODE': {
+                rules: [
+                    11,
+                    67
+                ],
+                inclusive: false
+            },
+            'MULTI_LINE_ATTRS': {
+                rules: [
+                    61,
+                    62
+                ],
+                inclusive: false
+            },
+            'COMMENT': {
+                rules: [],
+                inclusive: false
+            },
+            'AFTER_ATTRS': {
+                rules: [
+                    25
+                ],
+                inclusive: false
+            },
+            'AFTER_TEXT_TAG_NAME': {
+                rules: [
+                    27,
+                    41,
+                    42,
+                    43,
+                    44,
+                    47,
+                    48
+                ],
+                inclusive: false
+            },
+            'AFTER_KEYWORD': {
+                rules: [
+                    26,
+                    41,
+                    42,
+                    43,
+                    45,
+                    49
+                ],
+                inclusive: false
+            },
+            'NO_MORE_SPACE': {
+                rules: [
+                    48
+                ],
+                inclusive: false
+            },
+            'ASSIGNMENT_VALUE': {
+                rules: [
+                    52
+                ],
+                inclusive: false
+            },
+            'COND_START': {
+                rules: [
+                    8,
+                    9
+                ],
+                inclusive: false
+            },
+            'INTERPOLATION_START': {
+                rules: [],
+                inclusive: false
+            },
+            'MIXIN_PARAMS_STARTED': {
+                rules: [
+                    63,
+                    64
+                ],
+                inclusive: false
+            },
+            'HTML_COMMENT_STARTED': {
+                rules: [],
+                inclusive: false
+            },
+            'INTERPOLATION': {
+                rules: [
+                    21
+                ],
+                inclusive: false
+            },
+            'MIXIN_PARAMS_END': {
+                rules: [
+                    29,
+                    46
+                ],
+                inclusive: false
+            },
+            'UNBUF_CODE_START': {
+                rules: [
+                    54,
+                    55
+                ],
+                inclusive: false
+            },
+            'UNBUF_CODE_BLOCK': {
+                rules: [
+                    67
+                ],
+                inclusive: false
+            },
+            'INITIAL': {
+                rules: [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    22,
+                    23,
+                    30,
+                    31,
+                    40,
+                    51,
+                    65
+                ],
+                inclusive: true
+            },
+            'UNBUF_CODE_FOLLOWER': {
+                rules: [
+                    66
+                ],
+                inclusive: false
+            }
+        }
+    };
+    return lexer;
+}();
+$e99c546f9ac18755$var$parser.lexer = $e99c546f9ac18755$var$lexer;
+const $e99c546f9ac18755$var$TEXT_TAGS_ALLOW_SUB_TAGS = true;
+const $e99c546f9ac18755$var$debug = $cjPlG$debug('pug-line-lexer');
+let $e99c546f9ac18755$var$tagAlreadyFound = false;
+let $e99c546f9ac18755$var$obj;
+var $e99c546f9ac18755$var$lparenOpen = false;
+// const keysToMergeText = ['therest']
+const $e99c546f9ac18755$var$attrResolver = new $cjPlG$AttrResolver();
+function $e99c546f9ac18755$var$rank(type1, type2) {
+    if (type2 === 'text') return type1;
+    else if (type1 === type2) return type1;
+    else if (type1 == 'tag' && type2 == 'mixin_call') return type2;
+    else if (type1 == 'mixin_call' && type2 == 'tag') return type1;
+    else return type1.concat(type2);
+}
+function $e99c546f9ac18755$var$isQuoted(str) {
+    if (str.trim().slice(-1) === "'" && str.trim().slice(-1) === "'") return true;
+    if (str.trim().slice(-1) === '"' && str.trim().slice(-1) === "'") return true;
+    return false;
+}
+function $e99c546f9ac18755$var$quote(str) {
+    return '"' + str + '"';
+}
+function $e99c546f9ac18755$var$unquote(str) {
+    return str.trim().slice(1, -1);
+}
+function $e99c546f9ac18755$var$merge(obj, src) {
+    if (obj == undefined || $cjPlG$lodash.isEmpty(obj)) {
+        $e99c546f9ac18755$var$debug('empty/undefined obj, returning src');
+        return src;
+    } else if (src == undefined || $cjPlG$lodash.isEmpty(src)) {
+        $e99c546f9ac18755$var$debug('empty/undefined src, returning obj');
+        return obj;
+    }
+    if (Array.isArray(src) && src.length > 0) {
+        src = src.reduce($e99c546f9ac18755$var$merge);
+        $e99c546f9ac18755$var$debug('src reduced to=', src);
+    }
+    $e99c546f9ac18755$var$debug('merging', obj, src);
+    // if (util.isDeepStrictEqual(src, [ { therest: '' } ]))
+    //    return obj
+    if (obj.type != 'text' && Object.keys(src).length == 1 && Object.keys(src)[0] == 'children' && src.children.length == 1 && src.children[0].hasOwnProperty('type') && src.children[0].type == 'text') return Object.assign(obj, {
+        val: src.children[0].val
+    });
+    // function convertClassAttr(key, obj) {
+    //   let ret
+    //   if (key === 'attrs' && obj.length == 1 && obj[0].name === 'class') {
+    //     ret = [{ classes: obj[0].val }]
+    //   }
+    //   else {
+    //     ret = obj
+    //   }
+    //   return ret
+    // }
+    let ret = $cjPlG$lodash.mergeWith(obj, src, function(objValue, srcValue, key, object, source, stack) {
+        $e99c546f9ac18755$var$debug('merging', 'inside _mergeWith', key, objValue, srcValue);
+        if (objValue == undefined && srcValue == undefined) return {
+        };
+        if (objValue == undefined) return srcValue;
+        if (srcValue == undefined) return objValue;
+        return $e99c546f9ac18755$var$rank(objValue, srcValue);
+    // }
+    });
+    // if (ret.hasOwnProperty('attrs') && ret.attrs.length == 1 && Object.keys(ret.attrs[0]).length == 1 && Object.keys(ret.attrs[0])[0] == 'classes' && isQuoted(ret.attrs[0].classes)) {
+    //   debug('merging', ' found classes')
+    //   const classes = unquote(ret.attrs[0].classes)
+    //   delete ret.attrs
+    //   ret = merge(ret, { classes: classes })
+    // }
+    $e99c546f9ac18755$var$debug('merging', ' returning', ret);
+    return ret;
+//  return Object.assign(obj, src);
+}
+// creates nodes of text and/or interpolations
+function $e99c546f9ac18755$var$createElems(text, parser) {
+    const debug = $cjPlG$debug('pug-line-lexer:createElems');
+    const matches1 = text.matchAll(/#[\[\{].*?[\]\}]/g);
+    let idx = 0;
+    let elems = [];
+    for (const match of matches1){
+        debug('match=', match);
+        if (idx != match.index) {
+            const textToPush = text.substring(idx, match.index);
+            debug('pushing text onto element array:', textToPush);
+            elems.push({
+                type: 'text',
+                val: textToPush
+            });
+            idx = match.index;
+        }
+        if (match[0][1] == '[') {
+            debug('found left bracked');
+            const toParse = match[0].slice(2, -1);
+            debug('sending to parser:', toParse);
+            const results = parser.parse(toParse);
+            debug('received from parser:', results);
+            elems.push(results);
+        } else {
+            // const toParse = match[0]
+            // debug('sending to parser:', toParse)
+            // const results = parser.parse(toParse)
+            // debug('received from parser:', results)
+            // elems.push(...results)
+            debug('pushing interpolation value to arr:', match[0].slice(2, -1));
+            elems.push({
+                type: 'interpolation',
+                val: match[0].slice(2, -1)
+            });
+        }
+        idx += match[0].length;
+    // debug('match', match)
+    // console.log(`Found ${match[0]} start=${match.index} end=${match.index + match[0].length}.`);
+    }
+    if (idx != text.length) elems.push({
+        type: 'text',
+        val: text.substring(idx, text.index)
+    });
+    debug('returning=', $cjPlG$util.inspect(elems, false, 5));
+    return elems;
+}
+function $e99c546f9ac18755$var$Parser() {
+    this.yy = {
+    };
+}
+$e99c546f9ac18755$var$Parser.prototype = $e99c546f9ac18755$var$parser;
+$e99c546f9ac18755$var$parser.Parser = $e99c546f9ac18755$var$Parser;
+function $e99c546f9ac18755$var$yyparse() {
+    return $e99c546f9ac18755$var$parser.parse.apply($e99c546f9ac18755$var$parser, arguments);
+}
+var $e99c546f9ac18755$export$2e2bcd8739ae039 = {
+    parser: $e99c546f9ac18755$var$parser,
+    Parser: $e99c546f9ac18755$var$Parser,
+    parse: $e99c546f9ac18755$var$yyparse
+};
+
+
+
+
+
+
+export {$e99c546f9ac18755$export$2e2bcd8739ae039 as Parser, $082ca48d6cb6a5f5$export$2e2bcd8739ae039 as InlineParser, $5355ad80bd576add$export$2e2bcd8739ae039 as AttrsParser};
 //# sourceMappingURL=module.js.map

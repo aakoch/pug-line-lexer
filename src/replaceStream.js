@@ -6,7 +6,7 @@ import debugFunc from 'debug'
 const debug = debugFunc.debug('pug-line-lexer.replaceStream')
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import { exists, parseArguments } from '@aakoch/utils'
+import { exists, parseArguments } from '@foo-dog/utils'
 import stream from 'stream'
 
 const opts = await parseArguments(process)

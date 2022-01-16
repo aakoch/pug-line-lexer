@@ -10,7 +10,7 @@
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
-keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|prepend|unless|when|while)\b
+keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|prepend|unless|when|while|yield)\b
 filter              \:[a-z0-9-]+\b
 
 // classname               \.[a-z0-9-]+
@@ -195,7 +195,7 @@ else {
   yytext = ''
                                            return 'TEXT'; // only because it is an empty object 
 %}
-<INITIAL,AFTER_TAG_NAME,ATTRS_END>'&attributes('[^\)]+')'
+<INITIAL,AFTER_TAG_NAME,ATTRS_END,MIXIN_CALL_START>'&attributes('[^\)]+')'
 %{
   debug("'&attributes('[^\)]+')'")
                                           return 'AT_ATTRS'
@@ -500,10 +500,17 @@ else {
   }
 %}
 
-<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}
+<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>{space}
 %{
   this.pushState('ATTRS_END');
   debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
+                                                              return 'SPACE';
+%}
+
+<AFTER_KEYWORD>{space}
+%{
+  this.pushState('ATTRS_END');
+  debug('<AFTER_KEYWORD>{space}');
                                                               return 'SPACE';
 %}
 
@@ -519,12 +526,32 @@ else {
 
 
 
-<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE>.+
+<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE>.+
 %{
   // if (yytext.startsWith(' ') {
   //   yytext = yytext.substring(1);
   // }
   debug('70 yytext=', yytext);
+                                          return 'TEXT';
+%}
+
+// <AFTER_KEYWORD>{keyword}
+// %{
+//   // if (yytext.startsWith(' ') {
+//   //   yytext = yytext.substring(1);
+//   // }
+//   debug('75 yytext=', yytext);
+//   // this.pushState('BLOCK_BODY_BLOCK')
+//                                           return 'KEYWORD';
+// %}
+
+<AFTER_KEYWORD>.+
+%{
+  // if (yytext.startsWith(' ') {
+  //   yytext = yytext.substring(1);
+  // }
+  debug('77 yytext=', yytext);
+  // this.pushState('BLOCK_BODY_BLOCK')
                                           return 'TEXT';
 %}
 
@@ -561,6 +588,18 @@ else {
 <UNBUF_CODE_START>.+
 %{
                                           return 'UNBUF_CODE';
+%}
+
+<MIXIN_CALL_START>{classname}
+%{
+  yytext = yytext.substring(1);
+                                          return 'CLASSNAME';
+%}
+
+<MIXIN_CALL_START>{tag_id}
+%{
+  yytext = yytext.substring(1);
+                                          return 'TAG_ID';
 %}
 
 <MIXIN_CALL_START>'('             
@@ -686,18 +725,20 @@ else {
                                           return 'HTML_COMMENT'
 %}
 
-<UNBUF_CODE>.
+// a line that may or might not be code will start with this
+<UNBUF_CODE_FOLLOWER>.+
 %{
   this.popState()
   this.unput(yytext)
 %}
-<UNBUF_CODE_BLOCK>.+
+<UNBUF_CODE,UNBUF_CODE_BLOCK>.+
 %{
-                                          return 'UNBUF_CODE_BLOCK';
+                                          return this.popState();
 %}
-<MIXIN_CALL>.*
+<MIXIN_CALL>.
 %{
-                                          return 'MIXIN_CALL_TODO'
+  this.popState()
+  this.unput(yytext)
 %}
 
 // <INITIAL>.+
@@ -742,7 +783,7 @@ line
   }
   | line_start UNBUF_CODE
   {
-    $$ = merge($line_start, { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE' })
+    $$ = merge($line_start, { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE_FOLLOWER' })
   }
   // | line_start UNBUF_CODE_BLOCK
   // {
@@ -773,25 +814,44 @@ line
   {
     $$ = { type: 'attrs_cont', val: parseAttrs.parse($ATTR_TEXT_CONT), state: 'MULTI_LINE_ATTRS' }
   }
-  | line_start AT_ATTRS
-  {
-    debug('line: line_start AT_ATTRS: $AT_ATTRS=', $AT_ATTRS)
-    if ($AT_ATTRS.includes('{') && $AT_ATTRS.includes('}')) {
-      let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
-      let entries2 = Object.entries(func())
-      debug('entries2=', entries2)
-      let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
-        debug('name=', key, 'value=', value)
-        return { name: key, val: value }
-      })
-      $$ = merge($line_start, { type: 'tag', attrs: attrs2 })
-    }
-    else {
-      $$ = merge($line_start, 
-        { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
-      )
-    }
-  }
+  // | line_start AT_ATTRS
+  // {
+  //   debug('line: line_start AT_ATTRS: $AT_ATTRS=', $AT_ATTRS)
+  //   if ($AT_ATTRS.includes('{') && $AT_ATTRS.includes('}')) {
+  //     let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
+  //     let entries2 = Object.entries(func())
+  //     debug('entries2=', entries2)
+  //     let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
+  //       debug('name=', key, 'value=', value)
+  //       return { name: key, val: value }
+  //     })
+  //     $$ = merge($line_start, { type: 'tag', attrs: attrs2 })
+  //   }
+  //   else {
+  //     $$ = merge($line_start, 
+  //       { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
+  //     )
+  //   }
+  // }
+  // | line_start AT_ATTRS line_splitter line_end
+  // {
+  //   debug('line: line_start AT_ATTRS line_splitter line_end: $AT_ATTRS=', $AT_ATTRS)
+  //   if ($AT_ATTRS.includes('{') && $AT_ATTRS.includes('}')) {
+  //     let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
+  //     let entries2 = Object.entries(func())
+  //     debug('entries2=', entries2)
+  //     let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
+  //       debug('name=', key, 'value=', value)
+  //       return { name: key, val: value }
+  //     })
+  //     $$ = merge($line_start, { type: 'tag', attrs: attrs2 })
+  //   }
+  //   else {
+  //     $$ = merge($line_start, 
+  //       { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
+  //     )
+  //   }
+  // }
   | HTML_COMMENT
   {
     debug('$HTML_COMMENT=', $HTML_COMMENT)
@@ -806,16 +866,16 @@ line
   }
   | UNBUF_CODE_BLOCK_START
   {
-    $$ = { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' }
+    $$ = { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK_START' }
   }
   ;
 
 line_start
   : first_token
-  | first_token tag_part
+  | first_token tag_part+
   {
-    debug('line_start: first_token tag_part')
-    $$ = merge($first_token, $tag_part)
+    debug('line_start: first_token tag_part+')
+    $$ = merge($first_token, $2)
   }
   | first_token attrs
   {
@@ -841,14 +901,23 @@ line_start
     debug('line_start: first_token tag_part LPAREN ATTR_TEXT_CONT')
     $$ = merge($first_token, [$tag_part, $ATTR_TEXT_CONT])
   }
+  // handle +foo.hello(class="world")
+  | first_token tag_part LPAREN MIXIN_PARAMS RPAREN
+  {
+    debug('line_start: first_token tag_part LPAREN MIXIN_PARAMS RPAREN')
+    $$ = merge(merge($first_token, $tag_part), { params: $MIXIN_PARAMS })
+  }
   | first_token tag_part attrs
   {
     debug('line_start: first_token tag_part attrs')
     $$ = merge($first_token, [$tag_part, $attrs])
   }
+
+
   // Rule for the edgecase a(class='bar').baz
   | first_token attrs CLASSNAME
   {
+    debug('first_token attrs CLASSNAME: first_token=', $first_token, ', attrs=', $attrs, ', CLASSNAME=', $CLASSNAME)
     $$ = merge($first_token, [$attrs, { attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }])
   }
   // Rule for the edgecase a.foo(class='bar').baz
@@ -857,6 +926,27 @@ line_start
     debug('first_token tag_part attrs CLASSNAME: first_token=', $first_token, ', tag_part=', $tag_part, ', attrs=', $attrs, ', CLASSNAME=', $CLASSNAME)
     $$ = merge($first_token, [$tag_part, $attrs, { attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }])
   }
+
+
+  // Rule for the edgecase div(id=id)&attributes({foo: 'bar', fred: 'bart'})
+  | first_token attrs AT_ATTRS
+  {
+    debug('first_token attrs AT_ATTRS: first_token=', $first_token, ', $attrs=', $attrs, ', AT_ATTRS=', $AT_ATTRS)
+    let attrArr = $attrs.attrs
+    debug('1 attrArr=', attrArr)
+    let atAttrObj = Function('return ' + $AT_ATTRS.slice(12, -1))();
+    debug('2 atAttrObj=', atAttrObj)
+
+    var atAttrObjToArray = Object.entries(atAttrObj).map(([name, val]) => ({name,val}));
+    debug('3 atAttrObjToArray=', atAttrObjToArray)
+    attrArr = attrArr.concat(atAttrObjToArray)
+    debug('4 attrArr=', attrArr)
+
+    $$ = merge($first_token, { attrs: attrArr })
+  }
+
+
+
   // | ATTR_TEXT
   // {
   //   debug('line_start: ATTR_TEXT')
@@ -864,8 +954,28 @@ line_start
   // }
   | first_token LPAREN MIXIN_PARAMS RPAREN
   {
+    debug('first_token LPAREN MIXIN_PARAMS RPAREN: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS)
     $$ = merge($first_token, { params: $MIXIN_PARAMS })
   }
+  // | first_token tag_part AT_ATTRS
+  // {
+  //   debug('line:_start first_token tag_part AT_ATTRS=', $AT_ATTRS)
+  //   if ($AT_ATTRS.includes('{') && $AT_ATTRS.includes('}')) {
+  //     let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
+  //     let entries2 = Object.entries(func())
+  //     debug('entries2=', entries2)
+  //     let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
+  //       debug('name=', key, 'value=', value)
+  //       return { name: key, val: value }
+  //     })
+  //     $$ = merge($first_token, { type: 'tag', attrs: attrs2 })
+  //   }
+  //   else {
+  //     $$ = merge($first_token, 
+  //       { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
+  //     )
+  //   }
+  // }
   ;
 
 first_token
@@ -897,7 +1007,12 @@ first_token
   }
   | COMMENT
   {
-    $$ = { type: 'comment', state: 'TEXT_START' }
+    if ($COMMENT[0] == '-') {
+      $$ = { type: 'comment', state: 'TEXT_START' }
+    }
+    else {
+      $$ = { type: 'html_comment', state: 'TEXT_START' }
+    }
   }
   // | UNBUF_CODE_START
   // {
@@ -906,7 +1021,7 @@ first_token
   // }
   | UNBUF_CODE
   {
-    $$ = { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE' }
+    $$ = { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE_FOLLOWER' }
   }
   | UNBUF_CODE_BLOCK
   {
@@ -914,13 +1029,18 @@ first_token
   }
   | MIXIN_CALL
   {
-    debug('MIXIN_CALL=', $1)
+    debug('first_token MIXIN_CALL, $MIXIN_CALL=', $1)
     $$ = { type: 'mixin_call', name: $1.trim(), state: 'MIXIN_CALL' }
   }
   | KEYWORD
   {
+    // %include ../src/keywords.js
     $$ = { type: $KEYWORD }
   }
+  // | KEYWORD SPACE KEYWORD
+  // {
+  //   $$ = { type: $1, extraKeyword: $3 }
+  // }
   | PIPE
   {
     $$ = { type: 'text' }
@@ -970,23 +1090,55 @@ first_token
   }
   ;
 
+// tag_parts
+//   : tag_part+
+//   ;
+
 tag_part
   : TAG_ID
   {
     $$ = { id: $TAG_ID }
   }
-  | TAG_ID classnames
+  // | TAG_ID classnames
+  // {
+  //   $$ = merge({ id: $TAG_ID }, $classnames)
+  // }
+  // | classnames
+  // | classnames TAG_ID
+  // {
+  //   $$ = merge({ id: $TAG_ID }, $classnames)
+  // }
+  | CLASSNAME+
   {
-    $$ = merge({ id: $TAG_ID }, $classnames)
+    let attrs1 = $1.map(cn => {
+      return { name: 'class', val: quote(cn) } 
+    })
+    $$ = { type: 'tag', attrs: attrs1 }
   }
-  | classnames
-  | classnames TAG_ID
-  {
-    $$ = merge({ id: $TAG_ID }, $classnames)
-  }
+  // | CLASSNAME
+  // {
+  //   $$ = { type: 'tag', attrs: [{ name: 'class', val: quote($CLASSNAME) }] }
+  // }
   | FILTER
   {
     $$ = { filter: $FILTER }
+  }
+  | AT_ATTRS
+  {
+    debug('tag_part AT_ATTRS: $AT_ATTRS=', $AT_ATTRS)
+    if ($AT_ATTRS.includes('{') && $AT_ATTRS.includes('}')) {
+      let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
+      let entries2 = Object.entries(func())
+      debug('entries2=', entries2)
+      let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
+        debug('name=', key, 'value=', value)
+        return { name: key, val: value }
+      })
+      $$ = { type: 'tag', attrs: attrs2 }
+    }
+    else {
+      $$ = { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
+    }
   }
   ;
 
@@ -1023,15 +1175,19 @@ attrs
   }
   ;
 
-classnames
-  : CLASSNAME+
-  {
-    let attrs1 = $1.map(cn => {
-      return { name: 'class', val: quote(cn) } 
-    })
-    $$ = { type: 'tag', attrs: attrs1 }
-  }
-  ;
+// classnames
+//   : CLASSNAME+
+//   {
+//     let attrs1 = $1.map(cn => {
+//       return { name: 'class', val: quote(cn) } 
+//     })
+//     $$ = { type: 'tag', attrs: attrs1 }
+//   }
+//   // : CLASSNAME
+//   // {
+//   //   $$ = { type: 'tag', attrs: [{ name: 'class', val: quote($CLASSNAME) }] }
+//   // }
+//   ;
 
 line_end
   : 
@@ -1067,7 +1223,7 @@ line_end
   }
   | UNBUF_CODE
   {
-    $$ = { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE' }
+    $$ = { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE_FOLLOWER' }
   }
   | RPAREN
   {
@@ -1114,12 +1270,12 @@ function rank(type1, type2) {
   else if (type1 === type2) {
     return type1
   }
-  // else if (type1 == 'tag' && type2 == 'tag_with_multiline_attrs') {
-  //   return type2
-  // }
-  // else if (type1 == 'tag_with_multiline_attrs' && type2 == 'tag') {
-  //   return type1
-  // }
+  else if (type1 == 'tag' && type2 == 'mixin_call') {
+    return type2
+  }
+  else if (type1 == 'mixin_call' && type2 == 'tag') {
+    return type1
+  }
   else {
     return type1.concat(type2)
   }

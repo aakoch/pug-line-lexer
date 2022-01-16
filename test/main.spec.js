@@ -10,11 +10,11 @@ const parser = Parser.parser
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
 
-let tagAlreadyFound = false
-var lparenOpen = false
+// let tagAlreadyFound = false
+// var lparenOpen = false
   
-  tagAlreadyFound = false
-  lparenOpen = false
+  // tagAlreadyFound = false
+  // lparenOpen = false
   
   function test(input, expected, strict = true, options) {
     
@@ -29,8 +29,8 @@ var lparenOpen = false
       // debug('parser.options after=', parser.options)
     }
 
-    tagAlreadyFound = false
-    lparenOpen = false
+    // tagAlreadyFound = false
+    // lparenOpen = false
     var actual = parser.parse(input)
     debug(input + ' ==> ', util.inspect(actual))
     
@@ -43,11 +43,11 @@ var lparenOpen = false
     compareFunc.call({}, actual, expected)
   }
 
+// test(`+baz()= '123'`, { )
 
-
+test('block append head', { type: 'block', val: 'append head' })
 
 test("<INTERPOLATION>'foo'", { type: 'text', val: "foo" } )
-
 
 try {
   test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: false })
@@ -80,22 +80,38 @@ test(`<li>foo</li>`, { type: 'text', val: '<li>foo</li>' })
 test(`<ul>`, { type: 'text', val: '<ul>' })
 test(`</ul>`, { type: 'text', val: '</ul>' })
 
-// test(`p.bar&attributes(attributes) One`, {})
-// test(`p.baz.quux&attributes(attributes) Two`, {})
+test(`p.bar&attributes(attributes) One`, {
+  name: 'p',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"bar"' }, { val: 'attributes' } ],
+  val: 'One'
+})
+
+// TODO
+test(`p.baz.quux&attributes(attributes) Two`, {})
 // test(`p&attributes(attributes) Three`, {})
 // test(`p.bar&attributes(attributes)(class="baz") Four`, {})
 
-// TODO: 
 // The next bunch tests "- Attributes"
 // Tests include: mixin.merge.pug
-// test(`+foo.hello`, {})
-// test(`+foo#world`, {})
-// test(`+foo.hello#world`, {})
-// test(`+foo.hello.world`, {})
-// test(`+foo(class="hello")`, {})
-// test(`+foo.hello(class="world")`, {})
-// test(`+foo`, {})
-// test(`+foo&attributes({class: "hello"})`, {})
+test(`+foo.hello`, { type: 'mixin_call', name: 'foo', attrs: [ { name: 'class', val: '"hello"' } ], state: 'MIXIN_CALL' })
+test(`+foo#world`, { type: 'mixin_call', name: 'foo', id: 'world', state: 'MIXIN_CALL' })
+test(`+foo.hello#world`, { type: 'mixin_call', name: 'foo', id: 'world', attrs: [ { name: 'class', val: '"hello"' }], state: 'MIXIN_CALL' })
+
+test(`+foo(class="hello")`, {
+  type: 'mixin_call',
+  name: 'foo',
+  state: 'MIXIN_CALL',
+  params: 'class="hello"'
+})
+test(`+foo.hello(class="world")`, {
+  type: 'mixin_call',
+  name: 'foo',
+  state: 'MIXIN_CALL',
+  params: 'class="world"',
+  attrs: [ { name: 'class', val: '"hello"' } ]
+})
+test(`+foo&attributes({class: "hello"})`, { type: 'mixin_call', name: 'foo', attrs: [ { name: 'class', val: 'hello' } ], state: 'MIXIN_CALL' })
 
 test("a.rho(href='#', class='rho--modifier')", {
   name: 'a',
@@ -211,8 +227,6 @@ test('li= item', {
 // })
 // test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {})
 
-test('-var ajax = true', {type: 'unbuf_code', val: 'var ajax = true', state: 'UNBUF_CODE'})
-test('-if( ajax )', {type: 'unbuf_code', val: 'if( ajax )', state: 'UNBUF_CODE'})
 test('span.font-monospace .htmlnanorc', {
   attrs: [
     {
@@ -234,12 +248,6 @@ test('.container.post#post-20210905', {
   id: 'post-20210905'
 })
 
-test('<UNBUF_CODE_BLOCK>var i', {
-  type: 'unbuf_code',
-  val: 'var i',
-  state: 'UNBUF_CODE_BLOCK'
-})
-
 test('} else {', {
   type: 'block_end',
   val: 'else {'
@@ -249,13 +257,6 @@ test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", {
     "'Moddable Two (2) Case', 'Needing Documentation ', ['print']",
   state: 'MIXIN_CALL'
   })
-
-test('code(class="language-scss").', {
-  name: 'code',
-  type: 'tag',
-  attrs: [ { name: 'class', val: '"language-scss"' } ],
-  state: 'TEXT_START'
-})
 
 test('p: a(href="https://www.thingiverse.com/thing:4578862") Thingiverse', {
   name: 'p',
@@ -309,11 +310,6 @@ test('a(href=url)= url', {
 //   type: 'tag'
 // })
 
-test('- function answer() { return 42; }', {
-  state: 'UNBUF_CODE',
-  type: 'unbuf_code',
-  val: 'function answer() { return 42; }'
-})
 
 // I'm not supporting this right now
 // test('a(href=\'/user/\' + id, class=\'button\')', {
@@ -486,12 +482,12 @@ if (!TEXT_TAGS_ALLOW_SUB_TAGS)
 test(".classname", { type: 'tag', attrs: [ { name: 'class', val: '"classname"' } ] })
 
 //test("// some text", { type: 'comment', state: 'TEXT_START' })
-test("// some text", { type: 'comment', state: 'TEXT_START', val: ' some text' })
+test("// some text", { type: 'html_comment', state: 'TEXT_START', val: ' some text' })
 
 // test("// ", { type: 'comment', state: 'TEXT_START' })
-test("// ", { type: 'comment', val: ' ', state: 'TEXT_START' })
+test("// ", { type: 'html_comment', val: ' ', state: 'TEXT_START' })
 
-test("//", { type: 'comment', state: 'TEXT_START' })
+test("//", { type: 'html_comment', state: 'TEXT_START' })
 
 
 test('a.url.fn.n(href=\'https://wordpress.adamkoch.com/author/admin/\' title=\'View all posts by Adam\' rel=\'author\') Adam',  {
@@ -599,25 +595,12 @@ test('time(datetime=\'2009-07-28T01:24:04-06:00\') 2009-07-28 at 1:24 AM', {
   attrs: [ { name: 'datetime', val: "'2009-07-28T01:24:04-06:00'" } ],
   val: '2009-07-28 at 1:24 AM'
 } )
-test('- var title = \'Fade Out On MouseOver Demo\'', { type: 'unbuf_code', val: 'var title = \'Fade Out On MouseOver Demo\'', state: 'UNBUF_CODE' })
 test('<TEXT>}).join(\' \')', { type: 'text', val: "}).join(' ')" })
 test('  ', {})
 test('#content(role=\'main\')', {
   type: 'tag',
   id: 'content',
   attrs: [ { name: 'role', val: "'main'" } ]
-})
-test('pre: code(class="language-scss").', {
-  name: 'pre',
-  type: 'tag',
-  state: 'NESTED',
-  children: [
-    { name: 'code', type: 'tag', attrs: [
-        {
-          name: 'class',
-          val: '"language-scss"'
-        }], state: 'TEXT_START' }
-  ]
 })
 
 test('mixin sensitive()', { type: 'mixin', val: 'sensitive()' })
@@ -641,8 +624,6 @@ test("+project('Moddable Two (2) Case', 'Needing Documentation ', ['print'])", {
 test('| . The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.', { type: 'text', val: '. The only "gotcha" was I originally had "www.adamkoch.com" as the A record instead of "adamkoch.com". Not a big deal and easy to rectify.' })
 test('<TEXT>| #start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;', {"type":"text","val":"#start-resizable-editor-section{display:none}.wp-block-audio figcaption{color:#555;font-size:13px;" })
 
-test('-', { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' })
-test('- ', { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK' })
 
 test('mixin project(title)', {
   type: 'mixin',
@@ -650,7 +631,7 @@ test('mixin project(title)', {
 })
 test('// comment', {
   state: 'TEXT_START',
-  type: 'comment',
+  type: 'html_comment',
   val: ' comment'
 })
 test('meta(property=\'og:description\' content=\'I came across a problem in Internet Explorer (it wasn\\\'t a problem with Firefox) when I...\')',  {
@@ -665,14 +646,6 @@ test('meta(property=\'og:description\' content=\'I came across a problem in Inte
   ]
 })
 
-// test(' -', {
-//   state: 'UNBUF_CODE_START',
-//   type: 'code',
-//   val: ''
-// })
-
-// if we get the state UNBUF_CODE followed by something other than '-', we should parse it as if the state wasn't there 
-test('<UNBUF_CODE>var i', { name: 'var', type: 'tag', val: 'i' })
 
 test("link(rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; White-space and character 160 Comments Feed' href='https://wordpress.adamkoch.com/2009/07/25/white-space-and-character-160/feed/')",  {
   name: 'link',
@@ -694,19 +667,6 @@ test("link(rel='alternate' type='application/rss+xml' title='Adam Koch &raquo; W
 test('pre.', {
   name: 'pre',
   state: 'TEXT_START',
-  type: 'tag'
-})
-
-test('pre: code.', {
-  children: [
-    {
-      name: 'code',
-      state: 'TEXT_START',
-      type: 'tag'
-    }
-  ],
-  name: 'pre',
-  state: 'NESTED',
   type: 'tag'
 })
 
@@ -826,11 +786,6 @@ test("foo(date=new Date(0))", {
   type: 'tag',
   attrs: [ { name: 'date', val: 'new Date(0)' } ]
 })
-test("- var attrs = {foo: 'bar', bar: '<baz>'}",  {
-  type: 'unbuf_code',
-  state: 'UNBUF_CODE',
-  val: "var attrs = {foo: 'bar', bar: '<baz>'}"
-})
 // test("a(foo='foo' \"bar\"=\"bar\")", {})
 
 try {
@@ -838,7 +793,6 @@ try {
   fail('expected exception')
 } catch (expected) {}
 
-// TODO:
 test("div&attributes(attrs)", { type: 'tag', name: 'div', attrs: [{val: 'attrs'}] })
 
 test('p A sentence with a #[strong strongly worded phrase] that cannot be #[em ignored].', {
@@ -915,4 +869,6 @@ test(`+ list()`, {
   state: 'MIXIN_CALL'
 })
 
-test(`<MIXIN_CALL>`, {})
+test(`<MIXIN_CALL>p some awesome content`, { name: 'p', type: 'tag', val: 'some awesome content' })
+
+test(`<MIXIN_CALL>| Test`, { type: 'text', val: 'Test' })
