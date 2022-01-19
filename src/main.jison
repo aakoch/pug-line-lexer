@@ -19,8 +19,11 @@ classname_relaxed       \.-?[_a-zA-Z0-9]+[_a-zA-Z0-9-]*
 tag_id                  #[a-z0-9-]+
 mixin_call              \+\s*[a-z]+\b
 // conditional             -?(if|else if|else)
-interpolation_start     #\{
-interpolation           #\{.+\}
+// interpolation_start     #(\{|\[)
+// interpolation           #(?:(\{)(\w+)(?:\s(.+))?(\})|(\[)(\w+)(?:\s(.+))?(\]))
+escaped_text_interpolation (?<!\\)(#\{)([^\}]+)(\})
+unescaped_text_interpolation (?<!\\)('!'\{)([^\}]+)(\})
+tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])
 
 %x TEXT
 %x TEXT_START
@@ -50,10 +53,29 @@ interpolation           #\{.+\}
 %x UNBUF_CODE_BLOCK
 %%
 
-<INITIAL>'#['{tag}
+// <INITIAL>'#['{tag}
+// %{
+//   ']'
+//                                           return 'TAG'
+// %}
+{escaped_text_interpolation} 
 %{
-  ']'
-                                          return 'TAG'
+  this.pushState('AFTER_TAG_NAME');
+  yytext = yytext.slice(2, -1)
+                                          return 'ESCAPED_TEXT_INTERPOLATION';
+%}
+{unescaped_text_interpolation}
+%{
+  this.pushState('AFTER_TAG_NAME');
+  yytext = yytext.slice(2, -1)
+                                          return 'UNESCAPED_TEXT_INTERPOLATION';
+%}
+{tag_interpolation}
+%{
+  debug('this.matches=', this.matches)
+  this.pushState('AFTER_TAG_NAME');
+  yytext = [this.matches[3], this.matches[4], this.matches[5]]
+                                          return 'TAG_INTERPOLATION';
 %}
 <INITIAL>{keyword}
 %{
@@ -204,8 +226,19 @@ else {
 %{
   debug('{interpolation}')
   debug('this.matches=', this.matches)
+  debug('this=', this)
   this.pushState('AFTER_TAG_NAME');
-                                          return ['INTERP_END', 'INTERP_VAL', 'INTERP_START'];
+  yytext = [this.matches[6], this.matches[7], this.matches[8], this.matches[9]]
+                                          return ['INTERP_END', 'INTERP_VAL', 'INTERP_NAME', 'INTERP_START'];
+%}
+<INITIAL>{interpolation}.+
+%{
+  debug('{interpolation222222222}')
+  debug('this.matches=', this.matches)
+  debug('this=', this)
+  this.pushState('AFTER_TAG_NAME');
+  yytext = [this.matches[6], this.matches[7], this.matches[8], this.matches[9]]
+                                          return ['INTERP_END', 'INTERP_VAL', 'INTERP_NAME', 'INTERP_START'];
 %}
 <INTERPOLATION>.+
 %{
@@ -556,7 +589,7 @@ else {
 %}
 
 
-<ATTRS_END>'='{space}
+<ATTRS_END,MIXIN_PARAMS_END>'='{space}
 %{
   this.popState();
   this.pushState('ASSIGNMENT_VALUE');
@@ -861,7 +894,7 @@ line
       $$ = { type: 'html_comment', children: elemsReturned }
     }
     else {
-      $$ = { type: 'html_comment', val: $HTML_COMMENT }
+      $$ = { type: 'html_comment', val: quote($HTML_COMMENT) }
     }
   }
   | UNBUF_CODE_BLOCK_START
@@ -932,21 +965,35 @@ line_start
   | first_token attrs AT_ATTRS
   {
     debug('first_token attrs AT_ATTRS: first_token=', $first_token, ', $attrs=', $attrs, ', AT_ATTRS=', $AT_ATTRS)
-    let attrArr = $attrs.attrs
-    debug('1 attrArr=', attrArr)
-    let atAttrObj = Function('return ' + $AT_ATTRS.slice(12, -1))();
-    debug('2 atAttrObj=', atAttrObj)
+    let attrArr1 = $attrs.attrs
+    debug('1 attrArr1=', attrArr1)
+    let atAttrObj1 = Function('return ' + $AT_ATTRS.slice(12, -1))();
+    debug('2 atAttrObj1=', atAttrObj1)
 
-    var atAttrObjToArray = Object.entries(atAttrObj).map(([name, val]) => ({name,val}));
-    debug('3 atAttrObjToArray=', atAttrObjToArray)
-    attrArr = attrArr.concat(atAttrObjToArray)
-    debug('4 attrArr=', attrArr)
+    var atAttrObj1ToArray = Object.entries(atAttrObj1).map(([name, val]) => ({name,val}));
+    debug('3 atAttrObj1ToArray=', atAttrObj1ToArray)
+    attrArr1 = attrArr1.concat(atAttrObj1ToArray)
+    debug('4 attrArr1=', attrArr1)
 
-    $$ = merge($first_token, { attrs: attrArr })
+    $$ = merge($first_token, { attrs: attrArr1 })
   }
 
+  // // Rule for the edgecase p.bar&attributes(attributes)(class="baz") Four
+  // | first_token AT_ATTRS attrs
+  // {
+  //   debug('first_token attrs AT_ATTRS: first_token=', $first_token, ', $attrs=', $attrs, ', AT_ATTRS=', $AT_ATTRS)
+  //   let attrArr2 = $attrs.attrs
+  //   debug('1 attrArr2=', attrArr2)
+  //   let atAttrObj2 = Function('return ' + $AT_ATTRS.slice(12, -1))();
+  //   debug('2 atAttrObj2=', atAttrObj2)
 
+  //   var atAttrObj2ToArray = Object.entries(atAttrObj2).map(([name, val]) => ({name,val}));
+  //   debug('3 atAttrObj2ToArray=', atAttrObj2ToArray)
+  //   attrArr2 = attrArr2.concat(atAttrObj2ToArray)
+  //   debug('4 attrArr1=', attrArr1)
 
+  //   $$ = merge($first_token, { attrs: attrArr2 })
+  // }
   // | ATTR_TEXT
   // {
   //   debug('line_start: ATTR_TEXT')
@@ -1062,18 +1109,21 @@ first_token
   {
     $$ = { type: 'conditional', name: $CONDITIONAL }
   }
-  | INTERP_START INTERP_VAL INTERP_END
+  | INTERP_START INTERP_NAME INTERP_VAL INTERP_END
   {
-    debug('line: INTERP_START INTERP_VAL INTERP_END: $INTERP_VAL=', $INTERP_VAL)
-    const resultInterpVal1 = attrResolver.resolve({ name: 'anonymous', val: $INTERP_VAL.slice(2, -1) })
-    $$ = { type: 'tag', name: resultInterpVal1.val }
+    var INTERP_NAME = $INTERP_NAME[1]
+    var INTERP_VAL = $INTERP_VAL[2]
+    debug('line: INTERP_START INTERP_NAME INTERP_VAL INTERP_END: INTERP_NAME=', INTERP_NAME, ', INTERP_VAL=', INTERP_VAL)
+    // const resultInterpVal1 = attrResolver.resolve({ name: 'anonymous', val: $INTERP_VAL.slice(2, -1) })
+    // $$ = { type: 'tag', name: resultInterpVal1.val }
+    $$ = { type: 'tag', name: INTERP_NAME, val: INTERP_VAL }
     // $$ = [{ type: 'interpolation', val: $INTERP_VAL.slice(2, -1) }]
   }
-  // | INTERPOLATION_START
-  // {
-  //   debug('line: INTERPOLATION_START')
-  //   $$ = { type: 'interpolation_start', state: 'INTERPOLATION_START' }
-  // }
+  | INTERPOLATION_START
+  {
+    debug('line: INTERPOLATION_START')
+    $$ = { type: 'interpolation_start', state: 'INTERPOLATION_START' }
+  }
   | INTERP_VAL
   {
     debug('line: INTERP_VAL: $INTERP_VAL=', $INTERP_VAL)
@@ -1087,6 +1137,24 @@ first_token
   {
     debug('line: MIXIN_CALL_TODO: $MIXIN_CALL_TODO=', $MIXIN_CALL_TODO)
     $$ = {}
+  }
+  | ESCAPED_TEXT_INTERPOLATION
+  {
+    $$ = { type: 'escaped_text', name: $ESCAPED_TEXT_INTERPOLATION}
+  }
+  | UNESCAPED_TEXT_INTERPOLATION
+  {
+    $$ = { type: 'unescaped_text', name: $UNESCAPED_TEXT_INTERPOLATION}
+  }
+  | TAG_INTERPOLATION
+  {
+    debug('line: TAG_INTERPOLATION: $TAG_INTERPOLATION=', $TAG_INTERPOLATION)
+    $$ = { type: 'tag', name: $TAG_INTERPOLATION[0], val: $TAG_INTERPOLATION[2]}
+    if ($TAG_INTERPOLATION[1]) {
+      const resultInterpVal3 = parseAttrs.parse($TAG_INTERPOLATION[1])
+      debug('parseAttrs returned=', resultInterpVal3)
+      $$ = Object.assign($$, { attrs: resultInterpVal3 })
+    }
   }
   ;
 
@@ -1132,7 +1200,7 @@ tag_part
       debug('entries2=', entries2)
       let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
         debug('name=', key, 'value=', value)
-        return { name: key, val: value }
+        return { name: key, val: quote(value) }
       })
       $$ = { type: 'tag', attrs: attrs2 }
     }
@@ -1140,6 +1208,7 @@ tag_part
       $$ = { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
     }
   }
+  | attrs
   ;
 
 attrs
@@ -1201,7 +1270,7 @@ line_end
   }
   | ASSIGNMENT_VALUE
   {
-    $$ = { assignment_val: $ASSIGNMENT_VALUE }
+    $$ = { val: $ASSIGNMENT_VALUE }
   }
   // | ATTR_TEXT_CONT
   // {
@@ -1321,7 +1390,12 @@ function merge(obj, src) {
   //    return obj
 
   if (obj.type != 'text' && Object.keys(src).length == 1 && Object.keys(src)[0] == 'children' && src.children.length == 1 && src.children[0].hasOwnProperty('type') && src.children[0].type == 'text') {
-    return Object.assign(obj, { val: src.children[0].val })
+    return Object.assign(obj, { val: quote(src.children[0].val) })
+  }
+
+  // { type: 'include', filter: 'markdown-it' } { type: 'text', val: 'article.md' }
+  if (obj.type === 'include' && src.type === 'text') {
+    return Object.assign(obj, { file: src.val })
   }
 
   // function convertClassAttr(key, obj) {

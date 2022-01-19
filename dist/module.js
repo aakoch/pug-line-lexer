@@ -7583,27 +7583,30 @@ var $e99c546f9ac18755$var$parser = {
     symbols_: {
         "$accept": 0,
         "$end": 1,
-        "ASSIGNMENT": 35,
-        "ASSIGNMENT_VALUE": 34,
-        "ATTR_TEXT": 32,
+        "ASSIGNMENT": 40,
+        "ASSIGNMENT_VALUE": 39,
+        "ATTR_TEXT": 37,
         "ATTR_TEXT_CONT": 7,
         "ATTR_TEXT_END": 6,
         "AT_ATTRS": 14,
         "CLASSNAME": 13,
         "COMMENT": 18,
-        "CONDITION": 33,
+        "CONDITION": 38,
         "CONDITIONAL": 26,
         "DOT_END": 24,
         "EOF": 1,
-        "FILTER": 31,
+        "ESCAPED_TEXT_INTERPOLATION": 33,
+        "FILTER": 36,
         "HTML_COMMENT": 8,
-        "INTERP_END": 29,
+        "INTERPOLATION_START": 31,
+        "INTERP_END": 30,
+        "INTERP_NAME": 28,
         "INTERP_START": 27,
-        "INTERP_VAL": 28,
+        "INTERP_VAL": 29,
         "KEYWORD": 21,
         "LPAREN": 10,
         "MIXIN_CALL": 20,
-        "MIXIN_CALL_TODO": 30,
+        "MIXIN_CALL_TODO": 32,
         "MIXIN_PARAMS": 11,
         "NESTED_TAG_START": 5,
         "PIPE": 22,
@@ -7612,23 +7615,25 @@ var $e99c546f9ac18755$var$parser = {
         "SPACE": 25,
         "TAG": 15,
         "TAG_ID": 17,
+        "TAG_INTERPOLATION": 35,
         "TEXT": 3,
         "TEXT_TAG": 16,
         "UNBUF_CODE": 4,
         "UNBUF_CODE_BLOCK": 19,
         "UNBUF_CODE_BLOCK_START": 9,
-        "attrs": 41,
+        "UNESCAPED_TEXT_INTERPOLATION": 34,
+        "attrs": 46,
         "error": 2,
-        "first_token": 39,
-        "line": 37,
-        "line_end": 42,
-        "line_splitter": 43,
-        "line_start": 38,
-        "line_start_option": 45,
-        "line_start_repetition_plus": 44,
-        "start": 36,
-        "tag_part": 40,
-        "tag_part_repetition_plus": 46
+        "first_token": 44,
+        "line": 42,
+        "line_end": 47,
+        "line_splitter": 48,
+        "line_start": 43,
+        "line_start_option": 50,
+        "line_start_repetition_plus": 49,
+        "start": 41,
+        "tag_part": 45,
+        "tag_part_repetition_plus": 51
     },
     terminals_: {
         1: "EOF",
@@ -7658,14 +7663,19 @@ var $e99c546f9ac18755$var$parser = {
         25: "SPACE",
         26: "CONDITIONAL",
         27: "INTERP_START",
-        28: "INTERP_VAL",
-        29: "INTERP_END",
-        30: "MIXIN_CALL_TODO",
-        31: "FILTER",
-        32: "ATTR_TEXT",
-        33: "CONDITION",
-        34: "ASSIGNMENT_VALUE",
-        35: "ASSIGNMENT"
+        28: "INTERP_NAME",
+        29: "INTERP_VAL",
+        30: "INTERP_END",
+        31: "INTERPOLATION_START",
+        32: "MIXIN_CALL_TODO",
+        33: "ESCAPED_TEXT_INTERPOLATION",
+        34: "UNESCAPED_TEXT_INTERPOLATION",
+        35: "TAG_INTERPOLATION",
+        36: "FILTER",
+        37: "ATTR_TEXT",
+        38: "CONDITION",
+        39: "ASSIGNMENT_VALUE",
+        40: "ASSIGNMENT"
     },
     TERROR: 2,
     EOF: 1,
@@ -7751,46 +7761,46 @@ var $e99c546f9ac18755$var$parser = {
     },
     productions_: $e99c546f9ac18755$var$bp({
         pop: $e99c546f9ac18755$var$u([
-            36,
-            36,
-            $e99c546f9ac18755$var$s,
-            [
-                37,
-                9
-            ],
-            $e99c546f9ac18755$var$s,
-            [
-                38,
-                11
-            ],
-            $e99c546f9ac18755$var$s,
-            [
-                39,
-                18
-            ],
-            $e99c546f9ac18755$var$s,
-            [
-                40,
-                4
-            ],
             41,
             41,
             $e99c546f9ac18755$var$s,
             [
                 42,
-                6
+                9
             ],
             $e99c546f9ac18755$var$s,
             [
                 43,
+                11
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                44,
+                22
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                45,
+                5
+            ],
+            46,
+            46,
+            $e99c546f9ac18755$var$s,
+            [
+                47,
+                6
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                48,
                 3
             ],
-            44,
-            44,
-            45,
-            45,
-            46,
-            46
+            49,
+            49,
+            50,
+            50,
+            51,
+            51
         ]),
         rule: $e99c546f9ac18755$var$u([
             1,
@@ -7824,10 +7834,9 @@ var $e99c546f9ac18755$var$parser = {
             ],
             $e99c546f9ac18755$var$c,
             [
-                31,
-                6
+                16,
+                12
             ],
-            1,
             3,
             3,
             0,
@@ -7858,7 +7867,8 @@ var $e99c546f9ac18755$var$parser = {
             case 1:
             /*! Production::    start : EOF */ case 3:
             /*! Production::    line : line_start */ case 12:
-                /*! Production::    line_start : first_token */ // default action (generated by JISON mode classic/merge :: 1,VT,VA,-,-,-,-,-,-):
+            /*! Production::    line_start : first_token */ case 49:
+                /*! Production::    tag_part : attrs */ // default action (generated by JISON mode classic/merge :: 1,VT,VA,-,-,-,-,-,-):
                 this.$ = yyvstack[yysp];
                 break;
             case 2:
@@ -7931,7 +7941,7 @@ var $e99c546f9ac18755$var$parser = {
                     };
                 } else this.$ = {
                     type: 'html_comment',
-                    val: yyvstack[yysp]
+                    val: $e99c546f9ac18755$var$quote(yyvstack[yysp])
                 };
                 break;
             case 11:
@@ -8015,20 +8025,20 @@ var $e99c546f9ac18755$var$parser = {
                 break;
             case 21:
                 /*! Production::    line_start : first_token attrs AT_ATTRS */ $e99c546f9ac18755$var$debug('first_token attrs AT_ATTRS: first_token=', yyvstack[yysp - 2], ', $attrs=', yyvstack[yysp - 1], ', AT_ATTRS=', yyvstack[yysp]);
-                let attrArr = yyvstack[yysp - 1].attrs;
-                $e99c546f9ac18755$var$debug('1 attrArr=', attrArr);
-                let atAttrObj = Function('return ' + yyvstack[yysp].slice(12, -1))();
-                $e99c546f9ac18755$var$debug('2 atAttrObj=', atAttrObj);
-                var atAttrObjToArray = Object.entries(atAttrObj).map(([name, val])=>({
+                let attrArr1 = yyvstack[yysp - 1].attrs;
+                $e99c546f9ac18755$var$debug('1 attrArr1=', attrArr1);
+                let atAttrObj1 = Function('return ' + yyvstack[yysp].slice(12, -1))();
+                $e99c546f9ac18755$var$debug('2 atAttrObj1=', atAttrObj1);
+                var atAttrObj1ToArray = Object.entries(atAttrObj1).map(([name, val])=>({
                         name: name,
                         val: val
                     })
                 );
-                $e99c546f9ac18755$var$debug('3 atAttrObjToArray=', atAttrObjToArray);
-                attrArr = attrArr.concat(atAttrObjToArray);
-                $e99c546f9ac18755$var$debug('4 attrArr=', attrArr);
+                $e99c546f9ac18755$var$debug('3 atAttrObj1ToArray=', atAttrObj1ToArray);
+                attrArr1 = attrArr1.concat(atAttrObj1ToArray);
+                $e99c546f9ac18755$var$debug('4 attrArr1=', attrArr1);
                 this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], {
-                    attrs: attrArr
+                    attrs: attrArr1
                 });
                 break;
             case 22:
@@ -8089,7 +8099,7 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 29:
-            /*! Production::    first_token : UNBUF_CODE */ case 51:
+            /*! Production::    first_token : UNBUF_CODE */ case 56:
                 /*! Production::    line_end : UNBUF_CODE */ this.$ = {
                     type: 'unbuf_code',
                     val: yyvstack[yysp],
@@ -8144,17 +8154,25 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 38:
-                /*! Production::    first_token : INTERP_START INTERP_VAL INTERP_END */ $e99c546f9ac18755$var$debug('line: INTERP_START INTERP_VAL INTERP_END: $INTERP_VAL=', yyvstack[yysp - 1]);
-                const resultInterpVal1 = $e99c546f9ac18755$var$attrResolver.resolve({
-                    name: 'anonymous',
-                    val: yyvstack[yysp - 1].slice(2, -1)
-                });
+                /*! Production::    first_token : INTERP_START INTERP_NAME INTERP_VAL INTERP_END */ var INTERP_NAME = yyvstack[yysp - 2][1];
+                var INTERP_VAL = yyvstack[yysp - 1][2];
+                $e99c546f9ac18755$var$debug('line: INTERP_START INTERP_NAME INTERP_VAL INTERP_END: INTERP_NAME=', INTERP_NAME, ', INTERP_VAL=', INTERP_VAL);
+                // const resultInterpVal1 = attrResolver.resolve({ name: 'anonymous', val: $INTERP_VAL.slice(2, -1) })
+                // $$ = { type: 'tag', name: resultInterpVal1.val }
                 this.$ = {
                     type: 'tag',
-                    name: resultInterpVal1.val
+                    name: INTERP_NAME,
+                    val: INTERP_VAL
                 };
                 break;
             case 39:
+                /*! Production::    first_token : INTERPOLATION_START */ $e99c546f9ac18755$var$debug('line: INTERPOLATION_START');
+                this.$ = {
+                    type: 'interpolation_start',
+                    state: 'INTERPOLATION_START'
+                };
+                break;
+            case 40:
                 /*! Production::    first_token : INTERP_VAL */ $e99c546f9ac18755$var$debug('line: INTERP_VAL: $INTERP_VAL=', yyvstack[yysp]);
                 $e99c546f9ac18755$var$debug('AttrResolver=', $cjPlG$AttrResolver);
                 const resultInterpVal2 = $e99c546f9ac18755$var$attrResolver.resolve({
@@ -8167,17 +8185,44 @@ var $e99c546f9ac18755$var$parser = {
                     val: resultInterpVal2.val
                 };
                 break;
-            case 40:
+            case 41:
                 /*! Production::    first_token : MIXIN_CALL_TODO */ $e99c546f9ac18755$var$debug('line: MIXIN_CALL_TODO: $MIXIN_CALL_TODO=', yyvstack[yysp]);
                 this.$ = {
                 };
                 break;
-            case 41:
+            case 42:
+                /*! Production::    first_token : ESCAPED_TEXT_INTERPOLATION */ this.$ = {
+                    type: 'escaped_text',
+                    name: yyvstack[yysp]
+                };
+                break;
+            case 43:
+                /*! Production::    first_token : UNESCAPED_TEXT_INTERPOLATION */ this.$ = {
+                    type: 'unescaped_text',
+                    name: yyvstack[yysp]
+                };
+                break;
+            case 44:
+                /*! Production::    first_token : TAG_INTERPOLATION */ $e99c546f9ac18755$var$debug('line: TAG_INTERPOLATION: $TAG_INTERPOLATION=', yyvstack[yysp]);
+                this.$ = {
+                    type: 'tag',
+                    name: yyvstack[yysp][0],
+                    val: yyvstack[yysp][2]
+                };
+                if (yyvstack[yysp][1]) {
+                    const resultInterpVal3 = $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp][1]);
+                    $e99c546f9ac18755$var$debug('parseAttrs returned=', resultInterpVal3);
+                    this.$ = Object.assign(this.$, {
+                        attrs: resultInterpVal3
+                    });
+                }
+                break;
+            case 45:
                 /*! Production::    tag_part : TAG_ID */ this.$ = {
                     id: yyvstack[yysp]
                 };
                 break;
-            case 42:
+            case 46:
                 /*! Production::    tag_part : tag_part_repetition_plus */ let attrs1 = yyvstack[yysp].map((cn)=>{
                     return {
                         name: 'class',
@@ -8189,12 +8234,12 @@ var $e99c546f9ac18755$var$parser = {
                     attrs: attrs1
                 };
                 break;
-            case 43:
+            case 47:
                 /*! Production::    tag_part : FILTER */ this.$ = {
                     filter: yyvstack[yysp]
                 };
                 break;
-            case 44:
+            case 48:
                 /*! Production::    tag_part : AT_ATTRS */ $e99c546f9ac18755$var$debug('tag_part AT_ATTRS: $AT_ATTRS=', yyvstack[yysp]);
                 if (yyvstack[yysp].includes('{') && yyvstack[yysp].includes('}')) {
                     let func = Function('return (' + yyvstack[yysp].substring(12, yyvstack[yysp].length - 1) + ')');
@@ -8204,7 +8249,7 @@ var $e99c546f9ac18755$var$parser = {
                         $e99c546f9ac18755$var$debug('name=', key, 'value=', value);
                         return {
                             name: key,
-                            val: value
+                            val: $e99c546f9ac18755$var$quote(value)
                         };
                     });
                     this.$ = {
@@ -8220,7 +8265,7 @@ var $e99c546f9ac18755$var$parser = {
                     ]
                 };
                 break;
-            case 45:
+            case 50:
                 /*! Production::    attrs : LPAREN ATTR_TEXT RPAREN */ $e99c546f9ac18755$var$debug('1 Calling parseAttrs with ', yyvstack[yysp - 1]);
                 this.$ = {
                 };
@@ -8247,30 +8292,30 @@ var $e99c546f9ac18755$var$parser = {
                     console.error('Error parsing ' + yyvstack[yysp - 1], e);
                 }
                 break;
-            case 46:
+            case 51:
                 /*! Production::    attrs : LPAREN CONDITION RPAREN */ $e99c546f9ac18755$var$debug('attrs: LPAREN CONDITION RPAREN');
                 this.$ = {
                     condition: yyvstack[yysp - 1]
                 };
                 break;
-            case 47:
+            case 52:
                 /*! Production::    line_end : %epsilon */ // default action (generated by JISON mode classic/merge :: 0,VT,VA,-,-,-,-,-,-):
                 this.$ = undefined;
                 // END of default action (generated by JISON mode classic/merge :: 0,VT,VA,-,-,-,-,-,-)
                 $e99c546f9ac18755$var$debug('line_end: <blank>');
                 break;
-            case 48:
+            case 53:
                 /*! Production::    line_end : DOT_END */ $e99c546f9ac18755$var$debug('line_end: DOT_END');
                 this.$ = {
                     state: 'TEXT_START'
                 };
                 break;
-            case 49:
+            case 54:
                 /*! Production::    line_end : ASSIGNMENT_VALUE */ this.$ = {
-                    assignment_val: yyvstack[yysp]
+                    val: yyvstack[yysp]
                 };
                 break;
-            case 50:
+            case 55:
                 /*! Production::    line_end : TEXT */ $e99c546f9ac18755$var$debug('line_end: TEXT: $TEXT=', yyvstack[yysp]);
                 if (yyvstack[yysp].includes('#')) {
                     let elemsReturned = $e99c546f9ac18755$var$createElems(yyvstack[yysp], this.yy.parser);
@@ -8283,50 +8328,50 @@ var $e99c546f9ac18755$var$parser = {
                     val: yyvstack[yysp]
                 };
                 break;
-            case 52:
+            case 57:
                 /*! Production::    line_end : RPAREN */ this.$ = {
                     type: 'text',
                     val: yyvstack[yysp]
                 };
                 break;
-            case 53:
+            case 58:
                 /*! Production::    line_splitter : SPACE */ $e99c546f9ac18755$var$debug('line_splitter: SPACE');
                 this.$ = {
                 };
                 break;
-            case 54:
+            case 59:
                 /*! Production::    line_splitter : ASSIGNMENT */ this.$ = {
                     assignment: true
                 };
                 break;
-            case 55:
+            case 60:
                 /*! Production::    line_splitter : DOT_END */ $e99c546f9ac18755$var$debug('line_splitter: DOT_END');
                 this.$ = {
                     state: 'TEXT_START'
                 };
                 break;
-            case 56:
-            /*! Production::    line_start_repetition_plus : tag_part */ case 60:
+            case 61:
+            /*! Production::    line_start_repetition_plus : tag_part */ case 65:
                 /*! Production::    tag_part_repetition_plus : CLASSNAME */ this.$ = [
                     yyvstack[yysp]
                 ];
                 break;
-            case 57:
-            /*! Production::    line_start_repetition_plus : line_start_repetition_plus tag_part */ case 61:
+            case 62:
+            /*! Production::    line_start_repetition_plus : line_start_repetition_plus tag_part */ case 66:
                 /*! Production::    tag_part_repetition_plus : tag_part_repetition_plus CLASSNAME */ yyvstack[yysp - 1].push(yyvstack[yysp]);
                 this.$ = yyvstack[yysp - 1];
                 break;
-            case 58:
+            case 63:
                 /*! Production::    line_start_option : %epsilon */ this.$ = undefined;
                 break;
-            case 59:
+            case 64:
                 /*! Production::    line_start_option : ATTR_TEXT_CONT */ this.$ = yyvstack[yysp];
                 break;
         }
     },
     table: $e99c546f9ac18755$var$bt({
         len: $e99c546f9ac18755$var$u([
-            27,
+            31,
             1,
             0,
             1,
@@ -8346,44 +8391,46 @@ var $e99c546f9ac18755$var$parser = {
             $e99c546f9ac18755$var$s,
             [
                 0,
-                5
+                9
             ],
             7,
-            25,
+            29,
             $e99c546f9ac18755$var$s,
             [
                 0,
                 3
             ],
-            13,
-            9,
+            15,
+            12,
             12,
             13,
             0,
             12,
             $e99c546f9ac18755$var$c,
             [
-                20,
-                9
+                24,
+                13
             ],
+            2,
             $e99c546f9ac18755$var$c,
             [
-                32,
-                7
+                14,
+                4
             ],
             1,
             1,
             0,
             4,
+            8,
             $e99c546f9ac18755$var$c,
             [
-                58,
-                5
+                21,
+                6
             ],
             $e99c546f9ac18755$var$c,
             [
-                24,
-                5
+                5,
+                4
             ]
         ]),
         symbol: $e99c546f9ac18755$var$u([
@@ -8400,13 +8447,19 @@ var $e99c546f9ac18755$var$parser = {
             $e99c546f9ac18755$var$s,
             [
                 15,
-                14,
+                13,
                 1
             ],
-            30,
+            29,
             $e99c546f9ac18755$var$s,
             [
-                36,
+                31,
+                5,
+                1
+            ],
+            $e99c546f9ac18755$var$s,
+            [
+                41,
                 4,
                 1
             ],
@@ -8420,8 +8473,8 @@ var $e99c546f9ac18755$var$parser = {
             5,
             24,
             25,
-            35,
-            43,
+            40,
+            48,
             $e99c546f9ac18755$var$c,
             [
                 8,
@@ -8433,12 +8486,12 @@ var $e99c546f9ac18755$var$parser = {
             17,
             24,
             25,
-            31,
-            35,
+            36,
             40,
-            41,
-            44,
+            45,
             46,
+            49,
+            51,
             28,
             $e99c546f9ac18755$var$c,
             [
@@ -8447,64 +8500,56 @@ var $e99c546f9ac18755$var$parser = {
             ],
             12,
             24,
-            34,
-            42,
+            39,
+            47,
             $e99c546f9ac18755$var$c,
             [
-                60,
-                22
+                64,
+                26
             ],
             $e99c546f9ac18755$var$c,
             [
-                59,
+                63,
                 4
             ],
             $e99c546f9ac18755$var$c,
             [
-                49,
-                3
+                53,
+                13
+            ],
+            51,
+            $e99c546f9ac18755$var$c,
+            [
+                15,
+                12
             ],
             $e99c546f9ac18755$var$c,
             [
-                48,
-                8
-            ],
-            46,
-            $e99c546f9ac18755$var$c,
-            [
-                13,
-                6
-            ],
-            $e99c546f9ac18755$var$c,
-            [
-                72,
-                3
-            ],
-            $e99c546f9ac18755$var$c,
-            [
-                9,
+                12,
                 4
             ],
             7,
             11,
             24,
             25,
-            32,
-            33,
-            35,
-            45,
+            37,
+            38,
+            40,
+            50,
             $e99c546f9ac18755$var$c,
             [
-                83,
+                24,
                 12
             ],
-            41,
+            46,
             $e99c546f9ac18755$var$c,
             [
                 13,
                 12
             ],
             29,
+            37,
+            38,
             $e99c546f9ac18755$var$s,
             [
                 12,
@@ -8512,25 +8557,27 @@ var $e99c546f9ac18755$var$parser = {
             ],
             7,
             11,
-            32,
-            33,
+            37,
+            38,
             $e99c546f9ac18755$var$c,
             [
-                54,
-                5
+                22,
+                4
             ],
+            13,
             $e99c546f9ac18755$var$c,
             [
-                53,
+                136,
                 3
             ],
+            30,
             12
         ]),
         type: $e99c546f9ac18755$var$u([
             $e99c546f9ac18755$var$s,
             [
                 2,
-                23
+                27
             ],
             $e99c546f9ac18755$var$s,
             [
@@ -8555,18 +8602,18 @@ var $e99c546f9ac18755$var$parser = {
             ],
             $e99c546f9ac18755$var$c,
             [
-                34,
-                13
+                64,
+                17
             ],
             $e99c546f9ac18755$var$c,
             [
-                14,
-                13
+                15,
+                27
             ],
             $e99c546f9ac18755$var$c,
             [
-                36,
-                21
+                26,
+                12
             ],
             $e99c546f9ac18755$var$c,
             [
@@ -8576,7 +8623,7 @@ var $e99c546f9ac18755$var$parser = {
             $e99c546f9ac18755$var$s,
             [
                 2,
-                17
+                20
             ]
         ]),
         state: $e99c546f9ac18755$var$u([
@@ -8584,25 +8631,26 @@ var $e99c546f9ac18755$var$parser = {
             3,
             4,
             9,
-            31,
-            39,
-            37,
-            36,
+            35,
+            43,
             41,
-            46,
-            52,
+            40,
+            45,
+            50,
+            56,
             4,
             9,
-            53,
-            41,
-            56,
-            62
+            57,
+            58,
+            45,
+            62,
+            68
         ]),
         mode: $e99c546f9ac18755$var$u([
             $e99c546f9ac18755$var$s,
             [
                 1,
-                24
+                28
             ],
             2,
             $e99c546f9ac18755$var$c,
@@ -8632,58 +8680,53 @@ var $e99c546f9ac18755$var$parser = {
             ],
             $e99c546f9ac18755$var$c,
             [
-                48,
-                22
+                52,
+                26
             ],
             $e99c546f9ac18755$var$c,
             [
-                41,
-                6
-            ],
-            $e99c546f9ac18755$var$c,
-            [
-                40,
-                4
-            ],
-            $e99c546f9ac18755$var$c,
-            [
-                11,
-                6
+                45,
+                11
             ],
             $e99c546f9ac18755$var$s,
             [
                 2,
-                7
-            ],
-            $e99c546f9ac18755$var$c,
-            [
-                19,
                 5
             ],
             $e99c546f9ac18755$var$c,
             [
-                20,
+                19,
+                6
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                11,
+                9
+            ],
+            $e99c546f9ac18755$var$c,
+            [
+                15,
                 7
             ],
-            $e99c546f9ac18755$var$s,
+            $e99c546f9ac18755$var$c,
             [
-                2,
-                12
+                21,
+                10
             ],
             $e99c546f9ac18755$var$c,
             [
                 13,
-                7
+                10
             ],
             $e99c546f9ac18755$var$c,
             [
-                63,
-                13
+                69,
+                15
             ],
             $e99c546f9ac18755$var$c,
             [
-                4,
-                4
+                18,
+                5
             ]
         ]),
         goto: $e99c546f9ac18755$var$u([
@@ -8707,123 +8750,141 @@ var $e99c546f9ac18755$var$parser = {
             $e99c546f9ac18755$var$s,
             [
                 18,
-                11,
+                8,
+                1
+            ],
+            27,
+            26,
+            $e99c546f9ac18755$var$s,
+            [
+                28,
+                5,
                 1
             ],
             3,
-            29,
-            30,
-            32,
-            35,
             33,
             34,
+            36,
+            39,
+            37,
+            38,
             $e99c546f9ac18755$var$s,
             [
                 12,
                 4
             ],
-            38,
-            44,
-            43,
-            40,
-            12,
-            12,
             42,
-            12,
-            45,
-            47,
-            49,
-            50,
-            51,
-            47,
             48,
+            47,
+            44,
+            12,
+            12,
+            46,
+            12,
+            49,
+            $e99c546f9ac18755$var$s,
+            [
+                52,
+                4,
+                1
+            ],
+            51,
+            52,
             $e99c546f9ac18755$var$c,
             [
-                49,
-                22
+                53,
+                26
             ],
             $e99c546f9ac18755$var$s,
             [
                 13,
                 4
             ],
+            59,
             $e99c546f9ac18755$var$c,
             [
-                40,
+                45,
                 3
             ],
             13,
             13,
-            42,
+            46,
             13,
             $e99c546f9ac18755$var$s,
             [
                 14,
                 4
             ],
-            54,
-            55,
-            $e99c546f9ac18755$var$s,
-            [
-                14,
-                3
-            ],
-            $e99c546f9ac18755$var$s,
-            [
-                58,
-                4
-            ],
+            49,
             60,
-            57,
-            $e99c546f9ac18755$var$s,
+            61,
+            49,
+            $e99c546f9ac18755$var$c,
             [
-                58,
+                6,
                 3
             ],
-            59,
-            58,
+            14,
             $e99c546f9ac18755$var$s,
             [
-                56,
+                63,
                 4
             ],
-            61,
+            66,
             $e99c546f9ac18755$var$s,
             [
-                56,
+                63,
+                3
+            ],
+            64,
+            65,
+            63,
+            $e99c546f9ac18755$var$s,
+            [
+                61,
+                4
+            ],
+            67,
+            $e99c546f9ac18755$var$s,
+            [
+                61,
                 7
             ],
             $e99c546f9ac18755$var$s,
             [
-                42,
+                46,
                 5
             ],
-            63,
+            69,
             $e99c546f9ac18755$var$s,
             [
-                42,
+                46,
                 6
             ],
+            70,
+            64,
+            65,
             $e99c546f9ac18755$var$s,
             [
-                64,
-                6,
+                71,
+                5,
                 1
             ],
-            58,
-            59,
+            64,
+            65,
             $e99c546f9ac18755$var$s,
             [
                 18,
                 4
             ],
-            70,
+            76,
             $e99c546f9ac18755$var$s,
             [
                 18,
                 3
             ],
-            71
+            77,
+            78
         ])
     }),
     defaultActions: $e99c546f9ac18755$var$bda({
@@ -8844,31 +8905,36 @@ var $e99c546f9ac18755$var$parser = {
             $e99c546f9ac18755$var$s,
             [
                 26,
-                5,
+                9,
                 1
             ],
-            33,
-            34,
-            35,
-            40,
-            42,
-            43,
+            37,
+            38,
+            39,
             44,
+            46,
+            47,
+            48,
             $e99c546f9ac18755$var$s,
             [
-                46,
-                11,
+                50,
+                9,
                 1
             ],
             60,
+            61,
+            62,
+            66,
+            69,
             $e99c546f9ac18755$var$s,
             [
-                63,
-                6,
+                71,
+                4,
                 1
             ],
-            70,
-            71
+            76,
+            77,
+            78
         ]),
         goto: $e99c546f9ac18755$var$u([
             1,
@@ -8884,38 +8950,43 @@ var $e99c546f9ac18755$var$parser = {
                 15,
                 1
             ],
-            39,
-            40,
+            $e99c546f9ac18755$var$s,
+            [
+                39,
+                6,
+                1
+            ],
             2,
             4,
             5,
-            53,
-            54,
-            55,
-            41,
-            43,
-            44,
+            58,
+            59,
             60,
+            45,
+            47,
+            48,
+            65,
             6,
             $e99c546f9ac18755$var$s,
             [
-                48,
+                53,
                 5,
                 1
             ],
             7,
-            57,
+            62,
+            49,
             19,
             21,
             15,
-            59,
-            61,
-            38,
+            64,
+            66,
             22,
-            45,
-            46,
+            50,
+            51,
             16,
             20,
+            38,
             17
         ])
     }),
@@ -8943,7 +9014,7 @@ var $e99c546f9ac18755$var$parser = {
         var ERROR_RECOVERY_TOKEN_DISCARD_COUNT = this.options.errorRecoveryTokenDiscardCount | 0 || 3;
         var NO_ACTION = [
             0,
-            72 /* === table.length :: ensures that anyone using this new state will fail dramatically! */ 
+            79 /* === table.length :: ensures that anyone using this new state will fail dramatically! */ 
         ];
         var lexer;
         if (this.__lexer__) lexer = this.__lexer__;
@@ -10545,14 +10616,29 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
             var YYSTATE = YY_START;
             switch(yyrulenumber){
                 case 0:
-                    return 15;
+                    /*! Conditions:: ATTRS_END INITIAL */ /*! Rule::       {escaped_text_interpolation} */ this.pushState('AFTER_TAG_NAME');
+                    yy_.yytext = yy_.yytext.slice(2, -1);
+                    return 33;
                 case 1:
+                    /*! Conditions:: ATTRS_END INITIAL */ /*! Rule::       {unescaped_text_interpolation} */ this.pushState('AFTER_TAG_NAME');
+                    yy_.yytext = yy_.yytext.slice(2, -1);
+                    return 34;
+                case 2:
+                    /*! Conditions:: ATTRS_END INITIAL */ /*! Rule::       {tag_interpolation} */ $e99c546f9ac18755$var$debug('this.matches=', this.matches);
+                    this.pushState('AFTER_TAG_NAME');
+                    yy_.yytext = [
+                        this.matches[3],
+                        this.matches[4],
+                        this.matches[5]
+                    ];
+                    return 35;
+                case 3:
                     /*! Conditions:: INITIAL */ /*! Rule::       {keyword} */ this.pushState('AFTER_KEYWORD');
                     return 21;
-                case 2:
+                case 4:
                     /*! Conditions:: INITIAL */ /*! Rule::       {tag} */ this.pushState('AFTER_TAG_NAME');
                     return 15;
-                case 3:
+                case 5:
                     /*! Conditions:: INITIAL */ /*! Rule::       (script|style) */ if ($e99c546f9ac18755$var$TEXT_TAGS_ALLOW_SUB_TAGS) {
                         this.pushState('AFTER_TAG_NAME');
                         return 15;
@@ -10561,41 +10647,41 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         return 16;
                     }
                     break;
-                case 4:
+                case 6:
                     /*! Conditions:: INITIAL */ /*! Rule::       {tag_id} */ this.pushState('AFTER_TAG_NAME');
                     yy_.yytext = yy_.yytext.substring(1);
                     return 17;
-                case 5:
+                case 7:
                     /*! Conditions:: INITIAL */ /*! Rule::       {mixin_call} */ yy_.yytext = yy_.yytext.substring(1);
                     this.pushState('MIXIN_CALL_START');
                     return 20;
-                case 6:
+                case 8:
                     /*! Conditions:: INITIAL */ /*! Rule::       \} */ this.pushState('AFTER_KEYWORD');
                     return 23;
-                case 7:
+                case 9:
                     /*! Conditions:: INITIAL */ /*! Rule::       {conditional} */ this.pushState('COND_START');
                     if (yy_.yytext.startsWith('-')) yy_.yytext = yy_.yytext.substring(1);
                     return 26;
-                case 8:
+                case 10:
                     /*! Conditions:: COND_START */ /*! Rule::       \( */ ')';
                     this.pushState('COND_START');
                     return 10;
-                case 9:
+                case 11:
                     /*! Conditions:: COND_START */ /*! Rule::       .+\) */ this.popState();
                     yy_.yytext = yy_.yytext.substring(0, yy_.yytext.length - 1);
                     return [
                         'RPAREN',
                         'CONDITION'
                     ];
-                case 11:
+                case 13:
                     /*! Conditions:: INITIAL UNBUF_CODE */ /*! Rule::       - */ this.pushState('UNBUF_CODE_START');
                     break;
-                case 12:
+                case 14:
                     /*! Conditions:: INITIAL */ /*! Rule::       {classname} */ // debug('<INITIAL>{classname}')
                     this.pushState('AFTER_TAG_NAME');
                     yy_.yytext = yy_.yytext.substring(1);
                     return 13;
-                case 13:
+                case 15:
                     /*! Conditions:: INITIAL */ /*! Rule::       {classname_relaxed} */ $e99c546f9ac18755$var$debug('<INITIAL>{classname_relaxed}');
                     if (this.yy.parser.options.allowDigitToStartClassName) {
                         // debug('<INITIAL>{classname}')
@@ -10604,75 +10690,100 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         return 13;
                     } else throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.');
                     break;
-                case 14:
+                case 16:
                     /*! Conditions:: INITIAL */ /*! Rule::       \/\/ */ this.pushState('TEXT');
                     return 18;
-                case 15:
+                case 17:
                     /*! Conditions:: INITIAL */ /*! Rule::       <[A-Z_]+> */ if (/<[A-Z_]+>/.test(yy_.yytext)) this.pushState(yy_.yytext.substring(1, yy_.yytext.length - 1));
                     else {
                         this.pushState('TEXT');
                         return 3;
                     }
                     break;
-                case 16:
+                case 18:
                     /*! Conditions:: INITIAL TEXT */ /*! Rule::       \|  */ this.pushState('TEXT');
                     return 22;
-                case 17:
+                case 19:
                     /*! Conditions:: INITIAL */ /*! Rule::       \|\. */ this.pushState('TEXT');
                     this.unput('.');
                     break;
-                case 18:
+                case 20:
                     /*! Conditions:: INITIAL */ /*! Rule::       \|$ */ this.pushState('TEXT');
                     yy_.yytext = '';
                     return 3; // only because it is an empty object 
-                case 19:
+                case 21:
                     /*! Conditions:: INITIAL AFTER_TAG_NAME ATTRS_END MIXIN_CALL_START */ /*! Rule::       &attributes\([^\)]+\) */ $e99c546f9ac18755$var$debug('\'&attributes(\'[^)]+\')\'');
                     return 14;
-                case 20:
+                case 22:
                     /*! Conditions:: INITIAL */ /*! Rule::       {interpolation} */ $e99c546f9ac18755$var$debug('{interpolation}');
                     $e99c546f9ac18755$var$debug('this.matches=', this.matches);
+                    $e99c546f9ac18755$var$debug('this=', this);
                     this.pushState('AFTER_TAG_NAME');
+                    yy_.yytext = [
+                        this.matches[6],
+                        this.matches[7],
+                        this.matches[8],
+                        this.matches[9]
+                    ];
                     return [
                         'INTERP_END',
                         'INTERP_VAL',
+                        'INTERP_NAME',
                         'INTERP_START'
                     ];
-                case 21:
+                case 23:
+                    /*! Conditions:: INITIAL */ /*! Rule::       {interpolation}.+ */ $e99c546f9ac18755$var$debug('{interpolation222222222}');
+                    $e99c546f9ac18755$var$debug('this.matches=', this.matches);
+                    $e99c546f9ac18755$var$debug('this=', this);
+                    this.pushState('AFTER_TAG_NAME');
+                    yy_.yytext = [
+                        this.matches[6],
+                        this.matches[7],
+                        this.matches[8],
+                        this.matches[9]
+                    ];
+                    return [
+                        'INTERP_END',
+                        'INTERP_VAL',
+                        'INTERP_NAME',
+                        'INTERP_START'
+                    ];
+                case 24:
                     /*! Conditions:: INTERPOLATION */ /*! Rule::       .+ */ // debug('<INTERPOLATION>.+')
                     // debug('this.matches=', this.matches)
                     // this.pushState('INTERPOLATION');
-                    return 28;
-                case 22:
+                    return 29;
+                case 25:
                     /*! Conditions:: INITIAL */ /*! Rule::       {interpolation_start} */ $e99c546f9ac18755$var$debug('{interpolation_start}');
                     $e99c546f9ac18755$var$debug('this.matches=', this.matches);
                     this.pushState('INTERPOLATION_START');
-                    return 'INTERPOLATION_START';
-                case 23:
+                    return 31;
+                case 26:
                     /*! Conditions:: INITIAL */ /*! Rule::       <\/.+ */ this.pushState('TEXT');
                     return 3;
-                case 24:
+                case 27:
                     /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       =  */ this.popState();
                     this.pushState('ASSIGNMENT_VALUE');
-                    return 35;
-                case 25:
+                    return 40;
+                case 28:
                     /*! Conditions:: AFTER_TAG_NAME AFTER_ATTRS */ /*! Rule::       :  */ this.popState();
                     return 5;
-                case 26:
+                case 29:
                     /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       {filter} */ yy_.yytext = yy_.yytext.substring(1);
-                    return 31;
-                case 27:
+                    return 36;
+                case 30:
                     /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME */ /*! Rule::       \( */ ')'; // hack for syntax
                     $e99c546f9ac18755$var$debug(`<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('`);
                     this.pushState('ATTRS_STARTED');
                     return 10;
-                case 29:
+                case 32:
                     /*! Conditions:: MIXIN_PARAMS_END */ /*! Rule::       \) */ // this.popState() // for inline blocks after mixin calls
                     return 12;
-                case 30:
+                case 33:
                     /*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       {classname} */ this.pushState('AFTER_TAG_NAME');
                     yy_.yytext = yy_.yytext.substring(1);
                     return 13;
-                case 31:
+                case 34:
                     /*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       {classname_relaxed} */ $e99c546f9ac18755$var$debug('<INITIAL,ATTRS_END>{classname_relaxed}');
                     if (this.yy.parser.options.allowDigitToStartClassName) {
                         this.pushState('AFTER_TAG_NAME');
@@ -10680,7 +10791,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         return 13;
                     } else throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.');
                     break;
-                case 32:
+                case 35:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (\(.+|.+\().+ */ '))';
                     $e99c546f9ac18755$var$debug('15 yy_.yytext=', yy_.yytext);
                     $e99c546f9ac18755$var$debug('15 this.matches=', this.matches);
@@ -10712,8 +10823,8 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     $e99c546f9ac18755$var$debug('15 yy_.yytext=', yy_.yytext);
                     this.popState();
                     this.pushState('ATTRS_END');
-                    return 32;
-                case 33:
+                    return 37;
+                case 36:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       ([^\)]+)(\))(?!\s*\..+\)) */ this.popState();
                     this.pushState('ATTRS_END');
                     $e99c546f9ac18755$var$debug('20 this.matches=', this.matches);
@@ -10727,8 +10838,8 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     }
                     $e99c546f9ac18755$var$lparenOpen = false;
                     $e99c546f9ac18755$var$debug('20 yy_.yytext=', yy_.yytext);
-                    return 32;
-                case 34:
+                    return 37;
+                case 37:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\)\s*$ */ this.popState();
                     $e99c546f9ac18755$var$debug('30 this.matches=', this.matches);
                     $e99c546f9ac18755$var$debug('30 this.matches.length=', this.matches.length);
@@ -10744,7 +10855,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         'RPAREN',
                         'ATTR_TEXT'
                     ];
-                case 35:
+                case 38:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\)\.?\s*(.+)$ */ this.popState();
                     this.pushState('ATTRS_END');
                     $e99c546f9ac18755$var$debug('40 this.matches=', this.matches);
@@ -10756,7 +10867,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         'RPAREN',
                         'ATTR_TEXT'
                     ];
-                case 36:
+                case 39:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\.?\s*$ */ this.popState();
                     $e99c546f9ac18755$var$debug('50 this.matches=', this.matches);
                     $e99c546f9ac18755$var$debug('50 this.matches.length=', this.matches.length);
@@ -10768,16 +10879,16 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     }
                     $e99c546f9ac18755$var$debug('50 yy_.yytext=', yy_.yytext);
                     return 7;
-                case 37:
+                case 40:
                     /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {tag_id} */ this.pushState('AFTER_TAG_NAME');
                     yy_.yytext = this.matches[1].substring(1);
                     return 17;
-                case 38:
+                case 41:
                     /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {classname} */ // yy_.yytext = this.matches[1].substring(1);
                     yy_.yytext = yy_.yytext.substring(1);
                     $e99c546f9ac18755$var$debug('60 yy_.yytext=', yy_.yytext);
                     return 13;
-                case 39:
+                case 42:
                     /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {classname_relaxed} */ // debug('<AFTER_TAG_NAME>{classname_relaxed}')
                     // debug('Object.keys(this).length=', Object.keys(this).length)
                     // debug('Object.keys(this.yy).length=', Object.keys(this.yy).length)
@@ -10788,19 +10899,19 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         return 13;
                     } else throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.');
                     break;
-                case 40:
+                case 43:
                     /*! Conditions:: INITIAL */ /*! Rule::       {space}{2,} */ $e99c546f9ac18755$var$debug('{space}{2,}');
                     return 25;
-                case 41:
+                case 44:
                     /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{space} */ this.pushState('TEXT');
                     $e99c546f9ac18755$var$debug('space space');
                     this.unput(' ');
                     return 25;
-                case 42:
+                case 45:
                     /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{classname} */ this.pushState('ATTRS_END');
                     yy_.yytext = yy_.yytext.substring(1);
                     return 3;
-                case 43:
+                case 46:
                     /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{classname_relaxed} */ $e99c546f9ac18755$var$debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname_relaxed} this.parser.options=', this.parser.options);
                     if (this.yy.parser.options.allowDigitToStartClassName) {
                         this.pushState('ATTRS_END');
@@ -10808,71 +10919,71 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         return 3;
                     } else throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.');
                     break;
-                case 44:
+                case 47:
                     /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME */ /*! Rule::       {space} */ this.pushState('ATTRS_END');
                     $e99c546f9ac18755$var$debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
                     return 25;
-                case 45:
+                case 48:
                     /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       {space} */ this.pushState('ATTRS_END');
                     $e99c546f9ac18755$var$debug('<AFTER_KEYWORD>{space}');
                     return 25;
-                case 46:
+                case 49:
                     /*! Conditions:: ATTRS_END MIXIN_PARAMS_END */ /*! Rule::       {space} */ this.pushState('TEXT');
                     $e99c546f9ac18755$var$debug('<ATTRS_END>{space}');
                     return 25;
-                case 48:
+                case 51:
                     /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME NO_MORE_SPACE */ /*! Rule::       .+ */ // if (yy_.yytext.startsWith(' ') {
                     //   yy_.yytext = yy_.yytext.substring(1);
                     // }
                     $e99c546f9ac18755$var$debug('70 yy_.yytext=', yy_.yytext);
                     return 3;
-                case 49:
+                case 52:
                     /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       .+ */ // if (yy_.yytext.startsWith(' ') {
                     //   yy_.yytext = yy_.yytext.substring(1);
                     // }
                     $e99c546f9ac18755$var$debug('77 yy_.yytext=', yy_.yytext);
                     // this.pushState('BLOCK_BODY_BLOCK')
                     return 3;
-                case 50:
-                    /*! Conditions:: ATTRS_END */ /*! Rule::       ={space} */ this.popState();
+                case 53:
+                    /*! Conditions:: ATTRS_END MIXIN_PARAMS_END */ /*! Rule::       ={space} */ this.popState();
                     this.pushState('ASSIGNMENT_VALUE');
-                    return 35;
-                case 51:
+                    return 40;
+                case 54:
                     /*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       \.\s*$ */ this.popState();
                     return 24;
-                case 52:
+                case 55:
                     /*! Conditions:: ASSIGNMENT_VALUE */ /*! Rule::       .+ */ this.popState();
-                    return 34;
-                case 53:
+                    return 39;
+                case 56:
                     /*! Conditions:: ATTRS_END */ /*! Rule::       .+ */ // yy_.yytext = yy_.yytext.substring(1)
                     $e99c546f9ac18755$var$debug('6 yy_.yytext=', yy_.yytext);
                     return 3;
-                case 54:
+                case 57:
                     /*! Conditions:: UNBUF_CODE_START */ /*! Rule::       {space} */ $e99c546f9ac18755$var$debug('<UNBUF_CODE_START>{space}');
                     return 25;
-                case 56:
+                case 59:
                     /*! Conditions:: MIXIN_CALL_START */ /*! Rule::       {classname} */ yy_.yytext = yy_.yytext.substring(1);
                     return 13;
-                case 57:
+                case 60:
                     /*! Conditions:: MIXIN_CALL_START */ /*! Rule::       {tag_id} */ yy_.yytext = yy_.yytext.substring(1);
                     return 17;
-                case 58:
+                case 61:
                     /*! Conditions:: MIXIN_CALL_START */ /*! Rule::       \( */ ')';
                     this.popState();
                     this.pushState('MIXIN_PARAMS_STARTED');
                     return 10;
-                case 59:
+                case 62:
                     /*! Conditions:: MIXIN_CALL_START */ /*! Rule::       {space}$ */ this.popState();
                     break;
-                case 60:
+                case 63:
                     /*! Conditions:: TEXT */ /*! Rule::       .+ */ $e99c546f9ac18755$var$debug('80 yy_.yytext=', yy_.yytext);
                     return 3;
-                case 61:
+                case 64:
                     /*! Conditions:: MULTI_LINE_ATTRS */ /*! Rule::       ,?(.*)\) */ $e99c546f9ac18755$var$debug('110 this.matches=', this.matches);
                     this.popState();
                     yy_.yytext = this.matches[1];
                     return 6;
-                case 63:
+                case 66:
                     /*! Conditions:: MIXIN_PARAMS_STARTED */ /*! Rule::       \) */ this.popState();
                     this.pushState('MIXIN_PARAMS_END');
                     yy_.yytext = '';
@@ -10880,7 +10991,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         'RPAREN',
                         'MIXIN_PARAMS'
                     ];
-                case 64:
+                case 67:
                     /*! Conditions:: MIXIN_PARAMS_STARTED */ /*! Rule::       (.+)(\)) */ this.popState();
                     this.pushState('MIXIN_PARAMS_END');
                     $e99c546f9ac18755$var$debug('120 this.matches=', this.matches);
@@ -10895,16 +11006,16 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     $e99c546f9ac18755$var$lparenOpen = false;
                     $e99c546f9ac18755$var$debug('120 yy_.yytext=', yy_.yytext);
                     return 11;
-                case 65:
+                case 68:
                     /*! Conditions:: INITIAL */ /*! Rule::       <!--.+--> */ yy_.yytext = yy_.yytext.slice(4, -3);
                     return 8;
-                case 66:
+                case 69:
                     /*! Conditions:: UNBUF_CODE_FOLLOWER */ /*! Rule::       .+ */ this.popState();
                     this.unput(yy_.yytext);
                     break;
-                case 67:
+                case 70:
                     /*! Conditions:: UNBUF_CODE UNBUF_CODE_BLOCK */ /*! Rule::       .+ */ return this.popState();
-                case 68:
+                case 71:
                     /*! Conditions:: MIXIN_CALL */ /*! Rule::       . */ this.popState();
                     this.unput(yy_.yytext);
                     break;
@@ -10913,88 +11024,91 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
             }
         },
         simpleCaseActionClusters: {
-            /*! Conditions:: INITIAL */ /*! Rule::       -{space}*$ */ 10: 9,
-            /*! Conditions:: ATTRS_END */ /*! Rule::       \) */ 28: 12,
-            /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME ATTRS_END */ /*! Rule::       \.\s*$ */ 47: 24,
-            /*! Conditions:: UNBUF_CODE_START */ /*! Rule::       .+ */ 55: 4,
-            /*! Conditions:: MULTI_LINE_ATTRS */ /*! Rule::       .+ */ 62: 7
+            /*! Conditions:: INITIAL */ /*! Rule::       -{space}*$ */ 12: 9,
+            /*! Conditions:: ATTRS_END */ /*! Rule::       \) */ 31: 12,
+            /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME ATTRS_END */ /*! Rule::       \.\s*$ */ 50: 24,
+            /*! Conditions:: UNBUF_CODE_START */ /*! Rule::       .+ */ 58: 4,
+            /*! Conditions:: MULTI_LINE_ATTRS */ /*! Rule::       .+ */ 65: 7
         },
         rules: [
-            /*  0: */ /^(?:#\[((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,
-            /*  1: */ /^(?:((append|block|case|default|doctype|each|else|extends|for|if|include|mixin|prepend|unless|when|while|yield)\b))/i,
-            /*  2: */ /^(?:((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,
-            /*  3: */ /^(?:(script|style))/i,
-            /*  4: */ /^(?:(#[\d\-a-z]+))/i,
-            /*  5: */ /^(?:(\+\s*[a-z]+\b))/i,
-            /*  6: */ /^(?:\})/i,
-            /*  7: */ /^(?:{conditional})/i,
-            /*  8: */ /^(?:\()/i,
-            /*  9: */ /^(?:.+\))/i,
-            /* 10: */ /^(?:-([   -​\u2028\u2029　])*$)/i,
-            /* 11: */ /^(?:-)/i,
-            /* 12: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
-            /* 13: */ /^(?:(\.-?\w+[\w\-]*))/i,
-            /* 14: */ /^(?:\/\/)/i,
-            /* 15: */ /^(?:<[A-Z_]+>)/i,
-            /* 16: */ /^(?:\| )/i,
-            /* 17: */ /^(?:\|\.)/i,
-            /* 18: */ /^(?:\|$)/i,
-            /* 19: */ /^(?:&attributes\([^)]+\))/i,
-            /* 20: */ /^(?:(#\{.+\}))/i,
-            /* 21: */ /^(?:.+)/i,
-            /* 22: */ /^(?:(#\{))/i,
-            /* 23: */ /^(?:<\/.+)/i,
-            /* 24: */ /^(?:= )/i,
-            /* 25: */ /^(?:: )/i,
-            /* 26: */ /^(?:(:[\d\-a-z]+\b))/i,
-            /* 27: */ /^(?:\()/i,
-            /* 28: */ /^(?:\))/i,
-            /* 29: */ /^(?:\))/i,
-            /* 30: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
-            /* 31: */ /^(?:(\.-?\w+[\w\-]*))/i,
-            /* 32: */ /^(?:(\(.+|.+\().+)/i,
-            /* 33: */ /^(?:([^)]+)(\))(?!\s*\..+\)))/i,
-            /* 34: */ /^(?:(.+)\)\s*$)/i,
-            /* 35: */ /^(?:(.+)\)\.?\s*(.+)$)/i,
-            /* 36: */ /^(?:(.+)\.?\s*$)/i,
-            /* 37: */ /^(?:(#[\d\-a-z]+))/i,
-            /* 38: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
-            /* 39: */ /^(?:(\.-?\w+[\w\-]*))/i,
-            /* 40: */ /^(?:([   -​\u2028\u2029　]){2,})/i,
-            /* 41: */ /^(?:([   -​\u2028\u2029　])([   -​\u2028\u2029　]))/i,
-            /* 42: */ /^(?:([   -​\u2028\u2029　])(\.-?[^\W\d]+[\w\-]*))/i,
-            /* 43: */ /^(?:([   -​\u2028\u2029　])(\.-?\w+[\w\-]*))/i,
-            /* 44: */ /^(?:([   -​\u2028\u2029　]))/i,
-            /* 45: */ /^(?:([   -​\u2028\u2029　]))/i,
-            /* 46: */ /^(?:([   -​\u2028\u2029　]))/i,
-            /* 47: */ /^(?:\.\s*$)/i,
-            /* 48: */ /^(?:.+)/i,
-            /* 49: */ /^(?:.+)/i,
-            /* 50: */ /^(?:=([   -​\u2028\u2029　]))/i,
-            /* 51: */ /^(?:\.\s*$)/i,
+            /*  0: */ /^(?:((?<!\\)(#\{)([^}]+)(\})))/i,
+            /*  1: */ /^(?:((?<!\\)(!\{)([^}]+)(\})))/i,
+            /*  2: */ /^(?:((?<!\\)(#\[)(\w+)(?:\(([^\n)]*)\))?\s(.*?)(\])))/i,
+            /*  3: */ /^(?:((append|block|case|default|doctype|each|else|extends|for|if|include|mixin|prepend|unless|when|while|yield)\b))/i,
+            /*  4: */ /^(?:((a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b))/i,
+            /*  5: */ /^(?:(script|style))/i,
+            /*  6: */ /^(?:(#[\d\-a-z]+))/i,
+            /*  7: */ /^(?:(\+\s*[a-z]+\b))/i,
+            /*  8: */ /^(?:\})/i,
+            /*  9: */ /^(?:{conditional})/i,
+            /* 10: */ /^(?:\()/i,
+            /* 11: */ /^(?:.+\))/i,
+            /* 12: */ /^(?:-([   -​\u2028\u2029　])*$)/i,
+            /* 13: */ /^(?:-)/i,
+            /* 14: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+            /* 15: */ /^(?:(\.-?\w+[\w\-]*))/i,
+            /* 16: */ /^(?:\/\/)/i,
+            /* 17: */ /^(?:<[A-Z_]+>)/i,
+            /* 18: */ /^(?:\| )/i,
+            /* 19: */ /^(?:\|\.)/i,
+            /* 20: */ /^(?:\|$)/i,
+            /* 21: */ /^(?:&attributes\([^)]+\))/i,
+            /* 22: */ /^(?:{interpolation})/i,
+            /* 23: */ /^(?:{interpolation}.+)/i,
+            /* 24: */ /^(?:.+)/i,
+            /* 25: */ /^(?:{interpolation_start})/i,
+            /* 26: */ /^(?:<\/.+)/i,
+            /* 27: */ /^(?:= )/i,
+            /* 28: */ /^(?:: )/i,
+            /* 29: */ /^(?:(:[\d\-a-z]+\b))/i,
+            /* 30: */ /^(?:\()/i,
+            /* 31: */ /^(?:\))/i,
+            /* 32: */ /^(?:\))/i,
+            /* 33: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+            /* 34: */ /^(?:(\.-?\w+[\w\-]*))/i,
+            /* 35: */ /^(?:(\(.+|.+\().+)/i,
+            /* 36: */ /^(?:([^)]+)(\))(?!\s*\..+\)))/i,
+            /* 37: */ /^(?:(.+)\)\s*$)/i,
+            /* 38: */ /^(?:(.+)\)\.?\s*(.+)$)/i,
+            /* 39: */ /^(?:(.+)\.?\s*$)/i,
+            /* 40: */ /^(?:(#[\d\-a-z]+))/i,
+            /* 41: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+            /* 42: */ /^(?:(\.-?\w+[\w\-]*))/i,
+            /* 43: */ /^(?:([   -​\u2028\u2029　]){2,})/i,
+            /* 44: */ /^(?:([   -​\u2028\u2029　])([   -​\u2028\u2029　]))/i,
+            /* 45: */ /^(?:([   -​\u2028\u2029　])(\.-?[^\W\d]+[\w\-]*))/i,
+            /* 46: */ /^(?:([   -​\u2028\u2029　])(\.-?\w+[\w\-]*))/i,
+            /* 47: */ /^(?:([   -​\u2028\u2029　]))/i,
+            /* 48: */ /^(?:([   -​\u2028\u2029　]))/i,
+            /* 49: */ /^(?:([   -​\u2028\u2029　]))/i,
+            /* 50: */ /^(?:\.\s*$)/i,
+            /* 51: */ /^(?:.+)/i,
             /* 52: */ /^(?:.+)/i,
-            /* 53: */ /^(?:.+)/i,
-            /* 54: */ /^(?:([   -​\u2028\u2029　]))/i,
+            /* 53: */ /^(?:=([   -​\u2028\u2029　]))/i,
+            /* 54: */ /^(?:\.\s*$)/i,
             /* 55: */ /^(?:.+)/i,
-            /* 56: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
-            /* 57: */ /^(?:(#[\d\-a-z]+))/i,
-            /* 58: */ /^(?:\()/i,
-            /* 59: */ /^(?:([   -​\u2028\u2029　])$)/i,
-            /* 60: */ /^(?:.+)/i,
-            /* 61: */ /^(?:,?(.*)\))/i,
-            /* 62: */ /^(?:.+)/i,
-            /* 63: */ /^(?:\))/i,
-            /* 64: */ /^(?:(.+)(\)))/i,
-            /* 65: */ /^(?:<!--.+-->)/i,
-            /* 66: */ /^(?:.+)/i,
-            /* 67: */ /^(?:.+)/i,
-            /* 68: */ /^(?:.)/i
+            /* 56: */ /^(?:.+)/i,
+            /* 57: */ /^(?:([   -​\u2028\u2029　]))/i,
+            /* 58: */ /^(?:.+)/i,
+            /* 59: */ /^(?:(\.-?[^\W\d]+[\w\-]*))/i,
+            /* 60: */ /^(?:(#[\d\-a-z]+))/i,
+            /* 61: */ /^(?:\()/i,
+            /* 62: */ /^(?:([   -​\u2028\u2029　])$)/i,
+            /* 63: */ /^(?:.+)/i,
+            /* 64: */ /^(?:,?(.*)\))/i,
+            /* 65: */ /^(?:.+)/i,
+            /* 66: */ /^(?:\))/i,
+            /* 67: */ /^(?:(.+)(\)))/i,
+            /* 68: */ /^(?:<!--.+-->)/i,
+            /* 69: */ /^(?:.+)/i,
+            /* 70: */ /^(?:.+)/i,
+            /* 71: */ /^(?:.)/i
         ],
         conditions: {
             'TEXT': {
                 rules: [
-                    16,
-                    60
+                    18,
+                    63
                 ],
                 inclusive: false
             },
@@ -11004,29 +11118,29 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
             },
             'AFTER_TAG_NAME': {
                 rules: [
-                    19,
-                    24,
-                    25,
+                    21,
                     27,
-                    37,
-                    38,
-                    39,
+                    28,
+                    30,
+                    40,
                     41,
                     42,
-                    43,
                     44,
+                    45,
+                    46,
                     47,
-                    48
+                    50,
+                    51
                 ],
                 inclusive: false
             },
             'ATTRS_STARTED': {
                 rules: [
-                    32,
-                    33,
-                    34,
                     35,
-                    36
+                    36,
+                    37,
+                    38,
+                    39
                 ],
                 inclusive: false
             },
@@ -11036,31 +11150,34 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
             },
             'MIXIN_CALL': {
                 rules: [
-                    68
+                    71
                 ],
                 inclusive: false
             },
             'MIXIN_CALL_START': {
                 rules: [
-                    19,
-                    56,
-                    57,
-                    58,
-                    59
+                    21,
+                    59,
+                    60,
+                    61,
+                    62
                 ],
                 inclusive: false
             },
             'ATTRS_END': {
                 rules: [
-                    19,
-                    28,
-                    30,
+                    0,
+                    1,
+                    2,
+                    21,
                     31,
-                    46,
-                    47,
+                    33,
+                    34,
+                    49,
                     50,
-                    51,
-                    53
+                    53,
+                    54,
+                    56
                 ],
                 inclusive: true
             },
@@ -11070,15 +11187,15 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
             },
             'UNBUF_CODE': {
                 rules: [
-                    11,
-                    67
+                    13,
+                    70
                 ],
                 inclusive: false
             },
             'MULTI_LINE_ATTRS': {
                 rules: [
-                    61,
-                    62
+                    64,
+                    65
                 ],
                 inclusive: false
             },
@@ -11088,49 +11205,49 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
             },
             'AFTER_ATTRS': {
                 rules: [
-                    25
+                    28
                 ],
                 inclusive: false
             },
             'AFTER_TEXT_TAG_NAME': {
                 rules: [
-                    27,
-                    41,
-                    42,
-                    43,
+                    30,
                     44,
+                    45,
+                    46,
                     47,
-                    48
+                    50,
+                    51
                 ],
                 inclusive: false
             },
             'AFTER_KEYWORD': {
                 rules: [
-                    26,
-                    41,
-                    42,
-                    43,
+                    29,
+                    44,
                     45,
-                    49
+                    46,
+                    48,
+                    52
                 ],
                 inclusive: false
             },
             'NO_MORE_SPACE': {
                 rules: [
-                    48
+                    51
                 ],
                 inclusive: false
             },
             'ASSIGNMENT_VALUE': {
                 rules: [
-                    52
+                    55
                 ],
                 inclusive: false
             },
             'COND_START': {
                 rules: [
-                    8,
-                    9
+                    10,
+                    11
                 ],
                 inclusive: false
             },
@@ -11140,8 +11257,8 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
             },
             'MIXIN_PARAMS_STARTED': {
                 rules: [
-                    63,
-                    64
+                    66,
+                    67
                 ],
                 inclusive: false
             },
@@ -11151,27 +11268,28 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
             },
             'INTERPOLATION': {
                 rules: [
-                    21
+                    24
                 ],
                 inclusive: false
             },
             'MIXIN_PARAMS_END': {
                 rules: [
-                    29,
-                    46
+                    32,
+                    49,
+                    53
                 ],
                 inclusive: false
             },
             'UNBUF_CODE_START': {
                 rules: [
-                    54,
-                    55
+                    57,
+                    58
                 ],
                 inclusive: false
             },
             'UNBUF_CODE_BLOCK': {
                 rules: [
-                    67
+                    70
                 ],
                 inclusive: false
             },
@@ -11185,8 +11303,8 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     5,
                     6,
                     7,
-                    10,
-                    11,
+                    8,
+                    9,
                     12,
                     13,
                     14,
@@ -11196,19 +11314,22 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     18,
                     19,
                     20,
+                    21,
                     22,
                     23,
-                    30,
-                    31,
-                    40,
-                    51,
-                    65
+                    25,
+                    26,
+                    33,
+                    34,
+                    43,
+                    54,
+                    68
                 ],
                 inclusive: true
             },
             'UNBUF_CODE_FOLLOWER': {
                 rules: [
-                    66
+                    69
                 ],
                 inclusive: false
             }
@@ -11258,7 +11379,11 @@ function $e99c546f9ac18755$var$merge(obj, src) {
     // if (util.isDeepStrictEqual(src, [ { therest: '' } ]))
     //    return obj
     if (obj.type != 'text' && Object.keys(src).length == 1 && Object.keys(src)[0] == 'children' && src.children.length == 1 && src.children[0].hasOwnProperty('type') && src.children[0].type == 'text') return Object.assign(obj, {
-        val: src.children[0].val
+        val: $e99c546f9ac18755$var$quote(src.children[0].val)
+    });
+    // { type: 'include', filter: 'markdown-it' } { type: 'text', val: 'article.md' }
+    if (obj.type === 'include' && src.type === 'text') return Object.assign(obj, {
+        file: src.val
     });
     // function convertClassAttr(key, obj) {
     //   let ret

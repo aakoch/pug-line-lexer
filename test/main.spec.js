@@ -43,11 +43,26 @@ const TEXT_TAGS_ALLOW_SUB_TAGS = true
     compareFunc.call({}, actual, expected)
   }
 
-// test(`+baz()= '123'`, { )
+// TODO: this at the beginning of a line isn't working:
+test('#[strong foo]', { type: 'tag', name: 'strong', val: 'foo' } )
+test('#[q(lang="es") ¡Hola Mundo!]', { type: 'tag', name: 'q', val: '¡Hola Mundo!', attrs: [{name: 'lang', val: '"es"'}] } )
+
+// Filters
+test('include:markdown-it article.md', { type: 'include', file: 'article.md', filter: 'markdown-it' })
+// test(':cdata', { type: 'filter', val: 'cdata' })
+
+test(`+baz()= '123'`,{
+  type: 'mixin_call',
+  name: 'baz',
+  state: 'MIXIN_CALL',
+  params: '',
+  assignment: true,
+  val: "'123'"
+} )
 
 test('block append head', { type: 'block', val: 'append head' })
 
-test("<INTERPOLATION>'foo'", { type: 'text', val: "foo" } )
+test("<INTERPOLATION>'foo'", { type: 'text', val: 'foo' } )
 
 try {
   test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: false })
@@ -87,10 +102,25 @@ test(`p.bar&attributes(attributes) One`, {
   val: 'One'
 })
 
+test(`p.baz.quux&attributes(attributes) Two`, {
+  name: 'p',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"baz"' }, { name: 'class', val: '"quux"' }, { val: 'attributes' } ],
+  val: 'Two'
+})
+test(`p&attributes(attributes) Three`, {
+  name: 'p',
+  type: 'tag',
+  attrs: [ { val: 'attributes' } ],
+  val: 'Three'
+})
 // TODO
-test(`p.baz.quux&attributes(attributes) Two`, {})
-// test(`p&attributes(attributes) Three`, {})
-// test(`p.bar&attributes(attributes)(class="baz") Four`, {})
+test(`p.bar&attributes(attributes)(class="baz") Four`, {
+  name: 'p',
+  type: 'tag',
+  attrs: [ { name: 'class', val: '"bar"' }, { val: 'attributes' }, { name: 'class', val: '"baz"' } ],
+  val: 'Four'
+})
 
 // The next bunch tests "- Attributes"
 // Tests include: mixin.merge.pug
@@ -111,7 +141,7 @@ test(`+foo.hello(class="world")`, {
   params: 'class="world"',
   attrs: [ { name: 'class', val: '"hello"' } ]
 })
-test(`+foo&attributes({class: "hello"})`, { type: 'mixin_call', name: 'foo', attrs: [ { name: 'class', val: 'hello' } ], state: 'MIXIN_CALL' })
+test(`+foo&attributes({class: "hello"})`, { type: 'mixin_call', name: 'foo', attrs: [ { name: 'class', val: '"hello"' } ], state: 'MIXIN_CALL' })
 
 test("a.rho(href='#', class='rho--modifier')", {
   name: 'a',
@@ -197,7 +227,6 @@ test('span &boxv;', { type: 'tag', name: 'span', val: '&boxv;'})
 //   children: [ { type: 'text', val: '&boxv;' } ]
 // })
 
-test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it' })
 test('span.hljs-section )', {
   name: 'span',
   type: 'tag',
@@ -211,14 +240,25 @@ test("#{'foo'}(bar='baz') /", {
       val: "'baz'"
     }
   ],
-  name: "foo",
-  type: 'tag',
+  name: "'foo'",
+  type: 'escaped_text',
+  val: '/'
+})
+test("!{'foo'}(bar='baz') /", {
+  attrs: [
+    {
+      name: 'bar',
+      val: "'baz'"
+    }
+  ],
+  name: "'foo'",
+  type: 'unescaped_text',
   val: '/'
 })
 
 test('li= item', {
   assignment: true,
-  assignment_val: 'item',
+  val: 'item',
   name: 'li',
   type: 'tag'
 })
@@ -293,7 +333,7 @@ test('+sensitive ', {
 
 test('a(href=url)= url', {
   assignment: true,
-  assignment_val: 'url',
+  val: 'url',
   attrs: [
     { name: 'href', val: 'url' }
   ],
@@ -461,7 +501,7 @@ test('doctype html', { type: 'doctype', val: 'html' })
 test("html(lang='en-US')", {"type":"tag","name":"html","attrs":[{name:"lang", val: "'en-US'"}]})
 
 // test("include something", { type: 'include_directive', params: 'something' })
-test('include something', { type: 'include', val: 'something' })
+test('include something', { type: 'include', file: 'something' })
 
 // test("block here", { type: 'directive', name: 'block', params: 'here' })
 test("block here", { type: 'block', val: 'here' })
