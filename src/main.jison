@@ -10,7 +10,7 @@
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
-keyword             (append|block|case|default|doctype|each|else|extends|for|if|include|mixin|prepend|unless|when|while|yield)\b
+keyword             (append|block|case|default|doctype|each|else|extend|extends|for|if|include|mixin|prepend|unless|when|while|yield)\b
 filter              \:[a-z0-9-]+\b
 
 // classname               \.[a-z0-9-]+
@@ -186,10 +186,15 @@ else {
     throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.')
   }
 %}
-<INITIAL>"//"             
+<INITIAL>'//-'             
 %{
   this.pushState('TEXT');
                                           return 'COMMENT';
+%}
+<INITIAL>'//'             
+%{
+  this.pushState('TEXT');
+                                          return 'COMMENT_HTML';
 %}
 <INITIAL>'<'[A-Z_]+'>'
 %{
@@ -835,6 +840,26 @@ line
       $$ = merge($line_start, [$line_splitter, $line_end])
     }
   }
+  // TODO: Solely for "li #{key}: #{val}" for now
+  | line_start line_splitter ESCAPED_TEXT_INTERPOLATION NESTED_TAG_START ESCAPED_TEXT_INTERPOLATION
+  {
+    debug('line: line_start line_splitter ESCAPED_TEXT_INTERPOLATION? NESTED_TAG_START? ESCAPED_TEXT_INTERPOLATION?: $line_start=', $line_start, ', $2=', $2, ', $3=', $3, ', $4=', $4, ', $5=', $5)
+    let interpArr = []
+    if ($3) {
+      interpArr.push('#{')
+      interpArr.push($3)
+      interpArr.push('}')
+    }
+    if ($4) {
+      interpArr.push($4)
+    }
+    if ($5) {
+      interpArr.push('#{')
+      interpArr.push($5)
+      interpArr.push('}')
+    }
+    $$ = merge($line_start, { val: interpArr.join('') })
+  }
   | line_start NESTED_TAG_START line
   {
     $$ = merge($line_start, { state: 'NESTED', children: [$line] })
@@ -901,6 +926,7 @@ line
   {
     $$ = { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK_START' }
   }
+  // | line_part+
   ;
 
 line_start
@@ -977,52 +1003,13 @@ line_start
 
     $$ = merge($first_token, { attrs: attrArr1 })
   }
-
-  // // Rule for the edgecase p.bar&attributes(attributes)(class="baz") Four
-  // | first_token AT_ATTRS attrs
-  // {
-  //   debug('first_token attrs AT_ATTRS: first_token=', $first_token, ', $attrs=', $attrs, ', AT_ATTRS=', $AT_ATTRS)
-  //   let attrArr2 = $attrs.attrs
-  //   debug('1 attrArr2=', attrArr2)
-  //   let atAttrObj2 = Function('return ' + $AT_ATTRS.slice(12, -1))();
-  //   debug('2 atAttrObj2=', atAttrObj2)
-
-  //   var atAttrObj2ToArray = Object.entries(atAttrObj2).map(([name, val]) => ({name,val}));
-  //   debug('3 atAttrObj2ToArray=', atAttrObj2ToArray)
-  //   attrArr2 = attrArr2.concat(atAttrObj2ToArray)
-  //   debug('4 attrArr1=', attrArr1)
-
-  //   $$ = merge($first_token, { attrs: attrArr2 })
-  // }
-  // | ATTR_TEXT
-  // {
-  //   debug('line_start: ATTR_TEXT')
-  //   $$ = { type: 'attrs_cont', attrs_start: parseAttrs.parse($ATTR_TEXT) }
-  // }
   | first_token LPAREN MIXIN_PARAMS RPAREN
   {
     debug('first_token LPAREN MIXIN_PARAMS RPAREN: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS)
     $$ = merge($first_token, { params: $MIXIN_PARAMS })
   }
-  // | first_token tag_part AT_ATTRS
-  // {
-  //   debug('line:_start first_token tag_part AT_ATTRS=', $AT_ATTRS)
-  //   if ($AT_ATTRS.includes('{') && $AT_ATTRS.includes('}')) {
-  //     let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
-  //     let entries2 = Object.entries(func())
-  //     debug('entries2=', entries2)
-  //     let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
-  //       debug('name=', key, 'value=', value)
-  //       return { name: key, val: value }
-  //     })
-  //     $$ = merge($first_token, { type: 'tag', attrs: attrs2 })
-  //   }
-  //   else {
-  //     $$ = merge($first_token, 
-  //       { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
-  //     )
-  //   }
-  // }
+
+  // | first_token ESCAPED_TEXT_INTERPOLATION
   ;
 
 first_token
@@ -1054,13 +1041,25 @@ first_token
   }
   | COMMENT
   {
-    if ($COMMENT[0] == '-') {
+    debug('first_token: COMMENT: $COMMENT=', $COMMENT)
+    // if ($COMMENT == '//-') {
       $$ = { type: 'comment', state: 'TEXT_START' }
-    }
-    else {
-      $$ = { type: 'html_comment', state: 'TEXT_START' }
-    }
+    // }
+    // else {
+      // $$ = { type: 'html_comment', state: 'TEXT_BLOCK_START' }
+    // }
   }
+  | COMMENT_HTML
+  {
+    debug('first_token: COMMENT_HTML: $COMMENT_HTML=', $COMMENT_HTML)
+    // if ($COMMENT_HTML == '//-') {
+    //   $$ = { type: 'comment', state: 'TEXT_START' }
+    // }
+    // else {
+      $$ = { type: 'html_comment', state: 'TEXT_START' }
+    // }
+  }
+  
   // | UNBUF_CODE_START
   // {
   //   debug('CODE_START')
@@ -1299,6 +1298,16 @@ line_end
     $$ = { type: 'text', val: $RPAREN }
   }
   ;
+
+// line_part
+//   : ESCAPED_TEXT_INTERPOLATION
+//   {
+//     $$ = { type: 'text', val: $ESCAPED_TEXT_INTERPOLATION }
+//   }
+//   | NESTED_TAG_START
+//   | first_token
+//   | tag_part
+//   ;
 
 line_splitter
   : SPACE

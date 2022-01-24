@@ -43,7 +43,9 @@ const TEXT_TAGS_ALLOW_SUB_TAGS = true
     compareFunc.call({}, actual, expected)
   }
 
-// TODO: this at the beginning of a line isn't working:
+// TODO: 
+test('li #{key}: #{val}', { type: 'tag', name: 'li', val: '#{key}: #{val}' })
+
 test('#[strong foo]', { type: 'tag', name: 'strong', val: 'foo' } )
 test('#[q(lang="es") ¡Hola Mundo!]', { type: 'tag', name: 'q', val: '¡Hola Mundo!', attrs: [{name: 'lang', val: '"es"'}] } )
 
@@ -521,10 +523,10 @@ if (!TEXT_TAGS_ALLOW_SUB_TAGS)
   test("script test", {"type":"tag","name":"script","state":"TEXT_START","val":"test"})
 test(".classname", { type: 'tag', attrs: [ { name: 'class', val: '"classname"' } ] })
 
-//test("// some text", { type: 'comment', state: 'TEXT_START' })
+test("//- some text", { type: 'comment', state: 'TEXT_START', val: ' some text' })
 test("// some text", { type: 'html_comment', state: 'TEXT_START', val: ' some text' })
 
-// test("// ", { type: 'comment', state: 'TEXT_START' })
+test("//- ", { type: 'comment', state: 'TEXT_START', val: ' ' })
 test("// ", { type: 'html_comment', val: ' ', state: 'TEXT_START' })
 
 test("//", { type: 'html_comment', state: 'TEXT_START' })
