@@ -43,7 +43,90 @@ const TEXT_TAGS_ALLOW_SUB_TAGS = true
     compareFunc.call({}, actual, expected)
   }
 
-// TODO: 
+test('<UNBUF_CODE_BLOCK>list = ["uno", "dos", "tres",', {
+  type: 'unbuf_code',
+  val: 'list = ["uno", "dos", "tres",',
+  state: 'UNBUF_CODE_BLOCK'
+})
+
+test('li #{n}', {
+  name: 'li',
+  type: 'tag',
+  val: 'n'
+})
+
+// filters-empty.pug:
+test(':cdata', {filter: 'cdata'})
+
+test(`:custom(opt='val' num=2)`, {
+  attrs: [
+    {
+      name: 'opt',
+      val: "'val'"
+    },
+    {
+      name: 'num',
+      val: '2'
+    }
+  ],
+  filter: 'custom'
+})
+
+test(':cdata inside', {
+  filter: 'cdata',
+  type: 'text',
+  val: 'inside'
+})
+test(':markdown', {filter: 'markdown'})
+test('+centered#First Hello World', {
+  id: 'First',
+  name: 'centered',
+  state: 'MIXIN_CALL',
+  type: 'mixin_call',
+  val: 'Hello World'
+})
+test(`+article('Foo'): p I'm article foo`, {
+  children: [
+    {
+      name: 'p',
+      type: 'tag',
+      val: "I'm article foo"
+    }
+  ],
+  name: 'article',
+  params: "'Foo'",
+  state: 'MIXIN_CALLNESTED',
+  type: 'mixin_call'
+})
+
+test(`+comment('This',`, {
+  name: 'comment',
+  params: "'This',",
+  state: 'MIXIN_CALL_START',
+  type: 'mixin_call'
+})
+
+// TODO:
+test(`<MIXIN_CALL_START>(('is regular, javascript')))`, {})
+
+// TODO:
+test(`+article('Something').`, {})
+
+// TODO:
+test(`<MIXIN_CALL>+centered('Section 1')#Second`, {})
+
+test(':markdown-it', {filter: 'markdown-it'})
+
+// tags.self-closing.pug
+//   #{
+//   'foo'
+//   }/
+// test('#{', {})
+
+// non-HTML tags not yet supported
+// xml.pug
+// test(`category(term='some term')/`, {})
+
 test('li #{key}: #{val}', { type: 'tag', name: 'li', val: '#{key}: #{val}' })
 
 test('#[strong foo]', { type: 'tag', name: 'strong', val: 'foo' } )
@@ -70,7 +153,7 @@ try {
   test('a.3foo', { name: 'a', type: 'tag', attrs: [ { name: 'class', val: '"3foo"' } ] }, null, { allowDigitToStartClassName: false })
 //   fail('Should not allow for a class name to start with a digit')
 } catch (e) {
-  if (e.message != 'Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.') {
+  if (e.message != 'Classnames starting with a digit are not allowed. Set allowDigitToStartClassName to true to allow.') {
     throw e;
   }
 }
@@ -424,8 +507,8 @@ test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
 
 test('foo(abc', {type: 'tag', name: 'foo', attrs_start: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
 test('foo(abc,', {type: 'tag', name: 'foo', attrs_start: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_end', val: [ { name: 'def' } ] })
-test('<MULTI_LINE_ATTRS>def)', { type: 'attrs_end', val: [ { name: 'def' } ] })
+test('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_end', val: [ { name: 'def' } ], state: 'MULTI_LINE_ATTRS_END' })
+test('<MULTI_LINE_ATTRS>def)', { type: 'attrs_end', val: [ { name: 'def' } ], state: 'MULTI_LINE_ATTRS_END' })
 
 test('span(', {type: 'tag', name: 'span', state: 'MULTI_LINE_ATTRS'})
 test('<MULTI_LINE_ATTRS>v-for="item in items"', {
@@ -443,7 +526,7 @@ test('<MULTI_LINE_ATTRS>:value="item.name"', {
   val: [ { name: ':value', val: '"item.name"' } ],
   state: 'MULTI_LINE_ATTRS'
 })
-test('<MULTI_LINE_ATTRS>)', { type: 'attrs_end', val: '' })
+test('<MULTI_LINE_ATTRS>)', { type: 'attrs_end', val: '', state: 'MULTI_LINE_ATTRS_END'})
 test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
   name: 'a',
   type: 'tag',

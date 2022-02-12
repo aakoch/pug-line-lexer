@@ -87,6 +87,12 @@ tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])
   this.pushState('AFTER_TAG_NAME');
                                           return 'TAG';
 %}
+// <INITIAL>('script'|'style')(?:\.\s*<<EOF>>)
+// %{
+//   debug("*".repeat(20))
+//   this.pushState('AFTER_TEXT_TAG_NAME');
+//                                           return 'TEXT_TAG';
+// %}
 <INITIAL>('script'|'style')
 %{
 if (TEXT_TAGS_ALLOW_SUB_TAGS) {
@@ -98,8 +104,9 @@ else {
                                           return 'TEXT_TAG';
 }
 %}
-<INITIAL>{tag_id}
+<INITIAL,MIXIN_CALL_START>{tag_id}
 %{
+  this.popState();
   this.pushState('AFTER_TAG_NAME');
   yytext = yytext.substring(1);
                                           return 'TAG_ID';
@@ -183,7 +190,7 @@ else {
                                           return 'CLASSNAME';
   }
   else {
-    throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.')
+    throw new Error('Classnames starting with a digit are not allowed. Set allowDigitToStartClassName to true to allow.')
   }
 %}
 <INITIAL>'//-'             
@@ -274,12 +281,18 @@ else {
   this.pushState('ASSIGNMENT_VALUE');
                                           return 'ASSIGNMENT';
 %}
-<AFTER_TAG_NAME,AFTER_ATTRS>': '
+<AFTER_TAG_NAME,AFTER_ATTRS,AFTER_MIXIN_CALL>': '
 %{
   this.popState();
                                           return 'NESTED_TAG_START';
 %}
 
+<INITIAL>{filter}
+%{
+  yytext = yytext.substring(1)
+  this.pushState('AFTER_TAG_NAME');
+                                          return 'FILTER';
+%}
 <AFTER_KEYWORD>{filter}
 %{
   yytext = yytext.substring(1)
@@ -317,7 +330,7 @@ else {
                                           return 'CLASSNAME';
   }
   else {
-    throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.')
+    throw new Error('Classnames starting with a digit are not allowed. Set allowDigitToStartClassName to true to allow.')
   }
 %}
 
@@ -500,7 +513,7 @@ else {
                                           return 'CLASSNAME';
   }
   else {
-    throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.')
+    throw new Error('Classnames starting with a digit are not allowed. Set allowDigitToStartClassName to true to allow.')
   }
 %}
 <INITIAL>{space}{2,}
@@ -534,7 +547,7 @@ else {
                                           return 'TEXT';
   }
   else {
-    throw new Error('Classnames starting with a digit is not allowed. Set allowDigitToStartClassName to true to allow.')
+    throw new Error('Classnames starting with a digit are not allowed. Set allowDigitToStartClassName to true to allow.')
   }
 %}
 
@@ -651,6 +664,12 @@ else {
 %{
   this.popState();
 %}
+<MIXIN_PARAMS_END>':'{space}?
+%{
+  debug('75 yytext=', yytext)
+  this.popState()
+                                          return 'NESTED_TAG_START'
+%}
 
 // removed "[^{space}]" from the beginning because of COMMENT
 <TEXT>.+
@@ -738,24 +757,24 @@ else {
 //                                           return ['RPAREN', 'MIXIN_PARAMS'];
 // %}
 
-// // Can mixin parameters span lines?
-// <MIXIN_PARAMS_STARTED>(.+)\.?\s*<<EOF>>
-// %{
-//   this.popState()
-//   debug('150 this.matches=', this.matches)
-//   debug('150 this.matches.length=', this.matches.length)
-//   debug('150 yytext=', yytext)
-//   try {
-//     if (this.matches.length > 1) {    
-//       yytext = this.matches[1]
-//     }
-//   }
-//   catch (e) {
-//     console.error(e)
-//   }
-//   debug('150 yytext=', yytext)
-//                                           return 'MIXIN_PARAMS_CONT';
-// %}
+// Can mixin parameters span lines? Yes
+<MIXIN_PARAMS_STARTED>(.+)\.?\s*<<EOF>>
+%{
+  this.popState()
+  debug('150 this.matches=', this.matches)
+  debug('150 this.matches.length=', this.matches.length)
+  debug('150 yytext=', yytext)
+  try {
+    if (this.matches.length > 1) {    
+      yytext = this.matches[1]
+    }
+  }
+  catch (e) {
+    console.error(e)
+  }
+  debug('150 yytext=', yytext)
+                                          return 'MIXIN_PARAMS_START';
+%}
 
 <INITIAL>'<!--'.+'-->'
 %{
@@ -840,10 +859,16 @@ line
       $$ = merge($line_start, [$line_splitter, $line_end])
     }
   }
+  // TODO: Solely for "li #{key}" for now
+  | line_start line_splitter ESCAPED_TEXT_INTERPOLATION
+  {
+    debug('line: line_start line_splitter ESCAPED_TEXT_INTERPOLATION: $line_start=', $line_start, ', $2=', $2, ', $3=', $3)
+    $$ = merge($line_start, { val: $3 })
+  }
   // TODO: Solely for "li #{key}: #{val}" for now
   | line_start line_splitter ESCAPED_TEXT_INTERPOLATION NESTED_TAG_START ESCAPED_TEXT_INTERPOLATION
   {
-    debug('line: line_start line_splitter ESCAPED_TEXT_INTERPOLATION? NESTED_TAG_START? ESCAPED_TEXT_INTERPOLATION?: $line_start=', $line_start, ', $2=', $2, ', $3=', $3, ', $4=', $4, ', $5=', $5)
+    debug('line: line_start line_splitter ESCAPED_TEXT_INTERPOLATION NESTED_TAG_START ESCAPED_TEXT_INTERPOLATION: $line_start=', $line_start, ', $2=', $2, ', $3=', $3, ', $4=', $4, ', $5=', $5)
     let interpArr = []
     if ($3) {
       interpArr.push('#{')
@@ -866,7 +891,7 @@ line
   }
   | ATTR_TEXT_END
   {
-    $$ = { type: 'attrs_end', val: parseAttrs.parse($ATTR_TEXT_END) }
+    $$ = { type: 'attrs_end', val: parseAttrs.parse($ATTR_TEXT_END), state: 'MULTI_LINE_ATTRS_END' }
   }
   | ATTR_TEXT_CONT
   {
@@ -931,15 +956,19 @@ line
 
 line_start
   : first_token
+  | tag_part
+  {
+    debug('line_start: tag_part')
+  }
   | first_token tag_part+
   {
     debug('line_start: first_token tag_part+')
     $$ = merge($first_token, $2)
   }
-  | first_token attrs
+  | line_start attrs
   {
-    debug('line_start: first_token attrs')
-    $$ = merge($first_token, $attrs)
+    debug('line_start: line_start attrs')
+    $$ = merge($line_start, $attrs)
   }
   | first_token LPAREN ATTR_TEXT_CONT?
   {
@@ -1008,6 +1037,11 @@ line_start
     debug('first_token LPAREN MIXIN_PARAMS RPAREN: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS)
     $$ = merge($first_token, { params: $MIXIN_PARAMS })
   }
+  | first_token LPAREN MIXIN_PARAMS_START
+  {
+    debug('first_token LPAREN MIXIN_PARAMS_START: first_token=', $first_token, ', MIXIN_PARAMS_START=', $MIXIN_PARAMS_START)
+    $$ = merge($first_token, { params: $MIXIN_PARAMS_START, state: '_START' })
+  }
 
   // | first_token ESCAPED_TEXT_INTERPOLATION
   ;
@@ -1075,7 +1109,7 @@ first_token
   }
   | MIXIN_CALL
   {
-    debug('first_token MIXIN_CALL, $MIXIN_CALL=', $1)
+    debug('first_token MIXIN_CALL: $MIXIN_CALL=', $1)
     $$ = { type: 'mixin_call', name: $1.trim(), state: 'MIXIN_CALL' }
   }
   | KEYWORD
@@ -1188,7 +1222,8 @@ tag_part
   // }
   | FILTER
   {
-    $$ = { filter: $FILTER }
+    // TODO: Filters evidently don't need a "dot" at the end or pipes. Probably treat the same as text tag
+    $$ = { filter: $FILTER, state: 'TEXT_START' }
   }
   | AT_ATTRS
   {
@@ -1330,7 +1365,7 @@ line_splitter
 %% 
 __module_imports__
 
-const TEXT_TAGS_ALLOW_SUB_TAGS = true
+const TEXT_TAGS_ALLOW_SUB_TAGS = false
 
 const debug = debugFunc('pug-line-lexer')
 
@@ -1404,7 +1439,7 @@ function merge(obj, src) {
 
   // { type: 'include', filter: 'markdown-it' } { type: 'text', val: 'article.md' }
   if (obj.type === 'include' && src.type === 'text') {
-    return Object.assign(obj, { file: src.val })
+    return Object.assign(obj, { val: src.val })
   }
 
   // function convertClassAttr(key, obj) {
