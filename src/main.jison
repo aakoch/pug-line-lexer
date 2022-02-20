@@ -104,7 +104,7 @@ else {
                                           return 'TEXT_TAG';
 }
 %}
-<INITIAL,MIXIN_CALL_START>{tag_id}
+<INITIAL,MIXIN_CALL_START,MIXIN_CALL_END>{tag_id}
 %{
   this.popState();
   this.pushState('AFTER_TAG_NAME');
@@ -315,11 +315,19 @@ else {
                                           return 'RPAREN';
 %}
 // The addition of ATTRS_END is for the edge case of allowing a classname to immediately follow the attributes: a.class(some=attr).class
-<INITIAL,ATTRS_END>{classname}
+// Example of the MIXIN_PARAMS_END: +article('Something').aClassname
+<INITIAL,ATTRS_END,MIXIN_PARAMS_END>{classname}
 %{
   this.pushState('AFTER_TAG_NAME');
   yytext = yytext.substring(1);
                                           return 'CLASSNAME';
+%}
+// Example <MIXIN_CALL>+centered('Section 1')#Second
+<INITIAL,ATTRS_END,MIXIN_PARAMS_END>{tag_id}
+%{
+  this.pushState('AFTER_TAG_NAME');
+  yytext = yytext.substring(1);
+                                          return 'TAG_ID';
 %}
 <INITIAL,ATTRS_END>{classname_relaxed}
 %{
@@ -1017,6 +1025,7 @@ line_start
 
 
   // Rule for the edgecase div(id=id)&attributes({foo: 'bar', fred: 'bart'})
+  // line_start -> first_token .attrs AT_ATTRS   #lookaheads= [EOF]  [TEXT]  [UNBUF_CODE]  [SPACE]  [ASSIGNMENT]  [DOT_END]  [NESTED_TAG_START]  [LPAREN]
   | first_token attrs AT_ATTRS
   {
     debug('first_token attrs AT_ATTRS: first_token=', $first_token, ', $attrs=', $attrs, ', AT_ATTRS=', $AT_ATTRS)
@@ -1036,6 +1045,16 @@ line_start
   {
     debug('first_token LPAREN MIXIN_PARAMS RPAREN: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS)
     $$ = merge($first_token, { params: $MIXIN_PARAMS })
+  }
+  | first_token LPAREN MIXIN_PARAMS RPAREN CLASSNAME
+  {
+    debug('first_token LPAREN MIXIN_PARAMS RPAREN CLASSNAME: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS, ', CLASSNAME', $CLASSNAME)
+    $$ = merge($first_token, { params: $MIXIN_PARAMS }, {attrs: [ { name: 'class', val: quote($CLASSNAME) } ] })
+  }
+  | first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID
+  {
+    debug('first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS, ', TAG_ID', $TAG_ID)
+    $$ = merge($first_token, { params: $MIXIN_PARAMS, id: $TAG_ID })
   }
   | first_token LPAREN MIXIN_PARAMS_START
   {
@@ -1359,6 +1378,14 @@ line_splitter
     debug('line_splitter: DOT_END')
     $$ = { state: 'TEXT_START' }
   }
+  // | NESTED_TAG_START
+  // {
+  //   $$ = $NESTED_TAG_START
+  // }
+  // | CLASSNAME
+  // {
+  //   $$ = $CLASSNAME
+  // }
   // | RPAREN
   ;
 

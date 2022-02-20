@@ -56,7 +56,7 @@ test('li #{n}', {
 })
 
 // filters-empty.pug:
-test(':cdata', {filter: 'cdata'})
+test(':cdata', {filter: 'cdata', state: 'TEXT_START'})
 
 test(`:custom(opt='val' num=2)`, {
   attrs: [
@@ -69,15 +69,17 @@ test(`:custom(opt='val' num=2)`, {
       val: '2'
     }
   ],
-  filter: 'custom'
+  filter: 'custom',
+  state: 'TEXT_START'
 })
 
 test(':cdata inside', {
   filter: 'cdata',
   type: 'text',
-  val: 'inside'
+  val: 'inside',
+  state: 'TEXT_START'
 })
-test(':markdown', {filter: 'markdown'})
+test(':markdown', {filter: 'markdown', state: 'TEXT_START'})
 test('+centered#First Hello World', {
   id: 'First',
   name: 'centered',
@@ -107,15 +109,24 @@ test(`+comment('This',`, {
 })
 
 // TODO:
-test(`<MIXIN_CALL_START>(('is regular, javascript')))`, {})
+// test(`<MIXIN_CALL_START>(('is regular, javascript')))`, {})
 
-// TODO:
-test(`+article('Something').`, {})
+test(`+article('Something').aClassname`, {
+  name: 'article',
+  params: "'Something'",
+  state: 'MIXIN_CALL',
+  type: 'mixin_call'
+})
 
-// TODO:
-test(`<MIXIN_CALL>+centered('Section 1')#Second`, {})
+test(`<MIXIN_CALL>+centered('Section 1')#Second`, {
+  name: 'centered',
+  id: 'Second',
+  params: "'Section 1'",
+  state: 'MIXIN_CALL',
+  type: 'mixin_call'
+})
 
-test(':markdown-it', {filter: 'markdown-it'})
+test(':markdown-it', {filter: 'markdown-it', state: 'TEXT_START'})
 
 // tags.self-closing.pug
 //   #{
@@ -133,7 +144,7 @@ test('#[strong foo]', { type: 'tag', name: 'strong', val: 'foo' } )
 test('#[q(lang="es") ¡Hola Mundo!]', { type: 'tag', name: 'q', val: '¡Hola Mundo!', attrs: [{name: 'lang', val: '"es"'}] } )
 
 // Filters
-test('include:markdown-it article.md', { type: 'include', file: 'article.md', filter: 'markdown-it' })
+test('include:markdown-it article.md', { type: 'include', val: 'article.md', filter: 'markdown-it', state: 'TEXT_START' })
 // test(':cdata', { type: 'filter', val: 'cdata' })
 
 test(`+baz()= '123'`,{
@@ -586,7 +597,7 @@ test('doctype html', { type: 'doctype', val: 'html' })
 test("html(lang='en-US')", {"type":"tag","name":"html","attrs":[{name:"lang", val: "'en-US'"}]})
 
 // test("include something", { type: 'include_directive', params: 'something' })
-test('include something', { type: 'include', file: 'something' })
+test('include something', { type: 'include', val: 'something' })
 
 // test("block here", { type: 'directive', name: 'block', params: 'here' })
 test("block here", { type: 'block', val: 'here' })
