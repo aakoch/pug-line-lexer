@@ -43,7 +43,6 @@ tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])
 %x NO_MORE_SPACE
 %x ASSIGNMENT_VALUE
 %x COND_START
-// %x MULTI_LINE_ATTRS_END
 %x INTERPOLATION_START
 %x MIXIN_PARAMS_STARTED
 %x HTML_COMMENT_STARTED
@@ -53,11 +52,6 @@ tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])
 %x UNBUF_CODE_BLOCK
 %%
 
-// <INITIAL>'#['{tag}
-// %{
-//   ']'
-//                                           return 'TAG'
-// %}
 {escaped_text_interpolation} 
 %{
   this.pushState('AFTER_TAG_NAME');
@@ -87,12 +81,7 @@ tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])
   this.pushState('AFTER_TAG_NAME');
                                           return 'TAG';
 %}
-// <INITIAL>('script'|'style')(?:\.\s*<<EOF>>)
-// %{
-//   debug("*".repeat(20))
-//   this.pushState('AFTER_TEXT_TAG_NAME');
-//                                           return 'TEXT_TAG';
-// %}
+
 <INITIAL>('script'|'style')
 %{
 if (TEXT_TAGS_ALLOW_SUB_TAGS) {
@@ -145,26 +134,6 @@ else {
                                           return ['RPAREN', 'CONDITION'];
 %}
 
-// // for lines that start with a )
-// <MULTI_LINE_ATTRS_END>')'
-// %{
-//   debug('<MULTI_LINE_ATTRS_END>\')\'')
-//   this.popState();
-//                                           return 'MULTI_LINE_ATTRS_END';
-// %}
-
-// <INITIAL>'-'{space}*(?:\w+)
-// %{
-//   debug('10 this.matches=', this.matches)
-//   debug('10 this.matches.length=', this.matches.length)
-//   debug('10 yytext=', yytext)
-//   this.pushState('AFTER_TAG_NAME');
-//   yytext = yytext.substring(1);
-//   if (yytext.startsWith(' ')) {
-//     yytext = yytext.substring(1);
-//   }
-//                                           return 'CODE';
-// %}
 <INITIAL>'-'{space}*<<EOF>>
 %{
                                           return 'UNBUF_CODE_BLOCK_START'
@@ -254,10 +223,6 @@ else {
 %}
 <INTERPOLATION>.+
 %{
-  // debug('<INTERPOLATION>.+')
-  // debug('this.matches=', this.matches)
-  // this.pushState('INTERPOLATION');
-  
                                           return 'INTERP_VAL';
 %}
 
@@ -342,14 +307,6 @@ else {
   }
 %}
 
-// <ATTRS_STARTED>')'
-// %{
-//   this.popState()
-//   this.pushState('ATTRS_END')
-//   // that ended quickly ;)
-//                                           return 'RPAREN';
-// %}
-
 // Match key='answer' value=answer()
 <ATTRS_STARTED>(\(.+|.+\().+
 %{
@@ -360,7 +317,6 @@ else {
   const stack = []
   let i = 0
   for(; i < yytext.length; i++) {
-    // debug('yytext[i]=', yytext[i])
     if (/[\)\]}]/.test(yytext[i])) {
       debug('match')
       debug('stack.peek()=', stack.peek())
@@ -368,8 +324,6 @@ else {
         debug('stack.length=', stack.length)
         break;
       }
-      // else if () {
-      // }
     }
     else {
       switch (yytext[i]) {
@@ -383,8 +337,6 @@ else {
           stack.push('}')
           break;
       }
-      // else if () {
-      // }
     }
   }
 
@@ -410,9 +362,6 @@ else {
     this.unput(')');
     if (this.matches.length > 1) {    
       yytext = this.matches[1]
-      // if (yytext.startsWith(')')) {
-      //   yytext = yytext.substring(1)
-      // }
     }
   }
   catch (e) {
@@ -470,32 +419,6 @@ else {
                                           return 'ATTR_TEXT_CONT';
 %}
 
-// // match `class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`
-// <ATTRS_STARTED>.+')'
-// %{
-//   this.popState()
-//   this.pushState('ATTRS_END')
-//   debug('55 this.matches=', this.matches)
-//   debug('55 this.matches.length=', this.matches.length)
-//   debug('55 yytext=', yytext)
-//   try {
-//     this.unput(')');
-//     if (this.matches.length > 1) {    
-//       yytext = this.matches[1]
-//       // if (yytext.startsWith(')')) {
-//       //   yytext = yytext.substring(1)
-//       // }
-//     }
-//   }
-//   catch (e) {
-//     console.error(e)
-//   }
-//   lparenOpen = false
-//   debug('55 yytext=', yytext)
-//                                           return 'ATTR_TEXT';
-// %}
-
-
 <AFTER_TAG_NAME>{tag_id}
 %{
   this.pushState('AFTER_TAG_NAME');
@@ -511,11 +434,6 @@ else {
 %}
 <AFTER_TAG_NAME>{classname_relaxed}
 %{
-  // debug('<AFTER_TAG_NAME>{classname_relaxed}')
-  // debug('Object.keys(this).length=', Object.keys(this).length)
-  // debug('Object.keys(this.yy).length=', Object.keys(this.yy).length)
-  // debug('Object.keys(this.yy.parser).length=', Object.keys(this.yy.parser).length)
-  // debug('this.yy.parser.options=', util.inspect(this.yy.parser.options, false, 10, true))
   if (this.yy.parser.options.allowDigitToStartClassName) {
     yytext = yytext.substring(1);
                                           return 'CLASSNAME';
@@ -587,30 +505,13 @@ else {
 
 <AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE>.+
 %{
-  // if (yytext.startsWith(' ') {
-  //   yytext = yytext.substring(1);
-  // }
   debug('70 yytext=', yytext);
                                           return 'TEXT';
 %}
 
-// <AFTER_KEYWORD>{keyword}
-// %{
-//   // if (yytext.startsWith(' ') {
-//   //   yytext = yytext.substring(1);
-//   // }
-//   debug('75 yytext=', yytext);
-//   // this.pushState('BLOCK_BODY_BLOCK')
-//                                           return 'KEYWORD';
-// %}
-
 <AFTER_KEYWORD>.+
 %{
-  // if (yytext.startsWith(' ') {
-  //   yytext = yytext.substring(1);
-  // }
   debug('77 yytext=', yytext);
-  // this.pushState('BLOCK_BODY_BLOCK')
                                           return 'TEXT';
 %}
 
@@ -634,7 +535,6 @@ else {
 
 <ATTRS_END>.+
 %{
-  // yytext = yytext.substring(1)
   debug('6 yytext=', yytext)
                                           return 'TEXT';
 %}
@@ -686,13 +586,6 @@ else {
                                           return 'TEXT';
 %}
 
-// <MULTI_LINE_ATTRS>','
-// %{
-//   // this.popState();
-//   // this.pushState('ATTRS_STARTED')
-//                                           // return 'COMMA';
-// %}
-// <MULTI_LINE_ATTRS>')'                     return 'ATTR_TEXT_END';
 <MULTI_LINE_ATTRS>','?(.*)')'
 %{
   debug('110 this.matches=', this.matches)
@@ -701,9 +594,6 @@ else {
                                           return 'ATTR_TEXT_END';
 %}
 <MULTI_LINE_ATTRS>.+                      return 'ATTR_TEXT_CONT';
-
-
-// immediately closed - solely for `+list()`
 <MIXIN_PARAMS_STARTED>')'
 %{
   this.popState()
@@ -723,9 +613,6 @@ else {
     this.unput(')');
     if (this.matches.length > 1) {    
       yytext = this.matches[1]
-      // if (yytext.startsWith(')')) {
-      //   yytext = yytext.substring(1)
-      // }
     }
   }
   catch (e) {
@@ -735,35 +622,6 @@ else {
   debug('120 yytext=', yytext)
                                           return 'MIXIN_PARAMS';
 %}
-// <MIXIN_PARAMS_STARTED>(.+)')'\s*<<EOF>>
-// %{
-//   this.popState()
-//   debug('130 this.matches=', this.matches)
-//   debug('130 this.matches.length=', this.matches.length)
-//   debug('130 yytext=', yytext)
-//   try {
-//     if (this.matches.length > 1) {    
-//       yytext = this.matches[1]
-//     }
-//   }
-//   catch (e) {
-//     console.error(e)
-//   }
-//   lparenOpen = false
-//   debug('130 yytext=', yytext)
-//                                           return ['RPAREN', 'MIXIN_PARAMS'];
-// %}
-// <MIXIN_PARAMS_STARTED>(.+)')'\.?\s*(.+)<<EOF>>
-// %{
-//   this.popState()
-//   this.pushState('MIXIN_PARAMS_END')
-//   debug('140 this.matches=', this.matches)
-//   this.unput(this.matches[2])
-//   yytext = yytext.substring(0, yytext.indexOf(this.matches[1]) + this.matches[1].length);
-//   debug('140 yytext=', yytext)
-//   lparenOpen = false
-//                                           return ['RPAREN', 'MIXIN_PARAMS'];
-// %}
 
 // Can mixin parameters span lines? Yes
 <MIXIN_PARAMS_STARTED>(.+)\.?\s*<<EOF>>
@@ -806,12 +664,6 @@ else {
   this.unput(yytext)
 %}
 
-// <INITIAL>.+
-// %{
-//                                           return 'TEXT'
-// %}
-
-
 /lex
 
 %ebnf
@@ -824,10 +676,6 @@ else {
 start
   : EOF
   | line EOF
-  // | MULTI_LINE_ATTRS_END EOF
-  // {
-  //   $$ = { state: 'MULTI_LINE_ATTRS_END' }
-  // }
   ;
 
 line
@@ -836,24 +684,12 @@ line
   | line_start TEXT
   {
     debug('line: line_start TEXT: $line_start=', $line_start, ', $TEXT=', $TEXT)
-
-    // if ($TEXT.includes('#[')) {
-    //   debug('Calling parseInline with ', $TEXT)
-    //   const possibleTags2 = parseInline.parse($TEXT)
-    //   debug('possibleTags2=', possibleTags2)
-    // }
-    // $$ = { type: 'text', val: $TEXT }
-    
     $$ = merge($line_start, { type: 'text', val: $TEXT })
   }
   | line_start UNBUF_CODE
   {
     $$ = merge($line_start, { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE_FOLLOWER' })
   }
-  // | line_start UNBUF_CODE_BLOCK
-  // {
-  //   $$ = merge($line_start, { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE' })
-  // }
   | line_start line_splitter line_end
   {
     debug('line: line_start line_splitter line_end: $line_start=', $line_start, ', $line_end=', $line_end)
@@ -905,44 +741,6 @@ line
   {
     $$ = { type: 'attrs_cont', val: parseAttrs.parse($ATTR_TEXT_CONT), state: 'MULTI_LINE_ATTRS' }
   }
-  // | line_start AT_ATTRS
-  // {
-  //   debug('line: line_start AT_ATTRS: $AT_ATTRS=', $AT_ATTRS)
-  //   if ($AT_ATTRS.includes('{') && $AT_ATTRS.includes('}')) {
-  //     let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
-  //     let entries2 = Object.entries(func())
-  //     debug('entries2=', entries2)
-  //     let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
-  //       debug('name=', key, 'value=', value)
-  //       return { name: key, val: value }
-  //     })
-  //     $$ = merge($line_start, { type: 'tag', attrs: attrs2 })
-  //   }
-  //   else {
-  //     $$ = merge($line_start, 
-  //       { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
-  //     )
-  //   }
-  // }
-  // | line_start AT_ATTRS line_splitter line_end
-  // {
-  //   debug('line: line_start AT_ATTRS line_splitter line_end: $AT_ATTRS=', $AT_ATTRS)
-  //   if ($AT_ATTRS.includes('{') && $AT_ATTRS.includes('}')) {
-  //     let func = Function('return (' + $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) + ')')
-  //     let entries2 = Object.entries(func())
-  //     debug('entries2=', entries2)
-  //     let attrs2 = Object.entries(entries2).map(([index, [key, value]]) => {
-  //       debug('name=', key, 'value=', value)
-  //       return { name: key, val: value }
-  //     })
-  //     $$ = merge($line_start, { type: 'tag', attrs: attrs2 })
-  //   }
-  //   else {
-  //     $$ = merge($line_start, 
-  //       { type: 'tag', attrs: [{ val: $AT_ATTRS.substring(12, $AT_ATTRS.length - 1) }]}
-  //     )
-  //   }
-  // }
   | HTML_COMMENT
   {
     debug('$HTML_COMMENT=', $HTML_COMMENT)
@@ -959,7 +757,6 @@ line
   {
     $$ = { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK_START' }
   }
-  // | line_part+
   ;
 
 line_start
@@ -997,7 +794,6 @@ line_start
     debug('line_start: first_token tag_part LPAREN ATTR_TEXT_CONT')
     $$ = merge($first_token, [$tag_part, $ATTR_TEXT_CONT])
   }
-  // handle +foo.hello(class="world")
   | first_token tag_part LPAREN MIXIN_PARAMS RPAREN
   {
     debug('line_start: first_token tag_part LPAREN MIXIN_PARAMS RPAREN')
@@ -1008,7 +804,6 @@ line_start
     debug('line_start: first_token tag_part attrs')
     $$ = merge($first_token, [$tag_part, $attrs])
   }
-
 
   // Rule for the edgecase a(class='bar').baz
   | first_token attrs CLASSNAME
@@ -1022,7 +817,6 @@ line_start
     debug('first_token tag_part attrs CLASSNAME: first_token=', $first_token, ', tag_part=', $tag_part, ', attrs=', $attrs, ', CLASSNAME=', $CLASSNAME)
     $$ = merge($first_token, [$tag_part, $attrs, { attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }])
   }
-
 
   // Rule for the edgecase div(id=id)&attributes({foo: 'bar', fred: 'bart'})
   // line_start -> first_token .attrs AT_ATTRS   #lookaheads= [EOF]  [TEXT]  [UNBUF_CODE]  [SPACE]  [ASSIGNMENT]  [DOT_END]  [NESTED_TAG_START]  [LPAREN]
@@ -1061,8 +855,6 @@ line_start
     debug('first_token LPAREN MIXIN_PARAMS_START: first_token=', $first_token, ', MIXIN_PARAMS_START=', $MIXIN_PARAMS_START)
     $$ = merge($first_token, { params: $MIXIN_PARAMS_START, state: '_START' })
   }
-
-  // | first_token ESCAPED_TEXT_INTERPOLATION
   ;
 
 first_token
@@ -1085,39 +877,18 @@ first_token
   // TODO: Should separate JS and CSS from regular text
   | TEXT
   {
-    // if ($TEXT.includes('#[')) {
-    //   debug('Calling parseInline with ', $TEXT)
-    //   const possibleTags = parseInline.parse($TEXT)
-    //   debug('possibleTags=', possibleTags)
-    // }
     $$ = { type: 'text', val: $TEXT }
   }
   | COMMENT
   {
     debug('first_token: COMMENT: $COMMENT=', $COMMENT)
-    // if ($COMMENT == '//-') {
       $$ = { type: 'comment', state: 'TEXT_START' }
-    // }
-    // else {
-      // $$ = { type: 'html_comment', state: 'TEXT_BLOCK_START' }
-    // }
   }
   | COMMENT_HTML
   {
     debug('first_token: COMMENT_HTML: $COMMENT_HTML=', $COMMENT_HTML)
-    // if ($COMMENT_HTML == '//-') {
-    //   $$ = { type: 'comment', state: 'TEXT_START' }
-    // }
-    // else {
-      $$ = { type: 'html_comment', state: 'TEXT_START' }
-    // }
+    $$ = { type: 'html_comment', state: 'TEXT_START' }
   }
-  
-  // | UNBUF_CODE_START
-  // {
-  //   debug('CODE_START')
-  //   $$ = { type: 'code', state: 'CODE_START' }
-  // }
   | UNBUF_CODE
   {
     $$ = { type: 'unbuf_code', val: $UNBUF_CODE, state: 'UNBUF_CODE_FOLLOWER' }
@@ -1133,13 +904,8 @@ first_token
   }
   | KEYWORD
   {
-    // %include ../src/keywords.js
     $$ = { type: $KEYWORD }
   }
-  // | KEYWORD SPACE KEYWORD
-  // {
-  //   $$ = { type: $1, extraKeyword: $3 }
-  // }
   | PIPE
   {
     $$ = { type: 'text' }
@@ -1166,10 +932,7 @@ first_token
     var INTERP_NAME = $INTERP_NAME[1]
     var INTERP_VAL = $INTERP_VAL[2]
     debug('line: INTERP_START INTERP_NAME INTERP_VAL INTERP_END: INTERP_NAME=', INTERP_NAME, ', INTERP_VAL=', INTERP_VAL)
-    // const resultInterpVal1 = attrResolver.resolve({ name: 'anonymous', val: $INTERP_VAL.slice(2, -1) })
-    // $$ = { type: 'tag', name: resultInterpVal1.val }
     $$ = { type: 'tag', name: INTERP_NAME, val: INTERP_VAL }
-    // $$ = [{ type: 'interpolation', val: $INTERP_VAL.slice(2, -1) }]
   }
   | INTERPOLATION_START
   {
@@ -1183,7 +946,6 @@ first_token
     const resultInterpVal2 = attrResolver.resolve({ name: 'anonymous', val: $INTERP_VAL })
     debug('AttrResolver returned=', resultInterpVal2)
     $$ = { type: 'text', val: resultInterpVal2.val }
-    // parser.parse(result)
   }
   | MIXIN_CALL_TODO
   {
@@ -1210,24 +972,11 @@ first_token
   }
   ;
 
-// tag_parts
-//   : tag_part+
-//   ;
-
 tag_part
   : TAG_ID
   {
     $$ = { id: $TAG_ID }
   }
-  // | TAG_ID classnames
-  // {
-  //   $$ = merge({ id: $TAG_ID }, $classnames)
-  // }
-  // | classnames
-  // | classnames TAG_ID
-  // {
-  //   $$ = merge({ id: $TAG_ID }, $classnames)
-  // }
   | CLASSNAME+
   {
     let attrs1 = $1.map(cn => {
@@ -1235,10 +984,6 @@ tag_part
     })
     $$ = { type: 'tag', attrs: attrs1 }
   }
-  // | CLASSNAME
-  // {
-  //   $$ = { type: 'tag', attrs: [{ name: 'class', val: quote($CLASSNAME) }] }
-  // }
   | FILTER
   {
     // TODO: Filters evidently don't need a "dot" at the end or pipes. Probably treat the same as text tag
@@ -1273,15 +1018,6 @@ attrs
       const attrs = parseAttrs.parse($2.trim())
       debug('attrs=', attrs)
       attrs.forEach(attr => {
-        // if (attr.hasOwnProperty('key') && attr.key == 'class' && !attr.assignment) {
-        //   $$ = merge($$, { classes: attr.val.split(' ') } )
-        //   delete attr.class
-        // }
-        // else if (attr.hasOwnProperty('id')) {
-        //   $$ = merge($$, { id: attr.id } )
-        //   delete attr.id
-        // }
-        // else 
         if (!_.isEmpty(attr)) {
           $$ = merge($$, { attrs: [attr] })
         }
@@ -1297,20 +1033,6 @@ attrs
   }
   ;
 
-// classnames
-//   : CLASSNAME+
-//   {
-//     let attrs1 = $1.map(cn => {
-//       return { name: 'class', val: quote(cn) } 
-//     })
-//     $$ = { type: 'tag', attrs: attrs1 }
-//   }
-//   // : CLASSNAME
-//   // {
-//   //   $$ = { type: 'tag', attrs: [{ name: 'class', val: quote($CLASSNAME) }] }
-//   // }
-//   ;
-
 line_end
   : 
   {
@@ -1325,11 +1047,6 @@ line_end
   {
     $$ = { val: $ASSIGNMENT_VALUE }
   }
-  // | ATTR_TEXT_CONT
-  // {
-  //   debug('line_end: ATTR_TEXT_CONT')
-  //   $$ = { attrscont: [$1] }
-  // }
   | TEXT
   {
     debug('line_end: TEXT: $TEXT=', $TEXT)
@@ -1353,16 +1070,6 @@ line_end
   }
   ;
 
-// line_part
-//   : ESCAPED_TEXT_INTERPOLATION
-//   {
-//     $$ = { type: 'text', val: $ESCAPED_TEXT_INTERPOLATION }
-//   }
-//   | NESTED_TAG_START
-//   | first_token
-//   | tag_part
-//   ;
-
 line_splitter
   : SPACE
   {
@@ -1378,15 +1085,6 @@ line_splitter
     debug('line_splitter: DOT_END')
     $$ = { state: 'TEXT_START' }
   }
-  // | NESTED_TAG_START
-  // {
-  //   $$ = $NESTED_TAG_START
-  // }
-  // | CLASSNAME
-  // {
-  //   $$ = $CLASSNAME
-  // }
-  // | RPAREN
   ;
 
 %% 
@@ -1399,7 +1097,6 @@ const debug = debugFunc('pug-line-lexer')
 let tagAlreadyFound = false
 let obj
 var lparenOpen = false
-// const keysToMergeText = ['therest']
 
 const attrResolver = new AttrResolver()
 
@@ -1457,28 +1154,13 @@ function merge(obj, src) {
 
   debug('merging', obj, src)
 
-  // if (util.isDeepStrictEqual(src, [ { therest: '' } ]))
-  //    return obj
-
   if (obj.type != 'text' && Object.keys(src).length == 1 && Object.keys(src)[0] == 'children' && src.children.length == 1 && src.children[0].hasOwnProperty('type') && src.children[0].type == 'text') {
     return Object.assign(obj, { val: quote(src.children[0].val) })
   }
 
-  // { type: 'include', filter: 'markdown-it' } { type: 'text', val: 'article.md' }
   if (obj.type === 'include' && src.type === 'text') {
     return Object.assign(obj, { val: src.val })
   }
-
-  // function convertClassAttr(key, obj) {
-  //   let ret
-  //   if (key === 'attrs' && obj.length == 1 && obj[0].name === 'class') {
-  //     ret = [{ classes: obj[0].val }]
-  //   }
-  //   else {
-  //     ret = obj
-  //   }
-  //   return ret
-  // }
 
   let ret = _.mergeWith(obj, src, function (objValue, srcValue, key, object, source, stack) {
     debug('merging', 'inside _mergeWith', key, objValue, srcValue)
@@ -1492,19 +1174,10 @@ function merge(obj, src) {
        return objValue
     }
     return rank(objValue, srcValue)
-    // }
   })
-
-  // if (ret.hasOwnProperty('attrs') && ret.attrs.length == 1 && Object.keys(ret.attrs[0]).length == 1 && Object.keys(ret.attrs[0])[0] == 'classes' && isQuoted(ret.attrs[0].classes)) {
-  //   debug('merging', ' found classes')
-  //   const classes = unquote(ret.attrs[0].classes)
-  //   delete ret.attrs
-  //   ret = merge(ret, { classes: classes })
-  // }
 
   debug('merging', ' returning', ret)
   return ret
-  //  return Object.assign(obj, src);
 }
 
 // creates nodes of text and/or interpolations
@@ -1530,17 +1203,10 @@ function createElems(text, parser) {
       elems.push(results)
     }
     else {
-      // const toParse = match[0]
-      // debug('sending to parser:', toParse)
-      // const results = parser.parse(toParse)
-      // debug('received from parser:', results)
-      // elems.push(...results)
       debug('pushing interpolation value to arr:', match[0].slice(2, -1))
       elems.push({ type: 'interpolation', val: match[0].slice(2, -1)})
     }
     idx += match[0].length
-    // debug('match', match)
-    // console.log(`Found ${match[0]} start=${match.index} end=${match.index + match[0].length}.`);
   }
   if (idx != text.length) {
     elems.push({ type: 'text', val: text.substring(idx, text.index) })

@@ -7892,12 +7892,6 @@ var $e99c546f9ac18755$var$parser = {
                 break;
             case 4:
                 /*! Production::    line : line_start TEXT */ $e99c546f9ac18755$var$debug('line: line_start TEXT: $line_start=', yyvstack[yysp - 1], ', $TEXT=', yyvstack[yysp]);
-                // if ($TEXT.includes('#[')) {
-                //   debug('Calling parseInline with ', $TEXT)
-                //   const possibleTags2 = parseInline.parse($TEXT)
-                //   debug('possibleTags2=', possibleTags2)
-                // }
-                // $$ = { type: 'text', val: $TEXT }
                 this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 1], {
                     type: 'text',
                     val: yyvstack[yysp]
@@ -8151,19 +8145,14 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 33:
-                /*! Production::    first_token : TEXT */ // if ($TEXT.includes('#[')) {
-                //   debug('Calling parseInline with ', $TEXT)
-                //   const possibleTags = parseInline.parse($TEXT)
-                //   debug('possibleTags=', possibleTags)
-                // }
-                this.$ = {
+            /*! Production::    first_token : TEXT */ case 64:
+                /*! Production::    line_end : RPAREN */ this.$ = {
                     type: 'text',
                     val: yyvstack[yysp]
                 };
                 break;
             case 34:
                 /*! Production::    first_token : COMMENT */ $e99c546f9ac18755$var$debug('first_token: COMMENT: $COMMENT=', yyvstack[yysp]);
-                // if ($COMMENT == '//-') {
                 this.$ = {
                     type: 'comment',
                     state: 'TEXT_START'
@@ -8171,10 +8160,6 @@ var $e99c546f9ac18755$var$parser = {
                 break;
             case 35:
                 /*! Production::    first_token : COMMENT_HTML */ $e99c546f9ac18755$var$debug('first_token: COMMENT_HTML: $COMMENT_HTML=', yyvstack[yysp]);
-                // if ($COMMENT_HTML == '//-') {
-                //   $$ = { type: 'comment', state: 'TEXT_START' }
-                // }
-                // else {
                 this.$ = {
                     type: 'html_comment',
                     state: 'TEXT_START'
@@ -8204,8 +8189,7 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 39:
-                /*! Production::    first_token : KEYWORD */ // %include ../src/keywords.js
-                this.$ = {
+                /*! Production::    first_token : KEYWORD */ this.$ = {
                     type: yyvstack[yysp]
                 };
                 break;
@@ -8239,8 +8223,6 @@ var $e99c546f9ac18755$var$parser = {
                 /*! Production::    first_token : INTERP_START INTERP_NAME INTERP_VAL INTERP_END */ var INTERP_NAME = yyvstack[yysp - 2][1];
                 var INTERP_VAL = yyvstack[yysp - 1][2];
                 $e99c546f9ac18755$var$debug('line: INTERP_START INTERP_NAME INTERP_VAL INTERP_END: INTERP_NAME=', INTERP_NAME, ', INTERP_VAL=', INTERP_VAL);
-                // const resultInterpVal1 = attrResolver.resolve({ name: 'anonymous', val: $INTERP_VAL.slice(2, -1) })
-                // $$ = { type: 'tag', name: resultInterpVal1.val }
                 this.$ = {
                     type: 'tag',
                     name: INTERP_NAME,
@@ -8357,15 +8339,6 @@ var $e99c546f9ac18755$var$parser = {
                     const attrs = $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].trim());
                     $e99c546f9ac18755$var$debug('attrs=', attrs);
                     attrs.forEach((attr)=>{
-                        // if (attr.hasOwnProperty('key') && attr.key == 'class' && !attr.assignment) {
-                        //   $$ = merge($$, { classes: attr.val.split(' ') } )
-                        //   delete attr.class
-                        // }
-                        // else if (attr.hasOwnProperty('id')) {
-                        //   $$ = merge($$, { id: attr.id } )
-                        //   delete attr.id
-                        // }
-                        // else 
                         if (!$cjPlG$lodash.isEmpty(attr)) this.$ = $e99c546f9ac18755$var$merge(this.$, {
                             attrs: [
                                 attr
@@ -8408,12 +8381,6 @@ var $e99c546f9ac18755$var$parser = {
                         children: elemsReturned
                     };
                 } else this.$ = {
-                    type: 'text',
-                    val: yyvstack[yysp]
-                };
-                break;
-            case 64:
-                /*! Production::    line_end : RPAREN */ this.$ = {
                     type: 'text',
                     val: yyvstack[yysp]
                 };
@@ -10929,11 +10896,6 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         'INTERP_NAME',
                         'INTERP_START'
                     ];
-                case 25:
-                    /*! Conditions:: INTERPOLATION */ /*! Rule::       .+ */ // debug('<INTERPOLATION>.+')
-                    // debug('this.matches=', this.matches)
-                    // this.pushState('INTERPOLATION');
-                    return 32;
                 case 26:
                     /*! Conditions:: INITIAL */ /*! Rule::       {interpolation_start} */ $e99c546f9ac18755$var$debug('{interpolation_start}');
                     $e99c546f9ac18755$var$debug('this.matches=', this.matches);
@@ -10986,16 +10948,13 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     $e99c546f9ac18755$var$debug('15 this.matches=', this.matches);
                     const stack = [];
                     let i = 0;
-                    for(; i < yy_.yytext.length; i++)// debug('yy_.yytext[i]=', yy_.yytext[i])
-                    if (/[\)\]}]/.test(yy_.yytext[i])) {
+                    for(; i < yy_.yytext.length; i++)if (/[\)\]}]/.test(yy_.yytext[i])) {
                         $e99c546f9ac18755$var$debug('match');
                         $e99c546f9ac18755$var$debug('stack.peek()=', stack.peek());
                         if (stack.length == 0 || stack.pop() != yy_.yytext[i]) {
                             $e99c546f9ac18755$var$debug('stack.length=', stack.length);
                             break;
                         }
-                    // else if () {
-                    // }
                     } else switch(yy_.yytext[i]){
                         case '(':
                             stack.push(')');
@@ -11078,12 +11037,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     $e99c546f9ac18755$var$debug('60 yy_.yytext=', yy_.yytext);
                     return 14;
                 case 45:
-                    /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {classname_relaxed} */ // debug('<AFTER_TAG_NAME>{classname_relaxed}')
-                    // debug('Object.keys(this).length=', Object.keys(this).length)
-                    // debug('Object.keys(this.yy).length=', Object.keys(this.yy).length)
-                    // debug('Object.keys(this.yy.parser).length=', Object.keys(this.yy.parser).length)
-                    // debug('this.yy.parser.options=', util.inspect(this.yy.parser.options, false, 10, true))
-                    if (this.yy.parser.options.allowDigitToStartClassName) {
+                    /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {classname_relaxed} */ if (this.yy.parser.options.allowDigitToStartClassName) {
                         yy_.yytext = yy_.yytext.substring(1);
                         return 14;
                     } else throw new Error('Classnames starting with a digit are not allowed. Set allowDigitToStartClassName to true to allow.');
@@ -11121,17 +11075,10 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     $e99c546f9ac18755$var$debug('<ATTRS_END>{space}');
                     return 28;
                 case 54:
-                    /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME NO_MORE_SPACE */ /*! Rule::       .+ */ // if (yy_.yytext.startsWith(' ') {
-                    //   yy_.yytext = yy_.yytext.substring(1);
-                    // }
-                    $e99c546f9ac18755$var$debug('70 yy_.yytext=', yy_.yytext);
+                    /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME NO_MORE_SPACE */ /*! Rule::       .+ */ $e99c546f9ac18755$var$debug('70 yy_.yytext=', yy_.yytext);
                     return 3;
                 case 55:
-                    /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       .+ */ // if (yy_.yytext.startsWith(' ') {
-                    //   yy_.yytext = yy_.yytext.substring(1);
-                    // }
-                    $e99c546f9ac18755$var$debug('77 yy_.yytext=', yy_.yytext);
-                    // this.pushState('BLOCK_BODY_BLOCK')
+                    /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       .+ */ $e99c546f9ac18755$var$debug('77 yy_.yytext=', yy_.yytext);
                     return 3;
                 case 56:
                     /*! Conditions:: ATTRS_END MIXIN_PARAMS_END */ /*! Rule::       ={space} */ this.popState();
@@ -11144,8 +11091,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     /*! Conditions:: ASSIGNMENT_VALUE */ /*! Rule::       .+ */ this.popState();
                     return 41;
                 case 59:
-                    /*! Conditions:: ATTRS_END */ /*! Rule::       .+ */ // yy_.yytext = yy_.yytext.substring(1)
-                    $e99c546f9ac18755$var$debug('6 yy_.yytext=', yy_.yytext);
+                    /*! Conditions:: ATTRS_END */ /*! Rule::       .+ */ $e99c546f9ac18755$var$debug('6 yy_.yytext=', yy_.yytext);
                     return 3;
                 case 60:
                     /*! Conditions:: UNBUF_CODE_START */ /*! Rule::       {space} */ $e99c546f9ac18755$var$debug('<UNBUF_CODE_START>{space}');
@@ -11230,6 +11176,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
         },
         simpleCaseActionClusters: {
             /*! Conditions:: INITIAL */ /*! Rule::       -{space}*$ */ 12: 10,
+            /*! Conditions:: INTERPOLATION */ /*! Rule::       .+ */ 25: 32,
             /*! Conditions:: ATTRS_END */ /*! Rule::       \) */ 33: 13,
             /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME ATTRS_END */ /*! Rule::       \.\s*$ */ 53: 27,
             /*! Conditions:: UNBUF_CODE_START */ /*! Rule::       .+ */ 61: 4,
@@ -11574,7 +11521,6 @@ const $e99c546f9ac18755$var$debug = $cjPlG$debug('pug-line-lexer');
 let $e99c546f9ac18755$var$tagAlreadyFound = false;
 let $e99c546f9ac18755$var$obj;
 var $e99c546f9ac18755$var$lparenOpen = false;
-// const keysToMergeText = ['therest']
 const $e99c546f9ac18755$var$attrResolver = new $cjPlG$AttrResolver();
 function $e99c546f9ac18755$var$rank(type1, type2) {
     if (type2 === 'text') return type1;
@@ -11607,25 +11553,12 @@ function $e99c546f9ac18755$var$merge(obj, src) {
         $e99c546f9ac18755$var$debug('src reduced to=', src);
     }
     $e99c546f9ac18755$var$debug('merging', obj, src);
-    // if (util.isDeepStrictEqual(src, [ { therest: '' } ]))
-    //    return obj
     if (obj.type != 'text' && Object.keys(src).length == 1 && Object.keys(src)[0] == 'children' && src.children.length == 1 && src.children[0].hasOwnProperty('type') && src.children[0].type == 'text') return Object.assign(obj, {
         val: $e99c546f9ac18755$var$quote(src.children[0].val)
     });
-    // { type: 'include', filter: 'markdown-it' } { type: 'text', val: 'article.md' }
     if (obj.type === 'include' && src.type === 'text') return Object.assign(obj, {
         val: src.val
     });
-    // function convertClassAttr(key, obj) {
-    //   let ret
-    //   if (key === 'attrs' && obj.length == 1 && obj[0].name === 'class') {
-    //     ret = [{ classes: obj[0].val }]
-    //   }
-    //   else {
-    //     ret = obj
-    //   }
-    //   return ret
-    // }
     let ret = $cjPlG$lodash.mergeWith(obj, src, function(objValue, srcValue, key, object, source, stack) {
         $e99c546f9ac18755$var$debug('merging', 'inside _mergeWith', key, objValue, srcValue);
         if (objValue == undefined && srcValue == undefined) return {
@@ -11633,17 +11566,9 @@ function $e99c546f9ac18755$var$merge(obj, src) {
         if (objValue == undefined) return srcValue;
         if (srcValue == undefined) return objValue;
         return $e99c546f9ac18755$var$rank(objValue, srcValue);
-    // }
     });
-    // if (ret.hasOwnProperty('attrs') && ret.attrs.length == 1 && Object.keys(ret.attrs[0]).length == 1 && Object.keys(ret.attrs[0])[0] == 'classes' && isQuoted(ret.attrs[0].classes)) {
-    //   debug('merging', ' found classes')
-    //   const classes = unquote(ret.attrs[0].classes)
-    //   delete ret.attrs
-    //   ret = merge(ret, { classes: classes })
-    // }
     $e99c546f9ac18755$var$debug('merging', ' returning', ret);
     return ret;
-//  return Object.assign(obj, src);
 }
 // creates nodes of text and/or interpolations
 function $e99c546f9ac18755$var$createElems(text, parser) {
@@ -11670,11 +11595,6 @@ function $e99c546f9ac18755$var$createElems(text, parser) {
             debug('received from parser:', results);
             elems.push(results);
         } else {
-            // const toParse = match[0]
-            // debug('sending to parser:', toParse)
-            // const results = parser.parse(toParse)
-            // debug('received from parser:', results)
-            // elems.push(...results)
             debug('pushing interpolation value to arr:', match[0].slice(2, -1));
             elems.push({
                 type: 'interpolation',
@@ -11682,8 +11602,6 @@ function $e99c546f9ac18755$var$createElems(text, parser) {
             });
         }
         idx += match[0].length;
-    // debug('match', match)
-    // console.log(`Found ${match[0]} start=${match.index} end=${match.index + match[0].length}.`);
     }
     if (idx != text.length) elems.push({
         type: 'text',
