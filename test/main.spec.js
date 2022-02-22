@@ -115,7 +115,13 @@ test(`+article('Something').aClassname`, {
   name: 'article',
   params: "'Something'",
   state: 'MIXIN_CALL',
-  type: 'mixin_call'
+  type: 'mixin_call',
+  attrs: [
+    {
+      name: 'class',
+      val: '"aClassname"'
+    }
+  ]
 })
 
 test(`<MIXIN_CALL>+centered('Section 1')#Second`, {
@@ -249,18 +255,13 @@ test("a.rho(href='#', class='rho--modifier')", {
   ]
 })
 test(`div(id=id)&attributes({foo: 'bar', fred: 'bart'})`, {
-  type: 'tag',
   name: 'div',
-  attrs: [{
-    name: 'id',
-    val: 'id'
-  }, {
-    name: 'foo',
-    val: 'bar'
-  }, {
-    name: 'fred',
-    val: 'bart'
-  }]
+  type: 'tag',
+  attrs: [
+    { name: 'id', val: 'id' },
+    { name: 'foo', val: '"bar"' },
+    { name: 'fred', val: '"bart"' }
+  ]
 })
 
 test(`a(class=['foo', 'bar', 'baz'])`, {
@@ -501,18 +502,18 @@ test('meta(key=\'answer\' value=answer())', {
   ]
 })
 
-test('div(id=id)&attributes({foo: \'bar\'})', {
+test(`div(id=id)&attributes({foo: 'bar'})`, {
   name: 'div',
   type: 'tag',
-  attrs: [ { name: 'id', val: 'id' }, { name: 'foo', val: 'bar' } ]
+  attrs: [ { name: 'id', val: 'id' }, { name: 'foo', val: '"bar"' } ]
 })
-test('div(foo=null bar=bar)&attributes({baz: \'baz\'})', {
+test(`div(foo=null bar=bar)&attributes({baz: 'baz'})`, {
   name: 'div',
   type: 'tag',
   attrs: [
     { name: 'foo', val: 'null' },
     { name: 'bar', val: 'bar' },
-    { name: 'baz', val: 'baz' }
+    { name: 'baz', val: '"baz"' }
   ]
 })
 

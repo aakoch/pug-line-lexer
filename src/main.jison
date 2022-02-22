@@ -805,36 +805,44 @@ line_start
     $$ = merge($first_token, [$tag_part, $attrs])
   }
 
-  // Rule for the edgecase a(class='bar').baz
-  | first_token attrs CLASSNAME
-  {
-    debug('first_token attrs CLASSNAME: first_token=', $first_token, ', attrs=', $attrs, ', CLASSNAME=', $CLASSNAME)
-    $$ = merge($first_token, [$attrs, { attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }])
-  }
-  // Rule for the edgecase a.foo(class='bar').baz
+// old
+  // // Rule for the edgecase a(class='bar').baz
+  // | first_token attrs CLASSNAME
+  // {
+  //   debug('first_token attrs CLASSNAME: first_token=', $first_token, ', attrs=', $attrs, ', CLASSNAME=', $CLASSNAME)
+  //   $$ = merge($first_token, [$attrs, { attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }])
+  // }
+  // // Rule for the edgecase a.foo(class='bar').baz
+  // | first_token tag_part attrs CLASSNAME
+  // {
+  //   debug('first_token tag_part attrs CLASSNAME: first_token=', $first_token, ', tag_part=', $tag_part, ', attrs=', $attrs, ', CLASSNAME=', $CLASSNAME)
+  //   $$ = merge($first_token, [$tag_part, $attrs, { attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }])
+  // }
+  
+  // new
   | first_token tag_part attrs CLASSNAME
   {
-    debug('first_token tag_part attrs CLASSNAME: first_token=', $first_token, ', tag_part=', $tag_part, ', attrs=', $attrs, ', CLASSNAME=', $CLASSNAME)
-    $$ = merge($first_token, [$tag_part, $attrs, { attrs: [ { name: 'class', val: quote($CLASSNAME) } ] }])
+    debug('first_token tag_part attrs CLASSNAME: first_token=', $first_token, ', tag_part?=', $2, ', attrs=', $3, ', CLASSNAME=', $4)
+    $$ = merge($first_token, [$2, $3, { attrs: [ { name: 'class', val: quote($4) } ] }])
   }
 
-  // Rule for the edgecase div(id=id)&attributes({foo: 'bar', fred: 'bart'})
-  // line_start -> first_token .attrs AT_ATTRS   #lookaheads= [EOF]  [TEXT]  [UNBUF_CODE]  [SPACE]  [ASSIGNMENT]  [DOT_END]  [NESTED_TAG_START]  [LPAREN]
-  | first_token attrs AT_ATTRS
-  {
-    debug('first_token attrs AT_ATTRS: first_token=', $first_token, ', $attrs=', $attrs, ', AT_ATTRS=', $AT_ATTRS)
-    let attrArr1 = $attrs.attrs
-    debug('1 attrArr1=', attrArr1)
-    let atAttrObj1 = Function('return ' + $AT_ATTRS.slice(12, -1))();
-    debug('2 atAttrObj1=', atAttrObj1)
+  // // Rule for the edgecase div(id=id)&attributes({foo: 'bar', fred: 'bart'})
+  // // line_start -> first_token .attrs AT_ATTRS   #lookaheads= [EOF]  [TEXT]  [UNBUF_CODE]  [SPACE]  [ASSIGNMENT]  [DOT_END]  [NESTED_TAG_START]  [LPAREN]
+  // | first_token attrs AT_ATTRS
+  // {
+  //   debug('first_token attrs AT_ATTRS: first_token=', $first_token, ', $attrs=', $attrs, ', AT_ATTRS=', $AT_ATTRS)
+  //   let attrArr1 = $attrs.attrs
+  //   debug('1 attrArr1=', attrArr1)
+  //   let atAttrObj1 = Function('return ' + $AT_ATTRS.slice(12, -1))();
+  //   debug('2 atAttrObj1=', atAttrObj1)
 
-    var atAttrObj1ToArray = Object.entries(atAttrObj1).map(([name, val]) => ({name,val}));
-    debug('3 atAttrObj1ToArray=', atAttrObj1ToArray)
-    attrArr1 = attrArr1.concat(atAttrObj1ToArray)
-    debug('4 attrArr1=', attrArr1)
+  //   var atAttrObj1ToArray = Object.entries(atAttrObj1).map(([name, val]) => ({name,val}));
+  //   debug('3 atAttrObj1ToArray=', atAttrObj1ToArray)
+  //   attrArr1 = attrArr1.concat(atAttrObj1ToArray)
+  //   debug('4 attrArr1=', attrArr1)
 
-    $$ = merge($first_token, { attrs: attrArr1 })
-  }
+  //   $$ = merge($first_token, { attrs: attrArr1 })
+  // }
   | first_token LPAREN MIXIN_PARAMS RPAREN
   {
     debug('first_token LPAREN MIXIN_PARAMS RPAREN: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS)
@@ -843,7 +851,7 @@ line_start
   | first_token LPAREN MIXIN_PARAMS RPAREN CLASSNAME
   {
     debug('first_token LPAREN MIXIN_PARAMS RPAREN CLASSNAME: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS, ', CLASSNAME', $CLASSNAME)
-    $$ = merge($first_token, { params: $MIXIN_PARAMS }, {attrs: [ { name: 'class', val: quote($CLASSNAME) } ] })
+    $$ = merge($first_token, { params: $MIXIN_PARAMS, attrs: [ { name: 'class', val: quote($CLASSNAME) } ] })
   }
   | first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID
   {
