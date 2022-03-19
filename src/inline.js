@@ -2,7 +2,7 @@ import assert from "assert"
 import util from "util"
 import _ from "lodash"
 import debugFunc from 'debug'
-const debug = debugFunc('pug-line-lexer:inlinejs')
+const debug = debugFunc('line-lexer:inlinejs')
 
 function parseInline(str) {
 

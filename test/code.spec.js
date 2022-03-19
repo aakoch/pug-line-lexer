@@ -2,7 +2,7 @@ import assert from "assert"
 import util from "util"
 import _ from "lodash"
 import debugFunc from 'debug'
-const debug = debugFunc('pug-line-lexer:test')
+const debug = debugFunc('line-lexer:test')
 import dyp from 'dyp'
 import Parser from '../build/main.js'
 import { AttrResolver } from '@foo-dog/attrs'

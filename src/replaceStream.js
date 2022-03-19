@@ -3,7 +3,7 @@ import { argv } from 'process';
 import path from 'path'
 import { fileURLToPath } from 'url';
 import debugFunc from 'debug'
-const debug = debugFunc.debug('pug-line-lexer.replaceStream')
+const debug = debugFunc.debug('line-lexer.replaceStream')
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import { exists, parseArguments } from '@foo-dog/utils'

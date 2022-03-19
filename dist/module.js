@@ -1,9 +1,9 @@
-import $cjPlG$assert from "assert";
-import $cjPlG$util from "util";
+import $c1Lgv$assert from "assert";
+import $c1Lgv$util from "util";
 import "@foo-dog/utils";
-import $cjPlG$lodash from "lodash";
-import $cjPlG$debug from "debug";
-import {AttrResolver as $cjPlG$AttrResolver} from "@foo-dog/attrs";
+import $c1Lgv$lodash from "lodash";
+import $c1Lgv$debug from "debug";
+import {AttrResolver as $c1Lgv$AttrResolver} from "@foo-dog/attrs";
 
 
 
@@ -401,7 +401,7 @@ import {AttrResolver as $cjPlG$AttrResolver} from "@foo-dog/attrs";
 // http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
 // but we keep the prototype.constructor and prototype.name assignment lines too for compatibility
 // with userland code which might access the derived class in a 'classic' way.
-function $082ca48d6cb6a5f5$var$JisonParserError(msg, hash) {
+function $51f63cf6b52326c0$var$JisonParserError(msg, hash) {
     Object.defineProperty(this, 'name', {
         enumerable: false,
         writable: false,
@@ -430,12 +430,12 @@ function $082ca48d6cb6a5f5$var$JisonParserError(msg, hash) {
         value: stacktrace
     });
 }
-if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf($082ca48d6cb6a5f5$var$JisonParserError.prototype, Error.prototype);
-else $082ca48d6cb6a5f5$var$JisonParserError.prototype = Object.create(Error.prototype);
-$082ca48d6cb6a5f5$var$JisonParserError.prototype.constructor = $082ca48d6cb6a5f5$var$JisonParserError;
-$082ca48d6cb6a5f5$var$JisonParserError.prototype.name = 'JisonParserError';
+if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf($51f63cf6b52326c0$var$JisonParserError.prototype, Error.prototype);
+else $51f63cf6b52326c0$var$JisonParserError.prototype = Object.create(Error.prototype);
+$51f63cf6b52326c0$var$JisonParserError.prototype.constructor = $51f63cf6b52326c0$var$JisonParserError;
+$51f63cf6b52326c0$var$JisonParserError.prototype.name = 'JisonParserError';
 // helper: reconstruct the productions[] table
-function $082ca48d6cb6a5f5$var$bp(s) {
+function $51f63cf6b52326c0$var$bp(s) {
     var rv = [];
     var p = s.pop;
     var r = s.rule;
@@ -446,7 +446,7 @@ function $082ca48d6cb6a5f5$var$bp(s) {
     return rv;
 }
 // helper: reconstruct the defaultActions[] table
-function $082ca48d6cb6a5f5$var$bda(s) {
+function $51f63cf6b52326c0$var$bda(s) {
     var rv = {
     };
     var d = s.idx;
@@ -458,7 +458,7 @@ function $082ca48d6cb6a5f5$var$bda(s) {
     return rv;
 }
 // helper: reconstruct the 'goto' table
-function $082ca48d6cb6a5f5$var$bt(s) {
+function $51f63cf6b52326c0$var$bt(s) {
     var rv = [];
     var d = s.len;
     var y = s.symbol;
@@ -495,7 +495,7 @@ function $082ca48d6cb6a5f5$var$bt(s) {
 }
 // helper: runlength encoding with increment step: code, length: step (default step = 0)
 // `this` references an array
-function $082ca48d6cb6a5f5$var$s(c, l, a) {
+function $51f63cf6b52326c0$var$s(c, l, a) {
     a = a || 0;
     for(var i = 0; i < l; i++){
         this.push(c);
@@ -504,12 +504,12 @@ function $082ca48d6cb6a5f5$var$s(c, l, a) {
 }
 // helper: duplicate sequence from *relative* offset and length.
 // `this` references an array
-function $082ca48d6cb6a5f5$var$c(i, l) {
+function $51f63cf6b52326c0$var$c(i, l) {
     i = this.length - i;
     for(l += i; i < l; i++)this.push(this[i]);
 }
 // helper: unpack an array using helpers and data, all passed in an array argument 'a'.
-function $082ca48d6cb6a5f5$var$u(a) {
+function $51f63cf6b52326c0$var$u(a) {
     var rv = [];
     for(var i = 0, l = a.length; i < l; i++){
         var e = a[i];
@@ -521,7 +521,7 @@ function $082ca48d6cb6a5f5$var$u(a) {
     }
     return rv;
 }
-var $082ca48d6cb6a5f5$var$parser = {
+var $51f63cf6b52326c0$var$parser = {
     // Code Generator Information Report
     // ---------------------------------
     //
@@ -579,7 +579,7 @@ var $082ca48d6cb6a5f5$var$parser = {
     // --------- END OF REPORT -----------
     trace: function no_op_trace() {
     },
-    JisonParserError: $082ca48d6cb6a5f5$var$JisonParserError,
+    JisonParserError: $51f63cf6b52326c0$var$JisonParserError,
     yy: {
     },
     options: {
@@ -736,12 +736,12 @@ var $082ca48d6cb6a5f5$var$parser = {
         }
         return tokenset;
     },
-    productions_: $082ca48d6cb6a5f5$var$bp({
-        pop: $082ca48d6cb6a5f5$var$u([
+    productions_: $51f63cf6b52326c0$var$bp({
+        pop: $51f63cf6b52326c0$var$u([
             15,
             16,
             16,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 17,
                 22
@@ -803,7 +803,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             45,
             45
         ]),
-        rule: $082ca48d6cb6a5f5$var$u([
+        rule: $51f63cf6b52326c0$var$u([
             2,
             2,
             1,
@@ -811,14 +811,14 @@ var $082ca48d6cb6a5f5$var$parser = {
             1,
             1,
             2,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 3,
                 3
             ],
             4,
             4,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 6,
                 6
@@ -834,7 +834,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             2,
             1,
             2,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 4,
                 42
@@ -842,7 +842,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             0,
             2,
             0,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 4,
                 7
@@ -864,7 +864,7 @@ var $082ca48d6cb6a5f5$var$parser = {
                 this.$ = yyvstack[yysp - 1];
                 break;
             case 2:
-                /*! Production::    line : line line_part */ $082ca48d6cb6a5f5$var$debug('line: line line_part: $line=', yyvstack[yysp - 1], ', $line_part=', yyvstack[yysp]);
+                /*! Production::    line : line line_part */ $51f63cf6b52326c0$var$debug('line: line line_part: $line=', yyvstack[yysp - 1], ', $line_part=', yyvstack[yysp]);
                 if (Array.isArray(yyvstack[yysp - 1])) this.$ = yyvstack[yysp - 1];
                 else this.$ = [
                     yyvstack[yysp - 1]
@@ -872,7 +872,7 @@ var $082ca48d6cb6a5f5$var$parser = {
                 this.$.push(yyvstack[yysp]);
                 break;
             case 3:
-                /*! Production::    line : line_part */ $082ca48d6cb6a5f5$var$debug('line: line_part: $line_part=', yyvstack[yysp]);
+                /*! Production::    line : line_part */ $51f63cf6b52326c0$var$debug('line: line_part: $line_part=', yyvstack[yysp]);
                 if (Array.isArray(yyvstack[yysp])) this.$ = yyvstack[yysp];
                 else this.$ = [
                     yyvstack[yysp]
@@ -884,10 +884,10 @@ var $082ca48d6cb6a5f5$var$parser = {
                 break;
             case 5:
                 /*! Production::    line_part : TAG */ let [tag_name, attrs, body] = yyvstack[yysp];
-                $082ca48d6cb6a5f5$var$debug('$TAG=', yyvstack[yysp]);
-                $082ca48d6cb6a5f5$var$debug('tag_name=', tag_name);
-                $082ca48d6cb6a5f5$var$debug('attrs=', attrs);
-                $082ca48d6cb6a5f5$var$debug('body=', body);
+                $51f63cf6b52326c0$var$debug('$TAG=', yyvstack[yysp]);
+                $51f63cf6b52326c0$var$debug('tag_name=', tag_name);
+                $51f63cf6b52326c0$var$debug('attrs=', attrs);
+                $51f63cf6b52326c0$var$debug('body=', body);
                 const obj1 = {
                     type: 'tag',
                     name: tag_name,
@@ -896,11 +896,11 @@ var $082ca48d6cb6a5f5$var$parser = {
                 if (attrs == undefined) delete obj1.attrs;
                 if (body == '') delete obj1.val;
                 else if (body.includes('<') && body.includes('>')) {
-                    $082ca48d6cb6a5f5$var$debug('parsing ', body);
-                    $082ca48d6cb6a5f5$var$recursive++;
+                    $51f63cf6b52326c0$var$debug('parsing ', body);
+                    $51f63cf6b52326c0$var$recursive++;
                     let parsedBody = yy.parser.parse(body);
-                    $082ca48d6cb6a5f5$var$recursive--;
-                    $082ca48d6cb6a5f5$var$debug('parsedBody=', parsedBody);
+                    $51f63cf6b52326c0$var$recursive--;
+                    $51f63cf6b52326c0$var$debug('parsedBody=', parsedBody);
                     if (parsedBody.length == 1 && parsedBody[0].type == 'text' && !parsedBody[0].hasOwnProperty('children')) obj1.val = parsedBody[0].val;
                     else obj1.children = obj1.hasOwnProperty('children') ? obj1.children.push(...parsedBody) : parsedBody;
                 } else obj1.val = body;
@@ -930,7 +930,7 @@ var $082ca48d6cb6a5f5$var$parser = {
                 /*! Production::    line_part : TAG_START line_part_repetition_plus4 TAG_END */ this.$ = {
                     type: 'tag',
                     name: yyvstack[yysp - 2],
-                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].join(''))
+                    attrs: $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].join(''))
                 };
                 break;
             case 11:
@@ -939,7 +939,7 @@ var $082ca48d6cb6a5f5$var$parser = {
                     type: 'tag',
                     name: yyvstack[yysp - 3],
                     val: yyvstack[yysp - 1].join(''),
-                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''))
+                    attrs: $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''))
                 };
                 break;
             case 13:
@@ -960,7 +960,7 @@ var $082ca48d6cb6a5f5$var$parser = {
                 /*! Production::    line_part : FILTER_START line_part_repetition_plus11 TAG_END */ this.$ = {
                     type: 'filter',
                     name: yyvstack[yysp - 2],
-                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].join(''))
+                    attrs: $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].join(''))
                 };
                 break;
             case 17:
@@ -969,7 +969,7 @@ var $082ca48d6cb6a5f5$var$parser = {
                     type: 'filter',
                     name: yyvstack[yysp - 3],
                     val: yyvstack[yysp - 1].join(''),
-                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''))
+                    attrs: $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''))
                 };
                 break;
             case 19:
@@ -984,7 +984,7 @@ var $082ca48d6cb6a5f5$var$parser = {
                     type: 'tag',
                     name: yyvstack[yysp - 4],
                     assignment: yyvstack[yysp - 2].join(''),
-                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp].join(''))
+                    attrs: $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp].join(''))
                 };
                 break;
             case 21:
@@ -1001,7 +1001,7 @@ var $082ca48d6cb6a5f5$var$parser = {
                     name: yyvstack[yysp - 5],
                     assignment: yyvstack[yysp - 3].join(''),
                     val: yyvstack[yysp].join(''),
-                    attrs: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].join(''))
+                    attrs: $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].join(''))
                 };
                 break;
             case 23:
@@ -1023,16 +1023,16 @@ var $082ca48d6cb6a5f5$var$parser = {
                     name: yyvstack[yysp - 5]
                 };
                 if (yyvstack[yysp - 3]) this.$.classes = yyvstack[yysp - 3];
-                if (yyvstack[yysp - 2]) this.$.attrs = $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''));
+                if (yyvstack[yysp - 2]) this.$.attrs = $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''));
                 if (yyvstack[yysp - 1]) this.$.val = yyvstack[yysp - 1].join('');
                 break;
             case 25:
-                /*! Production::    line_part : TAG_START line_part_repetition4 line_part_repetition5 TAG_END */ $082ca48d6cb6a5f5$var$debug('TAG_START ATTR* BODY* TAG_END');
+                /*! Production::    line_part : TAG_START line_part_repetition4 line_part_repetition5 TAG_END */ $51f63cf6b52326c0$var$debug('TAG_START ATTR* BODY* TAG_END');
                 this.$ = {
                     type: 'tag',
                     name: yyvstack[yysp - 3]
                 };
-                if (yyvstack[yysp - 2]) this.$.attrs = $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''));
+                if (yyvstack[yysp - 2]) this.$.attrs = $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp - 2].join(''));
                 if (yyvstack[yysp - 1]) this.$.val = yyvstack[yysp - 1].join('');
                 break;
             case 26:
@@ -1102,8 +1102,8 @@ var $082ca48d6cb6a5f5$var$parser = {
                 break;
         }
     },
-    table: $082ca48d6cb6a5f5$var$bt({
-        len: $082ca48d6cb6a5f5$var$u([
+    table: $51f63cf6b52326c0$var$bt({
+        len: $51f63cf6b52326c0$var$u([
             9,
             1,
             7,
@@ -1113,12 +1113,12 @@ var $082ca48d6cb6a5f5$var$parser = {
             11,
             8,
             6,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 0,
                 4
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 2,
                 3
@@ -1130,90 +1130,90 @@ var $082ca48d6cb6a5f5$var$parser = {
             4,
             0,
             3,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 11,
                 6
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 8,
                 3
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 0,
                 6
             ],
             2,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 3,
                 6
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 3,
                 3
             ],
             4,
             5,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 9,
                 3
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 20,
                 11
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 12,
                 12
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 46,
                 3
             ],
             4,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 0,
                 11
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 33,
                 9
             ]
         ]),
-        symbol: $082ca48d6cb6a5f5$var$u([
+        symbol: $51f63cf6b52326c0$var$u([
             1,
             3,
             4,
             6,
             8,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 15,
                 4,
                 1
             ],
             1,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 10,
                 5
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 8,
                 3
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 7,
                 4
@@ -1223,7 +1223,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             10,
             11,
             12,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 19,
                 4,
@@ -1234,14 +1234,14 @@ var $082ca48d6cb6a5f5$var$parser = {
             5,
             11,
             12,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 26,
                 4,
                 1
             ],
             31,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 24,
                 5
@@ -1265,18 +1265,18 @@ var $082ca48d6cb6a5f5$var$parser = {
             36,
             38,
             41,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 32,
                 3
             ],
             45,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 4,
                 3
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 25,
                 8
@@ -1285,7 +1285,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             11,
             12,
             32,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 15,
                 8
@@ -1300,25 +1300,25 @@ var $082ca48d6cb6a5f5$var$parser = {
             12,
             13,
             39,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 18,
                 3
             ],
             13,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 4,
                 3
             ],
             14,
             42,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 24,
                 5
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 41,
                 3
@@ -1328,112 +1328,112 @@ var $082ca48d6cb6a5f5$var$parser = {
             11,
             12,
             40,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 18,
                 3
             ],
             43,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 15,
                 4
             ]
         ]),
-        type: $082ca48d6cb6a5f5$var$u([
-            $082ca48d6cb6a5f5$var$s,
+        type: $51f63cf6b52326c0$var$u([
+            $51f63cf6b52326c0$var$s,
             [
                 2,
                 5
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 0,
                 4
             ],
             1,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 10,
                 7
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 2,
                 10
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 0,
                 6
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 9,
                 8
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 2,
                 14
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 15,
                 3
             ],
             0,
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 24,
                 9
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 28,
                 12
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 25,
                 5
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 15,
                 16
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 18,
                 9
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 70,
                 13
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 59,
                 9
             ]
         ]),
-        state: $082ca48d6cb6a5f5$var$u([
+        state: $51f63cf6b52326c0$var$u([
             1,
             2,
             3,
             5,
             10,
             5,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 13,
                 5,
                 1
             ],
             20,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 24,
                 5,
@@ -1441,7 +1441,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             ],
             38,
             41,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 44,
                 4,
@@ -1451,7 +1451,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             50,
             58,
             61,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 70,
                 4,
@@ -1460,79 +1460,79 @@ var $082ca48d6cb6a5f5$var$parser = {
             91,
             94
         ]),
-        mode: $082ca48d6cb6a5f5$var$u([
+        mode: $51f63cf6b52326c0$var$u([
             2,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 1,
                 9
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 2,
                 4
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 13,
                 13
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 14,
                 10
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 17,
                 5
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 20,
                 4
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 16,
                 12
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 31,
                 15
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 50,
                 17
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 51,
                 4
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 1,
                 4
             ]
         ]),
-        goto: $082ca48d6cb6a5f5$var$u([
+        goto: $51f63cf6b52326c0$var$u([
             4,
             4,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 6,
                 4,
                 1
             ],
-            $082ca48d6cb6a5f5$var$c,
+            $51f63cf6b52326c0$var$c,
             [
                 5,
                 4
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 6,
                 4
@@ -1546,12 +1546,12 @@ var $082ca48d6cb6a5f5$var$parser = {
             23,
             29,
             30,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 26,
                 5
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 31,
                 7,
@@ -1568,7 +1568,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             32,
             34,
             32,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 52,
                 6,
@@ -1581,7 +1581,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             46,
             48,
             46,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 64,
                 6,
@@ -1597,12 +1597,12 @@ var $082ca48d6cb6a5f5$var$parser = {
             62,
             58,
             56,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 74,
                 3
             ],
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 80,
                 11,
@@ -1612,7 +1612,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             92,
             76,
             76,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 95,
                 5,
@@ -1620,11 +1620,11 @@ var $082ca48d6cb6a5f5$var$parser = {
             ]
         ])
     }),
-    defaultActions: $082ca48d6cb6a5f5$var$bda({
-        idx: $082ca48d6cb6a5f5$var$u([
+    defaultActions: $51f63cf6b52326c0$var$bda({
+        idx: $51f63cf6b52326c0$var$u([
             3,
             4,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 9,
                 4,
@@ -1634,7 +1634,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             21,
             23,
             29,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 31,
                 7,
@@ -1644,7 +1644,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             40,
             42,
             43,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 51,
                 7,
@@ -1652,7 +1652,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             ],
             59,
             60,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 62,
                 8,
@@ -1664,7 +1664,7 @@ var $082ca48d6cb6a5f5$var$parser = {
             75,
             77,
             78,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 80,
                 11,
@@ -1672,14 +1672,14 @@ var $082ca48d6cb6a5f5$var$parser = {
             ],
             92,
             93,
-            $082ca48d6cb6a5f5$var$s,
+            $51f63cf6b52326c0$var$s,
             [
                 95,
                 5,
                 1
             ]
         ]),
-        goto: $082ca48d6cb6a5f5$var$u([
+        goto: $51f63cf6b52326c0$var$u([
             3,
             5,
             1,
@@ -1784,10 +1784,10 @@ var $082ca48d6cb6a5f5$var$parser = {
             post_lex: undefined // WARNING: must be written this way for the code expanders to work correctly in both ES5 and ES6 modes!
         };
         var ASSERT;
-        if (typeof $cjPlG$assert !== 'function') ASSERT = function JisonAssert(cond, msg) {
+        if (typeof $c1Lgv$assert !== 'function') ASSERT = function JisonAssert(cond, msg) {
             if (!cond) throw new Error('assertion failed: ' + (msg || '***'));
         };
-        else ASSERT = $cjPlG$assert;
+        else ASSERT = $c1Lgv$assert;
         this.yyGetSharedState = function yyGetSharedState() {
             return sharedState_yy;
         };
@@ -2085,8 +2085,8 @@ var $082ca48d6cb6a5f5$var$parser = {
         return retval;
     }
 };
-$082ca48d6cb6a5f5$var$parser.originalParseError = $082ca48d6cb6a5f5$var$parser.parseError;
-$082ca48d6cb6a5f5$var$parser.originalQuoteName = $082ca48d6cb6a5f5$var$parser.quoteName;
+$51f63cf6b52326c0$var$parser.originalParseError = $51f63cf6b52326c0$var$parser.parseError;
+$51f63cf6b52326c0$var$parser.originalQuoteName = $51f63cf6b52326c0$var$parser.quoteName;
 /* lexer generated by jison-lex 0.6.1-216 */ /*
  * Returns a Lexer object of the following structure:
  *
@@ -2301,7 +2301,7 @@ $082ca48d6cb6a5f5$var$parser.originalQuoteName = $082ca48d6cb6a5f5$var$parser.qu
  *                 `XRegExp` library. When this %option has not been specified at compile time, all lexer
  *                 rule regexes have been written as standard JavaScript RegExp expressions.
  *  }
- */ var $082ca48d6cb6a5f5$var$lexer = function() {
+ */ var $51f63cf6b52326c0$var$lexer = function() {
     /**
    * See also:
    * http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
@@ -3370,27 +3370,27 @@ $082ca48d6cb6a5f5$var$parser.originalQuoteName = $082ca48d6cb6a5f5$var$parser.qu
             var YYSTATE = YY_START;
             switch(yyrulenumber){
                 case 1:
-                    /*! Conditions:: INITIAL */ /*! Rule::       \\{interp} */ $082ca48d6cb6a5f5$var$debug('matches', this.matches);
+                    /*! Conditions:: INITIAL */ /*! Rule::       \\{interp} */ $51f63cf6b52326c0$var$debug('matches', this.matches);
                     yy_.yytext = yy_.yytext.substring(2, yy_.yytext.length - 1);
                     return 'INTERPOLATION_WRONG';
                 case 2:
-                    /*! Conditions:: INITIAL */ /*! Rule::       {interp} */ $082ca48d6cb6a5f5$var$debug('matches', this.matches);
+                    /*! Conditions:: INITIAL */ /*! Rule::       {interp} */ $51f63cf6b52326c0$var$debug('matches', this.matches);
                     yy_.yytext = yy_.yytext.substring(2, yy_.yytext.length - 1);
                     return 9;
                 case 3:
                     /*! Conditions:: INITIAL */ /*! Rule::       {interp_start}\w+ */ this.pushState('INTERP_START');
                     break;
                 case 4:
-                    /*! Conditions:: INTERP_START */ /*! Rule::       . */ if (yy_.yytext == '{') $082ca48d6cb6a5f5$var$interpStack.push('}');
+                    /*! Conditions:: INTERP_START */ /*! Rule::       . */ if (yy_.yytext == '{') $51f63cf6b52326c0$var$interpStack.push('}');
                     else if (yy_.yytext == '}') {
-                        if ($082ca48d6cb6a5f5$var$interpStack.length == 0) ;
-                        else if ($082ca48d6cb6a5f5$var$interpStack.pop() == yy_.yytext) return 9;
+                        if ($51f63cf6b52326c0$var$interpStack.length == 0) ;
+                        else if ($51f63cf6b52326c0$var$interpStack.pop() == yy_.yytext) return 9;
                         else throw new Error('Mismatching curly braces');
                     }
                     break;
                 case 9:
                     /*! Conditions:: INITIAL */ /*! Rule::       (?:#\[\s*){tag_name} */ '])';
-                    $082ca48d6cb6a5f5$var$debug('(?:\'#[\'s*){tag_name}');
+                    $51f63cf6b52326c0$var$debug('(?:\'#[\'s*){tag_name}');
                     yy_.yytext = this.matches[1];
                     this.pushState('TAG_STARTED');
                     return 4;
@@ -3444,8 +3444,8 @@ $082ca48d6cb6a5f5$var$parser.originalQuoteName = $082ca48d6cb6a5f5$var$parser.qu
                     this.pushState('BODY_STARTED');
                     break;
                 case 27:
-                    /*! Conditions:: ATTRS_STARTED */ /*! Rule::       \w+ */ $082ca48d6cb6a5f5$var$debug('<ATTRS_STARTED>\\w+');
-                    $082ca48d6cb6a5f5$var$debug('yy_.yytext', yy_.yytext);
+                    /*! Conditions:: ATTRS_STARTED */ /*! Rule::       \w+ */ $51f63cf6b52326c0$var$debug('<ATTRS_STARTED>\\w+');
+                    $51f63cf6b52326c0$var$debug('yy_.yytext', yy_.yytext);
                     return 12;
                 case 30:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       \) ? */ this.popState();
@@ -3625,60 +3625,60 @@ $082ca48d6cb6a5f5$var$parser.originalQuoteName = $082ca48d6cb6a5f5$var$parser.qu
     };
     return lexer;
 }();
-$082ca48d6cb6a5f5$var$parser.lexer = $082ca48d6cb6a5f5$var$lexer;
-const $082ca48d6cb6a5f5$var$TEXT_TAGS_ALLOW_SUB_TAGS = true;
-const $082ca48d6cb6a5f5$var$debug = $cjPlG$debug('pug-line-lexer:inline');
-let $082ca48d6cb6a5f5$var$tagAlreadyFound = false;
-let $082ca48d6cb6a5f5$var$obj;
-var $082ca48d6cb6a5f5$var$lparenOpen = false;
-const $082ca48d6cb6a5f5$var$keysToMergeText = [
+$51f63cf6b52326c0$var$parser.lexer = $51f63cf6b52326c0$var$lexer;
+const $51f63cf6b52326c0$var$TEXT_TAGS_ALLOW_SUB_TAGS = true;
+const $51f63cf6b52326c0$var$debug = $c1Lgv$debug('line-lexer:inline');
+let $51f63cf6b52326c0$var$tagAlreadyFound = false;
+let $51f63cf6b52326c0$var$obj;
+var $51f63cf6b52326c0$var$lparenOpen = false;
+const $51f63cf6b52326c0$var$keysToMergeText = [
     'therest'
 ];
-const $082ca48d6cb6a5f5$var$tags = [];
-const $082ca48d6cb6a5f5$var$interpStack = [];
-const $082ca48d6cb6a5f5$var$adam = "div";
-var $082ca48d6cb6a5f5$var$recursive = 1;
-function $082ca48d6cb6a5f5$var$rank(type1, type2) {
+const $51f63cf6b52326c0$var$tags = [];
+const $51f63cf6b52326c0$var$interpStack = [];
+const $51f63cf6b52326c0$var$adam = "div";
+var $51f63cf6b52326c0$var$recursive = 1;
+function $51f63cf6b52326c0$var$rank(type1, type2) {
     if (type2 === 'text') return type1;
     else if (type1 === type2) return type1;
     else if (type1 == 'tag' && type2 == 'tag_with_multiline_attrs') return type2;
     else if (type1 == 'tag_with_multiline_attrs' && type2 == 'tag') return type1;
     else return type1.concat(type2);
 }
-function $082ca48d6cb6a5f5$var$merge(obj, src) {
-    $082ca48d6cb6a5f5$var$debug('merging', obj, src);
-    if (Array.isArray(src) && src.length > 0) src = src.reduce($082ca48d6cb6a5f5$var$merge);
-    if ($cjPlG$util.isDeepStrictEqual(src, [
+function $51f63cf6b52326c0$var$merge(obj, src) {
+    $51f63cf6b52326c0$var$debug('merging', obj, src);
+    if (Array.isArray(src) && src.length > 0) src = src.reduce($51f63cf6b52326c0$var$merge);
+    if ($c1Lgv$util.isDeepStrictEqual(src, [
         {
             therest: ''
         }
     ])) return obj;
-    const ret = $cjPlG$lodash.mergeWith(obj, src, function(objValue, srcValue, key, object, source, stack) {
-        $082ca48d6cb6a5f5$var$debug('merging', 'inside _mergeWith', key, objValue, srcValue);
+    const ret = $c1Lgv$lodash.mergeWith(obj, src, function(objValue, srcValue, key, object, source, stack) {
+        $51f63cf6b52326c0$var$debug('merging', 'inside _mergeWith', key, objValue, srcValue);
         if (objValue == undefined && srcValue == undefined) return {
         };
         if (objValue == undefined) return srcValue;
         if (srcValue == undefined) return objValue;
         if (objValue != undefined && srcValue != undefined) {
-            if ($082ca48d6cb6a5f5$var$keysToMergeText.includes(key)) return objValue + srcValue;
-            else return $082ca48d6cb6a5f5$var$rank(objValue, srcValue);
+            if ($51f63cf6b52326c0$var$keysToMergeText.includes(key)) return objValue + srcValue;
+            else return $51f63cf6b52326c0$var$rank(objValue, srcValue);
         }
     });
-    $082ca48d6cb6a5f5$var$debug('merging', ' returning', ret);
+    $51f63cf6b52326c0$var$debug('merging', ' returning', ret);
     return ret;
 //  return Object.assign(obj, src);
 }
-$082ca48d6cb6a5f5$var$parser.main = function() {
-    $082ca48d6cb6a5f5$var$tagAlreadyFound = false;
-    $082ca48d6cb6a5f5$var$lparenOpen = false;
+$51f63cf6b52326c0$var$parser.main = function() {
+    $51f63cf6b52326c0$var$tagAlreadyFound = false;
+    $51f63cf6b52326c0$var$lparenOpen = false;
     function test(input, expected, strict = true) {
-        $082ca48d6cb6a5f5$var$tagAlreadyFound = false;
-        $082ca48d6cb6a5f5$var$lparenOpen = false;
-        $082ca48d6cb6a5f5$var$debug(`\nTesting '${input}'...`);
-        var actual = $082ca48d6cb6a5f5$var$parser.parse(input);
-        $082ca48d6cb6a5f5$var$debug(input + ' ==> ', $cjPlG$util.inspect(actual, false, 8));
+        $51f63cf6b52326c0$var$tagAlreadyFound = false;
+        $51f63cf6b52326c0$var$lparenOpen = false;
+        $51f63cf6b52326c0$var$debug(`\nTesting '${input}'...`);
+        var actual = $51f63cf6b52326c0$var$parser.parse(input);
+        $51f63cf6b52326c0$var$debug(input + ' ==> ', $c1Lgv$util.inspect(actual, false, 8));
         let compareFunc;
-        if (strict) compareFunc = $cjPlG$assert.deepEqual;
+        if (strict) compareFunc = $c1Lgv$assert.deepEqual;
         else compareFunc = dyp;
         // fs.writeFileSync('actual.json', JSON.stringify(actual))
         // fs.writeFileSync('expected.json', JSON.stringify(expected))
@@ -3945,19 +3945,19 @@ $082ca48d6cb6a5f5$var$parser.main = function() {
 // TODO: 
 // test("This also works #[+linkit('http://www.bing.com')] so hurrah for Pug", {})
 };
-function $082ca48d6cb6a5f5$var$Parser() {
+function $51f63cf6b52326c0$var$Parser() {
     this.yy = {
     };
 }
-$082ca48d6cb6a5f5$var$Parser.prototype = $082ca48d6cb6a5f5$var$parser;
-$082ca48d6cb6a5f5$var$parser.Parser = $082ca48d6cb6a5f5$var$Parser;
-function $082ca48d6cb6a5f5$var$yyparse() {
-    return $082ca48d6cb6a5f5$var$parser.parse.apply($082ca48d6cb6a5f5$var$parser, arguments);
+$51f63cf6b52326c0$var$Parser.prototype = $51f63cf6b52326c0$var$parser;
+$51f63cf6b52326c0$var$parser.Parser = $51f63cf6b52326c0$var$Parser;
+function $51f63cf6b52326c0$var$yyparse() {
+    return $51f63cf6b52326c0$var$parser.parse.apply($51f63cf6b52326c0$var$parser, arguments);
 }
-var $082ca48d6cb6a5f5$export$2e2bcd8739ae039 = {
-    parser: $082ca48d6cb6a5f5$var$parser,
-    Parser: $082ca48d6cb6a5f5$var$Parser,
-    parse: $082ca48d6cb6a5f5$var$yyparse
+var $51f63cf6b52326c0$export$2e2bcd8739ae039 = {
+    parser: $51f63cf6b52326c0$var$parser,
+    Parser: $51f63cf6b52326c0$var$Parser,
+    parse: $51f63cf6b52326c0$var$yyparse
 };
 
 
@@ -4339,7 +4339,7 @@ var $082ca48d6cb6a5f5$export$2e2bcd8739ae039 = {
 // http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
 // but we keep the prototype.constructor and prototype.name assignment lines too for compatibility
 // with userland code which might access the derived class in a 'classic' way.
-function $5355ad80bd576add$var$JisonParserError(msg, hash) {
+function $510a014853e7284e$var$JisonParserError(msg, hash) {
     Object.defineProperty(this, 'name', {
         enumerable: false,
         writable: false,
@@ -4368,12 +4368,12 @@ function $5355ad80bd576add$var$JisonParserError(msg, hash) {
         value: stacktrace
     });
 }
-if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf($5355ad80bd576add$var$JisonParserError.prototype, Error.prototype);
-else $5355ad80bd576add$var$JisonParserError.prototype = Object.create(Error.prototype);
-$5355ad80bd576add$var$JisonParserError.prototype.constructor = $5355ad80bd576add$var$JisonParserError;
-$5355ad80bd576add$var$JisonParserError.prototype.name = 'JisonParserError';
+if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf($510a014853e7284e$var$JisonParserError.prototype, Error.prototype);
+else $510a014853e7284e$var$JisonParserError.prototype = Object.create(Error.prototype);
+$510a014853e7284e$var$JisonParserError.prototype.constructor = $510a014853e7284e$var$JisonParserError;
+$510a014853e7284e$var$JisonParserError.prototype.name = 'JisonParserError';
 // helper: reconstruct the productions[] table
-function $5355ad80bd576add$var$bp(s) {
+function $510a014853e7284e$var$bp(s) {
     var rv = [];
     var p = s.pop;
     var r = s.rule;
@@ -4384,7 +4384,7 @@ function $5355ad80bd576add$var$bp(s) {
     return rv;
 }
 // helper: reconstruct the 'goto' table
-function $5355ad80bd576add$var$bt(s) {
+function $510a014853e7284e$var$bt(s) {
     var rv = [];
     var d = s.len;
     var y = s.symbol;
@@ -4421,7 +4421,7 @@ function $5355ad80bd576add$var$bt(s) {
 }
 // helper: runlength encoding with increment step: code, length: step (default step = 0)
 // `this` references an array
-function $5355ad80bd576add$var$s(c, l, a) {
+function $510a014853e7284e$var$s(c, l, a) {
     a = a || 0;
     for(var i = 0; i < l; i++){
         this.push(c);
@@ -4430,12 +4430,12 @@ function $5355ad80bd576add$var$s(c, l, a) {
 }
 // helper: duplicate sequence from *relative* offset and length.
 // `this` references an array
-function $5355ad80bd576add$var$c(i, l) {
+function $510a014853e7284e$var$c(i, l) {
     i = this.length - i;
     for(l += i; i < l; i++)this.push(this[i]);
 }
 // helper: unpack an array using helpers and data, all passed in an array argument 'a'.
-function $5355ad80bd576add$var$u(a) {
+function $510a014853e7284e$var$u(a) {
     var rv = [];
     for(var i = 0, l = a.length; i < l; i++){
         var e = a[i];
@@ -4447,7 +4447,7 @@ function $5355ad80bd576add$var$u(a) {
     }
     return rv;
 }
-var $5355ad80bd576add$var$parser = {
+var $510a014853e7284e$var$parser = {
     // Code Generator Information Report
     // ---------------------------------
     //
@@ -4505,7 +4505,7 @@ var $5355ad80bd576add$var$parser = {
     // --------- END OF REPORT -----------
     trace: function no_op_trace() {
     },
-    JisonParserError: $5355ad80bd576add$var$JisonParserError,
+    JisonParserError: $510a014853e7284e$var$JisonParserError,
     yy: {
     },
     options: {
@@ -4629,21 +4629,21 @@ var $5355ad80bd576add$var$parser = {
         }
         return tokenset;
     },
-    productions_: $5355ad80bd576add$var$bp({
-        pop: $5355ad80bd576add$var$u([
+    productions_: $510a014853e7284e$var$bp({
+        pop: $510a014853e7284e$var$u([
             11,
             11,
-            $5355ad80bd576add$var$s,
+            $510a014853e7284e$var$s,
             [
                 12,
                 3
             ],
-            $5355ad80bd576add$var$s,
+            $510a014853e7284e$var$s,
             [
                 13,
                 3
             ],
-            $5355ad80bd576add$var$s,
+            $510a014853e7284e$var$s,
             [
                 14,
                 3
@@ -4653,19 +4653,19 @@ var $5355ad80bd576add$var$parser = {
             16,
             16
         ]),
-        rule: $5355ad80bd576add$var$u([
+        rule: $510a014853e7284e$var$u([
             1,
             2,
             3,
             2,
             1,
             3,
-            $5355ad80bd576add$var$s,
+            $510a014853e7284e$var$s,
             [
                 1,
                 4
             ],
-            $5355ad80bd576add$var$c,
+            $510a014853e7284e$var$c,
             [
                 5,
                 5
@@ -4705,7 +4705,7 @@ var $5355ad80bd576add$var$parser = {
                 ];
                 break;
             case 6:
-                /*! Production::    attr : NAME EQ val */ $5355ad80bd576add$var$debug('attr: NAME EQ val: NAME=', yyvstack[yysp - 2], ', val=', yyvstack[yysp]);
+                /*! Production::    attr : NAME EQ val */ $510a014853e7284e$var$debug('attr: NAME EQ val: NAME=', yyvstack[yysp - 2], ', val=', yyvstack[yysp]);
                 this.$ = {
                     name: yyvstack[yysp - 2].trim(),
                     val: yyvstack[yysp]
@@ -4718,7 +4718,7 @@ var $5355ad80bd576add$var$parser = {
                 };
                 break;
             case 8:
-                /*! Production::    attr : NAME */ $5355ad80bd576add$var$debug('attr: NAME: $NAME=', yyvstack[yysp]);
+                /*! Production::    attr : NAME */ $510a014853e7284e$var$debug('attr: NAME: $NAME=', yyvstack[yysp]);
                 // $$ = $1.map( function(id2) {
                 //   return { name: id2 }
                 // })
@@ -4737,8 +4737,8 @@ var $5355ad80bd576add$var$parser = {
                 break;
         }
     },
-    table: $5355ad80bd576add$var$bt({
-        len: $5355ad80bd576add$var$u([
+    table: $510a014853e7284e$var$bt({
+        len: $510a014853e7284e$var$u([
             6,
             1,
             0,
@@ -4752,7 +4752,7 @@ var $5355ad80bd576add$var$parser = {
             5,
             5,
             3,
-            $5355ad80bd576add$var$c,
+            $510a014853e7284e$var$c,
             [
                 9,
                 4
@@ -4760,7 +4760,7 @@ var $5355ad80bd576add$var$parser = {
             1,
             0
         ]),
-        symbol: $5355ad80bd576add$var$u([
+        symbol: $510a014853e7284e$var$u([
             1,
             3,
             5,
@@ -4780,14 +4780,14 @@ var $5355ad80bd576add$var$parser = {
             3,
             5,
             13,
-            $5355ad80bd576add$var$c,
+            $510a014853e7284e$var$c,
             [
                 19,
                 3
             ],
             9,
             10,
-            $5355ad80bd576add$var$c,
+            $510a014853e7284e$var$c,
             [
                 5,
                 5
@@ -4801,40 +4801,40 @@ var $5355ad80bd576add$var$parser = {
             10,
             7
         ]),
-        type: $5355ad80bd576add$var$u([
-            $5355ad80bd576add$var$s,
+        type: $510a014853e7284e$var$u([
+            $510a014853e7284e$var$s,
             [
                 2,
                 3
             ],
-            $5355ad80bd576add$var$s,
+            $510a014853e7284e$var$s,
             [
                 0,
                 3
             ],
             1,
-            $5355ad80bd576add$var$c,
+            $510a014853e7284e$var$c,
             [
                 7,
                 5
             ],
-            $5355ad80bd576add$var$s,
+            $510a014853e7284e$var$s,
             [
                 2,
                 6
             ],
-            $5355ad80bd576add$var$c,
+            $510a014853e7284e$var$c,
             [
                 7,
                 7
             ],
-            $5355ad80bd576add$var$c,
+            $510a014853e7284e$var$c,
             [
                 13,
                 12
             ]
         ]),
-        state: $5355ad80bd576add$var$u([
+        state: $510a014853e7284e$var$u([
             1,
             3,
             4,
@@ -4843,8 +4843,8 @@ var $5355ad80bd576add$var$parser = {
             13,
             14
         ]),
-        mode: $5355ad80bd576add$var$u([
-            $5355ad80bd576add$var$s,
+        mode: $510a014853e7284e$var$u([
+            $510a014853e7284e$var$s,
             [
                 1,
                 6
@@ -4853,23 +4853,23 @@ var $5355ad80bd576add$var$parser = {
             1,
             2,
             2,
-            $5355ad80bd576add$var$c,
+            $510a014853e7284e$var$c,
             [
                 6,
                 3
             ],
-            $5355ad80bd576add$var$s,
+            $510a014853e7284e$var$s,
             [
                 2,
                 9
             ],
-            $5355ad80bd576add$var$c,
+            $510a014853e7284e$var$c,
             [
                 18,
                 7
             ]
         ]),
-        goto: $5355ad80bd576add$var$u([
+        goto: $510a014853e7284e$var$u([
             2,
             5,
             6,
@@ -4890,7 +4890,7 @@ var $5355ad80bd576add$var$parser = {
             15,
             13,
             13,
-            $5355ad80bd576add$var$s,
+            $510a014853e7284e$var$s,
             [
                 15,
                 3
@@ -4954,10 +4954,10 @@ var $5355ad80bd576add$var$parser = {
             post_lex: undefined // WARNING: must be written this way for the code expanders to work correctly in both ES5 and ES6 modes!
         };
         var ASSERT;
-        if (typeof $cjPlG$assert !== 'function') ASSERT = function JisonAssert(cond, msg) {
+        if (typeof $c1Lgv$assert !== 'function') ASSERT = function JisonAssert(cond, msg) {
             if (!cond) throw new Error('assertion failed: ' + (msg || '***'));
         };
-        else ASSERT = $cjPlG$assert;
+        else ASSERT = $c1Lgv$assert;
         this.yyGetSharedState = function yyGetSharedState() {
             return sharedState_yy;
         };
@@ -5255,8 +5255,8 @@ var $5355ad80bd576add$var$parser = {
         return retval;
     }
 };
-$5355ad80bd576add$var$parser.originalParseError = $5355ad80bd576add$var$parser.parseError;
-$5355ad80bd576add$var$parser.originalQuoteName = $5355ad80bd576add$var$parser.quoteName;
+$510a014853e7284e$var$parser.originalParseError = $510a014853e7284e$var$parser.parseError;
+$510a014853e7284e$var$parser.originalQuoteName = $510a014853e7284e$var$parser.quoteName;
 /* lexer generated by jison-lex 0.6.1-216 */ /*
  * Returns a Lexer object of the following structure:
  *
@@ -5471,7 +5471,7 @@ $5355ad80bd576add$var$parser.originalQuoteName = $5355ad80bd576add$var$parser.qu
  *                 `XRegExp` library. When this %option has not been specified at compile time, all lexer
  *                 rule regexes have been written as standard JavaScript RegExp expressions.
  *  }
- */ var $5355ad80bd576add$var$lexer = function() {
+ */ var $510a014853e7284e$var$lexer = function() {
     /**
    * See also:
    * http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
@@ -6539,7 +6539,7 @@ $5355ad80bd576add$var$parser.originalQuoteName = $5355ad80bd576add$var$parser.qu
             var YYSTATE = YY_START;
             switch(yyrulenumber){
                 case 1:
-                    /*! Conditions:: INITIAL */ /*! Rule::       \.\.\.\w+ */ $5355ad80bd576add$var$debug('spread');
+                    /*! Conditions:: INITIAL */ /*! Rule::       \.\.\.\w+ */ $510a014853e7284e$var$debug('spread');
                     return 5;
                 case 3:
                     /*! Conditions:: INITIAL */ /*! Rule::       \s*[^= ,]+ */ this.pushState('AFTER_NAME');
@@ -6569,18 +6569,18 @@ $5355ad80bd576add$var$parser.originalQuoteName = $5355ad80bd576add$var$parser.qu
                     /*! Conditions:: AFTER_EQ */ /*! Rule::       \w+\(\) */ this.popState();
                     return 6;
                 case 11:
-                    /*! Conditions:: AFTER_EQ */ /*! Rule::       [^=]+=(?!>) */ $5355ad80bd576add$var$debug('<AFTER_EQ>[^=]+\'=\'');
-                    $5355ad80bd576add$var$debug('1 yy_.yytext=', yy_.yytext);
-                    const lastSepIndex = $5355ad80bd576add$var$findLastSeparatorIndex(yy_.yytext);
-                    $5355ad80bd576add$var$debug('lastSepIndex=', lastSepIndex);
-                    $5355ad80bd576add$var$debug('yy_.yytext.length=', yy_.yytext.length);
+                    /*! Conditions:: AFTER_EQ */ /*! Rule::       [^=]+=(?!>) */ $510a014853e7284e$var$debug('<AFTER_EQ>[^=]+\'=\'');
+                    $510a014853e7284e$var$debug('1 yy_.yytext=', yy_.yytext);
+                    const lastSepIndex = $510a014853e7284e$var$findLastSeparatorIndex(yy_.yytext);
+                    $510a014853e7284e$var$debug('lastSepIndex=', lastSepIndex);
+                    $510a014853e7284e$var$debug('yy_.yytext.length=', yy_.yytext.length);
                     const nextToken = yy_.yytext.substring(lastSepIndex);
-                    $5355ad80bd576add$var$debug('nextToken=', nextToken);
+                    $510a014853e7284e$var$debug('nextToken=', nextToken);
                     this.unput(nextToken);
                     yy_.yytext = yy_.yytext.substring(0, lastSepIndex);
                     yy_.yytext = yy_.yytext.removeFromEnd(' ');
                     yy_.yytext = yy_.yytext.removeFromEnd(',');
-                    $5355ad80bd576add$var$debug('2 yy_.yytext=' + yy_.yytext);
+                    $510a014853e7284e$var$debug('2 yy_.yytext=' + yy_.yytext);
                     // debug('this.matches=', this.matches)
                     // if (yy_.yytext.includes('=')) {
                     //   debug('"=" was found')
@@ -6609,11 +6609,11 @@ $5355ad80bd576add$var$parser.originalQuoteName = $5355ad80bd576add$var$parser.qu
                     this.popState();
                     return 6;
                 case 16:
-                    /*! Conditions:: AFTER_NAME */ /*! Rule::       ,{space}* */ $5355ad80bd576add$var$debug('<AFTER_NAME>\',\'');
+                    /*! Conditions:: AFTER_NAME */ /*! Rule::       ,{space}* */ $510a014853e7284e$var$debug('<AFTER_NAME>\',\'');
                     this.popState();
                     return 10;
                 case 17:
-                    /*! Conditions:: AFTER_NAME */ /*! Rule::       {space} */ $5355ad80bd576add$var$debug('<AFTER_NAME>{space}');
+                    /*! Conditions:: AFTER_NAME */ /*! Rule::       {space} */ $510a014853e7284e$var$debug('<AFTER_NAME>{space}');
                     this.popState();
                     return 9;
                 default:
@@ -6687,18 +6687,18 @@ $5355ad80bd576add$var$parser.originalQuoteName = $5355ad80bd576add$var$parser.qu
     };
     return lexer;
 }();
-$5355ad80bd576add$var$parser.lexer = $5355ad80bd576add$var$lexer;
-const $5355ad80bd576add$var$TEXT_TAGS_ALLOW_SUB_TAGS = true;
-const $5355ad80bd576add$var$debug = $cjPlG$debug('pug-line-lexer:attrs');
-let $5355ad80bd576add$var$tagAlreadyFound = false;
-let $5355ad80bd576add$var$obj, $5355ad80bd576add$var$name, $5355ad80bd576add$var$value;
-var $5355ad80bd576add$var$lparenOpen = false;
-const $5355ad80bd576add$var$keysToMergeText = [
+$510a014853e7284e$var$parser.lexer = $510a014853e7284e$var$lexer;
+const $510a014853e7284e$var$TEXT_TAGS_ALLOW_SUB_TAGS = true;
+const $510a014853e7284e$var$debug = $c1Lgv$debug('line-lexer:attrs');
+let $510a014853e7284e$var$tagAlreadyFound = false;
+let $510a014853e7284e$var$obj, $510a014853e7284e$var$name, $510a014853e7284e$var$value;
+var $510a014853e7284e$var$lparenOpen = false;
+const $510a014853e7284e$var$keysToMergeText = [
     'therest'
 ];
-const $5355ad80bd576add$var$quoteStack = [];
-const $5355ad80bd576add$var$parens = [];
-function $5355ad80bd576add$var$findLastSeparatorIndex(str) {
+const $510a014853e7284e$var$quoteStack = [];
+const $510a014853e7284e$var$parens = [];
+function $510a014853e7284e$var$findLastSeparatorIndex(str) {
     let index = str.length - 2;
     let letterFoundIndex = -1;
     while(letterFoundIndex == -1 && index > -1){
@@ -6709,7 +6709,7 @@ function $5355ad80bd576add$var$findLastSeparatorIndex(str) {
     const substr = str.substring(0, letterFoundIndex);
     return Math.max(substr.lastIndexOf(' '), substr.lastIndexOf(','));
 }
-function $5355ad80bd576add$var$parseNumber(str) {
+function $510a014853e7284e$var$parseNumber(str) {
     try {
         if (str.includes('.')) return parseFloat(str);
         else return parseInt(str);
@@ -6718,17 +6718,17 @@ function $5355ad80bd576add$var$parseNumber(str) {
         return NaN;
     }
 }
-$5355ad80bd576add$var$parser.main = function() {
-    $5355ad80bd576add$var$tagAlreadyFound = false;
-    $5355ad80bd576add$var$lparenOpen = false;
+$510a014853e7284e$var$parser.main = function() {
+    $510a014853e7284e$var$tagAlreadyFound = false;
+    $510a014853e7284e$var$lparenOpen = false;
     function test(input, expected, strict = true) {
-        $5355ad80bd576add$var$tagAlreadyFound = false;
-        $5355ad80bd576add$var$lparenOpen = false;
-        $5355ad80bd576add$var$debug(`\nTesting '${input}'...`);
-        var actual = $5355ad80bd576add$var$parser.parse(input);
-        $5355ad80bd576add$var$debug(input + ' ==> ', $cjPlG$util.inspect(actual));
+        $510a014853e7284e$var$tagAlreadyFound = false;
+        $510a014853e7284e$var$lparenOpen = false;
+        $510a014853e7284e$var$debug(`\nTesting '${input}'...`);
+        var actual = $510a014853e7284e$var$parser.parse(input);
+        $510a014853e7284e$var$debug(input + ' ==> ', $c1Lgv$util.inspect(actual));
         let compareFunc;
-        if (strict) compareFunc = $cjPlG$assert.deepEqual;
+        if (strict) compareFunc = $c1Lgv$assert.deepEqual;
         else compareFunc = dyp;
         compareFunc.call({
         }, actual, expected);
@@ -6827,7 +6827,7 @@ $5355ad80bd576add$var$parser.main = function() {
             val: "['foo', 'bar', 'baz']"
         }
     ]);
-    // commenting this all out for now while I test pug-attr {
+    // commenting this all out for now while I test attr {
     test(`class='bar'`, [
         {
             name: 'class',
@@ -6997,19 +6997,19 @@ $5355ad80bd576add$var$parser.main = function() {
         }
     ]);
 };
-function $5355ad80bd576add$var$Parser() {
+function $510a014853e7284e$var$Parser() {
     this.yy = {
     };
 }
-$5355ad80bd576add$var$Parser.prototype = $5355ad80bd576add$var$parser;
-$5355ad80bd576add$var$parser.Parser = $5355ad80bd576add$var$Parser;
-function $5355ad80bd576add$var$yyparse() {
-    return $5355ad80bd576add$var$parser.parse.apply($5355ad80bd576add$var$parser, arguments);
+$510a014853e7284e$var$Parser.prototype = $510a014853e7284e$var$parser;
+$510a014853e7284e$var$parser.Parser = $510a014853e7284e$var$Parser;
+function $510a014853e7284e$var$yyparse() {
+    return $510a014853e7284e$var$parser.parse.apply($510a014853e7284e$var$parser, arguments);
 }
-var $5355ad80bd576add$export$2e2bcd8739ae039 = {
-    parser: $5355ad80bd576add$var$parser,
-    Parser: $5355ad80bd576add$var$Parser,
-    parse: $5355ad80bd576add$var$yyparse
+var $510a014853e7284e$export$2e2bcd8739ae039 = {
+    parser: $510a014853e7284e$var$parser,
+    Parser: $510a014853e7284e$var$Parser,
+    parse: $510a014853e7284e$var$yyparse
 };
 
 
@@ -7392,7 +7392,7 @@ var $5355ad80bd576add$export$2e2bcd8739ae039 = {
 // http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
 // but we keep the prototype.constructor and prototype.name assignment lines too for compatibility
 // with userland code which might access the derived class in a 'classic' way.
-function $e99c546f9ac18755$var$JisonParserError(msg, hash) {
+function $0701b6dda164cf78$var$JisonParserError(msg, hash) {
     Object.defineProperty(this, 'name', {
         enumerable: false,
         writable: false,
@@ -7421,12 +7421,12 @@ function $e99c546f9ac18755$var$JisonParserError(msg, hash) {
         value: stacktrace
     });
 }
-if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf($e99c546f9ac18755$var$JisonParserError.prototype, Error.prototype);
-else $e99c546f9ac18755$var$JisonParserError.prototype = Object.create(Error.prototype);
-$e99c546f9ac18755$var$JisonParserError.prototype.constructor = $e99c546f9ac18755$var$JisonParserError;
-$e99c546f9ac18755$var$JisonParserError.prototype.name = 'JisonParserError';
+if (typeof Object.setPrototypeOf === 'function') Object.setPrototypeOf($0701b6dda164cf78$var$JisonParserError.prototype, Error.prototype);
+else $0701b6dda164cf78$var$JisonParserError.prototype = Object.create(Error.prototype);
+$0701b6dda164cf78$var$JisonParserError.prototype.constructor = $0701b6dda164cf78$var$JisonParserError;
+$0701b6dda164cf78$var$JisonParserError.prototype.name = 'JisonParserError';
 // helper: reconstruct the productions[] table
-function $e99c546f9ac18755$var$bp(s) {
+function $0701b6dda164cf78$var$bp(s) {
     var rv = [];
     var p = s.pop;
     var r = s.rule;
@@ -7437,7 +7437,7 @@ function $e99c546f9ac18755$var$bp(s) {
     return rv;
 }
 // helper: reconstruct the defaultActions[] table
-function $e99c546f9ac18755$var$bda(s) {
+function $0701b6dda164cf78$var$bda(s) {
     var rv = {
     };
     var d = s.idx;
@@ -7449,7 +7449,7 @@ function $e99c546f9ac18755$var$bda(s) {
     return rv;
 }
 // helper: reconstruct the 'goto' table
-function $e99c546f9ac18755$var$bt(s) {
+function $0701b6dda164cf78$var$bt(s) {
     var rv = [];
     var d = s.len;
     var y = s.symbol;
@@ -7486,7 +7486,7 @@ function $e99c546f9ac18755$var$bt(s) {
 }
 // helper: runlength encoding with increment step: code, length: step (default step = 0)
 // `this` references an array
-function $e99c546f9ac18755$var$s(c, l, a) {
+function $0701b6dda164cf78$var$s(c, l, a) {
     a = a || 0;
     for(var i = 0; i < l; i++){
         this.push(c);
@@ -7495,12 +7495,12 @@ function $e99c546f9ac18755$var$s(c, l, a) {
 }
 // helper: duplicate sequence from *relative* offset and length.
 // `this` references an array
-function $e99c546f9ac18755$var$c(i, l) {
+function $0701b6dda164cf78$var$c(i, l) {
     i = this.length - i;
     for(l += i; i < l; i++)this.push(this[i]);
 }
 // helper: unpack an array using helpers and data, all passed in an array argument 'a'.
-function $e99c546f9ac18755$var$u(a) {
+function $0701b6dda164cf78$var$u(a) {
     var rv = [];
     for(var i = 0, l = a.length; i < l; i++){
         var e = a[i];
@@ -7512,7 +7512,7 @@ function $e99c546f9ac18755$var$u(a) {
     }
     return rv;
 }
-var $e99c546f9ac18755$var$parser = {
+var $0701b6dda164cf78$var$parser = {
     // Code Generator Information Report
     // ---------------------------------
     //
@@ -7570,7 +7570,7 @@ var $e99c546f9ac18755$var$parser = {
     // --------- END OF REPORT -----------
     trace: function no_op_trace() {
     },
-    JisonParserError: $e99c546f9ac18755$var$JisonParserError,
+    JisonParserError: $0701b6dda164cf78$var$JisonParserError,
     yy: {
     },
     options: {
@@ -7763,38 +7763,38 @@ var $e99c546f9ac18755$var$parser = {
         }
         return tokenset;
     },
-    productions_: $e99c546f9ac18755$var$bp({
-        pop: $e99c546f9ac18755$var$u([
+    productions_: $0701b6dda164cf78$var$bp({
+        pop: $0701b6dda164cf78$var$u([
             43,
             43,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 44,
                 11
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 45,
                 13
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 46,
                 23
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 47,
                 5
             ],
             48,
             48,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 49,
                 6
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 50,
                 3
@@ -7806,7 +7806,7 @@ var $e99c546f9ac18755$var$parser = {
             53,
             53
         ]),
-        rule: $e99c546f9ac18755$var$u([
+        rule: $0701b6dda164cf78$var$u([
             1,
             2,
             1,
@@ -7816,12 +7816,12 @@ var $e99c546f9ac18755$var$parser = {
             3,
             5,
             3,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 1,
                 6
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 12,
                 3
@@ -7832,18 +7832,18 @@ var $e99c546f9ac18755$var$parser = {
             4,
             4,
             5,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 17,
                 8
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 1,
                 10
             ],
             4,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 1,
                 11
@@ -7851,13 +7851,13 @@ var $e99c546f9ac18755$var$parser = {
             3,
             3,
             0,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 1,
                 9
             ],
             2,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 11,
                 3
@@ -7887,41 +7887,41 @@ var $e99c546f9ac18755$var$parser = {
                 this.$ = yyvstack[yysp - 1];
                 break;
             case 4:
-                /*! Production::    line : line_start TEXT */ $e99c546f9ac18755$var$debug('line: line_start TEXT: $line_start=', yyvstack[yysp - 1], ', $TEXT=', yyvstack[yysp]);
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 1], {
+                /*! Production::    line : line_start TEXT */ $0701b6dda164cf78$var$debug('line: line_start TEXT: $line_start=', yyvstack[yysp - 1], ', $TEXT=', yyvstack[yysp]);
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 1], {
                     type: 'text',
                     val: yyvstack[yysp]
                 });
                 break;
             case 5:
-                /*! Production::    line : line_start UNBUF_CODE */ this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 1], {
+                /*! Production::    line : line_start UNBUF_CODE */ this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 1], {
                     type: 'unbuf_code',
                     val: yyvstack[yysp],
                     state: 'UNBUF_CODE_FOLLOWER'
                 });
                 break;
             case 6:
-                /*! Production::    line : line_start line_splitter line_end */ $e99c546f9ac18755$var$debug('line: line_start line_splitter line_end: $line_start=', yyvstack[yysp - 2], ', $line_end=', yyvstack[yysp]);
-                if (yyvstack[yysp] == undefined) this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], yyvstack[yysp - 1]);
-                else if (yyvstack[yysp].hasOwnProperty('type') && yyvstack[yysp].type == 'array') this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], [
+                /*! Production::    line : line_start line_splitter line_end */ $0701b6dda164cf78$var$debug('line: line_start line_splitter line_end: $line_start=', yyvstack[yysp - 2], ', $line_end=', yyvstack[yysp]);
+                if (yyvstack[yysp] == undefined) this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 2], yyvstack[yysp - 1]);
+                else if (yyvstack[yysp].hasOwnProperty('type') && yyvstack[yysp].type == 'array') this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 2], [
                     yyvstack[yysp - 1],
                     {
                         children: yyvstack[yysp].val
                     }
                 ]);
-                else this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], [
+                else this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 2], [
                     yyvstack[yysp - 1],
                     yyvstack[yysp]
                 ]);
                 break;
             case 7:
-                /*! Production::    line : line_start line_splitter ESCAPED_TEXT_INTERPOLATION */ $e99c546f9ac18755$var$debug('line: line_start line_splitter ESCAPED_TEXT_INTERPOLATION: $line_start=', yyvstack[yysp - 2], ', $2=', yyvstack[yysp - 1], ', $3=', yyvstack[yysp]);
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], {
+                /*! Production::    line : line_start line_splitter ESCAPED_TEXT_INTERPOLATION */ $0701b6dda164cf78$var$debug('line: line_start line_splitter ESCAPED_TEXT_INTERPOLATION: $line_start=', yyvstack[yysp - 2], ', $2=', yyvstack[yysp - 1], ', $3=', yyvstack[yysp]);
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 2], {
                     val: yyvstack[yysp]
                 });
                 break;
             case 8:
-                /*! Production::    line : line_start line_splitter ESCAPED_TEXT_INTERPOLATION NESTED_TAG_START ESCAPED_TEXT_INTERPOLATION */ $e99c546f9ac18755$var$debug('line: line_start line_splitter ESCAPED_TEXT_INTERPOLATION NESTED_TAG_START ESCAPED_TEXT_INTERPOLATION: $line_start=', yyvstack[yysp - 4], ', $2=', yyvstack[yysp - 3], ', $3=', yyvstack[yysp - 2], ', $4=', yyvstack[yysp - 1], ', $5=', yyvstack[yysp]);
+                /*! Production::    line : line_start line_splitter ESCAPED_TEXT_INTERPOLATION NESTED_TAG_START ESCAPED_TEXT_INTERPOLATION */ $0701b6dda164cf78$var$debug('line: line_start line_splitter ESCAPED_TEXT_INTERPOLATION NESTED_TAG_START ESCAPED_TEXT_INTERPOLATION: $line_start=', yyvstack[yysp - 4], ', $2=', yyvstack[yysp - 3], ', $3=', yyvstack[yysp - 2], ', $4=', yyvstack[yysp - 1], ', $5=', yyvstack[yysp]);
                 let interpArr = [];
                 if (yyvstack[yysp - 2]) {
                     interpArr.push('#{');
@@ -7934,12 +7934,12 @@ var $e99c546f9ac18755$var$parser = {
                     interpArr.push(yyvstack[yysp]);
                     interpArr.push('}');
                 }
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 4], {
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 4], {
                     val: interpArr.join('')
                 });
                 break;
             case 9:
-                /*! Production::    line : line_start NESTED_TAG_START line */ this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], {
+                /*! Production::    line : line_start NESTED_TAG_START line */ this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 2], {
                     state: 'NESTED',
                     children: [
                         yyvstack[yysp]
@@ -7949,29 +7949,29 @@ var $e99c546f9ac18755$var$parser = {
             case 10:
                 /*! Production::    line : ATTR_TEXT_END */ this.$ = {
                     type: 'attrs_end',
-                    val: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp]),
+                    val: $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp]),
                     state: 'MULTI_LINE_ATTRS_END'
                 };
                 break;
             case 11:
                 /*! Production::    line : ATTR_TEXT_CONT */ this.$ = {
                     type: 'attrs_cont',
-                    val: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp]),
+                    val: $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp]),
                     state: 'MULTI_LINE_ATTRS'
                 };
                 break;
             case 12:
-                /*! Production::    line : HTML_COMMENT */ $e99c546f9ac18755$var$debug('$HTML_COMMENT=', yyvstack[yysp]);
+                /*! Production::    line : HTML_COMMENT */ $0701b6dda164cf78$var$debug('$HTML_COMMENT=', yyvstack[yysp]);
                 if (yyvstack[yysp].includes('#')) {
-                    let elemsReturned = $e99c546f9ac18755$var$createElems(yyvstack[yysp], this.yy.parser);
-                    $e99c546f9ac18755$var$debug('elemsReturned', JSON.stringify(elemsReturned));
+                    let elemsReturned = $0701b6dda164cf78$var$createElems(yyvstack[yysp], this.yy.parser);
+                    $0701b6dda164cf78$var$debug('elemsReturned', JSON.stringify(elemsReturned));
                     this.$ = {
                         type: 'html_comment',
                         children: elemsReturned
                     };
                 } else this.$ = {
                     type: 'html_comment',
-                    val: $e99c546f9ac18755$var$quote(yyvstack[yysp])
+                    val: $0701b6dda164cf78$var$quote(yyvstack[yysp])
                 };
                 break;
             case 13:
@@ -7984,26 +7984,26 @@ var $e99c546f9ac18755$var$parser = {
                 /*! Production::    line_start : tag_part */ // default action (generated by JISON mode classic/merge :: 1,VT,VA,-,-,-,-,-,-):
                 this.$ = yyvstack[yysp];
                 // END of default action (generated by JISON mode classic/merge :: 1,VT,VA,-,-,-,-,-,-)
-                $e99c546f9ac18755$var$debug('line_start: tag_part');
+                $0701b6dda164cf78$var$debug('line_start: tag_part');
                 break;
             case 16:
-                /*! Production::    line_start : first_token line_start_repetition_plus */ $e99c546f9ac18755$var$debug('line_start: first_token tag_part+');
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 1], yyvstack[yysp]);
+                /*! Production::    line_start : first_token line_start_repetition_plus */ $0701b6dda164cf78$var$debug('line_start: first_token tag_part+');
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 1], yyvstack[yysp]);
                 break;
             case 17:
-                /*! Production::    line_start : line_start attrs */ $e99c546f9ac18755$var$debug('line_start: line_start attrs');
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 1], yyvstack[yysp]);
+                /*! Production::    line_start : line_start attrs */ $0701b6dda164cf78$var$debug('line_start: line_start attrs');
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 1], yyvstack[yysp]);
                 break;
             case 18:
-                /*! Production::    line_start : first_token LPAREN line_start_option */ $e99c546f9ac18755$var$debug('line_start: first_token LPAREN ATTR_TEXT_CONT?');
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], {
+                /*! Production::    line_start : first_token LPAREN line_start_option */ $0701b6dda164cf78$var$debug('line_start: first_token LPAREN ATTR_TEXT_CONT?');
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 2], {
                     state: 'MULTI_LINE_ATTRS'
                 });
                 if (yyvstack[yysp]) {
-                    $e99c546f9ac18755$var$debug('3 Calling parseAttrs with ', yyvstack[yysp]);
+                    $0701b6dda164cf78$var$debug('3 Calling parseAttrs with ', yyvstack[yysp]);
                     try {
-                        this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], {
-                            attrs_start: $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp])
+                        this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 2], {
+                            attrs_start: $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp])
                         });
                     } catch (e) {
                         console.error('Could not parse attributes=' + yyvstack[yysp], e);
@@ -8011,68 +8011,68 @@ var $e99c546f9ac18755$var$parser = {
                 }
                 break;
             case 19:
-                /*! Production::    line_start : first_token tag_part LPAREN ATTR_TEXT_CONT */ $e99c546f9ac18755$var$debug('line_start: first_token tag_part LPAREN ATTR_TEXT_CONT');
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 3], [
+                /*! Production::    line_start : first_token tag_part LPAREN ATTR_TEXT_CONT */ $0701b6dda164cf78$var$debug('line_start: first_token tag_part LPAREN ATTR_TEXT_CONT');
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 3], [
                     yyvstack[yysp - 2],
                     yyvstack[yysp]
                 ]);
                 break;
             case 20:
-                /*! Production::    line_start : first_token tag_part LPAREN MIXIN_PARAMS RPAREN */ $e99c546f9ac18755$var$debug('line_start: first_token tag_part LPAREN MIXIN_PARAMS RPAREN');
-                this.$ = $e99c546f9ac18755$var$merge($e99c546f9ac18755$var$merge(yyvstack[yysp - 4], yyvstack[yysp - 3]), {
+                /*! Production::    line_start : first_token tag_part LPAREN MIXIN_PARAMS RPAREN */ $0701b6dda164cf78$var$debug('line_start: first_token tag_part LPAREN MIXIN_PARAMS RPAREN');
+                this.$ = $0701b6dda164cf78$var$merge($0701b6dda164cf78$var$merge(yyvstack[yysp - 4], yyvstack[yysp - 3]), {
                     params: yyvstack[yysp - 1]
                 });
                 break;
             case 21:
-                /*! Production::    line_start : first_token tag_part attrs */ $e99c546f9ac18755$var$debug('line_start: first_token tag_part attrs');
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], [
+                /*! Production::    line_start : first_token tag_part attrs */ $0701b6dda164cf78$var$debug('line_start: first_token tag_part attrs');
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 2], [
                     yyvstack[yysp - 1],
                     yyvstack[yysp]
                 ]);
                 break;
             case 22:
-                /*! Production::    line_start : first_token tag_part attrs CLASSNAME */ $e99c546f9ac18755$var$debug('first_token tag_part attrs CLASSNAME: first_token=', yyvstack[yysp - 3], ', tag_part?=', yyvstack[yysp - 2], ', attrs=', yyvstack[yysp - 1], ', CLASSNAME=', yyvstack[yysp]);
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 3], [
+                /*! Production::    line_start : first_token tag_part attrs CLASSNAME */ $0701b6dda164cf78$var$debug('first_token tag_part attrs CLASSNAME: first_token=', yyvstack[yysp - 3], ', tag_part?=', yyvstack[yysp - 2], ', attrs=', yyvstack[yysp - 1], ', CLASSNAME=', yyvstack[yysp]);
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 3], [
                     yyvstack[yysp - 2],
                     yyvstack[yysp - 1],
                     {
                         attrs: [
                             {
                                 name: 'class',
-                                val: $e99c546f9ac18755$var$quote(yyvstack[yysp])
+                                val: $0701b6dda164cf78$var$quote(yyvstack[yysp])
                             }
                         ]
                     }
                 ]);
                 break;
             case 23:
-                /*! Production::    line_start : first_token LPAREN MIXIN_PARAMS RPAREN */ $e99c546f9ac18755$var$debug('first_token LPAREN MIXIN_PARAMS RPAREN: first_token=', yyvstack[yysp - 3], ', MIXIN_PARAMS=', yyvstack[yysp - 1]);
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 3], {
+                /*! Production::    line_start : first_token LPAREN MIXIN_PARAMS RPAREN */ $0701b6dda164cf78$var$debug('first_token LPAREN MIXIN_PARAMS RPAREN: first_token=', yyvstack[yysp - 3], ', MIXIN_PARAMS=', yyvstack[yysp - 1]);
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 3], {
                     params: yyvstack[yysp - 1]
                 });
                 break;
             case 24:
-                /*! Production::    line_start : first_token LPAREN MIXIN_PARAMS RPAREN CLASSNAME */ $e99c546f9ac18755$var$debug('first_token LPAREN MIXIN_PARAMS RPAREN CLASSNAME: first_token=', yyvstack[yysp - 4], ', MIXIN_PARAMS=', yyvstack[yysp - 2], ', CLASSNAME', yyvstack[yysp]);
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 4], {
+                /*! Production::    line_start : first_token LPAREN MIXIN_PARAMS RPAREN CLASSNAME */ $0701b6dda164cf78$var$debug('first_token LPAREN MIXIN_PARAMS RPAREN CLASSNAME: first_token=', yyvstack[yysp - 4], ', MIXIN_PARAMS=', yyvstack[yysp - 2], ', CLASSNAME', yyvstack[yysp]);
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 4], {
                     params: yyvstack[yysp - 2],
                     attrs: [
                         {
                             name: 'class',
-                            val: $e99c546f9ac18755$var$quote(yyvstack[yysp])
+                            val: $0701b6dda164cf78$var$quote(yyvstack[yysp])
                         }
                     ]
                 });
                 break;
             case 25:
-                /*! Production::    line_start : first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID */ $e99c546f9ac18755$var$debug('first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID: first_token=', yyvstack[yysp - 4], ', MIXIN_PARAMS=', yyvstack[yysp - 2], ', TAG_ID', yyvstack[yysp]);
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 4], {
+                /*! Production::    line_start : first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID */ $0701b6dda164cf78$var$debug('first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID: first_token=', yyvstack[yysp - 4], ', MIXIN_PARAMS=', yyvstack[yysp - 2], ', TAG_ID', yyvstack[yysp]);
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 4], {
                     params: yyvstack[yysp - 2],
                     id: yyvstack[yysp]
                 });
                 break;
             case 26:
-                /*! Production::    line_start : first_token LPAREN MIXIN_PARAMS_START */ $e99c546f9ac18755$var$debug('first_token LPAREN MIXIN_PARAMS_START: first_token=', yyvstack[yysp - 2], ', MIXIN_PARAMS_START=', yyvstack[yysp]);
-                this.$ = $e99c546f9ac18755$var$merge(yyvstack[yysp - 2], {
+                /*! Production::    line_start : first_token LPAREN MIXIN_PARAMS_START */ $0701b6dda164cf78$var$debug('first_token LPAREN MIXIN_PARAMS_START: first_token=', yyvstack[yysp - 2], ', MIXIN_PARAMS_START=', yyvstack[yysp]);
+                this.$ = $0701b6dda164cf78$var$merge(yyvstack[yysp - 2], {
                     params: yyvstack[yysp],
                     state: '_START'
                 });
@@ -8096,7 +8096,7 @@ var $e99c546f9ac18755$var$parser = {
                     attrs: [
                         {
                             name: 'class',
-                            val: $e99c546f9ac18755$var$quote(yyvstack[yysp])
+                            val: $0701b6dda164cf78$var$quote(yyvstack[yysp])
                         }
                     ]
                 };
@@ -8115,14 +8115,14 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 32:
-                /*! Production::    first_token : COMMENT */ $e99c546f9ac18755$var$debug('first_token: COMMENT: $COMMENT=', yyvstack[yysp]);
+                /*! Production::    first_token : COMMENT */ $0701b6dda164cf78$var$debug('first_token: COMMENT: $COMMENT=', yyvstack[yysp]);
                 this.$ = {
                     type: 'comment',
                     state: 'TEXT_START'
                 };
                 break;
             case 33:
-                /*! Production::    first_token : COMMENT_HTML */ $e99c546f9ac18755$var$debug('first_token: COMMENT_HTML: $COMMENT_HTML=', yyvstack[yysp]);
+                /*! Production::    first_token : COMMENT_HTML */ $0701b6dda164cf78$var$debug('first_token: COMMENT_HTML: $COMMENT_HTML=', yyvstack[yysp]);
                 this.$ = {
                     type: 'html_comment',
                     state: 'TEXT_START'
@@ -8144,7 +8144,7 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 36:
-                /*! Production::    first_token : MIXIN_CALL */ $e99c546f9ac18755$var$debug('first_token MIXIN_CALL: $MIXIN_CALL=', yyvstack[yysp]);
+                /*! Production::    first_token : MIXIN_CALL */ $0701b6dda164cf78$var$debug('first_token MIXIN_CALL: $MIXIN_CALL=', yyvstack[yysp]);
                 this.$ = {
                     type: 'mixin_call',
                     name: yyvstack[yysp].trim(),
@@ -8167,7 +8167,7 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 40:
-                /*! Production::    first_token : DOT_END */ $e99c546f9ac18755$var$debug('line: DOT_END');
+                /*! Production::    first_token : DOT_END */ $0701b6dda164cf78$var$debug('line: DOT_END');
                 this.$ = {
                     state: 'TEXT_START'
                 };
@@ -8185,7 +8185,7 @@ var $e99c546f9ac18755$var$parser = {
             case 43:
                 /*! Production::    first_token : INTERP_START INTERP_NAME INTERP_VAL INTERP_END */ var INTERP_NAME = yyvstack[yysp - 2][1];
                 var INTERP_VAL = yyvstack[yysp - 1][2];
-                $e99c546f9ac18755$var$debug('line: INTERP_START INTERP_NAME INTERP_VAL INTERP_END: INTERP_NAME=', INTERP_NAME, ', INTERP_VAL=', INTERP_VAL);
+                $0701b6dda164cf78$var$debug('line: INTERP_START INTERP_NAME INTERP_VAL INTERP_END: INTERP_NAME=', INTERP_NAME, ', INTERP_VAL=', INTERP_VAL);
                 this.$ = {
                     type: 'tag',
                     name: INTERP_NAME,
@@ -8193,27 +8193,27 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 44:
-                /*! Production::    first_token : INTERPOLATION_START */ $e99c546f9ac18755$var$debug('line: INTERPOLATION_START');
+                /*! Production::    first_token : INTERPOLATION_START */ $0701b6dda164cf78$var$debug('line: INTERPOLATION_START');
                 this.$ = {
                     type: 'interpolation_start',
                     state: 'INTERPOLATION_START'
                 };
                 break;
             case 45:
-                /*! Production::    first_token : INTERP_VAL */ $e99c546f9ac18755$var$debug('line: INTERP_VAL: $INTERP_VAL=', yyvstack[yysp]);
-                $e99c546f9ac18755$var$debug('AttrResolver=', $cjPlG$AttrResolver);
-                const resultInterpVal2 = $e99c546f9ac18755$var$attrResolver.resolve({
+                /*! Production::    first_token : INTERP_VAL */ $0701b6dda164cf78$var$debug('line: INTERP_VAL: $INTERP_VAL=', yyvstack[yysp]);
+                $0701b6dda164cf78$var$debug('AttrResolver=', $c1Lgv$AttrResolver);
+                const resultInterpVal2 = $0701b6dda164cf78$var$attrResolver.resolve({
                     name: 'anonymous',
                     val: yyvstack[yysp]
                 });
-                $e99c546f9ac18755$var$debug('AttrResolver returned=', resultInterpVal2);
+                $0701b6dda164cf78$var$debug('AttrResolver returned=', resultInterpVal2);
                 this.$ = {
                     type: 'text',
                     val: resultInterpVal2.val
                 };
                 break;
             case 46:
-                /*! Production::    first_token : MIXIN_CALL_TODO */ $e99c546f9ac18755$var$debug('line: MIXIN_CALL_TODO: $MIXIN_CALL_TODO=', yyvstack[yysp]);
+                /*! Production::    first_token : MIXIN_CALL_TODO */ $0701b6dda164cf78$var$debug('line: MIXIN_CALL_TODO: $MIXIN_CALL_TODO=', yyvstack[yysp]);
                 this.$ = {
                 };
                 break;
@@ -8230,15 +8230,15 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 49:
-                /*! Production::    first_token : TAG_INTERPOLATION */ $e99c546f9ac18755$var$debug('line: TAG_INTERPOLATION: $TAG_INTERPOLATION=', yyvstack[yysp]);
+                /*! Production::    first_token : TAG_INTERPOLATION */ $0701b6dda164cf78$var$debug('line: TAG_INTERPOLATION: $TAG_INTERPOLATION=', yyvstack[yysp]);
                 this.$ = {
                     type: 'tag',
                     name: yyvstack[yysp][0],
                     val: yyvstack[yysp][2]
                 };
                 if (yyvstack[yysp][1]) {
-                    const resultInterpVal3 = $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp][1]);
-                    $e99c546f9ac18755$var$debug('parseAttrs returned=', resultInterpVal3);
+                    const resultInterpVal3 = $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp][1]);
+                    $0701b6dda164cf78$var$debug('parseAttrs returned=', resultInterpVal3);
                     this.$ = Object.assign(this.$, {
                         attrs: resultInterpVal3
                     });
@@ -8253,7 +8253,7 @@ var $e99c546f9ac18755$var$parser = {
                 /*! Production::    tag_part : tag_part_repetition_plus */ let attrs1 = yyvstack[yysp].map((cn)=>{
                     return {
                         name: 'class',
-                        val: $e99c546f9ac18755$var$quote(cn)
+                        val: $0701b6dda164cf78$var$quote(cn)
                     };
                 });
                 this.$ = {
@@ -8269,16 +8269,16 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 53:
-                /*! Production::    tag_part : AT_ATTRS */ $e99c546f9ac18755$var$debug('tag_part AT_ATTRS: $AT_ATTRS=', yyvstack[yysp]);
+                /*! Production::    tag_part : AT_ATTRS */ $0701b6dda164cf78$var$debug('tag_part AT_ATTRS: $AT_ATTRS=', yyvstack[yysp]);
                 if (yyvstack[yysp].includes('{') && yyvstack[yysp].includes('}')) {
                     let func = Function('return (' + yyvstack[yysp].substring(12, yyvstack[yysp].length - 1) + ')');
                     let entries2 = Object.entries(func());
-                    $e99c546f9ac18755$var$debug('entries2=', entries2);
+                    $0701b6dda164cf78$var$debug('entries2=', entries2);
                     let attrs2 = Object.entries(entries2).map(([index, [key, value]])=>{
-                        $e99c546f9ac18755$var$debug('name=', key, 'value=', value);
+                        $0701b6dda164cf78$var$debug('name=', key, 'value=', value);
                         return {
                             name: key,
-                            val: $e99c546f9ac18755$var$quote(value)
+                            val: $0701b6dda164cf78$var$quote(value)
                         };
                     });
                     this.$ = {
@@ -8295,14 +8295,14 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 55:
-                /*! Production::    attrs : LPAREN ATTR_TEXT RPAREN */ $e99c546f9ac18755$var$debug('1 Calling parseAttrs with ', yyvstack[yysp - 1]);
+                /*! Production::    attrs : LPAREN ATTR_TEXT RPAREN */ $0701b6dda164cf78$var$debug('1 Calling parseAttrs with ', yyvstack[yysp - 1]);
                 this.$ = {
                 };
                 try {
-                    const attrs = $5355ad80bd576add$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].trim());
-                    $e99c546f9ac18755$var$debug('attrs=', attrs);
+                    const attrs = $510a014853e7284e$export$2e2bcd8739ae039.parse(yyvstack[yysp - 1].trim());
+                    $0701b6dda164cf78$var$debug('attrs=', attrs);
                     attrs.forEach((attr)=>{
-                        if (!$cjPlG$lodash.isEmpty(attr)) this.$ = $e99c546f9ac18755$var$merge(this.$, {
+                        if (!$c1Lgv$lodash.isEmpty(attr)) this.$ = $0701b6dda164cf78$var$merge(this.$, {
                             attrs: [
                                 attr
                             ]
@@ -8313,7 +8313,7 @@ var $e99c546f9ac18755$var$parser = {
                 }
                 break;
             case 56:
-                /*! Production::    attrs : LPAREN CONDITION RPAREN */ $e99c546f9ac18755$var$debug('attrs: LPAREN CONDITION RPAREN');
+                /*! Production::    attrs : LPAREN CONDITION RPAREN */ $0701b6dda164cf78$var$debug('attrs: LPAREN CONDITION RPAREN');
                 this.$ = {
                     condition: yyvstack[yysp - 1]
                 };
@@ -8322,10 +8322,10 @@ var $e99c546f9ac18755$var$parser = {
                 /*! Production::    line_end : %epsilon */ // default action (generated by JISON mode classic/merge :: 0,VT,VA,-,-,-,-,-,-):
                 this.$ = undefined;
                 // END of default action (generated by JISON mode classic/merge :: 0,VT,VA,-,-,-,-,-,-)
-                $e99c546f9ac18755$var$debug('line_end: <blank>');
+                $0701b6dda164cf78$var$debug('line_end: <blank>');
                 break;
             case 58:
-                /*! Production::    line_end : DOT_END */ $e99c546f9ac18755$var$debug('line_end: DOT_END');
+                /*! Production::    line_end : DOT_END */ $0701b6dda164cf78$var$debug('line_end: DOT_END');
                 this.$ = {
                     state: 'TEXT_START'
                 };
@@ -8336,10 +8336,10 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 60:
-                /*! Production::    line_end : TEXT */ $e99c546f9ac18755$var$debug('line_end: TEXT: $TEXT=', yyvstack[yysp]);
+                /*! Production::    line_end : TEXT */ $0701b6dda164cf78$var$debug('line_end: TEXT: $TEXT=', yyvstack[yysp]);
                 if (yyvstack[yysp].includes('#')) {
-                    let elemsReturned = $e99c546f9ac18755$var$createElems(yyvstack[yysp], this.yy.parser);
-                    $e99c546f9ac18755$var$debug('elemsReturned', elemsReturned);
+                    let elemsReturned = $0701b6dda164cf78$var$createElems(yyvstack[yysp], this.yy.parser);
+                    $0701b6dda164cf78$var$debug('elemsReturned', elemsReturned);
                     this.$ = {
                         children: elemsReturned
                     };
@@ -8349,7 +8349,7 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 63:
-                /*! Production::    line_splitter : SPACE */ $e99c546f9ac18755$var$debug('line_splitter: SPACE');
+                /*! Production::    line_splitter : SPACE */ $0701b6dda164cf78$var$debug('line_splitter: SPACE');
                 this.$ = {
                 };
                 break;
@@ -8359,7 +8359,7 @@ var $e99c546f9ac18755$var$parser = {
                 };
                 break;
             case 65:
-                /*! Production::    line_splitter : DOT_END */ $e99c546f9ac18755$var$debug('line_splitter: DOT_END');
+                /*! Production::    line_splitter : DOT_END */ $0701b6dda164cf78$var$debug('line_splitter: DOT_END');
                 this.$ = {
                     state: 'TEXT_START'
                 };
@@ -8383,45 +8383,45 @@ var $e99c546f9ac18755$var$parser = {
                 break;
         }
     },
-    table: $e99c546f9ac18755$var$bt({
-        len: $e99c546f9ac18755$var$u([
+    table: $0701b6dda164cf78$var$bt({
+        len: $0701b6dda164cf78$var$u([
             38,
             1,
             0,
             1,
             10,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 0,
                 4
             ],
             16,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 0,
                 17
             ],
             1,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 0,
                 6
             ],
             12,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 0,
                 3
             ],
             2,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 0,
                 3
             ],
             8,
             36,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 0,
                 4
@@ -8429,47 +8429,47 @@ var $e99c546f9ac18755$var$parser = {
             15,
             14,
             13,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 26,
                 4
             ],
             1,
             1,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 20,
                 5
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 40,
                 8
             ],
             4,
             9,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 5,
                 3
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 72,
                 3
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 51,
                 7
             ]
         ]),
-        symbol: $e99c546f9ac18755$var$u([
+        symbol: $0701b6dda164cf78$var$u([
             1,
             3,
             4,
             5,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 7,
                 5,
@@ -8477,27 +8477,27 @@ var $e99c546f9ac18755$var$parser = {
             ],
             14,
             15,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 17,
                 13,
                 1
             ],
             31,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 33,
                 6,
                 1
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 43,
                 6,
                 1
             ],
             53,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 1,
                 3
@@ -8511,7 +8511,7 @@ var $e99c546f9ac18755$var$parser = {
             42,
             48,
             50,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 10,
                 5
@@ -8528,14 +8528,14 @@ var $e99c546f9ac18755$var$parser = {
             51,
             53,
             30,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 17,
                 12
             ],
             39,
             40,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 81,
                 4
@@ -8544,22 +8544,22 @@ var $e99c546f9ac18755$var$parser = {
             26,
             41,
             49,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 88,
                 30
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 87,
                 7
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 75,
                 13
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 15,
                 5
@@ -8574,7 +8574,7 @@ var $e99c546f9ac18755$var$parser = {
             40,
             42,
             52,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 29,
                 12
@@ -8588,24 +8588,24 @@ var $e99c546f9ac18755$var$parser = {
             13,
             8,
             12,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 96,
                 5
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 23,
                 3
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 138,
                 3
             ],
             32,
             5,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 34,
                 9
@@ -8613,49 +8613,49 @@ var $e99c546f9ac18755$var$parser = {
             42,
             13
         ]),
-        type: $e99c546f9ac18755$var$u([
-            $e99c546f9ac18755$var$s,
+        type: $0701b6dda164cf78$var$u([
+            $0701b6dda164cf78$var$s,
             [
                 2,
                 31
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 0,
                 7
             ],
             1,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 17,
                 11
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 31,
                 16
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 57,
                 23
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 88,
                 36
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 18,
                 15
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 65,
                 26
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 78,
                 31
@@ -8663,7 +8663,7 @@ var $e99c546f9ac18755$var$parser = {
             2,
             2
         ]),
-        state: $e99c546f9ac18755$var$u([
+        state: $0701b6dda164cf78$var$u([
             1,
             3,
             4,
@@ -8679,7 +8679,7 @@ var $e99c546f9ac18755$var$parser = {
             34,
             57,
             64,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 13,
                 5
@@ -8690,100 +8690,100 @@ var $e99c546f9ac18755$var$parser = {
             66,
             71
         ]),
-        mode: $e99c546f9ac18755$var$u([
-            $e99c546f9ac18755$var$s,
+        mode: $0701b6dda164cf78$var$u([
+            $0701b6dda164cf78$var$s,
             [
                 1,
                 32
             ],
             2,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 8,
                 8
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 2,
                 3
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 7,
                 5
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 19,
                 4
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 2,
                 5
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 6,
                 6
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 16,
                 5
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 1,
                 35
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 64,
                 12
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 62,
                 6
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 13,
                 13
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 76,
                 8
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 77,
                 8
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 23,
                 9
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 11,
                 8
             ],
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 12,
                 5
             ]
         ]),
-        goto: $e99c546f9ac18755$var$u([
+        goto: $0701b6dda164cf78$var$u([
             2,
             15,
             18,
             31,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 5,
                 4,
@@ -8796,7 +8796,7 @@ var $e99c546f9ac18755$var$parser = {
             12,
             16,
             17,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 19,
                 9,
@@ -8818,7 +8818,7 @@ var $e99c546f9ac18755$var$parser = {
             47,
             45,
             46,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 14,
                 4
@@ -8832,13 +8832,13 @@ var $e99c546f9ac18755$var$parser = {
             36,
             14,
             53,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 51,
                 5
             ],
             54,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 51,
                 6
@@ -8852,12 +8852,12 @@ var $e99c546f9ac18755$var$parser = {
             63,
             59,
             60,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 73,
                 30
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 16,
                 4
@@ -8867,12 +8867,12 @@ var $e99c546f9ac18755$var$parser = {
             51,
             16,
             16,
-            $e99c546f9ac18755$var$c,
+            $0701b6dda164cf78$var$c,
             [
                 11,
                 3
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 68,
                 4
@@ -8880,7 +8880,7 @@ var $e99c546f9ac18755$var$parser = {
             69,
             68,
             67,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 68,
                 3
@@ -8888,13 +8888,13 @@ var $e99c546f9ac18755$var$parser = {
             55,
             56,
             68,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 66,
                 4
             ],
             70,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 66,
                 7
@@ -8903,7 +8903,7 @@ var $e99c546f9ac18755$var$parser = {
             73,
             74,
             7,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 75,
                 4,
@@ -8911,27 +8911,27 @@ var $e99c546f9ac18755$var$parser = {
             ],
             55,
             56,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 21,
                 5
             ],
             79,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 21,
                 3
             ],
             80,
             81,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 23,
                 5
             ],
             82,
             83,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 23,
                 3
@@ -8939,22 +8939,22 @@ var $e99c546f9ac18755$var$parser = {
             84
         ])
     }),
-    defaultActions: $e99c546f9ac18755$var$bda({
-        idx: $e99c546f9ac18755$var$u([
+    defaultActions: $0701b6dda164cf78$var$bda({
+        idx: $0701b6dda164cf78$var$u([
             2,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 5,
                 4,
                 1
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 10,
                 17,
                 1
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 28,
                 6,
@@ -8966,7 +8966,7 @@ var $e99c546f9ac18755$var$parser = {
             39,
             40,
             41,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 44,
                 4,
@@ -8976,7 +8976,7 @@ var $e99c546f9ac18755$var$parser = {
             52,
             54,
             57,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 59,
                 8,
@@ -8987,29 +8987,29 @@ var $e99c546f9ac18755$var$parser = {
             73,
             74,
             77,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 79,
                 6,
                 1
             ]
         ]),
-        goto: $e99c546f9ac18755$var$u([
+        goto: $0701b6dda164cf78$var$u([
             1,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 10,
                 4,
                 1
             ],
             15,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 27,
                 16,
                 1
             ],
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 44,
                 6,
@@ -9029,7 +9029,7 @@ var $e99c546f9ac18755$var$parser = {
             70,
             71,
             6,
-            $e99c546f9ac18755$var$s,
+            $0701b6dda164cf78$var$s,
             [
                 58,
                 5,
@@ -9091,10 +9091,10 @@ var $e99c546f9ac18755$var$parser = {
             post_lex: undefined // WARNING: must be written this way for the code expanders to work correctly in both ES5 and ES6 modes!
         };
         var ASSERT;
-        if (typeof $cjPlG$assert !== 'function') ASSERT = function JisonAssert(cond, msg) {
+        if (typeof $c1Lgv$assert !== 'function') ASSERT = function JisonAssert(cond, msg) {
             if (!cond) throw new Error('assertion failed: ' + (msg || '***'));
         };
-        else ASSERT = $cjPlG$assert;
+        else ASSERT = $c1Lgv$assert;
         this.yyGetSharedState = function yyGetSharedState() {
             return sharedState_yy;
         };
@@ -9392,8 +9392,8 @@ var $e99c546f9ac18755$var$parser = {
         return retval;
     }
 };
-$e99c546f9ac18755$var$parser.originalParseError = $e99c546f9ac18755$var$parser.parseError;
-$e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.quoteName;
+$0701b6dda164cf78$var$parser.originalParseError = $0701b6dda164cf78$var$parser.parseError;
+$0701b6dda164cf78$var$parser.originalQuoteName = $0701b6dda164cf78$var$parser.quoteName;
 /* lexer generated by jison-lex 0.6.1-216 */ /*
  * Returns a Lexer object of the following structure:
  *
@@ -9608,7 +9608,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
  *                 `XRegExp` library. When this %option has not been specified at compile time, all lexer
  *                 rule regexes have been written as standard JavaScript RegExp expressions.
  *  }
- */ var $e99c546f9ac18755$var$lexer = function() {
+ */ var $0701b6dda164cf78$var$lexer = function() {
     /**
    * See also:
    * http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript/#35881508
@@ -10685,7 +10685,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     yy_.yytext = yy_.yytext.slice(2, -1);
                     return 35;
                 case 2:
-                    /*! Conditions:: ATTRS_END INITIAL */ /*! Rule::       {tag_interpolation} */ $e99c546f9ac18755$var$debug('this.matches=', this.matches);
+                    /*! Conditions:: ATTRS_END INITIAL */ /*! Rule::       {tag_interpolation} */ $0701b6dda164cf78$var$debug('this.matches=', this.matches);
                     this.pushState('AFTER_TAG_NAME');
                     yy_.yytext = [
                         this.matches[3],
@@ -10700,7 +10700,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     /*! Conditions:: INITIAL */ /*! Rule::       {tag} */ this.pushState('AFTER_TAG_NAME');
                     return 17;
                 case 5:
-                    /*! Conditions:: INITIAL */ /*! Rule::       (script|style) */ if ($e99c546f9ac18755$var$TEXT_TAGS_ALLOW_SUB_TAGS) {
+                    /*! Conditions:: INITIAL */ /*! Rule::       (script|style) */ if ($0701b6dda164cf78$var$TEXT_TAGS_ALLOW_SUB_TAGS) {
                         this.pushState('AFTER_TAG_NAME');
                         return 17;
                     } else {
@@ -10744,7 +10744,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     yy_.yytext = yy_.yytext.substring(1);
                     return 14;
                 case 15:
-                    /*! Conditions:: INITIAL */ /*! Rule::       {classname_relaxed} */ $e99c546f9ac18755$var$debug('<INITIAL>{classname_relaxed}');
+                    /*! Conditions:: INITIAL */ /*! Rule::       {classname_relaxed} */ $0701b6dda164cf78$var$debug('<INITIAL>{classname_relaxed}');
                     if (this.yy.parser.options.allowDigitToStartClassName) {
                         // debug('<INITIAL>{classname}')
                         this.pushState('AFTER_TAG_NAME');
@@ -10777,12 +10777,12 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     yy_.yytext = '';
                     return 3; // only because it is an empty object 
                 case 22:
-                    /*! Conditions:: INITIAL AFTER_TAG_NAME ATTRS_END MIXIN_CALL_START */ /*! Rule::       &attributes\([^\)]+\) */ $e99c546f9ac18755$var$debug('\'&attributes(\'[^)]+\')\'');
+                    /*! Conditions:: INITIAL AFTER_TAG_NAME ATTRS_END MIXIN_CALL_START */ /*! Rule::       &attributes\([^\)]+\) */ $0701b6dda164cf78$var$debug('\'&attributes(\'[^)]+\')\'');
                     return 38;
                 case 23:
-                    /*! Conditions:: INITIAL */ /*! Rule::       {interpolation} */ $e99c546f9ac18755$var$debug('{interpolation}');
-                    $e99c546f9ac18755$var$debug('this.matches=', this.matches);
-                    $e99c546f9ac18755$var$debug('this=', this);
+                    /*! Conditions:: INITIAL */ /*! Rule::       {interpolation} */ $0701b6dda164cf78$var$debug('{interpolation}');
+                    $0701b6dda164cf78$var$debug('this.matches=', this.matches);
+                    $0701b6dda164cf78$var$debug('this=', this);
                     this.pushState('AFTER_TAG_NAME');
                     yy_.yytext = [
                         this.matches[6],
@@ -10797,9 +10797,9 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         'INTERP_START'
                     ];
                 case 24:
-                    /*! Conditions:: INITIAL */ /*! Rule::       {interpolation}.+ */ $e99c546f9ac18755$var$debug('{interpolation222222222}');
-                    $e99c546f9ac18755$var$debug('this.matches=', this.matches);
-                    $e99c546f9ac18755$var$debug('this=', this);
+                    /*! Conditions:: INITIAL */ /*! Rule::       {interpolation}.+ */ $0701b6dda164cf78$var$debug('{interpolation222222222}');
+                    $0701b6dda164cf78$var$debug('this.matches=', this.matches);
+                    $0701b6dda164cf78$var$debug('this=', this);
                     this.pushState('AFTER_TAG_NAME');
                     yy_.yytext = [
                         this.matches[6],
@@ -10814,8 +10814,8 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                         'INTERP_START'
                     ];
                 case 26:
-                    /*! Conditions:: INITIAL */ /*! Rule::       {interpolation_start} */ $e99c546f9ac18755$var$debug('{interpolation_start}');
-                    $e99c546f9ac18755$var$debug('this.matches=', this.matches);
+                    /*! Conditions:: INITIAL */ /*! Rule::       {interpolation_start} */ $0701b6dda164cf78$var$debug('{interpolation_start}');
+                    $0701b6dda164cf78$var$debug('this.matches=', this.matches);
                     this.pushState('INTERPOLATION_START');
                     return 33;
                 case 27:
@@ -10837,7 +10837,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     return 37;
                 case 32:
                     /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME */ /*! Rule::       \( */ ')'; // hack for syntax
-                    $e99c546f9ac18755$var$debug(`<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('`);
+                    $0701b6dda164cf78$var$debug(`<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('`);
                     this.pushState('ATTRS_STARTED');
                     return 11;
                 case 34:
@@ -10852,7 +10852,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     yy_.yytext = yy_.yytext.substring(1);
                     return 15;
                 case 37:
-                    /*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       {classname_relaxed} */ $e99c546f9ac18755$var$debug('<INITIAL,ATTRS_END>{classname_relaxed}');
+                    /*! Conditions:: INITIAL ATTRS_END */ /*! Rule::       {classname_relaxed} */ $0701b6dda164cf78$var$debug('<INITIAL,ATTRS_END>{classname_relaxed}');
                     if (this.yy.parser.options.allowDigitToStartClassName) {
                         this.pushState('AFTER_TAG_NAME');
                         yy_.yytext = yy_.yytext.substring(1);
@@ -10861,15 +10861,15 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     break;
                 case 38:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (\(.+|.+\().+ */ '))';
-                    $e99c546f9ac18755$var$debug('15 yy_.yytext=', yy_.yytext);
-                    $e99c546f9ac18755$var$debug('15 this.matches=', this.matches);
+                    $0701b6dda164cf78$var$debug('15 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$debug('15 this.matches=', this.matches);
                     const stack = [];
                     let i = 0;
                     for(; i < yy_.yytext.length; i++)if (/[\)\]}]/.test(yy_.yytext[i])) {
-                        $e99c546f9ac18755$var$debug('match');
-                        $e99c546f9ac18755$var$debug('stack.peek()=', stack.peek());
+                        $0701b6dda164cf78$var$debug('match');
+                        $0701b6dda164cf78$var$debug('stack.peek()=', stack.peek());
                         if (stack.length == 0 || stack.pop() != yy_.yytext[i]) {
-                            $e99c546f9ac18755$var$debug('stack.length=', stack.length);
+                            $0701b6dda164cf78$var$debug('stack.length=', stack.length);
                             break;
                         }
                     } else switch(yy_.yytext[i]){
@@ -10885,37 +10885,37 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     }
                     this.unput(yy_.yytext.substring(i));
                     yy_.yytext = yy_.yytext.substring(0, i);
-                    $e99c546f9ac18755$var$debug('15 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$debug('15 yy_.yytext=', yy_.yytext);
                     this.popState();
                     this.pushState('ATTRS_END');
                     return 39;
                 case 39:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       ([^\)]+)(\))(?!\s*\..+\)) */ this.popState();
                     this.pushState('ATTRS_END');
-                    $e99c546f9ac18755$var$debug('20 this.matches=', this.matches);
-                    $e99c546f9ac18755$var$debug('20 this.matches.length=', this.matches.length);
-                    $e99c546f9ac18755$var$debug('20 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$debug('20 this.matches=', this.matches);
+                    $0701b6dda164cf78$var$debug('20 this.matches.length=', this.matches.length);
+                    $0701b6dda164cf78$var$debug('20 yy_.yytext=', yy_.yytext);
                     try {
                         this.unput(')');
                         if (this.matches.length > 1) yy_.yytext = this.matches[1];
                     } catch (e) {
                         console.error(e);
                     }
-                    $e99c546f9ac18755$var$lparenOpen = false;
-                    $e99c546f9ac18755$var$debug('20 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$lparenOpen = false;
+                    $0701b6dda164cf78$var$debug('20 yy_.yytext=', yy_.yytext);
                     return 39;
                 case 40:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\)\s*$ */ this.popState();
-                    $e99c546f9ac18755$var$debug('30 this.matches=', this.matches);
-                    $e99c546f9ac18755$var$debug('30 this.matches.length=', this.matches.length);
-                    $e99c546f9ac18755$var$debug('30 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$debug('30 this.matches=', this.matches);
+                    $0701b6dda164cf78$var$debug('30 this.matches.length=', this.matches.length);
+                    $0701b6dda164cf78$var$debug('30 yy_.yytext=', yy_.yytext);
                     try {
                         if (this.matches.length > 1) yy_.yytext = this.matches[1];
                     } catch (e1) {
                         console.error(e1);
                     }
-                    $e99c546f9ac18755$var$lparenOpen = false;
-                    $e99c546f9ac18755$var$debug('30 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$lparenOpen = false;
+                    $0701b6dda164cf78$var$debug('30 yy_.yytext=', yy_.yytext);
                     return [
                         'RPAREN',
                         'ATTR_TEXT'
@@ -10923,26 +10923,26 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                 case 41:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\)\.?\s*(.+)$ */ this.popState();
                     this.pushState('ATTRS_END');
-                    $e99c546f9ac18755$var$debug('40 this.matches=', this.matches);
+                    $0701b6dda164cf78$var$debug('40 this.matches=', this.matches);
                     this.unput(this.matches[2]);
                     yy_.yytext = yy_.yytext.substring(0, yy_.yytext.indexOf(this.matches[1]) + this.matches[1].length);
-                    $e99c546f9ac18755$var$debug('40 yy_.yytext=', yy_.yytext);
-                    $e99c546f9ac18755$var$lparenOpen = false;
+                    $0701b6dda164cf78$var$debug('40 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$lparenOpen = false;
                     return [
                         'RPAREN',
                         'ATTR_TEXT'
                     ];
                 case 42:
                     /*! Conditions:: ATTRS_STARTED */ /*! Rule::       (.+)\.?\s*$ */ this.popState();
-                    $e99c546f9ac18755$var$debug('50 this.matches=', this.matches);
-                    $e99c546f9ac18755$var$debug('50 this.matches.length=', this.matches.length);
-                    $e99c546f9ac18755$var$debug('50 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$debug('50 this.matches=', this.matches);
+                    $0701b6dda164cf78$var$debug('50 this.matches.length=', this.matches.length);
+                    $0701b6dda164cf78$var$debug('50 yy_.yytext=', yy_.yytext);
                     try {
                         if (this.matches.length > 1) yy_.yytext = this.matches[1];
                     } catch (e2) {
                         console.error(e2);
                     }
-                    $e99c546f9ac18755$var$debug('50 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$debug('50 yy_.yytext=', yy_.yytext);
                     return 8;
                 case 43:
                     /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {tag_id} */ this.pushState('AFTER_TAG_NAME');
@@ -10951,7 +10951,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                 case 44:
                     /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {classname} */ // yy_.yytext = this.matches[1].substring(1);
                     yy_.yytext = yy_.yytext.substring(1);
-                    $e99c546f9ac18755$var$debug('60 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$debug('60 yy_.yytext=', yy_.yytext);
                     return 14;
                 case 45:
                     /*! Conditions:: AFTER_TAG_NAME */ /*! Rule::       {classname_relaxed} */ if (this.yy.parser.options.allowDigitToStartClassName) {
@@ -10960,11 +10960,11 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     } else throw new Error('Classnames starting with a digit are not allowed. Set allowDigitToStartClassName to true to allow.');
                     break;
                 case 46:
-                    /*! Conditions:: INITIAL */ /*! Rule::       {space}{2,} */ $e99c546f9ac18755$var$debug('{space}{2,}');
+                    /*! Conditions:: INITIAL */ /*! Rule::       {space}{2,} */ $0701b6dda164cf78$var$debug('{space}{2,}');
                     return 27;
                 case 47:
                     /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{space} */ this.pushState('TEXT');
-                    $e99c546f9ac18755$var$debug('space space');
+                    $0701b6dda164cf78$var$debug('space space');
                     this.unput(' ');
                     return 27;
                 case 48:
@@ -10972,7 +10972,7 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     yy_.yytext = yy_.yytext.substring(1);
                     return 3;
                 case 49:
-                    /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{classname_relaxed} */ $e99c546f9ac18755$var$debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname_relaxed} this.parser.options=', this.parser.options);
+                    /*! Conditions:: AFTER_TAG_NAME AFTER_KEYWORD AFTER_TEXT_TAG_NAME */ /*! Rule::       {space}{classname_relaxed} */ $0701b6dda164cf78$var$debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname_relaxed} this.parser.options=', this.parser.options);
                     if (this.yy.parser.options.allowDigitToStartClassName) {
                         this.pushState('ATTRS_END');
                         yy_.yytext = yy_.yytext.substring(1);
@@ -10981,21 +10981,21 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     break;
                 case 50:
                     /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME */ /*! Rule::       {space} */ this.pushState('ATTRS_END');
-                    $e99c546f9ac18755$var$debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
+                    $0701b6dda164cf78$var$debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
                     return 27;
                 case 51:
                     /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       {space} */ this.pushState('ATTRS_END');
-                    $e99c546f9ac18755$var$debug('<AFTER_KEYWORD>{space}');
+                    $0701b6dda164cf78$var$debug('<AFTER_KEYWORD>{space}');
                     return 27;
                 case 52:
                     /*! Conditions:: ATTRS_END MIXIN_PARAMS_END */ /*! Rule::       {space} */ this.pushState('TEXT');
-                    $e99c546f9ac18755$var$debug('<ATTRS_END>{space}');
+                    $0701b6dda164cf78$var$debug('<ATTRS_END>{space}');
                     return 27;
                 case 54:
-                    /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME NO_MORE_SPACE */ /*! Rule::       .+ */ $e99c546f9ac18755$var$debug('70 yy_.yytext=', yy_.yytext);
+                    /*! Conditions:: AFTER_TAG_NAME AFTER_TEXT_TAG_NAME NO_MORE_SPACE */ /*! Rule::       .+ */ $0701b6dda164cf78$var$debug('70 yy_.yytext=', yy_.yytext);
                     return 3;
                 case 55:
-                    /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       .+ */ $e99c546f9ac18755$var$debug('77 yy_.yytext=', yy_.yytext);
+                    /*! Conditions:: AFTER_KEYWORD */ /*! Rule::       .+ */ $0701b6dda164cf78$var$debug('77 yy_.yytext=', yy_.yytext);
                     return 3;
                 case 56:
                     /*! Conditions:: ATTRS_END MIXIN_PARAMS_END */ /*! Rule::       ={space} */ this.popState();
@@ -11008,10 +11008,10 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     /*! Conditions:: ASSIGNMENT_VALUE */ /*! Rule::       .+ */ this.popState();
                     return 41;
                 case 59:
-                    /*! Conditions:: ATTRS_END */ /*! Rule::       .+ */ $e99c546f9ac18755$var$debug('6 yy_.yytext=', yy_.yytext);
+                    /*! Conditions:: ATTRS_END */ /*! Rule::       .+ */ $0701b6dda164cf78$var$debug('6 yy_.yytext=', yy_.yytext);
                     return 3;
                 case 60:
-                    /*! Conditions:: UNBUF_CODE_START */ /*! Rule::       {space} */ $e99c546f9ac18755$var$debug('<UNBUF_CODE_START>{space}');
+                    /*! Conditions:: UNBUF_CODE_START */ /*! Rule::       {space} */ $0701b6dda164cf78$var$debug('<UNBUF_CODE_START>{space}');
                     return 27;
                 case 62:
                     /*! Conditions:: MIXIN_CALL_START */ /*! Rule::       {classname} */ yy_.yytext = yy_.yytext.substring(1);
@@ -11028,14 +11028,14 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                     /*! Conditions:: MIXIN_CALL_START */ /*! Rule::       {space}$ */ this.popState();
                     break;
                 case 66:
-                    /*! Conditions:: MIXIN_PARAMS_END */ /*! Rule::       :{space}? */ $e99c546f9ac18755$var$debug('75 yy_.yytext=', yy_.yytext);
+                    /*! Conditions:: MIXIN_PARAMS_END */ /*! Rule::       :{space}? */ $0701b6dda164cf78$var$debug('75 yy_.yytext=', yy_.yytext);
                     this.popState();
                     return 6;
                 case 67:
-                    /*! Conditions:: TEXT */ /*! Rule::       .+ */ $e99c546f9ac18755$var$debug('80 yy_.yytext=', yy_.yytext);
+                    /*! Conditions:: TEXT */ /*! Rule::       .+ */ $0701b6dda164cf78$var$debug('80 yy_.yytext=', yy_.yytext);
                     return 3;
                 case 68:
-                    /*! Conditions:: MULTI_LINE_ATTRS */ /*! Rule::       ,?(.*)\) */ $e99c546f9ac18755$var$debug('110 this.matches=', this.matches);
+                    /*! Conditions:: MULTI_LINE_ATTRS */ /*! Rule::       ,?(.*)\) */ $0701b6dda164cf78$var$debug('110 this.matches=', this.matches);
                     this.popState();
                     yy_.yytext = this.matches[1];
                     return 7;
@@ -11050,29 +11050,29 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
                 case 71:
                     /*! Conditions:: MIXIN_PARAMS_STARTED */ /*! Rule::       (.+)(\)) */ this.popState();
                     this.pushState('MIXIN_PARAMS_END');
-                    $e99c546f9ac18755$var$debug('120 this.matches=', this.matches);
-                    $e99c546f9ac18755$var$debug('120 this.matches.length=', this.matches.length);
-                    $e99c546f9ac18755$var$debug('120 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$debug('120 this.matches=', this.matches);
+                    $0701b6dda164cf78$var$debug('120 this.matches.length=', this.matches.length);
+                    $0701b6dda164cf78$var$debug('120 yy_.yytext=', yy_.yytext);
                     try {
                         this.unput(')');
                         if (this.matches.length > 1) yy_.yytext = this.matches[1];
                     } catch (e3) {
                         console.error(e3);
                     }
-                    $e99c546f9ac18755$var$lparenOpen = false;
-                    $e99c546f9ac18755$var$debug('120 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$lparenOpen = false;
+                    $0701b6dda164cf78$var$debug('120 yy_.yytext=', yy_.yytext);
                     return 12;
                 case 72:
                     /*! Conditions:: MIXIN_PARAMS_STARTED */ /*! Rule::       (.+)\.?\s*$ */ this.popState();
-                    $e99c546f9ac18755$var$debug('150 this.matches=', this.matches);
-                    $e99c546f9ac18755$var$debug('150 this.matches.length=', this.matches.length);
-                    $e99c546f9ac18755$var$debug('150 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$debug('150 this.matches=', this.matches);
+                    $0701b6dda164cf78$var$debug('150 this.matches.length=', this.matches.length);
+                    $0701b6dda164cf78$var$debug('150 yy_.yytext=', yy_.yytext);
                     try {
                         if (this.matches.length > 1) yy_.yytext = this.matches[1];
                     } catch (e4) {
                         console.error(e4);
                     }
-                    $e99c546f9ac18755$var$debug('150 yy_.yytext=', yy_.yytext);
+                    $0701b6dda164cf78$var$debug('150 yy_.yytext=', yy_.yytext);
                     return 16;
                 case 73:
                     /*! Conditions:: INITIAL */ /*! Rule::       <!--.+--> */ yy_.yytext = yy_.yytext.slice(4, -3);
@@ -11432,64 +11432,64 @@ $e99c546f9ac18755$var$parser.originalQuoteName = $e99c546f9ac18755$var$parser.qu
     };
     return lexer;
 }();
-$e99c546f9ac18755$var$parser.lexer = $e99c546f9ac18755$var$lexer;
-const $e99c546f9ac18755$var$TEXT_TAGS_ALLOW_SUB_TAGS = false;
-const $e99c546f9ac18755$var$debug = $cjPlG$debug('pug-line-lexer');
-let $e99c546f9ac18755$var$tagAlreadyFound = false;
-let $e99c546f9ac18755$var$obj;
-var $e99c546f9ac18755$var$lparenOpen = false;
-const $e99c546f9ac18755$var$attrResolver = new $cjPlG$AttrResolver();
-function $e99c546f9ac18755$var$rank(type1, type2) {
+$0701b6dda164cf78$var$parser.lexer = $0701b6dda164cf78$var$lexer;
+const $0701b6dda164cf78$var$TEXT_TAGS_ALLOW_SUB_TAGS = false;
+const $0701b6dda164cf78$var$debug = $c1Lgv$debug('line-lexer');
+let $0701b6dda164cf78$var$tagAlreadyFound = false;
+let $0701b6dda164cf78$var$obj;
+var $0701b6dda164cf78$var$lparenOpen = false;
+const $0701b6dda164cf78$var$attrResolver = new $c1Lgv$AttrResolver();
+function $0701b6dda164cf78$var$rank(type1, type2) {
     if (type2 === 'text') return type1;
     else if (type1 === type2) return type1;
     else if (type1 == 'tag' && type2 == 'mixin_call') return type2;
     else if (type1 == 'mixin_call' && type2 == 'tag') return type1;
     else return type1.concat(type2);
 }
-function $e99c546f9ac18755$var$isQuoted(str) {
+function $0701b6dda164cf78$var$isQuoted(str) {
     if (str.trim().slice(-1) === "'" && str.trim().slice(-1) === "'") return true;
     if (str.trim().slice(-1) === '"' && str.trim().slice(-1) === "'") return true;
     return false;
 }
-function $e99c546f9ac18755$var$quote(str) {
+function $0701b6dda164cf78$var$quote(str) {
     return '"' + str + '"';
 }
-function $e99c546f9ac18755$var$unquote(str) {
+function $0701b6dda164cf78$var$unquote(str) {
     return str.trim().slice(1, -1);
 }
-function $e99c546f9ac18755$var$merge(obj, src) {
-    if (obj == undefined || $cjPlG$lodash.isEmpty(obj)) {
-        $e99c546f9ac18755$var$debug('empty/undefined obj, returning src');
+function $0701b6dda164cf78$var$merge(obj, src) {
+    if (obj == undefined || $c1Lgv$lodash.isEmpty(obj)) {
+        $0701b6dda164cf78$var$debug('empty/undefined obj, returning src');
         return src;
-    } else if (src == undefined || $cjPlG$lodash.isEmpty(src)) {
-        $e99c546f9ac18755$var$debug('empty/undefined src, returning obj');
+    } else if (src == undefined || $c1Lgv$lodash.isEmpty(src)) {
+        $0701b6dda164cf78$var$debug('empty/undefined src, returning obj');
         return obj;
     }
     if (Array.isArray(src) && src.length > 0) {
-        src = src.reduce($e99c546f9ac18755$var$merge);
-        $e99c546f9ac18755$var$debug('src reduced to=', src);
+        src = src.reduce($0701b6dda164cf78$var$merge);
+        $0701b6dda164cf78$var$debug('src reduced to=', src);
     }
-    $e99c546f9ac18755$var$debug('merging', obj, src);
+    $0701b6dda164cf78$var$debug('merging', obj, src);
     if (obj.type != 'text' && Object.keys(src).length == 1 && Object.keys(src)[0] == 'children' && src.children.length == 1 && src.children[0].hasOwnProperty('type') && src.children[0].type == 'text') return Object.assign(obj, {
-        val: $e99c546f9ac18755$var$quote(src.children[0].val)
+        val: $0701b6dda164cf78$var$quote(src.children[0].val)
     });
     if (obj.type === 'include' && src.type === 'text') return Object.assign(obj, {
         val: src.val
     });
-    let ret = $cjPlG$lodash.mergeWith(obj, src, function(objValue, srcValue, key, object, source, stack) {
-        $e99c546f9ac18755$var$debug('merging', 'inside _mergeWith', key, objValue, srcValue);
+    let ret = $c1Lgv$lodash.mergeWith(obj, src, function(objValue, srcValue, key, object, source, stack) {
+        $0701b6dda164cf78$var$debug('merging', 'inside _mergeWith', key, objValue, srcValue);
         if (objValue == undefined && srcValue == undefined) return {
         };
         if (objValue == undefined) return srcValue;
         if (srcValue == undefined) return objValue;
-        return $e99c546f9ac18755$var$rank(objValue, srcValue);
+        return $0701b6dda164cf78$var$rank(objValue, srcValue);
     });
-    $e99c546f9ac18755$var$debug('merging', ' returning', ret);
+    $0701b6dda164cf78$var$debug('merging', ' returning', ret);
     return ret;
 }
 // creates nodes of text and/or interpolations
-function $e99c546f9ac18755$var$createElems(text, parser) {
-    const debug = $cjPlG$debug('pug-line-lexer:createElems');
+function $0701b6dda164cf78$var$createElems(text, parser) {
+    const debug = $c1Lgv$debug('line-lexer:createElems');
     const matches1 = text.matchAll(/#[\[\{].*?[\]\}]/g);
     let idx = 0;
     let elems = [];
@@ -11524,22 +11524,22 @@ function $e99c546f9ac18755$var$createElems(text, parser) {
         type: 'text',
         val: text.substring(idx, text.index)
     });
-    debug('returning=', $cjPlG$util.inspect(elems, false, 5));
+    debug('returning=', $c1Lgv$util.inspect(elems, false, 5));
     return elems;
 }
-function $e99c546f9ac18755$var$Parser() {
+function $0701b6dda164cf78$var$Parser() {
     this.yy = {
     };
 }
-$e99c546f9ac18755$var$Parser.prototype = $e99c546f9ac18755$var$parser;
-$e99c546f9ac18755$var$parser.Parser = $e99c546f9ac18755$var$Parser;
-function $e99c546f9ac18755$var$yyparse() {
-    return $e99c546f9ac18755$var$parser.parse.apply($e99c546f9ac18755$var$parser, arguments);
+$0701b6dda164cf78$var$Parser.prototype = $0701b6dda164cf78$var$parser;
+$0701b6dda164cf78$var$parser.Parser = $0701b6dda164cf78$var$Parser;
+function $0701b6dda164cf78$var$yyparse() {
+    return $0701b6dda164cf78$var$parser.parse.apply($0701b6dda164cf78$var$parser, arguments);
 }
-var $e99c546f9ac18755$export$2e2bcd8739ae039 = {
-    parser: $e99c546f9ac18755$var$parser,
-    Parser: $e99c546f9ac18755$var$Parser,
-    parse: $e99c546f9ac18755$var$yyparse
+var $0701b6dda164cf78$export$2e2bcd8739ae039 = {
+    parser: $0701b6dda164cf78$var$parser,
+    Parser: $0701b6dda164cf78$var$Parser,
+    parse: $0701b6dda164cf78$var$yyparse
 };
 
 
@@ -11547,5 +11547,5 @@ var $e99c546f9ac18755$export$2e2bcd8739ae039 = {
 
 
 
-export {$e99c546f9ac18755$export$2e2bcd8739ae039 as Parser, $082ca48d6cb6a5f5$export$2e2bcd8739ae039 as InlineParser, $5355ad80bd576add$export$2e2bcd8739ae039 as AttrsParser};
+export {$0701b6dda164cf78$export$2e2bcd8739ae039 as Parser, $51f63cf6b52326c0$export$2e2bcd8739ae039 as InlineParser, $510a014853e7284e$export$2e2bcd8739ae039 as AttrsParser};
 //# sourceMappingURL=module.js.map

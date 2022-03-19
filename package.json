@@ -1,7 +1,7 @@
 {
-  "name": "pug-line-lexer",
+  "name": "@foo-dog/line-lexer",
   "version": "0.1.0",
-  "description": "Jison generated Pug parser",
+  "description": "Jison generated Foo-Dog and alternate Pug parser",
   "source": "src/index.js",
   "module": "dist/module.js",
   "author": "Adam Koch (aakoch)",
@@ -25,8 +25,9 @@
     "foo dog"
   ],
   "dependencies": {
-    "@foo-dog/attrs": "^0.2.2",
-    "@foo-dog/utils": "^0.2.2",
+    "@foo-dog/attrs": "file:../attrs",
+    "@foo-dog/indent-transformer": "file:../indent-transformer",
+    "@foo-dog/utils": "file:../utils",
     "@gerhobbelt/ast-util": "^0.6.1-4",
     "@gerhobbelt/recast": "^0.15.1-32",
     "@jaredpalmer/wrapline": "^2.0.2",
@@ -36,7 +37,6 @@
     "debug": "^4.3.2",
     "deep-filter": "^1.0.2",
     "hasha": "^5.2.2",
-    "indent-transformer": "^0.2.1",
     "jison-gho": "github:GerHobbelt/jison",
     "lodash": "^4.17.21",
     "pretty-format": "^27.2.0",
@@ -44,6 +44,7 @@
     "through2-objectify": "^0.1.1"
   },
   "devDependencies": {
+    "c8": "^7.11.0",
     "chai": "^4.3.4",
     "dyp": "^1.0.1",
     "filecompare": "^1.0.4",
@@ -52,7 +53,7 @@
     "npm-force-resolutions": "^0.0.10",
     "nyc": "^15.1.0",
     "parcel": "^2.0.1",
-    "tap": "^15.1.5"
+    "tap": "^15.2.3"
   },
   "targets": {
     "module": {
