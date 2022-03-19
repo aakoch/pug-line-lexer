@@ -399,7 +399,7 @@ __module_imports__
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
 
-const debug = debugFunc('pug-line-lexer:inline')
+const debug = debugFunc('line-lexer:inline')
 
 let tagAlreadyFound = false
 let obj

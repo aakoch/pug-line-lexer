@@ -218,7 +218,7 @@ __module_imports__
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
 
-const debug = debugFunc('pug-line-lexer:attrs')
+const debug = debugFunc('line-lexer:attrs')
 
 let tagAlreadyFound = false
 let obj, name, value
@@ -293,7 +293,7 @@ test('id=id', [{ name: 'id', val: 'id'}])
 
 test(`class=['foo', 'bar', 'baz']`, [{ name: 'class', val: "['foo', 'bar', 'baz']" }])
 
-// commenting this all out for now while I test pug-attr {
+// commenting this all out for now while I test attr {
 test(`class='bar'`, [{ name: 'class', val: "'bar'" }])
 // test(`class={foo: true, bar: false, baz: true}`, [{ name: 'class', val: "[ 'foo', 'baz' ]" }])
 // test(`v-for="item in items" :name="item.id" :value="item.name"`, [{

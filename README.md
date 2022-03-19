@@ -1,6 +1,6 @@
-# pug-line-lexer
+# line-lexer
 
-Parses one line at a time. To be used by pug-lexing-transformer.
+Parses one line at a time. To be used by lexing-transformer.
 
 ## Incremental build / WIP
 

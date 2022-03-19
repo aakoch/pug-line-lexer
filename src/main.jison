@@ -1100,7 +1100,7 @@ __module_imports__
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = false
 
-const debug = debugFunc('pug-line-lexer')
+const debug = debugFunc('line-lexer')
 
 let tagAlreadyFound = false
 let obj
@@ -1190,7 +1190,7 @@ function merge(obj, src) {
 
 // creates nodes of text and/or interpolations
 function createElems(text, parser) {
-  const debug = debugFunc('pug-line-lexer:createElems')
+  const debug = debugFunc('line-lexer:createElems')
   const matches1 = text.matchAll(/#[\[\{].*?[\]\}]/g)
   let idx = 0
   let elems = []
