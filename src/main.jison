@@ -13,14 +13,10 @@ tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basef
 keyword             (append|block|case|default|doctype|each|else|extend|extends|for|if|include|mixin|prepend|unless|when|while|yield)\b
 filter              \:[a-z0-9-]+\b
 
-// classname               \.[a-z0-9-]+
 classname               \.-?[_a-zA-Z]+[_a-zA-Z0-9-]*
 classname_relaxed       \.-?[_a-zA-Z0-9]+[_a-zA-Z0-9-]*
 tag_id                  #[a-z0-9-]+
 mixin_call              \+\s*[a-z]+\b
-// conditional             -?(if|else if|else)
-// interpolation_start     #(\{|\[)
-// interpolation           #(?:(\{)(\w+)(?:\s(.+))?(\})|(\[)(\w+)(?:\s(.+))?(\]))
 escaped_text_interpolation (?<!\\)(#\{)([^\}]+)(\})
 unescaped_text_interpolation (?<!\\)('!'\{)([^\}]+)(\})
 tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])

@@ -5,7 +5,7 @@ import debugFunc from 'debug'
 const debug = debugFunc('line-lexer:test')
 import dyp from 'dyp'
 import Parser from '../build/main.js'
-import { AttrResolver } from '@foo-dog/attrs'
+// import { AttrResolver } from '@foo-dog/attrs'
 const parser = Parser.parser
 
 const TEXT_TAGS_ALLOW_SUB_TAGS = true
