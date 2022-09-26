@@ -39,6 +39,7 @@
     "hasha": "^5.2.2",
     "jison-gho": "github:GerHobbelt/jison",
     "lodash": "^4.17.21",
+    "minimist": "^1.2.6",
     "pretty-format": "^27.2.0",
     "replace-in-file": "^6.3.1",
     "through2-objectify": "^0.1.1"
@@ -68,7 +69,7 @@
     "import": "./dist/module.js"
   },
   "resolutions": {
-    "minimist": "1.2.5"
+    "minimist": "1.2.6"
   },
   "type": "module"
 }

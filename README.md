@@ -31,16 +31,41 @@ Clean up dependencies
 
 Try minimist or mri or yargs-parser instead of command-line-args
 
-### Failing tests:
-filters-empty.pug                     inheritance.extend.include.pug        mixin.merge.pug
-filters.coffeescript.pug              inheritance.extend.mixins.block.pug   mixins-copy.pug
-filters.custom.pug                    inheritance.extend.mixins.pug         mixins.pug
-filters.include.pug                   inheritance.extend.pug                namespaces.pug
-filters.inline.pug                    inheritance.extend.whitespace.pug     pipeless-filters.pug
-filters.less.pug                      inline-block-comment.pug              tag-blocks.pug
-filters.markdown.pug                  layout.multi.append.prepend.block.pug tags.self-closing.pug
-filters.nested.pug                    layout.prepend.without-block.pug      xml.pug
-filters.stylus.pug                    mixin-at-end-of-file.pug              yield-before-conditional-head.pug
-filters.verbatim.pug                  mixin-block-with-space.pug            yield-head.pug
-html.pug                              mixin.block-tag-behaviour.pug         yield-title-head.pug
-include-only-text-body.pug            mixin.blocks.pug
+### Failing tests
+#### #1
+mixin.attrs.pug
+```
+LexingError: Error parsing mixins.pug: Internal lexer engine error on line 29: The lex grammar programmer pushed a non-existing condition name "MULTI_LINE_ATTRS_END"; this is a fatal error and should be reported to the application programmer team!
+
+  Erroneous area:
+1: <MULTI_LINE_ATTRS_END>div#interpolation= str + 'interpolated'
+^........................^
+```
+
+#### #2
+mixins.pug
+```
+  Erroneous area:
+1: <MULTI_LINE_ATTRS_END>div#interpolation= str + 'interpolated'
+^........................^
+```
+
+#### #3
+tags.self-closing.pug
+```
+LexingError: Error parsing /Users/aakoch/projects/new-foo/workspaces/lexing-transformer/build/in/tags.self-closing.pug: Lexical error on line 177: Unrecognized text.
+
+Erroneous area:
+1: #{
+^..^
+```
+
+#### #4
+xml.pug (XML not supported because I have limited the set of keywords to HTML)
+```
+LexingError: Error parsing /Users/aakoch/projects/new-foo/workspaces/lexing-transformer/build/in/xml.pug: Lexical error on line 2: Unrecognized text.
+
+Erroneous area:
+1: category(term='some term')/
+^..^
+```

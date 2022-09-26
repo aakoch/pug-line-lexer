@@ -5,8 +5,6 @@
 
 %options case-insensitive
 
-// ID          [A-Z-]+"?"?
-// NUM         ([1-9][0-9]+|[0-9])
 space  [ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]
 tag         (a|abbr|acronym|address|applet|area|article|aside|audio|b|base|basefont|bdi|bdo|bgsound|big|blink|blockquote|body|br|button|canvas|caption|center|cite|code|col|colgroup|content|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fb|fieldset|figcaption|figure|font|foo|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|i|iframe|image|img|input|ins|kbd|keygen|label|legend|li|link|main|map|mark|marquee|math|menu|menuitem|meta|meter|nav|nobr|noembed|noframes|noscript|object|ol|optgroup|option|output|p|param|picture|plaintext|portal|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|section|select|shadow|slot|small|source|spacer|span|strike|strong|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video|wbr|xmp)\b
 
@@ -40,7 +38,7 @@ tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])
 %x ASSIGNMENT_VALUE
 %x COND_START
 %x INTERPOLATION_START
-%x MIXIN_PARAMS_STARTED
+%x MIXIN_PARAMS_START
 %x HTML_COMMENT_STARTED
 %x INTERPOLATION
 %x MIXIN_PARAMS_END
@@ -74,6 +72,7 @@ tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])
 %}
 <INITIAL>{tag}
 %{
+debug('0?')
   this.pushState('AFTER_TAG_NAME');
                                           return 'TAG';
 %}
@@ -99,7 +98,7 @@ else {
 <INITIAL>{mixin_call}
 %{
   yytext = yytext.substring(1);
-  this.pushState('MIXIN_CALL_START');
+  this.pushState('AFTER_MIXIN_NAME');
                                           return 'MIXIN_CALL';
 %}
 
@@ -194,7 +193,7 @@ else {
   yytext = ''
                                            return 'TEXT'; // only because it is an empty object 
 %}
-<INITIAL,AFTER_TAG_NAME,ATTRS_END,MIXIN_CALL_START>'&attributes('[^\)]+')'
+<INITIAL,AFTER_TAG_NAME,ATTRS_END,MIXIN_CALL_START,AFTER_MIXIN_NAME>'&attributes('[^\)]+')'
 %{
   debug("'&attributes('[^\)]+')'")
                                           return 'AT_ATTRS'
@@ -236,17 +235,32 @@ else {
                                           return 'TEXT';
 %}
 
-<AFTER_TAG_NAME>'= '
+<AFTER_TAG_NAME,AFTER_MIXIN_NAME>'= '
 %{
   this.popState();
   this.pushState('ASSIGNMENT_VALUE');
                                           return 'ASSIGNMENT';
 %}
-<AFTER_TAG_NAME,AFTER_ATTRS,AFTER_MIXIN_CALL>': '
+
+<AFTER_TAG_NAME,AFTER_ATTRS,MIXIN_PARAMS,ATTRS_END,AFTER_MIXIN_NAME>':'{space}+
 %{
-  this.popState();
+  debug('74.1 yytext=', yytext)
+  debug('74 popping=', this.popState())
+  debug('74 popping=', this.popState())
+  debug('74 popping=', this.popState())
+  debug('74 popping=', this.popState())
+  //yytext = yytext.trim()
+  debug('74.2 yytext=', yytext)
                                           return 'NESTED_TAG_START';
 %}
+
+//<MIXIN_PARAMS_END>':'{space}?
+//%{
+//  debug('75 yytext=', yytext)
+//  this.popState()
+//                                          return 'NESTED_TAG_START'
+//%}
+
 
 <INITIAL>{filter}
 %{
@@ -259,6 +273,11 @@ else {
   yytext = yytext.substring(1)
                                           return 'FILTER';
 %}
+<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,AFTER_MIXIN_NAME>'()'
+%{
+  debug(`<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'()'`)
+  this.pushState('ATTRS_END');
+%}
 <AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>'('
 %{
   ')' // hack for syntax
@@ -266,7 +285,14 @@ else {
   this.pushState('ATTRS_STARTED');
                                           return 'LPAREN';
 %}
-<ATTRS_END>')'
+<AFTER_MIXIN_NAME>'('
+%{
+  ')' // hack for syntax
+  debug(`<AFTER_MIXIN_NAME>'('`)
+  this.pushState('MIXIN_PARAMS');
+                                          return 'LPAREN';
+%}
+<ATTRS_STARTED,ATTRS_END,MIXIN_PARAMS>')'
 %{
                                           return 'RPAREN';
 %}
@@ -415,20 +441,134 @@ else {
                                           return 'ATTR_TEXT_CONT';
 %}
 
-<AFTER_TAG_NAME>{tag_id}
+
+// Match key='answer' value=answer()
+<MIXIN_PARAMS>(\(.+|.+\().+
+%{
+  '))'
+  debug('15 yytext=', yytext)
+  debug('15 this.matches=', this.matches)
+
+  const stack222 = []
+  let i222 = 0
+  for(; i222 < yytext.length; i222++) {
+    if (/[\)\]}]/.test(yytext[i222])) {
+      debug('match')
+      debug('stack222.peek()=', stack222.peek())
+      if (stack222.length == 0 || stack222.pop() != yytext[i222]) {
+        debug('stack222.length=', stack222.length)
+        break;
+      }
+    }
+    else {
+      switch (yytext[i222]) {
+        case '(':
+          stack222.push(')')
+          break;
+        case '[':
+          stack222.push(']')
+          break;
+        case '{':
+          stack222.push('}')
+          break;
+      }
+    }
+  }
+
+  this.unput(yytext.substring(i222))
+  yytext = yytext.substring(0, i222)
+  debug('115 yytext=', yytext)
+
+  this.popState()
+  this.pushState('ATTRS_END')
+                                          return 'MIXIN_PARAMS';
+%}
+
+
+// Don't match `class= (tags || []).map((tag) => tag.replaceAll(" ", "_")).join(" ")`
+// But match `a.foo(class='bar').baz`
+<MIXIN_PARAMS>([^\)]+)(')')(?!\s*\..+')')
+%{
+  this.popState()
+  this.pushState('ATTRS_END')
+  debug('120 this.matches=', this.matches)
+  debug('120 this.matches.length=', this.matches.length)
+  debug('120 yytext=', yytext)
+  try {
+    this.unput(')');
+    if (this.matches.length > 1) {    
+      yytext = this.matches[1]
+    }
+  }
+  catch (e) {
+    console.error(e)
+  }
+  lparenOpen = false
+  debug('120 yytext=', yytext)
+                                          return 'MIXIN_PARAMS';
+%}
+
+<MIXIN_PARAMS>(.+)')'\s*<<EOF>>
+%{
+  this.popState()
+  debug('130 this.matches=', this.matches)
+  debug('130 this.matches.length=', this.matches.length)
+  debug('130 yytext=', yytext)
+  try {
+    if (this.matches.length > 1) {    
+      yytext = this.matches[1]
+    }
+  }
+  catch (e) {
+    console.error(e)
+  }
+  lparenOpen = false
+  debug('130 yytext=', yytext)
+                                          return ['RPAREN', 'ATTR_TEXT333'];
+%}
+<MIXIN_PARAMS>(.+)')'\.?\s*(.+)<<EOF>>
+%{
+  this.popState()
+  this.pushState('ATTRS_END')
+  debug('140 this.matches=', this.matches)
+  this.unput(this.matches[2])
+  yytext = yytext.substring(0, yytext.indexOf(this.matches[1]) + this.matches[1].length);
+  debug('140 yytext=', yytext)
+  lparenOpen = false
+                                          return ['RPAREN', 'ATTR_TEXT444'];
+%}
+<MIXIN_PARAMS>(.+)\.?\s*<<EOF>>
+%{
+  this.popState()
+  debug('150 this.matches=', this.matches)
+  debug('150 this.matches.length=', this.matches.length)
+  debug('150 yytext=', yytext)
+  try {
+    if (this.matches.length > 1) {    
+      yytext = this.matches[1]
+    }
+  }
+  catch (e) {
+    console.error(e)
+  }
+  debug('150 yytext=', yytext)
+                                          return 'MIXIN_PARAMS_CONT';
+%}
+
+<AFTER_TAG_NAME,AFTER_MIXIN_NAME>{tag_id}
 %{
   this.pushState('AFTER_TAG_NAME');
   yytext = this.matches[1].substring(1)
                                           return 'TAG_ID';
 %}
-<AFTER_TAG_NAME>{classname}
+<AFTER_TAG_NAME,AFTER_MIXIN_NAME>{classname}
 %{
   // yytext = this.matches[1].substring(1);
   yytext = yytext.substring(1);
   debug('60 yytext=', yytext)
                                           return 'CLASSNAME';
 %}
-<AFTER_TAG_NAME>{classname_relaxed}
+<AFTER_TAG_NAME,AFTER_MIXIN_NAME>{classname_relaxed}
 %{
   if (this.yy.parser.options.allowDigitToStartClassName) {
     yytext = yytext.substring(1);
@@ -444,7 +584,7 @@ else {
                                                               return 'SPACE';
 %}
 
-<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{space}
+<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME,AFTER_MIXIN_NAME>{space}{space}
 %{
   this.pushState('TEXT');
   debug('space space');
@@ -454,13 +594,13 @@ else {
 
 // This is a bit to unwind. I added this to counter the affect of allowing a classname directly after the attributes.
 // If I don't allow that, this isn't needed. 
-<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname}
+<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME,AFTER_MIXIN_NAME>{space}{classname}
 %{
   this.pushState('ATTRS_END');
   yytext = yytext.substring(1);
                                           return 'TEXT';
 %}
-<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname_relaxed}
+<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME,AFTER_MIXIN_NAME>{space}{classname_relaxed}
 %{
   debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}{classname_relaxed} this.parser.options=', this.parser.options)
   if (this.yy.parser.options.allowDigitToStartClassName) {
@@ -473,10 +613,10 @@ else {
   }
 %}
 
-<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME>{space}
+<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,AFTER_MIXIN_NAME>{space}
 %{
   this.pushState('ATTRS_END');
-  debug('<AFTER_TAG_NAME,AFTER_KEYWORD,AFTER_TEXT_TAG_NAME>{space}');
+  debug('<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,AFTER_MIXIN_NAME>{space}');
                                                               return 'SPACE';
 %}
 
@@ -494,12 +634,12 @@ else {
   debug('<ATTRS_END>{space}');
                                                               return 'SPACE';
 %}
-<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,ATTRS_END>'.'\s*<<EOF>>             return 'DOT_END';
+<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,ATTRS_END,AFTER_MIXIN_NAME>'.'\s*<<EOF>>             return 'DOT_END';
 
 
 
 
-<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE>.+
+<AFTER_TAG_NAME,AFTER_TEXT_TAG_NAME,NO_MORE_SPACE,AFTER_MIXIN_NAME>.+
 %{
   debug('70 yytext=', yytext);
                                           return 'TEXT';
@@ -510,7 +650,6 @@ else {
   debug('77 yytext=', yytext);
                                           return 'TEXT';
 %}
-
 
 <ATTRS_END,MIXIN_PARAMS_END>'='{space}
 %{
@@ -545,35 +684,47 @@ else {
                                           return 'UNBUF_CODE';
 %}
 
-<MIXIN_CALL_START>{classname}
-%{
-  yytext = yytext.substring(1);
-                                          return 'CLASSNAME';
-%}
+//<MIXIN_CALL_START>{classname}
+//%{
+//  yytext = yytext.substring(1);
+//                                          return 'CLASSNAME';
+//%}
+//
+//<MIXIN_CALL_START>{tag_id}
+//%{
+//  yytext = yytext.substring(1);
+//                                          return 'TAG_ID';
+//%}
+//
+//<MIXIN_PARAMS_START>'('(.+)')'
+//%{
+//  debug('54 this.matches=', this.matches)
+//  //this.popState();
+//  yytext = yytext.substring(1);
+//  debug('54 yytext=', yytext)
+//  this.unput(yytext);
+//                                          //return ['RPAREN', 'MIXIN_PARAMS', 'LPAREN'];
+//                                          return 'LPAREN'
+//%}
 
-<MIXIN_CALL_START>{tag_id}
-%{
-  yytext = yytext.substring(1);
-                                          return 'TAG_ID';
-%}
-
-<MIXIN_CALL_START>'('             
-%{
-  ')'
-  this.popState();
-  this.pushState('MIXIN_PARAMS_STARTED');
-                                          return 'LPAREN';
-%}
-<MIXIN_CALL_START>{space}$             
-%{
-  this.popState();
-%}
-<MIXIN_PARAMS_END>':'{space}?
-%{
-  debug('75 yytext=', yytext)
-  this.popState()
-                                          return 'NESTED_TAG_START'
-%}
+//<MIXIN_CALL_START,MIXIN_PARAMS_START>'('             
+//%{
+//  debug('55 yytext=', yytext)
+//  ')'
+//  this.popState();
+//  this.pushState('MIXIN_PARAMS_START');
+//                                          return 'LPAREN';
+//%}
+//<MIXIN_CALL_START>{space}$             
+//%{
+//  this.popState();
+//%}
+//<MIXIN_PARAMS_END>':'{space}?
+//%{
+//  debug('75 yytext=', yytext)
+//  this.popState()
+//                                          return 'NESTED_TAG_START'
+//%}
 
 // removed "[^{space}]" from the beginning because of COMMENT
 <TEXT>.+
@@ -582,61 +733,82 @@ else {
                                           return 'TEXT';
 %}
 
-<MULTI_LINE_ATTRS>','?(.*)')'
+// TODO: separate out so MIXIN_PARAMS_CONT returns a string for params
+<MULTI_LINE_ATTRS,MIXIN_PARAMS_CONT>','?(.*)')'
 %{
   debug('110 this.matches=', this.matches)
   this.popState();
   yytext = this.matches[1]
                                           return 'ATTR_TEXT_END';
 %}
-<MULTI_LINE_ATTRS>.+                      return 'ATTR_TEXT_CONT';
-<MIXIN_PARAMS_STARTED>')'
-%{
-  this.popState()
-  this.pushState('MIXIN_PARAMS_END')
-  yytext = ''
-                                          return ['RPAREN', 'MIXIN_PARAMS'];
-%}
-
-<MIXIN_PARAMS_STARTED>(.+)(')')
-%{
-  this.popState()
-  this.pushState('MIXIN_PARAMS_END')
-  debug('120 this.matches=', this.matches)
-  debug('120 this.matches.length=', this.matches.length)
-  debug('120 yytext=', yytext)
-  try {
-    this.unput(')');
-    if (this.matches.length > 1) {    
-      yytext = this.matches[1]
-    }
-  }
-  catch (e) {
-    console.error(e)
-  }
-  lparenOpen = false
-  debug('120 yytext=', yytext)
-                                          return 'MIXIN_PARAMS';
-%}
-
-// Can mixin parameters span lines? Yes
-<MIXIN_PARAMS_STARTED>(.+)\.?\s*<<EOF>>
-%{
-  this.popState()
-  debug('150 this.matches=', this.matches)
-  debug('150 this.matches.length=', this.matches.length)
-  debug('150 yytext=', yytext)
-  try {
-    if (this.matches.length > 1) {    
-      yytext = this.matches[1]
-    }
-  }
-  catch (e) {
-    console.error(e)
-  }
-  debug('150 yytext=', yytext)
-                                          return 'MIXIN_PARAMS_START';
-%}
+// TODO: separate out so MIXIN_PARAMS_CONT returns a string for params
+<MULTI_LINE_ATTRS,MIXIN_PARAMS_CONT>.+                      return 'ATTR_TEXT_CONT';
+//<MIXIN_PARAMS_START,MIXIN_PARAMS_END>')'
+//%{
+//  this.popState()
+//  this.pushState('MIXIN_PARAMS_END')
+//  yytext = ''
+//                                          return 'RPAREN';
+//%}
+//
+//<MIXIN_PARAMS_START>(.+)(')'+)
+//%{
+//  //debug('120 this.matches=', this.matches)
+//  //debug('120 yytext=', yytext)
+//  //this.unput(')');
+//  ////yytext = yytext.slice(0, -1)
+//  //debug('120.2 yytext=', yytext)
+//  //return 'MIXIN_PARAMS'
+//  this.popState()
+//  this.pushState('MIXIN_PARAMS_END')
+//  debug('120 this.matches=', this.matches)
+//  debug('120 this.matches.length=', this.matches.length)
+//  debug('120 yytext=', yytext)
+//  debug('120 yytext.slice(-1)=', yytext.slice(-1))
+//  let returnRParens = []
+//  try {
+//    while(yytext.slice(-1) == ')') {
+//    //if(yytext.slice(-1) == ')') {
+//      //this.unput(')');
+//      yytext = yytext.slice(0, -1)
+//  debug('120 in yytext=', yytext)
+//      //debug('120 yytext.slice(-1)=', yytext.slice(-1))
+//      returnRParens.push('RPAREN')
+//     //break;
+//    }
+//    //if (this.matches.length > 1) {    
+//    //  yytext = this.matches[1]
+//    //  debug('120.2 yytext=', yytext)
+//    //  return 'MIXIN_PARAMS'
+//    //}
+//  }
+//  catch (e) {
+//    console.error(e)
+//  }
+//  lparenOpen = false
+//  returnRParens.push('MIXIN_PARAMS')
+//  debug('120 yytext=', yytext)
+//  debug('120 returning ' + returnRParens)
+//                                          return returnRParens;
+//%}
+//
+//// Can mixin parameters span lines? Yes
+//<MIXIN_PARAMS_START>(.+)\.?\s*<<EOF>>
+//%{
+//  debug('151 this.matches=', this.matches)
+//  debug('151 this.matches.length=', this.matches.length)
+//  debug('151 yytext=', yytext)
+//  try {
+//    if (this.matches.length > 1) {    
+//      yytext = this.matches[1]
+//    }
+//  }
+//  catch (e) {
+//    console.error(e)
+//  }
+//  debug('151.2 yytext=', yytext)
+//                                          return 'MIXIN_PARAMS_START';
+//%}
 
 <INITIAL>'<!--'.+'-->'
 %{
@@ -731,6 +903,7 @@ line
   }
   | ATTR_TEXT_END
   {
+    // TODO: MULTI_LINE_ATTRS_END doesn't exist and I need to remove it. Does it need replaced? 
     $$ = { type: 'attrs_end', val: parseAttrs.parse($ATTR_TEXT_END), state: 'MULTI_LINE_ATTRS_END' }
   }
   | ATTR_TEXT_CONT
@@ -753,13 +926,18 @@ line
   {
     $$ = { type: 'unbuf_code_block', state: 'UNBUF_CODE_BLOCK_START' }
   }
+  | line_start tag_part
+  {
+    debug('line_start tag_part, line_start=', $line_start, ', tag_part=', $tag_part)
+    $$ = merge($line_start, $tag_part)
+  }
   ;
 
 line_start
   : first_token
   | tag_part
   {
-    debug('line_start: tag_part')
+    debug('line_start: tag_part =', $tag_part)
   }
   | first_token tag_part+
   {
@@ -790,6 +968,11 @@ line_start
     debug('line_start: first_token tag_part LPAREN ATTR_TEXT_CONT')
     $$ = merge($first_token, [$tag_part, $ATTR_TEXT_CONT])
   }
+//  | first_token tag_part LPAREN MIXIN_PARAMS_CONT
+//  {
+//    debug('line_start: first_token tag_part LPAREN MIXIN_PARAMS_CONT')
+//    $$ = merge($first_token, [$tag_part, $MIXIN_PARAMS_CONT])
+//  }
   | first_token tag_part LPAREN MIXIN_PARAMS RPAREN
   {
     debug('line_start: first_token tag_part LPAREN MIXIN_PARAMS RPAREN')
@@ -839,6 +1022,11 @@ line_start
 
   //   $$ = merge($first_token, { attrs: attrArr1 })
   // }
+  | first_token LPAREN RPAREN
+  {
+    debug('first_token LPAREN RPAREN: first_token=', $first_token)
+    $$ = $first_token
+  }
   | first_token LPAREN MIXIN_PARAMS RPAREN
   {
     debug('first_token LPAREN MIXIN_PARAMS RPAREN: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS)
@@ -857,7 +1045,14 @@ line_start
   | first_token LPAREN MIXIN_PARAMS_START
   {
     debug('first_token LPAREN MIXIN_PARAMS_START: first_token=', $first_token, ', MIXIN_PARAMS_START=', $MIXIN_PARAMS_START)
-    $$ = merge($first_token, { params: $MIXIN_PARAMS_START, state: '_START' })
+    $$ = merge($first_token, { params: $MIXIN_PARAMS_START })
+    $$.state = 'MIXIN_PARAMS_START'
+  }
+  | first_token LPAREN MIXIN_PARAMS_CONT
+  {
+    debug('first_token LPAREN MIXIN_PARAMS_CONT: first_token=', $first_token, ', MIXIN_PARAMS_CONT=', $MIXIN_PARAMS_CONT)
+    $$ = merge($first_token, { params:$MIXIN_PARAMS_CONT })
+    $$.state = 'MIXIN_PARAMS_CONT'
   }
   ;
 
@@ -904,7 +1099,7 @@ first_token
   | MIXIN_CALL
   {
     debug('first_token MIXIN_CALL: $MIXIN_CALL=', $1)
-    $$ = { type: 'mixin_call', name: $1.trim(), state: 'MIXIN_CALL' }
+    $$ = { type: 'mixin_call', name: $1.trim() }
   }
   | KEYWORD
   {
@@ -1030,10 +1225,32 @@ attrs
       console.error('Error parsing ' + $2, e)
     }
   }
+  | LPAREN MIXIN_PARAMS RPAREN
+  {
+    debug('attrs: LPAREN MIXIN_PARAMS RPAREN. MIXIN_PARAMS=', $MIXIN_PARAMS)
+    $$ = { params: $2 }
+  }
   | LPAREN CONDITION RPAREN
   {
     debug('attrs: LPAREN CONDITION RPAREN')
     $$ = { condition: $2 }
+  }
+  | LPAREN attrs RPAREN
+  {
+    //debug('attrs: LPAREN attrs RPAREN')
+    //debug('Calling parseAttrs with ', $2)
+    $$ = $attrs
+    //try {
+    //  const attrs = parseAttrs.parse($2.trim())
+    //  debug('attrs=', attrs)
+    //  attrs.forEach(attr => {
+    //    if (!_.isEmpty(attr)) {
+    //      $$ = merge($$, { attrs: [attr] })
+    //    }
+    //  })
+    //} catch (e) {
+    //  console.error('Error parsing ' + $2, e)
+    //}
   }
   ;
 
