@@ -7,3 +7,5 @@ test.pug
 build
 .DS_Store
 *.iml
+jison/packages/lex-parser/tests/lex/output
+jison/packages/lex-parser/tests/specs/output
