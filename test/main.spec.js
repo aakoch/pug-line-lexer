@@ -43,6 +43,9 @@ const TEXT_TAGS_ALLOW_SUB_TAGS = true
     compareFunc.call({}, actual, expected)
   }
 
+
+
+
 test('<UNBUF_CODE_BLOCK>list = ["uno", "dos", "tres",', {
   type: 'unbuf_code',
   val: 'list = ["uno", "dos", "tres",',
@@ -1099,4 +1102,14 @@ test(`+centered(title).highlight&attributes(attributes)`,  {
   name: 'centered',
   params: 'title',
   attrs: [ { name: 'class', val: '"highlight"' }, { val: 'attributes' } ]
+})
+
+// After a 2 year hiatus, can I get back on the horse?
+// attrs seems to quote differently than I remember
+test(`+centered('Section 2')#Third.foo(href='menu.html', class='bar')`,  {
+  type: 'mixin_call',
+  name: 'centered',
+  params: "'Section 2'",
+  id: 'Third',
+  attrs: [ { name: 'class', val: '"foo"' }, { name: 'href', val: "'menu.html'" }, { name: 'class', val: "'bar'" } ]
 })

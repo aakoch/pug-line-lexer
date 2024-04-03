@@ -1037,6 +1037,12 @@ line_start
     debug('first_token LPAREN MIXIN_PARAMS RPAREN CLASSNAME: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS, ', CLASSNAME', $CLASSNAME)
     $$ = merge($first_token, { params: $MIXIN_PARAMS, attrs: [ { name: 'class', val: quote($CLASSNAME) } ] })
   }
+  // for the specific case: '+centered('Section 2')#Third.foo(href='menu.html', class='bar')'
+  | first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID CLASSNAME
+  {
+    debug('first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID CLASSNAME: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS, ', TAG_ID', $TAG_ID, ', CLASSNAME', $CLASSNAME)
+    $$ = merge($first_token, { params: $MIXIN_PARAMS, id: $TAG_ID, attrs: [ { name: 'class', val: quote($CLASSNAME) } ] })
+  }
   | first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID
   {
     debug('first_token LPAREN MIXIN_PARAMS RPAREN TAG_ID: first_token=', $first_token, ', MIXIN_PARAMS=', $MIXIN_PARAMS, ', TAG_ID', $TAG_ID)
@@ -1216,9 +1222,12 @@ attrs
     try {
       const attrs = parseAttrs.parse($2.trim())
       debug('attrs=', attrs)
-      attrs.forEach(attr => {
-        if (!_.isEmpty(attr)) {
-          $$ = merge($$, { attrs: [attr] })
+      attrs.forEach(attr2 => {
+        debug('attr2=', attr2)
+        debug('_.isEmpty(attr2)=', _.isEmpty(attr2))
+        if (!_.isEmpty(attr2)) {
+          debug('entering block')
+          $$ = merge($$, { attrs: [attr2] })
         }
       })
     } catch (e) {
@@ -1360,20 +1369,20 @@ function unquote(str) {
 function merge(obj, src) {
 
   if (obj == undefined || _.isEmpty(obj)) {
-    debug('empty/undefined obj, returning src')
+    debug('merge', 'empty/undefined obj, returning src')
     return src
   }
   else if (src == undefined || _.isEmpty(src)) {
-    debug('empty/undefined src, returning obj')
+    debug('merge', 'empty/undefined src, returning obj')
     return obj
   }
 
   if (Array.isArray(src) && src.length > 0) {
     src = src.reduce(merge)
-    debug('src reduced to=', src)
+    debug('merge', 'src reduced to=', src)
   }
 
-  debug('merging', obj, src)
+  debug('merge', 'merging', obj, src)
 
   if (obj.type != 'text' && Object.keys(src).length == 1 && Object.keys(src)[0] == 'children' && src.children.length == 1 && src.children[0].hasOwnProperty('type') && src.children[0].type == 'text') {
     return Object.assign(obj, { val: quote(src.children[0].val) })
@@ -1384,7 +1393,7 @@ function merge(obj, src) {
   }
 
   let ret = _.mergeWith(obj, src, function (objValue, srcValue, key, object, source, stack) {
-    debug('merging', 'inside _mergeWith', key, objValue, srcValue)
+    debug('merge', 'merging', 'inside _mergeWith', key, objValue, srcValue)
     if (objValue == undefined && srcValue == undefined) {
        return {}
     }
@@ -1397,7 +1406,7 @@ function merge(obj, src) {
     return rank(objValue, srcValue)
   })
 
-  debug('merging', ' returning', ret)
+  debug('merge', 'merging', ' returning', ret)
   return ret
 }
 
