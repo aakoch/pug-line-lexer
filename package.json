@@ -8,7 +8,6 @@
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf build && rm -rf dist",
-    "preinstall": "npx npm-force-resolutions",
     "test": "scripts/preprocess.sh && DEBUG='*' node test/main.spec.js && DEBUG='*' node test/code.spec.js",
     "build": "scripts/preprocess.sh && parcel build",
     "rebuild": "scripts/preprocess.sh && parcel build",
@@ -40,6 +39,7 @@
     "jison-gho": "github:GerHobbelt/jison",
     "lodash": "^4.17.21",
     "minimist": "^1.2.6",
+    "node-gyp-build": "^4.8.0",
     "pretty-format": "^27.2.0",
     "replace-in-file": "^6.3.1",
     "through2-objectify": "^0.1.1"
@@ -53,7 +53,7 @@
     "mocha": "^9.1.1",
     "npm-force-resolutions": "^0.0.10",
     "nyc": "^15.1.0",
-    "parcel": "^2.0.1",
+    "parcel": "^2.12.0",
     "tap": "^15.2.3"
   },
   "targets": {
