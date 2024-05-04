@@ -1,6 +1,6 @@
 {
   "name": "@foo-dog/line-lexer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Jison generated Foo-Dog and alternate Pug parser",
   "source": "src/index.js",
   "module": "dist/module.js",

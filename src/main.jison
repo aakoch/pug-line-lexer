@@ -14,7 +14,7 @@ filter              \:[a-z0-9-]+\b
 classname               \.-?[_a-zA-Z]+[_a-zA-Z0-9-]*
 classname_relaxed       \.-?[_a-zA-Z0-9]+[_a-zA-Z0-9-]*
 tag_id                  #[a-z0-9-]+
-mixin_call              \+\s*[a-z]+\b
+mixin_call              \+\s*[a-z_]+\b
 escaped_text_interpolation (?<!\\)(#\{)([^\}]+)(\})
 unescaped_text_interpolation (?<!\\)('!'\{)([^\}]+)(\})
 tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])
@@ -30,6 +30,7 @@ tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])
 %x CODE_START
 %x UNBUF_CODE
 %x MULTI_LINE_ATTRS
+%x MULTI_LINE_ATTRS_END
 %x COMMENT
 %x AFTER_ATTRS
 %x AFTER_TEXT_TAG_NAME
@@ -733,14 +734,77 @@ else {
                                           return 'TEXT';
 %}
 
-// TODO: separate out so MIXIN_PARAMS_CONT returns a string for params
-<MULTI_LINE_ATTRS,MIXIN_PARAMS_CONT>','?(.*)')'
+// <MULTI_LINE_ATTRS_END>(')')?
+// %{
+//   this.popState();
+//   debug('MULTI_LINE_ATTRS_END: this.matches=', this.matches['input']);
+// %}
+
+// 2024-05-01 - I thought this was working but evidently not :(
+<MULTI_LINE_ATTRS_END>.*
+%{
+  this.popState();
+  debug('MULTI_LINE_ATTRS_END: this.matches=', this.matches['input']);
+%}
+
+// // TODO: separate out so MIXIN_PARAMS_CONT returns a string for params
+<MULTI_LINE_ATTRS,MIXIN_PARAMS_CONT>','?(.*)')'$
 %{
   debug('110 this.matches=', this.matches)
+
+  const text = this.matches[0];
+
+  let leftParenCount = 0;
+  text.split('').forEach(char => {if (char == '(') { leftParenCount++ }});
+  let rightParenCount = 0;
+  text.split('').forEach(char => {if (char == ')') { rightParenCount++ }});
+
   this.popState();
+  
   yytext = this.matches[1]
+
+  if (leftParenCount >= rightParenCount) {
+                                          return 'ATTR_TEXT_CONT';
+  }
+  else {
                                           return 'ATTR_TEXT_END';
+  }
+
 %}
+
+
+// <MULTI_LINE_ATTRS>','?([_a-zA-Z-:]*)\=(.*)')'?
+// %{
+//   debug('110 this.matches=', this.matches)
+//   this.popState();
+//   yytext = this.matches[1]
+//                                           return 'ATTR_TEXT_END';
+// %}
+
+// <MULTI_LINE_ATTRS>'('?','?([_a-zA-Z-:]*)')'?
+// %{
+//   debug('111 this.matches=', this.matches)
+//   this.popState();
+//   yytext = this.matches[1]
+//                                           return 'ATTR_TEXT_END';
+// %}
+
+// <MULTI_LINE_ATTRS>'('+.*')'+
+// %{
+//   debug('112 this.matches=', this.matches)
+//   this.popState();
+//   yytext = this.matches[1]
+//                                           return 'ATTR_TEXT_END';
+// %}
+
+// <MIXIN_PARAMS_CONT>','?(.*)')'
+// %{
+//   debug('113 this.matches=', this.matches)
+//   this.popState();
+//   yytext = this.matches[1]
+//                                           return 'ATTR_TEXT_END';
+// %}
+
 // TODO: separate out so MIXIN_PARAMS_CONT returns a string for params
 <MULTI_LINE_ATTRS,MIXIN_PARAMS_CONT>.+                      return 'ATTR_TEXT_CONT';
 //<MIXIN_PARAMS_START,MIXIN_PARAMS_END>')'
@@ -903,11 +967,11 @@ line
   }
   | ATTR_TEXT_END
   {
-    // TODO: MULTI_LINE_ATTRS_END doesn't exist and I need to remove it. Does it need replaced? 
-    $$ = { type: 'attrs_end', val: parseAttrs.parse($ATTR_TEXT_END), state: 'MULTI_LINE_ATTRS_END' }
+    $$ = { type: 'attrs_end', val: parseAttrs.parse($ATTR_TEXT_END) }
   }
   | ATTR_TEXT_CONT
   {
+    debug("inside ATTR_TEXT_CONT - setting state to MULTI_LINE_ATTRS");
     $$ = { type: 'attrs_cont', val: parseAttrs.parse($ATTR_TEXT_CONT), state: 'MULTI_LINE_ATTRS' }
   }
   | HTML_COMMENT

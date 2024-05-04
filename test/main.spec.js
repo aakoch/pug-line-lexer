@@ -44,13 +44,61 @@ const TEXT_TAGS_ALLOW_SUB_TAGS = true
   }
 
 
+// test('<MULTI_LINE_ATTRS_END>foo(abc,', {
+//   attrs_start: [
+//     {
+//       name: 'abc'
+//     }
+//   ],
+//   name: 'foo',
+//   state: 'MULTI_LINE_ATTRS',
+//   type: 'tag'
+// })
 
+test('include:markdown-it some.md', {
+  filter: 'markdown-it',
+  state: 'TEXT_START',
+  type: 'include',
+  val: 'some.md'
+})
+
+// test('include:coffee-script(minify=true) include-filter-coffee.coffee', {
+//   filter: 'coffee-script',
+//   state: 'TEXT_START',
+//   type: 'include',
+//   val: 'some.md'
+// })
+
+// test("include:custom(opt='val' num=2) filters.include.custom.pug", {
+//   attrs_start: [
+//     {
+//       name: 'abc'
+//     }
+//   ],
+//   name: 'foo',
+//   state: 'MULTI_LINE_ATTRS',
+//   type: 'tag'
+// })
+  
+test('<INITIAL>a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
+  name: 'a',
+  type: 'tag',
+  attrs: [
+    { name: ':link', val: '"goHere"' },
+    { name: 'value', val: '"static"' },
+    { name: ':my-value', val: '"dynamic"' },
+    { name: '@click', val: '"onClick()"' },
+    { name: ':another', val: '"more"' }
+  ],
+  val: 'Click Me!'
+})
 
 test('<UNBUF_CODE_BLOCK>list = ["uno", "dos", "tres",', {
   type: 'unbuf_code',
   val: 'list = ["uno", "dos", "tres",',
   state: 'UNBUF_CODE_BLOCK'
 })
+
 
 test('li #{n}', {
   name: 'li',
@@ -135,8 +183,7 @@ test(`<MULTI_LINE_ATTRS>(('is regular, javascript')))`, {
     { name: "(('is" },
     { name: 'regular' },
     { name: "javascript'))" }
-  ],
-  state: 'MULTI_LINE_ATTRS_END'
+  ]
 })
 
 // TODO: `val` and `state` are incorrect for MIXIN_PARAMS_CONT. Separate out rules `<MULTI_LINE_ATTRS,MIXIN_PARAMS_CONT>','?(.*)')'` and `<MULTI_LINE_ATTRS,MIXIN_PARAMS_CONT>.+`
@@ -146,8 +193,7 @@ test(`<MIXIN_PARAMS_CONT>(('is regular, javascript')))`, {
     { name: "(('is" },
     { name: 'regular' },
     { name: "javascript'))" }
-  ],
-  state: 'MULTI_LINE_ATTRS_END'
+  ]
 })
 
 test(`+article('Something').aClassname`, {
@@ -583,8 +629,10 @@ test(`div(foo=null bar=bar)&attributes({baz: 'baz'})`, {
 
 test('foo(abc', {type: 'tag', name: 'foo', attrs_start: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
 test('foo(abc,', {type: 'tag', name: 'foo', attrs_start: [ { name: 'abc' }], state: 'MULTI_LINE_ATTRS'})
-test('<MULTI_LINE_ATTRS>,def)', { type: 'attrs_end', val: [ { name: 'def' } ], state: 'MULTI_LINE_ATTRS_END' })
-test('<MULTI_LINE_ATTRS>def)', { type: 'attrs_end', val: [ { name: 'def' } ], state: 'MULTI_LINE_ATTRS_END' })
+test('<MULTI_LINE_ATTRS>,def)', { 
+  type: 'attrs_end', val: [ { name: 'def' } ]})
+test('<MULTI_LINE_ATTRS>def)', { 
+  type: 'attrs_end', val: [ { name: 'def' } ] })
 
 test('span(', {type: 'tag', name: 'span', state: 'MULTI_LINE_ATTRS'})
 test('<MULTI_LINE_ATTRS>v-for="item in items"', {
@@ -602,7 +650,9 @@ test('<MULTI_LINE_ATTRS>:value="item.name"', {
   val: [ { name: ':value', val: '"item.name"' } ],
   state: 'MULTI_LINE_ATTRS'
 })
-test('<MULTI_LINE_ATTRS>)', { type: 'attrs_end', val: '', state: 'MULTI_LINE_ATTRS_END'})
+test('<MULTI_LINE_ATTRS>)', { 
+  type: 'attrs_end', val: ''})
+
 test('a(:link="goHere" value="static" :my-value="dynamic" @click="onClick()" :another="more") Click Me!', {
   name: 'a',
   type: 'tag',
@@ -1113,3 +1163,13 @@ test(`+centered('Section 2')#Third.foo(href='menu.html', class='bar')`,  {
   id: 'Third',
   attrs: [ { name: 'class', val: '"foo"' }, { name: 'href', val: "'menu.html'" }, { name: 'class', val: "'bar'" } ]
 })
+
+// The underscores make this unique
+test(`+work_filmstrip_item('work')`,
+{
+  name: 'work_filmstrip_item',
+  params: "'work'",
+  type: 'mixin_call'
+});
+
+
