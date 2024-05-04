@@ -9,3 +9,4 @@ build
 *.iml
 jison/packages/lex-parser/tests/lex/output
 jison/packages/lex-parser/tests/specs/output
+.parcel-cache
