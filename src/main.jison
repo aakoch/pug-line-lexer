@@ -18,6 +18,7 @@ mixin_call              \+\s*[a-z_]+\b
 escaped_text_interpolation (?<!\\)(#\{)([^\}]+)(\})
 unescaped_text_interpolation (?<!\\)('!'\{)([^\}]+)(\})
 tag_interpolation (?<!\\)(#\[)(\w+)(?:\(([^\)\n]*)\))?\s(.*?)(\])
+conditional 
 
 %x TEXT
 %x TEXT_START
@@ -112,9 +113,9 @@ else {
 <INITIAL>{conditional}
 %{
   this.pushState('COND_START');
-  if (yytext.startsWith('-')) {
-    yytext = yytext.substring(1);
-  }
+//  if (yytext.startsWith('-')) {
+//    yytext = yytext.substring(1);
+//  }
                                           return 'CONDITIONAL';
 %}
 <COND_START>'('
